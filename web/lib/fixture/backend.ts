@@ -274,7 +274,9 @@ function response(s: FxState): PassportResponse {
       free_previews_left: 0, price_cny: 39, locked,
     },
     media: {
-      front, thumb: front, expires_at: new Date(s.createdAt + 24 * 3600e3).toISOString(), expired: false,
+      // a sample passport (createdAt 0) is a fixed synthetic image that never expires, like the public sample report;
+      // otherwise its photo would "expire" in 1970 and the report would claim a photo that is on screen was deleted
+      front, thumb: front, expires_at: s.createdAt ? new Date(s.createdAt + 24 * 3600e3).toISOString() : null, expired: false,
       // uploads: the person's own photos (no geometry → no lines on them); samples: the synthetic illustrations
       photos: photos.has(s.id)
         ? { front, ...(rolePhotos.get(s.id) ?? {}) }

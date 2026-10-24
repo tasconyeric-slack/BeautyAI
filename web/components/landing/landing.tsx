@@ -1,3 +1,4 @@
+import { Check } from "lucide-react";
 import Link from "next/link";
 import type { ReactNode } from "react";
 import type { SwatchColor } from "@/components/ds";
@@ -6,7 +7,7 @@ import { Scaled } from "@/components/passport/scaled";
 import { ScoreHero } from "@/components/profile/score-hero";
 import { aestheticScore as scoreCopy, common, landing, privacy, report as reportCopy, topics } from "@/lib/copy/zh";
 import {
-  LANDING_CASES, SAMPLE_HREF, SAMPLE_REPORT_HREF, SAMPLE_SCORE, SAMPLE_SCORE_HREF, SHOWCASE, sampleReportPreview, TOPIC_KEYS, TOPIC_NAMES, heroCase, heroRows, startHref,
+  HERO_SAMPLE, LANDING_CASES, SAMPLE_HREF, SAMPLE_REPORT_HREF, SAMPLE_SCORE, SAMPLE_SCORE_HREF, SHOWCASE, sampleReportPreview, TOPIC_KEYS, TOPIC_NAMES, heroCase, heroRows, startHref,
   type LandingCase, type Topic,
 } from "./cases";
 import { LandingView } from "./client";
@@ -32,24 +33,45 @@ export function Landing({ topic = null, refCode = null }: { topic?: Topic | null
 
 function Hero({ topic, title, subtitle, start }: { topic: Topic | null; title: string; subtitle: string; start: string }) {
   return (
-    <section className="mx-auto grid max-w-5xl gap-7 px-4 pb-12 pt-7 sm:px-6 md:grid-cols-[1.05fr_1fr] md:items-center md:gap-12 md:pb-16 md:pt-16">
+    <section className="mx-auto grid max-w-5xl gap-8 px-4 pb-12 pt-7 sm:px-6 md:grid-cols-[minmax(0,1fr)_minmax(0,420px)] md:items-center md:gap-12 md:pb-16 md:pt-12">
       <div>
         <p className="text-[11px] tracking-[0.24em] text-muted">
           {topic ? <><span className="text-accent">{TOPIC_NAMES[topic]}</span> · 形象护照</> : "形象护照 · AESTHETIC PASSPORT"}
         </p>
         <h1 className="mt-3 text-balance font-serif text-[27px] font-bold leading-[1.42] text-ink sm:text-[40px]">{title}</h1>
         <p className="mt-3 max-w-[30em] text-[14.5px] leading-7 text-ink-soft sm:text-[16px]">{subtitle}</p>
-        <Link
-          href={start}
-          data-cta="primary"
-          className="mt-6 flex h-12 w-full items-center justify-center rounded-full bg-accent px-8 text-[15px] font-medium tracking-[0.04em] text-[var(--ap-on-primary)] transition-opacity duration-150 hover:opacity-90 sm:inline-flex sm:w-auto"
-        >
-          {landing.primaryAction}
-        </Link>
-        <p className="mt-3 text-[12px] leading-5 text-muted">{privacy.facts[1]}</p>
+        <div className="mt-6 flex flex-col gap-3 sm:flex-row sm:items-center">
+          <Link
+            href={start}
+            data-cta="primary"
+            className="flex h-12 w-full items-center justify-center rounded-full bg-accent px-8 text-[15px] font-medium tracking-[0.04em] text-[var(--ap-on-primary)] transition-opacity duration-150 hover:opacity-90 sm:inline-flex sm:w-auto"
+          >
+            {landing.primaryAction}
+          </Link>
+          <Link
+            href={SAMPLE_REPORT_HREF}
+            data-testid="landing-hero-sample"
+            className="flex h-12 w-full items-center justify-center rounded-full border border-ink/30 px-6 text-[14px] font-medium text-ink transition-colors hover:border-ink hover:bg-ink hover:text-paper sm:inline-flex sm:w-auto"
+          >
+            {landing.secondaryAction} →
+          </Link>
+        </div>
+        <ul aria-label={landing.privacyLabel} data-testid="hero-privacy" className="mt-4 space-y-1 text-[12.5px] leading-5 text-muted">
+          {privacy.facts.map((f) => (
+            <li key={f} className="flex gap-2"><Check aria-hidden className="mt-[3px] size-3.5 shrink-0 text-accent" />{f}</li>
+          ))}
+        </ul>
+        <ol aria-label={landing.journeyLabel} data-testid="hero-journey" className="mt-6 grid gap-px overflow-hidden rounded-[12px] border border-rule bg-rule sm:grid-cols-3">
+          {landing.journey.map((j, i) => (
+            <li key={j.title} className="bg-paper-raised px-3.5 py-3">
+              <p className="flex items-baseline gap-1.5"><span aria-hidden className="font-mono text-[11px] text-amber">0{i + 1}</span><span className="font-serif text-[15px] font-semibold">{j.title}</span></p>
+              <p className="mt-1 text-[12px] leading-5 text-muted">{j.body}</p>
+            </li>
+          ))}
+        </ol>
         <TopicLine current={topic} />
       </div>
-      <HeroCard c={heroCase} topic={topic} />
+      <HeroSample c={heroCase} topic={topic} />
     </section>
   );
 }
@@ -75,42 +97,63 @@ function TopicLine({ current }: { current: Topic | null }) {
   );
 }
 
-function HeroCard({ c, topic }: { c: LandingCase; topic: Topic | null }) {
+/** The deliverable, up front: the sample passport's result sheet — drawn synthetic face, its computed score, the facts the
+ * topic asked about and the first action — labeled as a synthetic example at the top, not a live analysis. */
+function HeroSample({ c, topic }: { c: LandingCase; topic: Topic | null }) {
   const href = c.passportId ? `/p/${c.passportId}${topic ? `/${topic}` : ""}` : SAMPLE_HREF;
+  const { score, portrait, firstAction } = HERO_SAMPLE;
   return (
-    <Link href={href} className="group block overflow-hidden rounded-[16px] bg-[var(--ap-stage)] text-stage-ink shadow-[0_18px_40px_-24px_rgba(20,22,24,0.55)]">
-      <div className="flex items-stretch">
-        <div className="relative w-[104px] shrink-0 self-stretch bg-[#1c1f22] sm:w-[148px]">
-          <div className="absolute inset-x-0 bottom-0 aspect-[500/560]"><IllustratedAvatar {...c.avatar} label="插画示意头像" /></div>
+    <aside aria-label="示例成果" data-testid="hero-sample" className="overflow-hidden rounded-[18px] border border-rule bg-paper-raised shadow-[0_18px_40px_-26px_rgba(20,22,24,0.45)]">
+      <div className="flex flex-wrap items-center justify-between gap-x-3 gap-y-0.5 border-b border-rule bg-amber-soft px-4 py-2 text-[11.5px] text-amber">
+        <span className="font-medium">{landing.sampleBadge}</span>
+        <span>{landing.sampleNotLive}</span>
+      </div>
+      <div className="grid grid-cols-[112px_minmax(0,1fr)] gap-4 p-4 sm:grid-cols-[132px_minmax(0,1fr)]">
+        <div className="self-start overflow-hidden rounded-[10px] bg-[var(--ap-stage)]">
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img src={portrait} alt="合成示例人脸（程序绘制，非真人）" className="block aspect-[4/5] w-full object-cover" />
         </div>
-        <div className="min-w-0 flex-1 px-4 py-3.5">
-          <p className="text-[10px] tracking-[0.2em] text-stage-muted">{c.label} · 示例档案</p>
-          <dl className="mt-2 space-y-1.5 text-[13px] leading-[1.6]">
+        <div className="min-w-0">
+          {score?.score != null && (
+            <p className="flex items-baseline gap-2" data-testid="hero-score">
+              <span className="font-serif text-[40px] font-semibold leading-none tabular-nums">{score.score}</span>
+              <span className="text-[11px] leading-4 text-muted">/ 100<br />{scoreCopy.title}</span>
+            </p>
+          )}
+          {score?.tier && <p className="mt-1 text-[12.5px] font-medium">{score.tier} · <span className="font-normal text-muted">模型参考，不评价长相</span></p>}
+          <dl className="mt-3 space-y-1.5 text-[13px] leading-[1.6]">
             {heroRows(c, topic).map((r, i) => (
               <div key={i} className="flex gap-3">
-                <dt className="w-[4.2em] shrink-0 whitespace-nowrap text-stage-muted">{r.label}</dt>
+                <dt className="w-[3.6em] shrink-0 whitespace-nowrap text-muted">{r.label}</dt>
                 <dd className="min-w-0">
                   {r.value && <span>{r.value}</span>}
-                  {r.swatches && <Chips colors={r.swatches} spaced={Boolean(r.value)} />}
+                  {r.swatches && <Chips colors={r.swatches} spaced={Boolean(r.value)} dark={false} />}
                 </dd>
               </div>
             ))}
           </dl>
         </div>
       </div>
-      <div className="flex items-center justify-between gap-3 border-t border-white/10 px-4 py-2.5 text-[12px]">
-        <span className="min-w-0 text-stage-muted">{topic ? topics[topic].example : c.summary}</span>
-        <span className="shrink-0 text-stage-ink transition-transform duration-150 group-hover:translate-x-0.5">看示例 →</span>
-      </div>
-    </Link>
+      {firstAction && (
+        <div className="border-t border-rule px-4 py-3">
+          <p className="text-[11px] tracking-[0.16em] text-muted">{landing.sampleFirstAction}</p>
+          <p className="mt-1 font-serif text-[14.5px] leading-6">{firstAction}</p>
+        </div>
+      )}
+      <p className="border-t border-rule px-4 pb-0 pt-2 text-[11.5px] leading-5 text-muted">{landing.sampleScoreNote}</p>
+      <Link href={href} data-testid="hero-sample-open" className="group mt-2 flex items-center justify-between gap-3 border-t border-rule bg-paper px-4 py-3 text-[13px] font-medium hover:text-accent">
+        <span className="min-w-0 truncate">{topic ? topics[topic].example : landing.sampleOpen}</span>
+        <span aria-hidden className="shrink-0 transition-transform duration-150 group-hover:translate-x-0.5">→</span>
+      </Link>
+    </aside>
   );
 }
 
-function Chips({ colors, spaced }: { colors: SwatchColor[]; spaced?: boolean }) {
+function Chips({ colors, spaced, dark = true }: { colors: SwatchColor[]; spaced?: boolean; dark?: boolean }) {
   return (
     <span className={`flex gap-1 ${spaced ? "mt-1" : "mt-[3px]"}`}>
       {colors.map((s) => (
-        <span key={s.hex} title={s.name_zh} className="h-3.5 w-5 rounded-[2px] ring-1 ring-white/15" style={{ background: s.hex }} />
+        <span key={s.hex} title={s.name_zh} className={`h-3.5 w-5 rounded-[2px] ring-1 ${dark ? "ring-white/15" : "ring-black/10"}`} style={{ background: s.hex }} />
       ))}
       <span className="sr-only">{colors.map((s) => s.name_zh).join("、")}</span>
     </span>

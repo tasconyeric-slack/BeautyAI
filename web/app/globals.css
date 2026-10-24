@@ -91,6 +91,13 @@
   }
 }
 
+/* In-page anchors and scrollIntoView() land below the sticky header, and below the desktop step bar when a passport
+   page shows it (components/passport/shell.tsx, `data-journey-bar`). */
+html { scroll-padding-top: 4.5rem; }
+@media (min-width: 768px) {
+  html:has([data-journey-bar]) { scroll-padding-top: 6.5rem; }
+}
+
 /* Skeleton shimmer for pending states */
 @keyframes ap-shimmer {
   0% { background-position: -400px 0; }

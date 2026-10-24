@@ -8,7 +8,7 @@
  *  The same component renders a real passport (/p/[id]/report) and the public synthetic sample (/report/sample).
  *  Entitlement is the server's: a free view already lacks paid content, so the report shows what is present and
  *  says plainly what the full passport adds — it never hides or fabricates anything on the client. */
-import { ArrowUpRight, Check, Lock, Minus } from "lucide-react";
+import { ArrowRight, ArrowUpRight, Check, ChevronUp, Lock, Minus } from "lucide-react";
 import Link from "next/link";
 import * as React from "react";
 import { ConfidenceNote, StylePlane } from "@/components/ds";
@@ -17,6 +17,7 @@ import { useGeometry } from "@/components/face/face-page";
 import { faceShape } from "@/components/face/face-model";
 import { CONFIDENCE_ZH, measureView, type MeasureView } from "@/components/face/measure-model";
 import { RangeBar } from "@/components/face/workbench";
+import { journeyHref } from "@/components/passport/journey";
 import { Portrait } from "@/components/passport/portrait";
 import { Locked, Pill } from "@/components/passport/ui";
 import { isMockPassport } from "@/components/passport/shell";
@@ -31,8 +32,8 @@ import { usePassport } from "@/lib/state/passport-store";
 import { cn } from "@/lib/utils";
 import { ReportPdfExport } from "./export-pdf";
 import {
-  CHAPTER_KEYS, chapterNo, previewNote, regionCrop, regionViews,
-  type ChapterKey, type PreviewNote, type RegionView,
+  CHAPTER_KEYS, chapterNo, evidenceLinks, pickActive, previewNote, regionCrop, regionViews,
+  type ChapterKey, type EvidenceLinks, type PreviewNote, type RecRef, type RegionView,
 } from "./report-model";
 
 export function FullReport({ sample = false }: { sample?: boolean }) {
@@ -42,27 +43,31 @@ export function FullReport({ sample = false }: { sample?: boolean }) {
   const geometry = useGeometry(id, !expired && Boolean(passport?.measurement_profile));
   const locked = data?.entitlement.locked;
   const mv = React.useMemo(() => (passport ? measureView(passport, id, locked ?? []) : null), [passport, id, locked]);
+  const regions = React.useMemo(() => (passport && mv ? regionViews(passport, mv) : []), [passport, mv]);
+  const links = React.useMemo(() => (passport ? evidenceLinks(passport, regions) : null), [passport, regions]);
   if (!passport || !data) return null;
   const paid = data.entitlement.paid;
   // synthetic sample, fixture data or mock providers: the score is labeled as a sample, never as a person's result
   const mock = sample || isMockPassport(kind, passport);
   const base = `/p/${id}`;
   return (
-    <article className="mx-auto max-w-6xl px-4 pb-16 sm:px-6" data-testid="full-report" data-paid={paid ? "1" : "0"} data-sample={sample ? "1" : "0"}>
+    <article aria-label={copy.title} className="mx-auto max-w-6xl px-4 pb-16 sm:px-6" data-testid="full-report" data-paid={paid ? "1" : "0"} data-sample={sample ? "1" : "0"}>
       <Cover p={passport} data={data} sample={sample} />
+      <Glance p={passport} mv={mv} regions={regions} mock={mock} />
       <ReportPdfExport data={data} sample={sample} geometry={geometry} className="mt-6"
         demo={sample || !isMockPassport(kind, passport) ? null : kind === "fixture" ? "fixture" : "mock"} />
       {!paid && <FreeScope id={id} sample={sample} price={data.entitlement.price_cny} />}
       <div className="mt-10 lg:grid lg:grid-cols-[200px_minmax(0,1fr)] lg:gap-12">
-        <Toc />
+        <Toc sample={sample} regions={regions} />
         <div className="min-w-0 max-w-3xl">
           <Overview p={passport} base={base} mock={mock} mv={mv} />
-          <Findings p={passport} mv={mv} geometry={geometry} src={expired ? null : data.media.front} expired={expired} base={base} />
+          <Findings p={passport} mv={mv} geometry={geometry} src={expired ? null : data.media.front} expired={expired} base={base} regions={regions} links={links} />
           <Interpretation p={passport} base={base} />
-          <Improvements p={passport} base={base} />
+          <Improvements p={passport} base={base} links={links} />
           <Options p={passport} data={data} base={base} />
           <Plan p={passport} data={data} />
           <Methods p={passport} data={data} mv={mv} sample={sample} />
+          {!sample && <ReportNext id={id} />}
         </div>
       </div>
     </article>
@@ -99,18 +104,90 @@ function Cover({ p, data, sample }: { p: Passport; data: PassportResponse; sampl
   );
 }
 
-function Toc() {
+/** Four things to know before reading anything: each links into the chapter that backs it up. */
+function Glance({ p, mv, regions, mock }: { p: Passport; mv: MeasureView | null; regions: RegionView[]; mock: boolean }) {
+  const score = aestheticScore(p);
+  const first = rankedRecs(p)[0];
+  const strength = p.analysis.feature_signature[0];
+  const items = [
+    { key: "score", href: "#overview", label: "参考分",
+      value: score?.score != null ? `${score.score}${score.tier ? ` · ${score.tier}` : ""}` : "这张照片暂时给不出总分",
+      note: mock ? scoreCopy.sample : "模型参考，不评价长相" },
+    { key: "strength", href: "#interpretation", label: "相对突出", value: strength?.title ?? "—", note: strength ? stripRefs(strength.styling_implication) : "" },
+    { key: "first", href: first ? `#rec-${first.id}` : "#improvements", label: copy.leverage, value: first?.action ?? "—",
+      note: first ? [first.categoryZh, first.time, first.cost].filter(Boolean).join(" · ") : "" },
+    { key: "coverage", href: "#findings", label: "测量覆盖", value: mv ? `${mv.totalMeasured} / ${mv.totalDefined} 项` : "旧版档案",
+      note: mv ? `${regions.filter((r) => r.measured > 0).length} 个部位 · 来自照片关键点` : "没有按部位的测量" },
+  ];
   return (
-    <nav aria-label={copy.toc} className="no-print mb-8 lg:mb-0">
-      <div className="rounded-[14px] border border-rule bg-paper-raised p-4 lg:sticky lg:top-6 lg:border-0 lg:bg-transparent lg:p-0">
+    <section aria-label="本页要点" data-testid="report-glance" className="no-print mt-6 grid gap-px overflow-hidden rounded-[14px] border border-rule bg-rule sm:grid-cols-2 lg:grid-cols-4">
+      {items.map((i) => (
+        <a key={i.key} href={i.href} data-glance={i.key} className="block bg-paper-raised px-4 py-3 hover:bg-paper-sunk">
+          <p className="text-[11px] tracking-[0.14em] text-muted">{i.label}</p>
+          <p className="mt-1 line-clamp-2 font-serif text-[15.5px] leading-6">{i.value}</p>
+          {i.note && <p className="mt-0.5 line-clamp-2 text-[12px] leading-5 text-muted">{i.note}</p>}
+        </a>
+      ))}
+    </section>
+  );
+}
+
+/** Scrolls to an in-page target with the smooth motion only when the visitor has not asked for less, moves keyboard
+ *  focus to its heading (so the next Tab continues from there) and keeps the address in step. */
+function goTo(e: React.MouseEvent, id: string) {
+  const el = document.getElementById(id);
+  if (!el) return;
+  e.preventDefault();
+  const calm = typeof window.matchMedia === "function" && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  el.scrollIntoView({ behavior: calm ? "auto" : "smooth", block: "start" });
+  try { history.replaceState(null, "", `#${id}`); } catch { /* ignore */ }
+  el.querySelector<HTMLElement>("h2, h3")?.focus({ preventScroll: true });
+}
+
+/** The reading line sits just below the sticky header and step bar. */
+const READING_LINE = 140;
+
+function Toc({ sample, regions }: { sample: boolean; regions: RegionView[] }) {
+  const [active, setActive] = React.useState<ChapterKey>(CHAPTER_KEYS[0]);
+  React.useEffect(() => {
+    let raf = 0;
+    const measure = () => {
+      raf = 0;
+      const tops = CHAPTER_KEYS.map((k) => document.getElementById(k)?.getBoundingClientRect().top ?? Number.POSITIVE_INFINITY);
+      const atEnd = window.scrollY > 0 && window.innerHeight + window.scrollY >= document.documentElement.scrollHeight - 4;
+      setActive(CHAPTER_KEYS[atEnd ? CHAPTER_KEYS.length - 1 : pickActive(tops, READING_LINE)]);
+    };
+    const on = () => { if (!raf) raf = requestAnimationFrame(measure); };
+    measure();
+    window.addEventListener("scroll", on, { passive: true });
+    window.addEventListener("resize", on);
+    return () => {
+      cancelAnimationFrame(raf);
+      window.removeEventListener("scroll", on);
+      window.removeEventListener("resize", on);
+    };
+  }, []);
+  return (
+    <nav id="report-toc" aria-label={copy.toc} className="no-print mb-8 lg:mb-0">
+      <div className={cn("rounded-[14px] border border-rule bg-paper-raised p-4 lg:sticky lg:max-h-[calc(100vh-8rem)] lg:overflow-y-auto lg:border-0 lg:bg-transparent lg:p-0",
+        // below the sticky header (and, on a real passport, the step bar)
+        sample ? "lg:top-[4.5rem]" : "lg:top-[7.25rem]")}>
         <p className="text-[11px] tracking-[0.18em] text-muted">{copy.toc}</p>
         <ol className="mt-2 grid gap-1 text-[13.5px] sm:grid-cols-2 lg:grid-cols-1">
           {CHAPTER_KEYS.map((k) => (
             <li key={k}>
-              <a href={`#${k}`} className="flex gap-2 rounded-[8px] py-1 hover:text-accent">
+              <a href={`#${k}`} onClick={(e) => goTo(e, k)} aria-current={active === k ? "location" : undefined} data-toc={k}
+                className={cn("flex gap-2 rounded-[8px] py-1 hover:text-accent", active === k && "font-medium text-accent")}>
                 <span className="tnum font-mono text-[12px] leading-6 text-amber">{chapterNo(k)}</span>
                 <span>{copy.chapters[k].title}</span>
               </a>
+              {k === "findings" && regions.length > 0 && (
+                <ol className="mb-1 ml-7 hidden space-y-0.5 text-[12.5px] text-ink-soft lg:block" aria-label="按部位跳转">
+                  {regions.map((r) => (
+                    <li key={r.key}><a href={`#area-${r.key}`} onClick={(e) => goTo(e, `area-${r.key}`)} className="block rounded-[6px] py-0.5 hover:text-accent">{r.title}</a></li>
+                  ))}
+                </ol>
+              )}
             </li>
           ))}
         </ol>
@@ -121,11 +198,14 @@ function Toc() {
 
 function Chapter({ k, children }: { k: ChapterKey; children: React.ReactNode }) {
   return (
-    <section id={k} aria-labelledby={`${k}-title`} data-chapter={k} className="scroll-mt-6 border-t border-rule pb-4 pt-10 first:border-t-0 first:pt-0">
+    <section id={k} aria-labelledby={`${k}-title`} data-chapter={k} className="border-t border-rule pb-4 pt-10 first:border-t-0 first:pt-0">
       <p className="font-mono text-[12px] tracking-[0.2em] text-amber">{chapterNo(k)}</p>
-      <h2 id={`${k}-title`} className="mt-1 font-serif text-[24px] font-semibold leading-snug sm:text-[28px]">{copy.chapters[k].title}</h2>
+      <h2 id={`${k}-title`} tabIndex={-1} className="mt-1 font-serif text-[24px] font-semibold leading-snug focus:outline-none sm:text-[28px]">{copy.chapters[k].title}</h2>
       <p className="mt-1 max-w-[36em] text-[14px] leading-7 text-ink-soft">{copy.chapters[k].sub}</p>
       <div className="mt-6">{children}</div>
+      <p className="no-print mt-6 text-right text-[12px] lg:hidden">
+        <a href="#report-toc" className="inline-flex items-center gap-0.5 text-muted hover:text-accent"><ChevronUp className="size-3.5" aria-hidden />回到目录</a>
+      </p>
     </section>
   );
 }
@@ -295,10 +375,10 @@ function HarmonyChart({ view }: { view: ScoreView }) {
 
 // --- 02 findings -----------------------------------------------------------------------------------------------
 
-function Findings({ p, mv, geometry, src, expired, base }: {
+function Findings({ p, mv, geometry, src, expired, base, regions, links }: {
   p: Passport; mv: MeasureView | null; geometry: ReturnType<typeof useGeometry>; src: string | null; expired: boolean; base: string;
+  regions: RegionView[]; links: EvidenceLinks | null;
 }) {
-  const regions = React.useMemo(() => (mv ? regionViews(p, mv) : []), [p, mv]);
   const shape = faceShape(p);
   return (
     <Chapter k="findings">
@@ -323,18 +403,18 @@ function Findings({ p, mv, geometry, src, expired, base }: {
           <Link href="/start?topic=face" className="ml-1 text-accent underline-offset-4 hover:underline">重新上传获得深度测量</Link>
         </p>
       )}
-      {regions.map((r) => <Region key={r.key} r={r} geometry={geometry} src={src} expired={expired} base={base} />)}
+      {regions.map((r) => <Region key={r.key} r={r} geometry={geometry} src={src} expired={expired} base={base} recs={links?.byRegion[r.key] ?? []} />)}
     </Chapter>
   );
 }
 
-function Region({ r, geometry, src, expired, base }: {
-  r: RegionView; geometry: ReturnType<typeof useGeometry>; src: string | null; expired: boolean; base: string;
+function Region({ r, geometry, src, expired, base, recs }: {
+  r: RegionView; geometry: ReturnType<typeof useGeometry>; src: string | null; expired: boolean; base: string; recs: RecRef[];
 }) {
   return (
-    <section className="mt-10" data-region={r.key} aria-labelledby={`region-${r.key}`}>
+    <section id={`area-${r.key}`} className="mt-10" data-region={r.key} aria-labelledby={`region-${r.key}`}>
       <div className="flex flex-wrap items-baseline justify-between gap-2 border-b border-rule pb-2">
-        <h3 id={`region-${r.key}`} className="font-serif text-[20px] font-semibold">{r.title}</h3>
+        <h3 id={`region-${r.key}`} tabIndex={-1} className="font-serif text-[20px] font-semibold focus:outline-none">{r.title}</h3>
         <span className="tnum text-[12px] text-muted">{copy.measuredOf} {r.measured} / {r.total}</span>
       </div>
       <div className="mt-4 grid gap-5 md:grid-cols-[220px_minmax(0,1fr)]">
@@ -398,6 +478,17 @@ function Region({ r, geometry, src, expired, base }: {
             </div>
           )}
         </div>
+      )}
+      {recs.length > 0 && (
+        <p className="mt-4 flex flex-wrap items-center gap-x-2 gap-y-1.5 text-[12.5px]" data-testid={`region-recs-${r.key}`}>
+          <span className="text-muted">这些发现支撑的建议</span>
+          {recs.map((x) => (
+            <a key={x.recId} href={`#rec-${x.recId}`} onClick={(e) => goTo(e, `rec-${x.recId}`)} title={x.action}
+              className="inline-flex max-w-full items-center gap-1.5 rounded-full bg-accent-soft px-2.5 py-0.5 text-accent hover:underline">
+              <span className="tnum shrink-0">{x.rank}</span><span className="truncate">{x.action}</span>
+            </a>
+          ))}
+        </p>
       )}
     </section>
   );
@@ -490,31 +581,61 @@ function Interpretation({ p, base }: { p: Passport; base: string }) {
 
 // --- 04 improvements -------------------------------------------------------------------------------------------
 
-function Improvements({ p, base }: { p: Passport; base: string }) {
+function Improvements({ p, base, links }: { p: Passport; base: string; links: EvidenceLinks | null }) {
   const recs = rankedRecs(p).slice(0, 5);
+  if (recs.length === 0) {
+    return (
+      <Chapter k="improvements">
+        <p className="rounded-[14px] bg-paper-sunk p-4 text-[13.5px] leading-6 text-ink-soft" data-testid="improvements-empty">
+          这次没有可以排序的建议。补充一些信息（发质、预算、偏好）后，建议会更具体。
+          <Link href={`${base}/more`} className="ml-1 text-accent underline-offset-4 hover:underline">补充信息</Link>
+        </p>
+      </Chapter>
+    );
+  }
   return (
     <Chapter k="improvements">
       <ol className="space-y-3" data-testid="report-improvements">
-        {recs.map((r, i) => (
-          <li key={r.id} className="rounded-[16px] border border-rule bg-paper-raised p-4 sm:p-5">
-            <div className="flex items-start gap-3">
-              <span className="tnum mt-0.5 font-serif text-[22px] leading-none text-amber" aria-label={`优先级 ${i + 1}`}>{i + 1}</span>
-              <div className="min-w-0 flex-1">
-                <div className="flex flex-wrap gap-1.5"><Pill tone="accent">{r.categoryZh}</Pill>{r.time && <Pill>{r.time}</Pill>}{r.cost && <Pill>{r.cost}</Pill>}<Pill>{r.effort}</Pill></div>
-                <h3 className="mt-1.5 text-[16px] font-medium leading-7">{r.action}</h3>
-                <dl className="mt-2 grid gap-1.5 text-[13.5px] leading-6">
-                  <div><dt className="inline text-muted">为什么 · </dt><dd className="inline text-ink-soft">{r.why}</dd></div>
-                  <div><dt className="inline text-muted">能带来 · </dt><dd className="inline">{r.effect}</dd></div>
-                  {r.howTo.length > 0 && <div><dt className="text-muted">怎么做</dt><dd><ol className="mt-0.5 list-decimal space-y-0.5 pl-5">{r.howTo.map((h) => <li key={h}>{h}</li>)}</ol></dd></div>}
-                  <div><dt className="inline text-muted">怎么检查 · </dt><dd className="inline">{r.successCheck}</dd></div>
-                  {r.avoid && <div><dt className="inline text-muted">避免 · </dt><dd className="inline text-ink-soft">{r.avoid}</dd></div>}
-                  {r.evidence.length > 0 && <div><dt className="inline text-muted">依据 · </dt><dd className="inline text-[12.5px] text-muted">{r.evidence.join("；")}</dd></div>}
-                </dl>
-                <Link href={`${base}/${r.page}`} className="mt-2 inline-flex items-center gap-1 text-[13px] text-accent underline-offset-4 hover:underline">详细说明<ArrowUpRight className="size-3.5" /></Link>
+        {recs.map((r, i) => {
+          const ev = links?.byRec[r.id];
+          return (
+            <li key={r.id} id={`rec-${r.id}`} className="rounded-[16px] border border-rule bg-paper-raised p-4 sm:p-5">
+              <div className="flex items-start gap-3">
+                <span className="tnum mt-0.5 font-serif text-[22px] leading-none text-amber" aria-label={`优先级 ${i + 1}`}>{i + 1}</span>
+                <div className="min-w-0 flex-1">
+                  <div className="flex flex-wrap gap-1.5"><Pill tone="accent">{r.categoryZh}</Pill>{r.time && <Pill>{r.time}</Pill>}{r.cost && <Pill>{r.cost}</Pill>}<Pill>{r.effort}</Pill></div>
+                  <h3 className="mt-1.5 text-[16px] font-medium leading-7">{r.action}</h3>
+                  <dl className="mt-2 grid gap-1.5 text-[13.5px] leading-6">
+                    <div><dt className="inline text-muted">为什么 · </dt><dd className="inline text-ink-soft">{r.why}</dd></div>
+                    <div><dt className="inline text-muted">能带来 · </dt><dd className="inline">{r.effect}</dd></div>
+                    <div><dt className="inline text-muted">怎么检查 · </dt><dd className="inline">{r.successCheck}</dd></div>
+                  </dl>
+                  {ev && ev.regions.length > 0 && (
+                    <p className="mt-2.5 flex flex-wrap items-center gap-x-1.5 gap-y-1.5 text-[12.5px]" data-testid={`rec-evidence-${r.id}`}>
+                      <span className="text-muted">依据来自</span>
+                      {ev.regions.map((g) => (
+                        <a key={g.key} href={`#area-${g.key}`} onClick={(e) => goTo(e, `area-${g.key}`)}
+                          className="rounded-full border border-rule px-2.5 py-0.5 text-ink-soft hover:border-accent hover:text-accent">{g.title}</a>
+                      ))}
+                      {ev.readings.slice(0, 2).map((x) => <span key={x.metricId} className="text-muted">· {x.label}</span>)}
+                    </p>
+                  )}
+                  {(r.howTo.length > 0 || r.avoid || r.evidence.length > 0) && (
+                    <details className="mt-2 text-[13.5px] leading-6">
+                      <summary className="inline-flex min-h-8 cursor-pointer items-center text-[13px] text-accent">怎么做、避免什么、依据原文</summary>
+                      <dl className="mt-1 grid gap-1.5">
+                        {r.howTo.length > 0 && <div><dt className="text-muted">怎么做</dt><dd><ol className="mt-0.5 list-decimal space-y-0.5 pl-5">{r.howTo.map((h) => <li key={h}>{h}</li>)}</ol></dd></div>}
+                        {r.avoid && <div><dt className="inline text-muted">避免 · </dt><dd className="inline text-ink-soft">{r.avoid}</dd></div>}
+                        {r.evidence.length > 0 && <div><dt className="inline text-muted">依据 · </dt><dd className="inline text-[12.5px] text-muted">{r.evidence.join("；")}</dd></div>}
+                      </dl>
+                    </details>
+                  )}
+                  <Link href={`${base}/${r.page}`} className="mt-2 inline-flex items-center gap-1 text-[13px] text-accent underline-offset-4 hover:underline">详细说明<ArrowUpRight className="size-3.5" /></Link>
+                </div>
               </div>
-            </div>
-          </li>
-        ))}
+            </li>
+          );
+        })}
       </ol>
     </Chapter>
   );
@@ -784,5 +905,26 @@ function Methods({ p, data, mv, sample }: { p: Passport; data: PassportResponse;
       </div>
       {!sample && <p className="mt-6 text-center text-[13px]"><Link href={`/p/${data.id}`} className="text-accent underline-offset-4 hover:underline">{copy.backToProfile}</Link></p>}
     </Chapter>
+  );
+}
+
+// --- after the last chapter ------------------------------------------------------------------------------------
+
+/** The report ends on something to do: save the plan, try it on the photo, or read each choice in detail. */
+function ReportNext({ id }: { id: string }) {
+  return (
+    <section aria-labelledby="report-next" data-testid="report-next" className="no-print mt-10 rounded-[16px] border border-rule bg-paper-raised p-5">
+      <h2 id="report-next" className="font-serif text-[18px] font-semibold">读完了，下一步</h2>
+      <p className="mt-1 text-[13.5px] leading-6 text-ink-soft">把报告变成能做的事：先存下最值得做的 3 件，再到实验室里看看效果。</p>
+      <div className="mt-3 flex flex-wrap items-center gap-x-5 gap-y-3">
+        <Link href={journeyHref(id, "plan")} className="inline-flex h-11 items-center gap-1.5 rounded-full bg-accent px-5 text-[14px] font-medium text-[var(--ap-on-primary)] hover:opacity-90">
+          保存并勾选行动方案<ArrowRight className="size-4" aria-hidden />
+        </Link>
+        <Link href={journeyHref(id, "studio")} className="inline-flex h-11 items-center rounded-full border border-ink/30 px-5 text-[14px] font-medium hover:border-ink">
+          去形象实验室试一试
+        </Link>
+        <Link href={journeyHref(id, "advice")} className="text-[13.5px] text-accent underline-offset-4 hover:underline">逐项看个性化建议</Link>
+      </div>
+    </section>
   );
 }

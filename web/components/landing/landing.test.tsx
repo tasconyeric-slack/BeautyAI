@@ -13,7 +13,7 @@ vi.mock("@/lib/flags", async (orig) => {
 });
 vi.mock("sonner", () => ({ toast: vi.fn() }));
 
-import { landing } from "@/lib/copy/zh";
+import { landing, privacy } from "@/lib/copy/zh";
 import { Landing } from "./landing";
 import { cleanRef, startHref } from "./cases";
 
@@ -90,5 +90,55 @@ describe("helpers", () => {
     expect(cleanRef("xhs<01>?")).toBe("xhs01");
     expect(cleanRef(["a", "b"])).toBe("a");
     expect(cleanRef(undefined)).toBeNull();
+  });
+});
+
+describe("first screen (Issue #2)", () => {
+  const female = () => JSON.parse(readFileSync(path.resolve(__dirname, "../../lib/fixtures/sample_passport.json"), "utf8"));
+
+  it("offers a free start first and a look at the deliverable second", () => {
+    render(<Landing />);
+    const sample = screen.getByTestId("landing-hero-sample");
+    expect(sample.getAttribute("href")).toBe("/report/sample");
+    expect(sample.textContent).toContain(landing.secondaryAction);
+    // the free start comes first in reading order and keeps its wording (the critical path clicks it by name)
+    const primary = ctas()[0];
+    expect(primary.getAttribute("data-cta")).toBe("primary");
+    expect(Boolean(primary.compareDocumentPosition(sample) & Node.DOCUMENT_POSITION_FOLLOWING)).toBe(true);
+  });
+
+  it("shows the deliverable as a synthetic example with the sample's own score — never as a live result", () => {
+    render(<Landing />);
+    const card = screen.getByTestId("hero-sample");
+    expect(card.textContent).toContain("示例 · 合成人脸，非真人");
+    expect(card.textContent).toContain("不是实时分析结果");
+    expect(card.textContent).toContain("不代表任何真人");
+    expect(card.querySelector("img")!.getAttribute("alt")).toMatch(/非真人/);
+    expect(screen.getByTestId("hero-score").textContent).toContain(String(Math.round(female().aesthetic_score.overall_score)));
+    const f = female();
+    const top = f.analysis.recommendations.find((r: { id: string }) => r.id === f.derived.top5[0]);
+    expect(card.textContent).toContain(top.action.replace(/\s*\[[^\]]*\]/g, ""));
+    // opens the sample passport, not a made-up page
+    expect(screen.getByTestId("hero-sample-open").getAttribute("href")).toBe("/p/ap_sample_0001");
+  });
+
+  it("keeps the topic entry's example and link on the sample card", () => {
+    render(<Landing topic="hair" />);
+    expect(screen.getByTestId("hero-sample-open").getAttribute("href")).toBe("/p/ap_sample_0001/hair");
+    expect(screen.getByTestId("hero-sample").textContent).toContain("稳妥");
+  });
+
+  it("states the privacy cues from the one source of truth, next to the call to action", () => {
+    render(<Landing />);
+    const cues = screen.getByTestId("hero-privacy");
+    expect(cues.querySelectorAll("li")).toHaveLength(privacy.facts.length);
+    for (const f of privacy.facts) expect(cues.textContent).toContain(f);
+  });
+
+  it("says what the visit is for — understand, try, decide — without promising what only the full passport has", () => {
+    render(<Landing />);
+    const steps = screen.getByTestId("hero-journey");
+    expect([...steps.querySelectorAll("li")].map((li) => li.querySelector("span.font-serif")!.textContent)).toEqual(["看懂", "试试", "决定"]);
+    expect(steps.textContent).not.toMatch(/照片级|AI 发型试看|生成|免费送/);
   });
 });
