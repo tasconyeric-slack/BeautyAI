@@ -21,6 +21,7 @@ from ..preview import (
     PreviewError,
     PreviewTrace,
     QualityGateFailed,
+    hair_source,
     is_previewable,
     load_edit_prompt,
     preview_targets,
@@ -119,6 +120,9 @@ def request_previews(settings: Settings, store: Store, job: dict[str, Any], kind
     bad = [t for t in target_ids if not is_previewable(passport, kind, t)]   # incl. Look Studio combos (D30)
     if bad:
         raise PreviewRequestError(422, "not_previewable", f"这些方向不能生成试看：{', '.join(bad)}")
+    if any(not (media_dir(settings.runs_dir, pid) / f"{hair_source(t)}.jpg").is_file()
+           for t in target_ids if kind == "hair" and hair_source(t) != "front"):
+        raise PreviewRequestError(410, "source_unavailable", "所选参考照片已过期或不可用，请切换照片来源")
     existing = {(p["kind"], p["target_id"]): p for p in store.previews(pid)}
     paid = bool(job.get("paid"))
     free_left = max(0, pricing()["free_previews"] - free_used(store, pid))
@@ -196,7 +200,8 @@ def run_preview_job(settings: Settings, store: Store, pid: str, kind: str, targe
     job = store.get(pid)
     if not job or not job["passport"] or job["status"] == "deleted":
         return "failed"
-    front = media_dir(settings.runs_dir, pid) / "front.jpg"
+    source = hair_source(target) if kind == "hair" else "front"
+    front = media_dir(settings.runs_dir, pid) / f"{source}.jpg"
     if media_expired(job) or not front.exists():
         store.upsert_preview(pid, kind, target, "failed", error="照片已按隐私规则删除")
         return "failed"

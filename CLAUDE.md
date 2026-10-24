@@ -26,7 +26,8 @@ You are building **Aesthetic Passport V2**. The governing documents are **`docs/
    Assembled passport → `validate_passport`.
 7. **Photos are sensitive.** Never committed (`data/`, `runs/`, `models/` are git-ignored). Non-front photos are
    deleted when the job ends, except the measurement photos the face workbench actually measured on (true side
-   `profile90`, glasses-free `noglasses`, `smile`; D35), which live with the front photo, its thumbnail and previews
+   `profile90`, glasses-free `noglasses`, `smile`; D35), and the optional QC-usable everyday-eyewear styling reference
+   (`glasses`; D40). These live with the front photo, its thumbnail and previews
    for 24 h (retention job). The original file chosen in the framing editor never leaves the browser.
    Nothing photo-derived is logged.
    Outfit-check photos are deleted right after processing; `/geometry` polygons and the measurement points of every

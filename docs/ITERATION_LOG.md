@@ -68,3 +68,8 @@
 - New view only: twelve regions on the face page built from the existing passport. Schema, prompt and rules version unchanged; no passport output changes.
 - `config/face_atlas.yaml`: region membership for all 117 metrics, the benchmark coverage matrix, 11 cross-region relations, and band-keyed styling cues used only after the rules layer's own advice.
 - Checked on both fixture passports: every region with measurements or a facial observation shows at least one trait and one linked implication; "耳与颈" in the male sample has only a clothing note, so it stays "不做猜测".
+
+## 2026-10-24 — Issue #19: natural-hair analysis / everyday eyewear reference
+- Upload guidance now asks for glasses-free, natural everyday hair and hands away; existing fringe-related missing measurements remain unchanged. QC copy explains restricted mode rather than encouraging glasses as the analysis default.
+- Optional API-only `glasses` reference shares photo TTL/delete and stays out of CV measurement/model analysis. Studio chooses the base explicitly, pauses incompatible layers and uses source-qualified hair preview/mask targets; legacy `noglasses` is supported.
+- No prompt, schema, scoring, provider or payment change; synthetic functional validation does not claim live provider image quality.

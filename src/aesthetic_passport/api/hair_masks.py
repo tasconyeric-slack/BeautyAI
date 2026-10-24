@@ -14,13 +14,14 @@ from PIL import Image
 
 from ..cv import LEFT_BROW, LEFT_EYE, LIPS_OUTER, MODELS, RIGHT_BROW, RIGHT_EYE, SEG_HAIR, Face, hull_mask
 from ..masks import NOSE_HULL, feathered_alpha
-from ..preview import read_crop_box
+from ..preview import HAIR_TARGET, hair_source, read_crop_box
+from .portrait_sources import STUDIO_ROLES
 from .retention import media_dir, media_expired
 from .settings import Settings
 from .store import Store
 
 _MASK_LOCK = threading.Lock()
-_TARGET = re.compile(r"^(current|safe|bold|easy)$")
+_TARGET = HAIR_TARGET
 
 
 def hair_alpha(rgb: np.ndarray, seg: np.ndarray, faces: list[Face]) -> np.ndarray:
@@ -38,16 +39,18 @@ def hair_alpha(rgb: np.ndarray, seg: np.ndarray, faces: list[Face]) -> np.ndarra
 
 def install_hair_masks(app: FastAPI, settings: Settings, store: Store) -> None:
     @app.get('/api/passport/{pid}/hair-mask')
-    def hair_mask(pid: str, target: str = 'current') -> Response:
+    def hair_mask(pid: str, target: str = 'current', source: str = 'front') -> Response:
         job = store.get(pid) if re.fullmatch(r'ap_[0-9a-f]{12}', pid) else None
         if not job:
             raise HTTPException(404, detail={'code': 'not_found', 'detail': '找不到这份护照'})
         if job['status'] == 'deleted' or media_expired(job):
             raise HTTPException(410, detail={'code': 'media_expired', 'detail': '照片已按隐私规则删除'})
+        if source not in STUDIO_ROLES or (target != 'current' and hair_source(target) != source):
+            raise HTTPException(422, detail={'code': 'bad_source', 'detail': '发型与照片来源不一致'})
         if not _TARGET.fullmatch(target):
             raise HTTPException(422, detail={'code': 'bad_target', 'detail': '发型不可用'})
         directory = media_dir(settings.runs_dir, pid)
-        front = directory / 'front.jpg'
+        front = directory / f'{source}.jpg'
         source = front
         if target != 'current':
             preview = next((p for p in store.previews(pid) if p['kind'] == 'hair' and p['target_id'] == target

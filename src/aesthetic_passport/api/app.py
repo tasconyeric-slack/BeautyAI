@@ -50,6 +50,7 @@ from . import qc_service
 from .entitlement import entitlement, free_view, pricing
 from .hair_masks import install_hair_masks
 from .jobs import run_passport_job, run_reanalysis_job, uploads_dir
+from .portrait_sources import STUDIO_ROLES
 from .ratelimit import SlidingWindow, hash_ip
 from .rerank import merge_context, needs_model, rerank_passport
 from .retention import erase_passport, media_dir, media_expired, purge_expired_media, purge_expired_passports
@@ -57,7 +58,7 @@ from .settings import Settings
 from .store import Store, now
 
 MEDIA_NAME = re.compile(
-    r"^(front|thumb|profile90|noglasses|smile|(preview|before)_(hair|glasses|neckline)_((safe|bold|easy|current)(_hc[0-9])?|r[0-9]{1,2}))\.jpg$")
+    r"^(front|thumb|profile90|noglasses|smile|glasses|(preview|before)_(hair|glasses|neckline)_((safe|bold|easy|current)(_hc[0-9])?(_src(glasses|noglasses))?|r[0-9]{1,2}))\.jpg$")
 PASSPORT_ID = re.compile(r"^ap_[0-9a-f]{12}$")
 TARGET_ID = re.compile(r"^[a-z0-9_]{1,48}$")
 SHARE_TOKEN = re.compile(r"^[A-Za-z0-9_-]{8,64}$")
@@ -177,7 +178,7 @@ def create_app(settings: Settings | None = None) -> FastAPI:
                 "front": None if expired or not (mdir / "front.jpg").exists() else f"/api/media/{pid}/front.jpg",
                 "thumb": None if expired or not (mdir / "thumb.jpg").exists() else f"/api/media/{pid}/thumb.jpg",
                 "photos": {r: (None if expired or not (mdir / f"{r}.jpg").exists() else f"/api/media/{pid}/{r}.jpg")
-                           for r in MEASURE_ROLES},
+                           for r in (*MEASURE_ROLES, "glasses")},
                 "expires_at": job["media_expires_at"],
                 "expired": expired,
             },
@@ -211,7 +212,7 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     # --- QC ------------------------------------------------------------------------------
     @app.post("/api/qc")
     async def qc(request: Request, role: Annotated[str, Form()], file: Annotated[UploadFile, File()]) -> dict:
-        if role not in PHOTO_ROLES:
+        if role not in (*PHOTO_ROLES, "glasses"):
             raise api_error(422, "bad_role", f"unknown photo role {role!r}")
         if not qc_limiter.allow(hash_ip(client_ip(request))):
             raise api_error(429, "rate_limited", "检查太频繁，请稍后再试")
@@ -221,7 +222,8 @@ def create_app(settings: Settings | None = None) -> FastAPI:
         except UnreadableImage as e:
             raise api_error(422, "unreadable_image", str(e)) from e
         try:
-            return await asyncio.to_thread(qc_service.check_one, im, role)
+            result = await asyncio.to_thread(qc_service.check_one, im, role)
+            return {**result, "photo_id": role}
         except CVUnavailable as e:
             raise api_error(503, "cv_unavailable", "照片检测服务暂时不可用，请稍后重试") from e
 
@@ -255,7 +257,7 @@ def create_app(settings: Settings | None = None) -> FastAPI:
         if not isinstance(data, dict):
             return out
         for role, v in data.items():
-            if role not in PHOTO_ROLES or not isinstance(v, dict):
+            if role not in (*PHOTO_ROLES, "glasses") or not isinstance(v, dict):
                 continue
             item: dict[str, Any] = {}
             if isinstance(v.get("eyewear"), bool):
@@ -287,6 +289,7 @@ def create_app(settings: Settings | None = None) -> FastAPI:
         front: Annotated[UploadFile | None, File()] = None,
         profile90: Annotated[UploadFile | None, File()] = None,
         noglasses: Annotated[UploadFile | None, File()] = None,
+        glasses: Annotated[UploadFile | None, File()] = None,
         profile45: Annotated[UploadFile | None, File()] = None,
         smile: Annotated[UploadFile | None, File()] = None,
         hair: Annotated[UploadFile | None, File()] = None,
@@ -310,7 +313,7 @@ def create_app(settings: Settings | None = None) -> FastAPI:
         pid = f"ap_{uuid.uuid4().hex[:12]}"
         up = uploads_dir(settings.runs_dir, pid)
         meta = parse_photo_meta(photo_meta)
-        files = {"front": front, "profile90": profile90, "noglasses": noglasses, "profile45": profile45, "smile": smile,
+        files = {"front": front, "profile90": profile90, "noglasses": noglasses, "glasses": glasses, "profile45": profile45, "smile": smile,
                  "hair": hair}
         for role, f in files.items():
             if f is None or not f.filename:
@@ -339,6 +342,7 @@ def create_app(settings: Settings | None = None) -> FastAPI:
         context: Annotated[str | None, Form()] = None,
         profile90: Annotated[UploadFile | None, File()] = None,
         noglasses: Annotated[UploadFile | None, File()] = None,
+        glasses: Annotated[UploadFile | None, File()] = None,
         profile45: Annotated[UploadFile | None, File()] = None,
         smile: Annotated[UploadFile | None, File()] = None,
         hair: Annotated[UploadFile | None, File()] = None,
@@ -357,9 +361,15 @@ def create_app(settings: Settings | None = None) -> FastAPI:
         errs = [e.message for e in ctx_validator.iter_errors(new_ctx)]
         if errs:
             raise api_error(422, "bad_context", "; ".join(errs[:5]))
-        uploads = {r: f for r, f in {"profile90": profile90, "noglasses": noglasses, "profile45": profile45,
+        uploads = {r: f for r, f in {"profile90": profile90, "noglasses": noglasses, "glasses": glasses, "profile45": profile45,
                                      "smile": smile, "hair": hair}.items() if f and f.filename}
         meta = parse_photo_meta(photo_meta)
+        for role in ("glasses", "noglasses"):
+            if role in uploads and any(
+                p["target_id"].endswith(f"_src{role}") and p["status"] in ("pending", "succeeded")
+                for p in store.previews(pid)
+            ):
+                raise api_error(409, "source_in_use", "这张来源已有发型试看；替换照片请重新开始，避免错用旧图")
         if uploads or needs_model(passport["user_context"], new_ctx):
             front = media_dir(settings.runs_dir, pid) / "front.jpg"
             if media_expired(job) or not front.exists():
@@ -443,8 +453,31 @@ def create_app(settings: Settings | None = None) -> FastAPI:
         return {"previews": states}
 
     @app.get("/api/passport/{pid}/geometry")
-    def geometry(pid: str) -> JSONResponse:
+    def geometry(pid: str, source: str = "front") -> JSONResponse:
         job = job_or_404(pid)
+        if source not in STUDIO_ROLES:
+            raise api_error(422, "bad_source", "照片来源不可用")
+        if source != "front":
+            # Daily eyewear is a styling reference only; never borrow the front's polygons.
+            if source == "glasses" or media_expired(job):
+                raise api_error(404, "no_geometry", "这张参考照不提供几何叠加")
+            photo = media_dir(settings.runs_dir, pid) / f"{source}.jpg"
+            if not photo.is_file():
+                raise api_error(404, "no_geometry", "照片已删除或未测量")
+            from ..anchors import export_geometry
+            from ..qc import check_role
+            try:
+                checked = check_role(open_rgb(photo), source)
+                if checked.status == "reject" or checked.face is None or any(
+                    i in checked.issues for i in ("eyewear_detected", "pose_off_axis")
+                ):
+                    raise ValueError("incompatible geometry")
+                result = export_geometry(checked.face, checked.rgb.shape[:2])
+            except Exception as e:
+                raise api_error(404, "no_geometry", "这张照片无法可靠定位五官，已停用叠加") from e
+            if media_expired(job_or_404(pid)) or not photo.is_file():
+                raise api_error(404, "no_geometry", "照片已删除")
+            return JSONResponse(result, headers={"Cache-Control": "no-store"})
         path = media_dir(settings.runs_dir, pid) / "geometry.json"
         if media_expired(job) or not path.exists():
             raise api_error(404, "no_geometry", "照片已删除或未测量，无法在照片上试色")
