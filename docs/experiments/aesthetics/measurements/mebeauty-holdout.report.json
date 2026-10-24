@@ -1,0 +1,466 @@
+{
+  "report_version": 1,
+  "tool_version": "0.1.0",
+  "dataset": {
+    "name": "mebeauty",
+    "source": "dr-irina-lebedeva/MEBeauty-Facial-Beauty-Prediction [fbp_extended]",
+    "label": "beauty_score",
+    "label_range": [
+      1.0,
+      10.0
+    ],
+    "protocol": "published holdout: train → test (validation unused; identity-grouped by the publisher)",
+    "n_train": 1962,
+    "n_test": 250,
+    "notes": [
+      "The published dinov2-partial weights were trained on this holdout's train split and early-stopped on its validation split, so only `test` is a fair evaluation split for them."
+    ]
+  },
+  "subsampled": {
+    "test": false,
+    "train": false,
+    "n_test": 250,
+    "n_train": 1962,
+    "seed": 0
+  },
+  "settings": {
+    "crop": "none",
+    "crop_margin": null,
+    "flip": true,
+    "device": "cpu",
+    "calibration_n": 500,
+    "bootstrap": 1000,
+    "min_group": 30
+  },
+  "methods": {
+    "train_mean": {
+      "status": "ok",
+      "scale": "native",
+      "train_mean": 5.9617,
+      "coverage": {
+        "n_total": 250,
+        "n_scored": 250,
+        "rate": 1.0,
+        "failures": {}
+      },
+      "metrics": {
+        "n": 250,
+        "spearman": null,
+        "pearson": null,
+        "spearman_ci95": null,
+        "mae": 0.9107,
+        "rmse": 1.1512
+      },
+      "metrics_common_subset": {
+        "n": 146,
+        "spearman": null,
+        "pearson": null,
+        "spearman_ci95": null,
+        "mae": 0.8886,
+        "rmse": 1.1299
+      },
+      "breakdowns": {
+        "ethnicity": {
+          "asian": {
+            "n": 35,
+            "spearman": null,
+            "mae": 0.9555
+          },
+          "black": {
+            "n": 29,
+            "skipped": "n < 30"
+          },
+          "caucasian": {
+            "n": 98,
+            "spearman": null,
+            "mae": 0.8885
+          },
+          "hispanic": {
+            "n": 30,
+            "spearman": null,
+            "mae": 0.913
+          },
+          "indian": {
+            "n": 30,
+            "spearman": null,
+            "mae": 0.9545
+          },
+          "mideastern": {
+            "n": 28,
+            "skipped": "n < 30"
+          }
+        },
+        "gender": {
+          "female": {
+            "n": 130,
+            "spearman": null,
+            "mae": 0.9949
+          },
+          "male": {
+            "n": 120,
+            "spearman": null,
+            "mae": 0.8195
+          }
+        }
+      }
+    },
+    "geometric": {
+      "status": "ok",
+      "scale": "calibrated_on_train",
+      "calibration": {
+        "a": 6.103312464954727,
+        "b": -0.003010305011847693,
+        "n_train": 1236
+      },
+      "native_range": [
+        0,
+        100
+      ],
+      "scoring_version": "aes-geo-1.0",
+      "coverage": {
+        "n_total": 250,
+        "n_scored": 146,
+        "rate": 0.584,
+        "failures": {
+          "geometry_unavailable": 104
+        }
+      },
+      "metrics": {
+        "n": 146,
+        "spearman": 0.0779,
+        "pearson": 0.1242,
+        "spearman_ci95": [
+          -0.0877,
+          0.2286
+        ],
+        "mae": 0.8915,
+        "rmse": 1.1333,
+        "error_basis": "calibrated_on_train"
+      },
+      "metrics_common_subset": {
+        "n": 146,
+        "spearman": 0.0779,
+        "pearson": 0.1242,
+        "spearman_ci95": [
+          -0.0877,
+          0.2286
+        ],
+        "mae": 0.8915,
+        "rmse": 1.1333,
+        "error_basis": "calibrated_on_train"
+      },
+      "breakdowns": {
+        "ethnicity": {
+          "asian": {
+            "n": 18,
+            "skipped": "n < 30"
+          },
+          "black": {
+            "n": 14,
+            "skipped": "n < 30"
+          },
+          "caucasian": {
+            "n": 58,
+            "spearman": -0.0552,
+            "mae": 0.8069
+          },
+          "hispanic": {
+            "n": 16,
+            "skipped": "n < 30"
+          },
+          "indian": {
+            "n": 18,
+            "skipped": "n < 30"
+          },
+          "mideastern": {
+            "n": 22,
+            "skipped": "n < 30"
+          }
+        },
+        "gender": {
+          "female": {
+            "n": 75,
+            "spearman": 0.0599,
+            "mae": 1.0166
+          },
+          "male": {
+            "n": 71,
+            "spearman": 0.2304,
+            "mae": 0.7595
+          }
+        }
+      },
+      "runtime": {
+        "seconds": 1.46,
+        "per_image_ms": 10.0
+      }
+    },
+    "geometry_ridge": {
+      "status": "ok",
+      "scale": "native",
+      "features": [
+        "symmetry.mean_residual",
+        "symmetry.eyes",
+        "symmetry.brows",
+        "symmetry.nose",
+        "symmetry.mouth",
+        "symmetry.jaw",
+        "thirds.upper",
+        "thirds.middle",
+        "thirds.lower",
+        "fifths.1",
+        "fifths.2",
+        "fifths.3",
+        "fifths.4",
+        "fifths.5",
+        "golden_ratio.ratio",
+        "pose.yaw",
+        "pose.pitch"
+      ],
+      "alpha": 10.0,
+      "train_cv_mae": 0.9122,
+      "n_train": 1236,
+      "coverage": {
+        "n_total": 250,
+        "n_scored": 146,
+        "rate": 0.584,
+        "failures": {
+          "geometry_unavailable": 104
+        }
+      },
+      "metrics": {
+        "n": 146,
+        "spearman": 0.2876,
+        "pearson": 0.301,
+        "spearman_ci95": [
+          0.127,
+          0.4295
+        ],
+        "mae": 0.8711,
+        "rmse": 1.0796,
+        "error_basis": "native"
+      },
+      "metrics_common_subset": {
+        "n": 146,
+        "spearman": 0.2876,
+        "pearson": 0.301,
+        "spearman_ci95": [
+          0.127,
+          0.4295
+        ],
+        "mae": 0.8711,
+        "rmse": 1.0796,
+        "error_basis": "native"
+      },
+      "breakdowns": {
+        "ethnicity": {
+          "asian": {
+            "n": 18,
+            "skipped": "n < 30"
+          },
+          "black": {
+            "n": 14,
+            "skipped": "n < 30"
+          },
+          "caucasian": {
+            "n": 58,
+            "spearman": 0.1811,
+            "mae": 0.841
+          },
+          "hispanic": {
+            "n": 16,
+            "skipped": "n < 30"
+          },
+          "indian": {
+            "n": 18,
+            "skipped": "n < 30"
+          },
+          "mideastern": {
+            "n": 22,
+            "skipped": "n < 30"
+          }
+        },
+        "gender": {
+          "female": {
+            "n": 75,
+            "spearman": 0.1071,
+            "mae": 0.9695
+          },
+          "male": {
+            "n": 71,
+            "spearman": 0.0745,
+            "mae": 0.7672
+          }
+        }
+      }
+    },
+    "mebeauty_dinov2": {
+      "status": "ok",
+      "model_version": "mebeauty-fbp/dinov2-partial@sha256:7b8fd2cb55aa",
+      "model": {
+        "name": "dinov2-partial",
+        "source_repo": "dr-irina-lebedeva/MEBeauty-FBP-models",
+        "weights_file": "dinov2-partial.pt",
+        "weights_sha256": "7b8fd2cb55aab425088ef1c1ac9cbe7af6e00572ce5d12a0db4a7aceb4e2b6af",
+        "random_init": false,
+        "architecture": "Dinov2Model + CLS‖mean-patch + 2-layer MLP head",
+        "backbone_config": {
+          "hidden_size": 768,
+          "num_hidden_layers": 12,
+          "num_attention_heads": 12,
+          "patch_size": 14,
+          "image_size": 518,
+          "mlp_ratio": 4,
+          "layerscale_value": 1.0,
+          "layer_norm_eps": 1e-06,
+          "qkv_bias": true,
+          "use_swiglu_ffn": false
+        },
+        "backbone_config_source": "inferred from checkpoint tensor shapes",
+        "parameters": 86977281,
+        "score_range": [
+          1.0,
+          10.0
+        ],
+        "score_range_source": "config.json",
+        "device": "cpu",
+        "torch": "2.14.1+cu130",
+        "transformers": "5.18.0"
+      },
+      "load_s": 13.639,
+      "scale": "native",
+      "coverage": {
+        "n_total": 250,
+        "n_scored": 250,
+        "rate": 1.0,
+        "failures": {}
+      },
+      "metrics": {
+        "n": 250,
+        "spearman": 0.7669,
+        "pearson": 0.7711,
+        "spearman_ci95": [
+          0.7083,
+          0.8162
+        ],
+        "mae": 0.5658,
+        "rmse": 0.7373,
+        "error_basis": "native"
+      },
+      "metrics_common_subset": {
+        "n": 146,
+        "spearman": 0.7769,
+        "pearson": 0.7802,
+        "spearman_ci95": [
+          0.6936,
+          0.8332
+        ],
+        "mae": 0.55,
+        "rmse": 0.7184,
+        "error_basis": "native"
+      },
+      "breakdowns": {
+        "ethnicity": {
+          "asian": {
+            "n": 35,
+            "spearman": 0.8356,
+            "mae": 0.5975
+          },
+          "black": {
+            "n": 29,
+            "skipped": "n < 30"
+          },
+          "caucasian": {
+            "n": 98,
+            "spearman": 0.6687,
+            "mae": 0.5886
+          },
+          "hispanic": {
+            "n": 30,
+            "spearman": 0.7433,
+            "mae": 0.5288
+          },
+          "indian": {
+            "n": 30,
+            "spearman": 0.8981,
+            "mae": 0.4784
+          },
+          "mideastern": {
+            "n": 28,
+            "skipped": "n < 30"
+          }
+        },
+        "gender": {
+          "female": {
+            "n": 130,
+            "spearman": 0.5744,
+            "mae": 0.6139
+          },
+          "male": {
+            "n": 120,
+            "spearman": 0.6517,
+            "mae": 0.5138
+          }
+        }
+      },
+      "runtime": {
+        "seconds": 1611.59,
+        "per_image_ms": 6446.4
+      }
+    }
+  },
+  "notes": [
+    "The published dinov2-partial weights were trained on this holdout's train split and early-stopped on its validation split, so only `test` is a fair evaluation split for them."
+  ],
+  "common_subset": {
+    "n": 146,
+    "methods": [
+      "geometric",
+      "geometry_ridge",
+      "mebeauty_dinov2"
+    ]
+  },
+  "face_detection": {
+    "ok": 250
+  },
+  "parity_with_published_predictions": {
+    "tolerance": 0.001,
+    "reference": "dinov2-partial_predictions.npz",
+    "n_reference": 250,
+    "n_compared": 250,
+    "max_abs_diff": 2.38e-06,
+    "mean_abs_diff": 5.67e-07,
+    "n_over_tolerance": 0,
+    "published_predictions_metrics": {
+      "n": 250,
+      "spearman": 0.7669,
+      "pearson": 0.7711,
+      "spearman_ci95": null,
+      "mae": 0.5658,
+      "rmse": 0.7373
+    },
+    "status": "pass"
+  },
+  "runtime": {
+    "total_s": 1668.4,
+    "peak_rss_mb": 1792.5,
+    "stages_s": {
+      "decode": 8.74,
+      "face_detect": 30.22,
+      "geometric": 1.46,
+      "mebeauty_dinov2": 1611.59
+    }
+  },
+  "environment": {
+    "python": "3.13.17",
+    "platform": "Linux x86_64",
+    "cpu_count": 4,
+    "repo_commit": "6aa2b8a60e2a",
+    "cpu_model": "Intel(R) Xeon(R) Processor @ 2.10GHz",
+    "torch": "2.14.1+cu130",
+    "torch_threads": 4,
+    "cuda_available": false
+  },
+  "incomplete_reasons": {},
+  "status": "complete"
+}

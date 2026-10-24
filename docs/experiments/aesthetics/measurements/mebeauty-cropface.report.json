@@ -1,0 +1,205 @@
+{
+  "report_version": 1,
+  "tool_version": "0.1.0",
+  "dataset": {
+    "name": "mebeauty",
+    "source": "dr-irina-lebedeva/MEBeauty-Facial-Beauty-Prediction [fbp_extended]",
+    "label": "beauty_score",
+    "label_range": [
+      1.0,
+      10.0
+    ],
+    "protocol": "published holdout: train → test (validation unused; identity-grouped by the publisher)",
+    "n_train": 1962,
+    "n_test": 250,
+    "notes": [
+      "The published dinov2-partial weights were trained on this holdout's train split and early-stopped on its validation split, so only `test` is a fair evaluation split for them."
+    ]
+  },
+  "subsampled": {
+    "test": false,
+    "train": false,
+    "n_test": 250,
+    "n_train": 1962,
+    "seed": 0
+  },
+  "settings": {
+    "crop": "face",
+    "crop_margin": 0.25,
+    "flip": true,
+    "device": "cpu",
+    "calibration_n": 500,
+    "bootstrap": 1000,
+    "min_group": 30
+  },
+  "methods": {
+    "mebeauty_dinov2": {
+      "status": "ok",
+      "model_version": "mebeauty-fbp/dinov2-partial@sha256:7b8fd2cb55aa",
+      "model": {
+        "name": "dinov2-partial",
+        "source_repo": "dr-irina-lebedeva/MEBeauty-FBP-models",
+        "weights_file": "dinov2-partial.pt",
+        "weights_sha256": "7b8fd2cb55aab425088ef1c1ac9cbe7af6e00572ce5d12a0db4a7aceb4e2b6af",
+        "random_init": false,
+        "architecture": "Dinov2Model + CLS‖mean-patch + 2-layer MLP head",
+        "backbone_config": {
+          "hidden_size": 768,
+          "num_hidden_layers": 12,
+          "num_attention_heads": 12,
+          "patch_size": 14,
+          "image_size": 518,
+          "mlp_ratio": 4,
+          "layerscale_value": 1.0,
+          "layer_norm_eps": 1e-06,
+          "qkv_bias": true,
+          "use_swiglu_ffn": false
+        },
+        "backbone_config_source": "inferred from checkpoint tensor shapes",
+        "parameters": 86977281,
+        "score_range": [
+          1.0,
+          10.0
+        ],
+        "score_range_source": "config.json",
+        "device": "cpu",
+        "torch": "2.14.1+cu130",
+        "transformers": "5.18.0"
+      },
+      "load_s": 11.195,
+      "scale": "native",
+      "coverage": {
+        "n_total": 250,
+        "n_scored": 250,
+        "rate": 1.0,
+        "failures": {}
+      },
+      "metrics": {
+        "n": 250,
+        "spearman": 0.7646,
+        "pearson": 0.7713,
+        "spearman_ci95": [
+          0.7046,
+          0.814
+        ],
+        "mae": 0.5692,
+        "rmse": 0.736,
+        "error_basis": "native"
+      },
+      "metrics_common_subset": {
+        "n": 250,
+        "spearman": 0.7646,
+        "pearson": 0.7713,
+        "spearman_ci95": [
+          0.7046,
+          0.814
+        ],
+        "mae": 0.5692,
+        "rmse": 0.736,
+        "error_basis": "native"
+      },
+      "breakdowns": {
+        "ethnicity": {
+          "asian": {
+            "n": 35,
+            "spearman": 0.8283,
+            "mae": 0.6111
+          },
+          "black": {
+            "n": 29,
+            "skipped": "n < 30"
+          },
+          "caucasian": {
+            "n": 98,
+            "spearman": 0.6719,
+            "mae": 0.5899
+          },
+          "hispanic": {
+            "n": 30,
+            "spearman": 0.7446,
+            "mae": 0.5244
+          },
+          "indian": {
+            "n": 30,
+            "spearman": 0.8986,
+            "mae": 0.4799
+          },
+          "mideastern": {
+            "n": 28,
+            "skipped": "n < 30"
+          }
+        },
+        "gender": {
+          "female": {
+            "n": 130,
+            "spearman": 0.5712,
+            "mae": 0.6165
+          },
+          "male": {
+            "n": 120,
+            "spearman": 0.6431,
+            "mae": 0.518
+          }
+        }
+      },
+      "runtime": {
+        "seconds": 1532.66,
+        "per_image_ms": 6130.6
+      }
+    }
+  },
+  "notes": [
+    "The published dinov2-partial weights were trained on this holdout's train split and early-stopped on its validation split, so only `test` is a fair evaluation split for them."
+  ],
+  "common_subset": {
+    "n": 250,
+    "methods": [
+      "mebeauty_dinov2"
+    ]
+  },
+  "face_detection": {
+    "ok": 250
+  },
+  "parity_with_published_predictions": {
+    "tolerance": 0.001,
+    "reference": "dinov2-partial_predictions.npz",
+    "n_reference": 250,
+    "n_compared": 250,
+    "max_abs_diff": 0.345,
+    "mean_abs_diff": 0.0297,
+    "n_over_tolerance": 114,
+    "published_predictions_metrics": {
+      "n": 250,
+      "spearman": 0.7669,
+      "pearson": 0.7711,
+      "spearman_ci95": null,
+      "mae": 0.5658,
+      "rmse": 0.7373
+    },
+    "status": "fail",
+    "reason": "max |Δ| 0.345 > tolerance 0.001"
+  },
+  "runtime": {
+    "total_s": 1550.6,
+    "peak_rss_mb": 1570.9,
+    "stages_s": {
+      "decode": 1.12,
+      "face_detect": 4.11,
+      "mebeauty_dinov2": 1532.66
+    }
+  },
+  "environment": {
+    "python": "3.13.17",
+    "platform": "Linux x86_64",
+    "cpu_count": 4,
+    "repo_commit": "6aa2b8a60e2a",
+    "cpu_model": "Intel(R) Xeon(R) Processor @ 2.10GHz",
+    "torch": "2.14.1+cu130",
+    "torch_threads": 4,
+    "cuda_available": false
+  },
+  "incomplete_reasons": {
+    "parity": "fail"
+  },
+  "status": "partial"
+}
