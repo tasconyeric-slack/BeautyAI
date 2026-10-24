@@ -51,3 +51,32 @@ reset all, save/reload/load, obstruction, and absence of POST/generation request
 Synthetic pixels verify function and attachment, **not photographic realism**.
 An authorized frontal portrait still needs product-owner visual acceptance for
 the new eye effects; Phase 1 already passed that acceptance independently.
+
+Issue #3 adds `eyewear(src, geometry, options)` as the last Studio layer. Three
+original procedural frames (round, rounded rectangle, cat-eye) include a bridge,
+short temples, rim highlights/shadows, and transparent lenses. Eye-center spacing
+sets the scale and roll; measured brows reserve clearance above the frame. Frame
+color, width, manual size (85–115%) and vertical position are saved as an optional
+`eyewear` selection. Old Looks keep eyewear off; no geometry or photo is saved.
+
+Missing, tiny, asymmetric, heavily rolled, or cropped eye/brow geometry pauses the
+preview with an explanation. The existing obstruction switch also pauses eyewear;
+this slice does not remove glasses already present in a photo or claim physical
+frame sizing. Adjustments remain usable if only the selected fit is out of range.
+
+```sh
+npx vitest run components/studio/eyewear.test.ts components/studio/eyewear-controls.test.tsx
+# Start npm run dev with NEXT_PUBLIC_USE_FIXTURE=0 (API responses are mocked by Playwright):
+node components/studio/eyewear.smoke.mjs
+# For authorized local real-photo validation, also supply:
+# EYEWEAR_PHOTO=/absolute/photo.png EYEWEAR_GEOMETRY=/absolute/geometry.json
+# Optional EYEWEAR_SMOKE_OUTPUT writes local screenshots. Never commit these files.
+```
+
+The browser check covers all three canvas outputs, fit/color/width, composition
+with makeup, original comparison, reset/undo, save/reload, obstruction and
+unsupported/expired photos on desktop/mobile, without generation requests. Real
+photo validation used the public-domain NASA Eileen Collins portrait from
+[scikit-image](https://github.com/scikit-image/scikit-image/blob/v0.25.2/skimage/data/_fetchers.py)
+and geometry exported by the existing MediaPipe backend. No third-party frame
+assets or new runtime dependencies are used.
