@@ -1,0 +1,99 @@
+{
+  "status": "ok",
+  "random_init": true,
+  "rss_start_mb": 38.1,
+  "torch_import_s": 1.11,
+  "model_version": "mebeauty-fbp/dinov2-partial@random-init",
+  "model": {
+    "name": "dinov2-partial",
+    "source_repo": "dr-irina-lebedeva/MEBeauty-FBP-models",
+    "weights_file": null,
+    "weights_sha256": null,
+    "random_init": true,
+    "architecture": "Dinov2Model + CLS‖mean-patch + 2-layer MLP head",
+    "backbone_config": {
+      "hidden_size": 768,
+      "num_hidden_layers": 12,
+      "num_attention_heads": 12,
+      "patch_size": 14,
+      "image_size": 518,
+      "mlp_ratio": 4,
+      "layerscale_value": 1.0,
+      "layer_norm_eps": 1e-06,
+      "qkv_bias": true,
+      "use_swiglu_ffn": false
+    },
+    "backbone_config_source": "facebook/dinov2-base hyper-parameters (built-in, random weights)",
+    "parameters": 86977281,
+    "score_range": [
+      1.0,
+      10.0
+    ],
+    "score_range_source": "default (MEBeauty 1–10)",
+    "device": "cpu",
+    "torch": "2.14.1+cu130",
+    "transformers": "5.18.0"
+  },
+  "load_s": 3.808,
+  "rss_after_load_mb": 1277.1,
+  "fp32_weights_mb": 331.8,
+  "fp32": {
+    "single_image_flip_avg": {
+      "p50_ms": 267.9,
+      "p90_ms": 334.5,
+      "min_ms": 242.1,
+      "iters": 10
+    },
+    "single_image_no_flip": {
+      "p50_ms": 142.4,
+      "p90_ms": 168.0,
+      "min_ms": 126.6,
+      "iters": 10
+    },
+    "batch8_flip_avg": {
+      "p50_ms": 2046.6,
+      "p90_ms": 2172.3,
+      "min_ms": 1993.9,
+      "iters": 3,
+      "per_image_ms": 255.8
+    }
+  },
+  "rss_after_fp32_mb": 1377.6,
+  "int8_dynamic": {
+    "status": "ok",
+    "single_image_flip_avg": {
+      "p50_ms": 174.8,
+      "p90_ms": 210.9,
+      "min_ms": 149.3,
+      "iters": 10
+    },
+    "max_abs_raw_diff_vs_fp32": 0.0168,
+    "diff_note": "numerical diff on identical weights; random-init weights — says nothing about accuracy"
+  },
+  "onnxruntime": {
+    "status": "ok",
+    "export_s": 4.9,
+    "file_mb": 331.5,
+    "onnxruntime": "1.31.0",
+    "single_image_flip_avg": {
+      "p50_ms": 347.7,
+      "p90_ms": 419.3,
+      "min_ms": 298.4,
+      "iters": 10
+    },
+    "max_abs_raw_diff_vs_fp32": 3.22e-07,
+    "diff_note": "export fidelity on identical weights (valid for random-init too)"
+  },
+  "peak_rss_mb": 2755.5,
+  "environment": {
+    "python": "3.13.17",
+    "platform": "Linux x86_64",
+    "cpu_count": 4,
+    "repo_commit": "3d61096ccb8b",
+    "cpu_model": "Intel(R) Xeon(R) Processor @ 2.10GHz",
+    "torch": "2.14.1+cu130",
+    "torch_threads": 4,
+    "cuda_available": false
+  },
+  "note": "random-init weights, identical architecture: timing/memory only, no score. Seeded random input tensors, no photos."
+}

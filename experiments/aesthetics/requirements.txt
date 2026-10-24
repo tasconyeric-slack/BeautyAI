@@ -1,0 +1,11 @@
+# Experiment-only dependencies (NOT production; do not add to pyproject.toml).
+# Install on top of the repo's own env:  make install && pip install -r experiments/aesthetics/requirements.txt
+# CPU-only torch is smaller:  pip install torch --index-url https://download.pytorch.org/whl/cpu
+torch>=2.6
+# The reference tested transformers 5.14.1 and 5.18.0; 5.18 renamed Dinov2 attention keys (handled by align_state).
+transformers>=4.56,<5.19
+datasets>=3.0           # MEBeauty loader (gated Hub dataset or local snapshot)
+huggingface_hub>=0.30   # `hf download` / `hf auth login`
+# Optional, `bench --variants onnxruntime`:
+# onnx
+# onnxruntime

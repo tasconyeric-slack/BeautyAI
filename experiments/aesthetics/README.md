@@ -1,0 +1,123 @@
+# Offline facial-attractiveness predictor (Issue #11)
+
+Runs and benchmarks the published **MEBeauty `dinov2-partial`** model — a predictor of how the MEBeauty rater panel
+scored a face on its **1–10 `beauty_score`** scale — against the product's existing geometric harmony score
+(`aes-geo-1.0`) and a cheap geometry-only regression baseline.
+
+**Isolated experiment.** Nothing in `src/` imports this package; the production schema, API, scoring engine,
+percentiles and UI are untouched. torch / transformers / datasets are experiment-only (`requirements.txt`), never
+production dependencies. Results and decisions: [`docs/experiments/aesthetics/`](../../docs/experiments/aesthetics/README.md).
+
+> A score is a prediction of one specific rater panel's average opinion, not an objective property of a person, not a
+> population rank, and not comparable across datasets. MEBeauty (1–10) and SCUT-FBP5500 (1–5) scales are never mixed.
+> Both datasets and the weights are **non-commercial research only**; never commit photos, weights or tokens.
+
+## Setup
+
+```bash
+make install && make models                       # repo env + MediaPipe (also needs system libegl1 libgles2)
+pip install -r experiments/aesthetics/requirements.txt   # torch, transformers, datasets, huggingface_hub
+python -m experiments.aesthetics doctor           # lists exactly what is present / missing (exit 3 if anything is)
+```
+
+Weights (≈ 330 MB by parameter count, git-ignored location; needs network access to huggingface.co):
+
+```bash
+hf download dr-irina-lebedeva/MEBeauty-FBP-models dinov2-partial.pt config.json \
+    --local-dir models/aesthetics/mebeauty-fbp
+```
+
+Loading is fully offline after that: the checkpoint stores the whole fine-tuned backbone, and the Dinov2
+hyper-parameters are inferred from its tensor shapes, so `facebook/dinov2-base` is **not** downloaded.
+Override the path with `--weights` or `AESTHETICS_WEIGHTS`.
+
+## Single photo
+
+```bash
+python -m experiments.aesthetics predict path/to/portrait.jpg            # JSON on stdout, nothing written
+python -m experiments.aesthetics predict portrait.jpg --crop none        # feed the image as-is
+```
+
+Output fields: `status`, `model_version` (`mebeauty-fbp/dinov2-partial@sha256:<12>`), `dataset`, `label_scale`
+(`beauty_score`, 1–10), `raw_score` (clipped to the range, flip-averaged), `raw_score_unclipped`,
+`preprocessing` (crop mode/margin, resize, crop, normalisation, flip), `face`, `model`, `runtime`
+(`model_load_s`, `inference_s`, `peak_rss_mb`), `error`, `prerequisite`.
+
+| status | exit | meaning |
+|---|---|---|
+| `ok` | 0 | scored |
+| `no_face` · `unreadable_image` | 2 | input problem; no score is produced |
+| `model_unavailable` · `model_incompatible` · `dependency_missing` | 3 | a local prerequisite is missing; `prerequisite` says which |
+| `error` | 1 | unexpected |
+
+**Framing caveat.** The reference harness feeds MEBeauty's own images straight into resize-256 → centre-crop-224.
+For an arbitrary portrait the default `--crop face` takes a square around the MediaPipe face box (`--margin 0.25`
+per side) to approximate a face-centred dataset image. Whether that matches MEBeauty's cropping has **not** been
+verified (the dataset card was not reachable from the build environment); the output says
+`framing_matches_training: "unverified"`. Compare `--crop face` vs `--crop none` on the MEBeauty test split before
+trusting single-photo numbers.
+
+## Evaluation
+
+```bash
+# MEBeauty: published holdout test split (250). The weights trained on train and early-stopped on validation,
+# so only `test` is allowed for the model (other splits → status "blocked").
+python -m experiments.aesthetics evaluate --dataset mebeauty \
+    --reference-predictions ../MEBeauty-Benchmark/results/dinov2-partial_predictions.npz   # optional parity check
+
+# SCUT-FBP5500: images from the dataset download + official 5-fold split files from the release repo
+git clone https://github.com/HCIILAB/SCUT-FBP5500-Database-Release ../SCUT-FBP5500-Database-Release
+python -m experiments.aesthetics evaluate --dataset scut-fbp5500 \
+    --images-dir data/scut-fbp5500/Images --splits-dir ../SCUT-FBP5500-Database-Release/data --fold 1
+
+# Any local folder + CSV (image,label,split[,group…]) on its own label range
+python -m experiments.aesthetics evaluate --dataset csv --csv labels.csv --label-min 1 --label-max 5
+
+# Geometry only (no torch, no weights):  --methods train_mean,geometric,geometry_ridge
+# Quick look:  --max-test 200 --max-train 800   (reported as subsampled)
+```
+
+Writes `report.json`, `report.md` and `predictions.jsonl` (dataset ids, labels, scores — no pixels) to
+`runs/aesthetics/eval-<dataset>-<time>/` (git-ignored) and prints the Markdown table.
+
+| method | what | scale handling |
+|---|---|---|
+| `train_mean` | train-split mean label | native MAE floor; no ranking |
+| `geometric` | production `score_face` overall (0–100), engine unchanged | Spearman/Pearson raw; MAE only after a linear map fitted on **train** rows |
+| `geometry_ridge` | ridge on the 17 D36 measurements + pose, alpha by 5-fold CV **inside train** | native |
+| `mebeauty_dinov2` | published weights | native on MEBeauty; on other datasets Spearman raw + MAE after train-only calibration (`--calibration-n`, default 500 train images) |
+
+Reported per method: coverage and failure counts (`no_face`, `geometry_unavailable`, `unreadable_image`, …),
+Spearman with a seeded bootstrap 95 % CI, Pearson, MAE, RMSE with their `error_basis`, the same metrics on the
+**common subset** every ranked method scored, and breakdowns by dataset-published group labels (MEBeauty
+gender/ethnicity, SCUT AF/AM/CF/CM) where n ≥ `--min-group` (30). Group labels come from the dataset; nothing is
+inferred from faces.
+
+Leakage guards: train/test id overlap aborts the run; the MEBeauty model is blocked on any split but `test`; all
+fitting (ridge, calibration) uses train rows only. SCUT publishes no identity grouping — its folds are used as
+released and that limitation is recorded in the report.
+
+## Runtime
+
+```bash
+python -m experiments.aesthetics bench                          # real weights
+python -m experiments.aesthetics bench --random-init            # identical architecture, untrained (timing only)
+python -m experiments.aesthetics bench --random-init --threads 1 --variants int8_dynamic,onnxruntime
+```
+
+Reports torch import time, model build/load time, RSS after load, p50/p90 latency for one image (with and without
+the flip) and batch throughput, peak RSS, and optional int8 / ONNX Runtime variants with their numerical
+difference from fp32 on the same weights.
+
+## Tests
+
+`tests/test_aesthetics_experiment.py` (runs in `make test`): metrics, exact preprocessing parity with the reference
+transform, crop bounds, SCUT name mapping, every predict/evaluate failure status, leakage guards, and — when torch is
+installed — offline loading of a tiny synthetic Dinov2 checkpoint in both transformers attention layouts.
+No photos, weights or network are used.
+
+## Provenance
+
+Architecture and preprocessing re-implemented from MEBeauty-Benchmark (MIT, © 2026 Irina Lebedeva),
+`src/fbp_benchmark/methods/foundation.py`, `methods/training.py`, `pretrained.py`; `align_state` adapted from
+`pretrained.py`. See `THIRD_PARTY.md`.
