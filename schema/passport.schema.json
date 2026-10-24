@@ -1,0 +1,3779 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://aesthetic-passport.local/schema/passport.schema.json",
+  "title": "Aesthetic Passport v0.6",
+  "description": "The assembled product object. Every downstream surface (web report, share card, PDF, image preview, eval, future history/A-B) reads this. Provenance is explicit: `analysis` = what the model said; `derived` = what the rules layer computed; `input_quality`/`anchors`/`color_measurements` = what CV measured.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "passport_id",
+    "created_at",
+    "locale",
+    "user_context",
+    "input_quality",
+    "anchors",
+    "color_measurements",
+    "analysis",
+    "derived",
+    "previews",
+    "meta"
+  ],
+  "properties": {
+    "schema_version": {
+      "enum": [
+        "0.3",
+        "0.3.1",
+        "0.4",
+        "0.5",
+        "0.6",
+        "0.7"
+      ],
+      "description": "0.7 (Issue #41): optional reference_percentiles (rules layer) — additive, so 0.3–0.6 documents stay valid. 0.6 (Issue #31, D36): optional aesthetic_score (scoring layer) — additive, so 0.3–0.5 documents stay valid. 0.5 (V3B, D35): photo roles profile90 / noglasses, measurement_profile views, side and smile metrics, catalog counts, per-metric source photo, derived.measurement_insights.assessments — all additive, so 0.3–0.4 documents stay valid. 0.4 (V3A, D34): adds measurement_profile (CV) and derived.measurement_insights (rules), both optional so 0.3 / 0.3.1 documents stay valid. 0.3.1 (V2.1): adds beauty_filter_suspect to input_quality issues."
+    },
+    "passport_id": {
+      "type": "string",
+      "minLength": 6
+    },
+    "created_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "locale": {
+      "type": "string",
+      "enum": [
+        "zh-CN",
+        "en"
+      ]
+    },
+    "user_context": {
+      "description": "User-declared only. Nothing here is inferred from photos.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "presentation",
+        "optimize_focus",
+        "desired_impression",
+        "constraints"
+      ],
+      "properties": {
+        "presentation": {
+          "description": "User-selected vocabulary domain (makeup vs grooming advice, examples). Never inferred.",
+          "type": "string",
+          "enum": [
+            "feminine",
+            "masculine",
+            "androgynous"
+          ]
+        },
+        "optimize_focus": {
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 3,
+          "items": {
+            "type": "string",
+            "enum": [
+              "hair",
+              "brows_eyes",
+              "glasses",
+              "facial_hair",
+              "makeup",
+              "color_wardrobe",
+              "overall_style",
+              "photos"
+            ]
+          }
+        },
+        "desired_impression": {
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 3,
+          "items": {
+            "type": "string",
+            "enum": [
+              "clean",
+              "sharp",
+              "mature",
+              "relaxed",
+              "approachable",
+              "refined",
+              "energetic",
+              "authoritative",
+              "gentle",
+              "distinctive",
+              "youthful",
+              "professional"
+            ]
+          }
+        },
+        "constraints": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "dress_code",
+            "accepts_dye",
+            "accepts_perm",
+            "accepts_glasses_change",
+            "budget_level",
+            "daily_minutes",
+            "other"
+          ],
+          "properties": {
+            "dress_code": {
+              "type": "string",
+              "enum": [
+                "none",
+                "business_casual",
+                "formal",
+                "uniform",
+                "creative"
+              ]
+            },
+            "accepts_dye": {
+              "type": "boolean"
+            },
+            "accepts_perm": {
+              "type": "boolean"
+            },
+            "accepts_glasses_change": {
+              "type": "boolean"
+            },
+            "budget_level": {
+              "type": "string",
+              "enum": [
+                "low",
+                "medium",
+                "high"
+              ]
+            },
+            "daily_minutes": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 120
+            },
+            "other": {
+              "type": "string",
+              "maxLength": 200
+            }
+          }
+        },
+        "hair": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "texture",
+            "density",
+            "grow_out_ok"
+          ],
+          "properties": {
+            "texture": {
+              "type": "string",
+              "enum": [
+                "unknown",
+                "straight",
+                "wavy",
+                "curly",
+                "coily"
+              ]
+            },
+            "density": {
+              "type": "string",
+              "enum": [
+                "unknown",
+                "fine",
+                "medium",
+                "thick"
+              ]
+            },
+            "grow_out_ok": {
+              "type": "boolean"
+            }
+          }
+        },
+        "haircut_budget": {
+          "type": "string",
+          "enum": [
+            "low",
+            "medium",
+            "high"
+          ]
+        },
+        "occasions": {
+          "type": "array",
+          "maxItems": 4,
+          "uniqueItems": true,
+          "items": {
+            "type": "string",
+            "enum": [
+              "commute",
+              "date",
+              "formal",
+              "casual"
+            ]
+          }
+        },
+        "current_style_picks": {
+          "type": "array",
+          "maxItems": 3,
+          "uniqueItems": true,
+          "items": {
+            "type": "string",
+            "enum": [
+              "sweet",
+              "boyish",
+              "modern",
+              "elegant",
+              "classic",
+              "natural",
+              "romantic",
+              "dramatic"
+            ]
+          }
+        },
+        "body": {
+          "description": "User-entered only; never measured from photos.",
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "frame",
+            "height_cm"
+          ],
+          "properties": {
+            "frame": {
+              "type": [
+                "string",
+                "null"
+              ],
+              "enum": [
+                "straight",
+                "wave",
+                "natural",
+                null
+              ]
+            },
+            "height_cm": {
+              "type": [
+                "integer",
+                "null"
+              ],
+              "minimum": 120,
+              "maximum": 220
+            }
+          }
+        },
+        "style_preferences": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "liked",
+            "disliked"
+          ],
+          "properties": {
+            "liked": {
+              "type": "array",
+              "maxItems": 8,
+              "uniqueItems": true,
+              "items": {
+                "type": "string",
+                "enum": [
+                  "sweet",
+                  "boyish",
+                  "modern",
+                  "elegant",
+                  "classic",
+                  "natural",
+                  "romantic",
+                  "dramatic"
+                ]
+              }
+            },
+            "disliked": {
+              "type": "array",
+              "maxItems": 8,
+              "uniqueItems": true,
+              "items": {
+                "type": "string",
+                "enum": [
+                  "sweet",
+                  "boyish",
+                  "modern",
+                  "elegant",
+                  "classic",
+                  "natural",
+                  "romantic",
+                  "dramatic"
+                ]
+              }
+            }
+          }
+        },
+        "target_style": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "enum": [
+            "sweet",
+            "boyish",
+            "modern",
+            "elegant",
+            "classic",
+            "natural",
+            "romantic",
+            "dramatic",
+            null
+          ]
+        },
+        "topic": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "enum": [
+            "face",
+            "hair",
+            "style",
+            "color",
+            "outfit",
+            null
+          ]
+        },
+        "ref": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "maxLength": 64,
+          "pattern": "^[A-Za-z0-9_.-]*$"
+        }
+      }
+    },
+    "input_quality": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "passed",
+        "photos",
+        "lighting_consistency",
+        "retake_guidance"
+      ],
+      "properties": {
+        "passed": {
+          "type": "boolean"
+        },
+        "photos": {
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 6,
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "photo_id",
+              "status",
+              "face_count",
+              "yaw",
+              "pitch",
+              "roll",
+              "blur_score",
+              "face_luma_mean",
+              "face_box_px",
+              "issues"
+            ],
+            "properties": {
+              "photo_id": {
+                "type": "string",
+                "enum": [
+                  "front",
+                  "profile90",
+                  "noglasses",
+                  "profile45",
+                  "smile",
+                  "hair"
+                ]
+              },
+              "status": {
+                "type": "string",
+                "enum": [
+                  "ok",
+                  "warn",
+                  "reject"
+                ]
+              },
+              "face_count": {
+                "type": "integer",
+                "minimum": 0
+              },
+              "yaw": {
+                "type": [
+                  "number",
+                  "null"
+                ]
+              },
+              "pitch": {
+                "type": [
+                  "number",
+                  "null"
+                ]
+              },
+              "roll": {
+                "type": [
+                  "number",
+                  "null"
+                ]
+              },
+              "blur_score": {
+                "type": [
+                  "number",
+                  "null"
+                ]
+              },
+              "face_luma_mean": {
+                "type": [
+                  "number",
+                  "null"
+                ]
+              },
+              "face_box_px": {
+                "type": [
+                  "integer",
+                  "null"
+                ]
+              },
+              "issues": {
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "enum": [
+                    "no_face",
+                    "multiple_faces",
+                    "face_too_small",
+                    "blurry",
+                    "underexposed",
+                    "overexposed",
+                    "pose_off_axis",
+                    "wrong_angle_for_role",
+                    "occluded_eyes",
+                    "beauty_filter_suspect",
+                    "eyewear_detected",
+                    "profile_unclear"
+                  ]
+                }
+              }
+            }
+          }
+        },
+        "lighting_consistency": {
+          "type": "string",
+          "enum": [
+            "high",
+            "medium",
+            "low",
+            "unknown"
+          ]
+        },
+        "retake_guidance": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "maxLength": 120
+          }
+        }
+      }
+    },
+    "anchors": {
+      "description": "Deterministic MediaPipe measurements on the front photo. Relative ratios only; no absolute color, no 'golden ratio'. Null when the front photo failed QC.",
+      "anyOf": [
+        {
+          "type": "null"
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "method",
+            "source_photo",
+            "face_length_width_ratio",
+            "width_profile",
+            "lower_to_mid_ratio",
+            "intercanthal_to_eye_width",
+            "reliability",
+            "notes",
+            "face_shape_heuristic"
+          ],
+          "properties": {
+            "method": {
+              "const": "mediapipe_face_landmarker"
+            },
+            "source_photo": {
+              "const": "front"
+            },
+            "face_length_width_ratio": {
+              "type": "number",
+              "minimum": 0.8,
+              "maximum": 2.2,
+              "description": "(forehead-top landmark → chin) / cheekbone width. Forehead-top is NOT the hairline."
+            },
+            "width_profile": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "forehead",
+                "cheekbone",
+                "jaw"
+              ],
+              "properties": {
+                "forehead": {
+                  "type": "number",
+                  "minimum": 0.4,
+                  "maximum": 1.4
+                },
+                "cheekbone": {
+                  "const": 1.0
+                },
+                "jaw": {
+                  "type": "number",
+                  "minimum": 0.4,
+                  "maximum": 1.4
+                }
+              }
+            },
+            "lower_to_mid_ratio": {
+              "type": "number",
+              "minimum": 0.5,
+              "maximum": 1.8,
+              "description": "(subnasale → chin) / (glabella → subnasale)."
+            },
+            "intercanthal_to_eye_width": {
+              "type": "number",
+              "minimum": 0.5,
+              "maximum": 1.8
+            },
+            "reliability": {
+              "type": "string",
+              "enum": [
+                "high",
+                "medium",
+                "low"
+              ]
+            },
+            "notes": {
+              "type": "string",
+              "maxLength": 200
+            },
+            "face_shape_heuristic": {
+              "description": "CV-layer face-shape heuristic over the same ratios (adapted MIT heuristic, weights in config/rules.yaml). Fit scores, not probabilities. Report §9.",
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "top",
+                "runner_up",
+                "ambiguous",
+                "scores"
+              ],
+              "properties": {
+                "top": {
+                  "type": "string",
+                  "enum": [
+                    "oval",
+                    "oblong",
+                    "round",
+                    "square",
+                    "rectangle",
+                    "heart",
+                    "diamond",
+                    "triangle"
+                  ]
+                },
+                "runner_up": {
+                  "type": "string",
+                  "enum": [
+                    "oval",
+                    "oblong",
+                    "round",
+                    "square",
+                    "rectangle",
+                    "heart",
+                    "diamond",
+                    "triangle"
+                  ]
+                },
+                "ambiguous": {
+                  "type": "boolean"
+                },
+                "scores": {
+                  "type": "object",
+                  "additionalProperties": {
+                    "type": "number",
+                    "minimum": 0,
+                    "maximum": 1
+                  }
+                }
+              }
+            },
+            "thirds": {
+              "description": "Vertical thirds (hairline→glabella, glabella→subnasale, subnasale→chin) as fractions of the measured span. When the forehead is covered or the hairline is not found, upper is null and middle + lower = 1.",
+              "anyOf": [
+                {
+                  "type": "null"
+                },
+                {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "required": [
+                    "upper",
+                    "middle",
+                    "lower",
+                    "upper_occluded"
+                  ],
+                  "properties": {
+                    "upper": {
+                      "type": [
+                        "number",
+                        "null"
+                      ],
+                      "minimum": 0,
+                      "maximum": 1
+                    },
+                    "middle": {
+                      "type": "number",
+                      "minimum": 0,
+                      "maximum": 1
+                    },
+                    "lower": {
+                      "type": "number",
+                      "minimum": 0,
+                      "maximum": 1
+                    },
+                    "upper_occluded": {
+                      "type": "boolean"
+                    }
+                  }
+                }
+              ]
+            },
+            "eye_fifths": {
+              "description": "Face width at eye level in units of the mean eye width: [outer-left, eye, gap, eye, outer-right].",
+              "anyOf": [
+                {
+                  "type": "null"
+                },
+                {
+                  "type": "array",
+                  "minItems": 5,
+                  "maxItems": 5,
+                  "items": {
+                    "type": "number",
+                    "minimum": 0,
+                    "maximum": 3
+                  }
+                }
+              ]
+            },
+            "iris_px": {
+              "description": "Mean horizontal iris diameter in px on the working image (glasses size scale).",
+              "type": [
+                "number",
+                "null"
+              ],
+              "minimum": 0
+            },
+            "cheekbone_px": {
+              "description": "Cheekbone width in px on the working image (with iris_px: glasses size).",
+              "type": [
+                "number",
+                "null"
+              ],
+              "minimum": 0
+            },
+            "intercanthal_px": {
+              "description": "Inner eye-corner distance in px (bridge width).",
+              "type": [
+                "number",
+                "null"
+              ],
+              "minimum": 0
+            }
+          }
+        }
+      ]
+    },
+    "color_measurements": {
+      "description": "CV layer: regional median colors on the front photo (CIE Lab, L 0-100). A signal for the model and the rules, never displayed as a verdict (D15). Report §6 measured chips and §9.",
+      "anyOf": [
+        {
+          "type": "null"
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "method",
+            "source_photo",
+            "regions",
+            "warmth_b",
+            "depth_L",
+            "chroma_C",
+            "skin_brow_contrast_dL",
+            "reliability",
+            "notes"
+          ],
+          "properties": {
+            "method": {
+              "const": "regional_lab_median"
+            },
+            "source_photo": {
+              "const": "front"
+            },
+            "regions": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "skin",
+                "brow",
+                "iris",
+                "lip",
+                "hair"
+              ],
+              "properties": {
+                "skin": {
+                  "anyOf": [
+                    {
+                      "type": "null"
+                    },
+                    {
+                      "type": "object",
+                      "additionalProperties": false,
+                      "required": [
+                        "lab",
+                        "hex",
+                        "n_pixels"
+                      ],
+                      "properties": {
+                        "lab": {
+                          "type": "object",
+                          "additionalProperties": false,
+                          "required": [
+                            "L",
+                            "a",
+                            "b"
+                          ],
+                          "properties": {
+                            "L": {
+                              "type": "number",
+                              "minimum": 0,
+                              "maximum": 100
+                            },
+                            "a": {
+                              "type": "number"
+                            },
+                            "b": {
+                              "type": "number"
+                            }
+                          }
+                        },
+                        "hex": {
+                          "type": "string",
+                          "pattern": "^#[0-9A-Fa-f]{6}$"
+                        },
+                        "n_pixels": {
+                          "type": "integer",
+                          "minimum": 0
+                        }
+                      }
+                    }
+                  ]
+                },
+                "brow": {
+                  "anyOf": [
+                    {
+                      "type": "null"
+                    },
+                    {
+                      "type": "object",
+                      "additionalProperties": false,
+                      "required": [
+                        "lab",
+                        "hex",
+                        "n_pixels"
+                      ],
+                      "properties": {
+                        "lab": {
+                          "type": "object",
+                          "additionalProperties": false,
+                          "required": [
+                            "L",
+                            "a",
+                            "b"
+                          ],
+                          "properties": {
+                            "L": {
+                              "type": "number",
+                              "minimum": 0,
+                              "maximum": 100
+                            },
+                            "a": {
+                              "type": "number"
+                            },
+                            "b": {
+                              "type": "number"
+                            }
+                          }
+                        },
+                        "hex": {
+                          "type": "string",
+                          "pattern": "^#[0-9A-Fa-f]{6}$"
+                        },
+                        "n_pixels": {
+                          "type": "integer",
+                          "minimum": 0
+                        }
+                      }
+                    }
+                  ]
+                },
+                "iris": {
+                  "anyOf": [
+                    {
+                      "type": "null"
+                    },
+                    {
+                      "type": "object",
+                      "additionalProperties": false,
+                      "required": [
+                        "lab",
+                        "hex",
+                        "n_pixels"
+                      ],
+                      "properties": {
+                        "lab": {
+                          "type": "object",
+                          "additionalProperties": false,
+                          "required": [
+                            "L",
+                            "a",
+                            "b"
+                          ],
+                          "properties": {
+                            "L": {
+                              "type": "number",
+                              "minimum": 0,
+                              "maximum": 100
+                            },
+                            "a": {
+                              "type": "number"
+                            },
+                            "b": {
+                              "type": "number"
+                            }
+                          }
+                        },
+                        "hex": {
+                          "type": "string",
+                          "pattern": "^#[0-9A-Fa-f]{6}$"
+                        },
+                        "n_pixels": {
+                          "type": "integer",
+                          "minimum": 0
+                        }
+                      }
+                    }
+                  ]
+                },
+                "lip": {
+                  "anyOf": [
+                    {
+                      "type": "null"
+                    },
+                    {
+                      "type": "object",
+                      "additionalProperties": false,
+                      "required": [
+                        "lab",
+                        "hex",
+                        "n_pixels"
+                      ],
+                      "properties": {
+                        "lab": {
+                          "type": "object",
+                          "additionalProperties": false,
+                          "required": [
+                            "L",
+                            "a",
+                            "b"
+                          ],
+                          "properties": {
+                            "L": {
+                              "type": "number",
+                              "minimum": 0,
+                              "maximum": 100
+                            },
+                            "a": {
+                              "type": "number"
+                            },
+                            "b": {
+                              "type": "number"
+                            }
+                          }
+                        },
+                        "hex": {
+                          "type": "string",
+                          "pattern": "^#[0-9A-Fa-f]{6}$"
+                        },
+                        "n_pixels": {
+                          "type": "integer",
+                          "minimum": 0
+                        }
+                      }
+                    }
+                  ]
+                },
+                "hair": {
+                  "anyOf": [
+                    {
+                      "type": "null"
+                    },
+                    {
+                      "type": "object",
+                      "additionalProperties": false,
+                      "required": [
+                        "lab",
+                        "hex",
+                        "n_pixels"
+                      ],
+                      "properties": {
+                        "lab": {
+                          "type": "object",
+                          "additionalProperties": false,
+                          "required": [
+                            "L",
+                            "a",
+                            "b"
+                          ],
+                          "properties": {
+                            "L": {
+                              "type": "number",
+                              "minimum": 0,
+                              "maximum": 100
+                            },
+                            "a": {
+                              "type": "number"
+                            },
+                            "b": {
+                              "type": "number"
+                            }
+                          }
+                        },
+                        "hex": {
+                          "type": "string",
+                          "pattern": "^#[0-9A-Fa-f]{6}$"
+                        },
+                        "n_pixels": {
+                          "type": "integer",
+                          "minimum": 0
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            },
+            "warmth_b": {
+              "type": "number",
+              "description": "skin b* (yellow-blue); higher = warmer-looking in this photo"
+            },
+            "depth_L": {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 100,
+              "description": "skin L*"
+            },
+            "chroma_C": {
+              "type": "number",
+              "minimum": 0,
+              "description": "skin chroma sqrt(a*² + b*²)"
+            },
+            "skin_brow_contrast_dL": {
+              "type": [
+                "number",
+                "null"
+              ],
+              "description": "skin L* − brow L*"
+            },
+            "reliability": {
+              "type": "string",
+              "enum": [
+                "high",
+                "medium",
+                "low"
+              ]
+            },
+            "notes": {
+              "type": "string",
+              "maxLength": 200
+            }
+          }
+        }
+      ]
+    },
+    "measurement_profile": {
+      "description": "V3A (D34) CV measurement profile on the front photo: our own deterministic definitions (config/face_metrics.yaml) on MediaPipe landmarks in a head-roll-corrected frame. Relative values only, no score, no millimetres. Overlay coordinates are NOT stored here: they live in geometry.json and expire with the photo (24 h). Null when the front photo could not be measured; absent in passports older than 0.4.",
+      "anyOf": [
+        {
+          "type": "null"
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "version",
+            "method",
+            "source_photo",
+            "frame",
+            "pose",
+            "flags",
+            "coverage",
+            "groups",
+            "pillars",
+            "missing_reasons_zh",
+            "metrics"
+          ],
+          "properties": {
+            "version": {
+              "type": "string"
+            },
+            "method": {
+              "const": "mediapipe_face_landmarker_478"
+            },
+            "source_photo": {
+              "const": "front"
+            },
+            "frame": {
+              "const": "roll_corrected"
+            },
+            "pose": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "yaw",
+                "pitch",
+                "roll"
+              ],
+              "properties": {
+                "yaw": {
+                  "type": [
+                    "number",
+                    "null"
+                  ]
+                },
+                "pitch": {
+                  "type": [
+                    "number",
+                    "null"
+                  ]
+                },
+                "roll": {
+                  "type": [
+                    "number",
+                    "null"
+                  ]
+                }
+              }
+            },
+            "flags": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "mouth_open",
+                "eyes_closed",
+                "upper_third_occluded",
+                "hairline_found",
+                "side_photo"
+              ],
+              "properties": {
+                "mouth_open": {
+                  "type": "boolean"
+                },
+                "eyes_closed": {
+                  "type": "boolean"
+                },
+                "upper_third_occluded": {
+                  "type": "boolean"
+                },
+                "hairline_found": {
+                  "type": "boolean"
+                },
+                "side_photo": {
+                  "type": "boolean"
+                },
+                "eyewear": {
+                  "enum": [
+                    "user",
+                    "detected",
+                    null
+                  ],
+                  "description": "Glasses in the front photo: declared at upload or detected (QC hint)."
+                },
+                "noglasses_photo": {
+                  "type": "boolean"
+                },
+                "smile_photo": {
+                  "type": "boolean"
+                }
+              }
+            },
+            "coverage": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "measured",
+                "front_total",
+                "side_total"
+              ],
+              "properties": {
+                "measured": {
+                  "type": "integer",
+                  "minimum": 0
+                },
+                "front_total": {
+                  "type": "integer",
+                  "minimum": 0
+                },
+                "side_total": {
+                  "type": "integer",
+                  "minimum": 0
+                },
+                "side_measured": {
+                  "type": "integer",
+                  "minimum": 0
+                },
+                "smile_total": {
+                  "type": "integer",
+                  "minimum": 0
+                },
+                "smile_measured": {
+                  "type": "integer",
+                  "minimum": 0
+                },
+                "total_measured": {
+                  "type": "integer",
+                  "minimum": 0
+                },
+                "total_defined": {
+                  "type": "integer",
+                  "minimum": 0
+                }
+              }
+            },
+            "groups": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                  "key",
+                  "name_zh"
+                ],
+                "properties": {
+                  "key": {
+                    "enum": [
+                      "overall",
+                      "proportions",
+                      "eyes",
+                      "brows",
+                      "nose",
+                      "lips",
+                      "jaw",
+                      "symmetry",
+                      "skin",
+                      "hair",
+                      "profile",
+                      "smile"
+                    ]
+                  },
+                  "name_zh": {
+                    "type": "string"
+                  }
+                }
+              }
+            },
+            "pillars": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                  "key",
+                  "name_zh",
+                  "about_zh"
+                ],
+                "properties": {
+                  "key": {
+                    "enum": [
+                      "harmony",
+                      "architecture",
+                      "expression",
+                      "skin"
+                    ]
+                  },
+                  "name_zh": {
+                    "type": "string"
+                  },
+                  "about_zh": {
+                    "type": "string",
+                    "maxLength": 200
+                  }
+                }
+              }
+            },
+            "missing_reasons_zh": {
+              "type": "object",
+              "propertyNames": {
+                "enum": [
+                  "upper_third_occluded",
+                  "hairline_not_found",
+                  "no_iris",
+                  "mouth_open",
+                  "eyes_closed",
+                  "pose_off_axis",
+                  "out_of_range",
+                  "color_unavailable",
+                  "needs_side_photo",
+                  "no_face",
+                  "side_photo_rejected",
+                  "side_not_true_profile",
+                  "resolution_too_low",
+                  "landmarks_unclear",
+                  "lips_unclear",
+                  "needs_smile_photo",
+                  "smile_photo_rejected",
+                  "hair_unavailable"
+                ]
+              },
+              "additionalProperties": {
+                "type": "string"
+              }
+            },
+            "metrics": {
+              "type": "array",
+              "maxItems": 160,
+              "items": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                  "id",
+                  "key",
+                  "name_zh",
+                  "group",
+                  "pillar",
+                  "view",
+                  "unit",
+                  "decimals",
+                  "tier",
+                  "definition_zh",
+                  "value",
+                  "components",
+                  "availability",
+                  "missing_reason",
+                  "confidence",
+                  "overlay"
+                ],
+                "properties": {
+                  "id": {
+                    "type": "string",
+                    "pattern": "^(M\\d{3}|BA\\d{2})$"
+                  },
+                  "key": {
+                    "type": "string",
+                    "pattern": "^[a-z][a-z0-9_]*$"
+                  },
+                  "name_zh": {
+                    "type": "string",
+                    "maxLength": 40
+                  },
+                  "group": {
+                    "enum": [
+                      "overall",
+                      "proportions",
+                      "eyes",
+                      "brows",
+                      "nose",
+                      "lips",
+                      "jaw",
+                      "symmetry",
+                      "skin",
+                      "hair",
+                      "profile",
+                      "smile"
+                    ]
+                  },
+                  "pillar": {
+                    "enum": [
+                      "harmony",
+                      "architecture",
+                      "expression",
+                      "skin"
+                    ]
+                  },
+                  "view": {
+                    "enum": [
+                      "front",
+                      "side",
+                      "smile"
+                    ]
+                  },
+                  "unit": {
+                    "enum": [
+                      "ratio",
+                      "fraction",
+                      "deg",
+                      "pct_face",
+                      "lab_l",
+                      "lab_b",
+                      "delta_e",
+                      "lab_a",
+                      "lab_c",
+                      "px"
+                    ]
+                  },
+                  "decimals": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 3
+                  },
+                  "tier": {
+                    "enum": [
+                      "free",
+                      "full"
+                    ]
+                  },
+                  "definition_zh": {
+                    "type": "string",
+                    "maxLength": 200
+                  },
+                  "value": {
+                    "type": [
+                      "number",
+                      "null"
+                    ],
+                    "description": "Relative value (ratio, fraction, degrees, Lab). Null whenever not measured — never estimated."
+                  },
+                  "components": {
+                    "anyOf": [
+                      {
+                        "type": "null"
+                      },
+                      {
+                        "type": "object",
+                        "additionalProperties": {
+                          "type": "number"
+                        },
+                        "maxProperties": 4
+                      }
+                    ],
+                    "description": "Per-side values for bilateral metrics (image_left / image_right = the photo's left / right)."
+                  },
+                  "availability": {
+                    "enum": [
+                      "measured",
+                      "not_measured",
+                      "needs_photo"
+                    ]
+                  },
+                  "missing_reason": {
+                    "anyOf": [
+                      {
+                        "type": "null"
+                      },
+                      {
+                        "enum": [
+                          "upper_third_occluded",
+                          "hairline_not_found",
+                          "no_iris",
+                          "mouth_open",
+                          "eyes_closed",
+                          "pose_off_axis",
+                          "out_of_range",
+                          "color_unavailable",
+                          "needs_side_photo",
+                          "no_face",
+                          "side_photo_rejected",
+                          "side_not_true_profile",
+                          "resolution_too_low",
+                          "landmarks_unclear",
+                          "lips_unclear",
+                          "needs_smile_photo",
+                          "smile_photo_rejected",
+                          "hair_unavailable"
+                        ]
+                      }
+                    ]
+                  },
+                  "confidence": {
+                    "type": [
+                      "string",
+                      "null"
+                    ],
+                    "enum": [
+                      "high",
+                      "medium",
+                      "low",
+                      null
+                    ]
+                  },
+                  "overlay": {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "required": [
+                      "segments",
+                      "angles",
+                      "points",
+                      "outline"
+                    ],
+                    "description": "Which named points (geometry.json → points) the face page draws for this metric. Names only, never coordinates.",
+                    "properties": {
+                      "segments": {
+                        "type": "array",
+                        "maxItems": 12,
+                        "items": {
+                          "type": "object",
+                          "additionalProperties": false,
+                          "required": [
+                            "from",
+                            "to",
+                            "role"
+                          ],
+                          "properties": {
+                            "from": {
+                              "type": "string",
+                              "pattern": "^[a-z][a-z0-9_]*$"
+                            },
+                            "to": {
+                              "type": "string",
+                              "pattern": "^[a-z][a-z0-9_]*$"
+                            },
+                            "role": {
+                              "enum": [
+                                "measure",
+                                "reference"
+                              ]
+                            }
+                          }
+                        }
+                      },
+                      "angles": {
+                        "type": "array",
+                        "maxItems": 4,
+                        "items": {
+                          "type": "object",
+                          "additionalProperties": false,
+                          "required": [
+                            "a",
+                            "vertex",
+                            "b"
+                          ],
+                          "properties": {
+                            "a": {
+                              "type": "string",
+                              "pattern": "^[a-z][a-z0-9_]*$"
+                            },
+                            "vertex": {
+                              "type": "string",
+                              "pattern": "^[a-z][a-z0-9_]*$"
+                            },
+                            "b": {
+                              "type": "string",
+                              "pattern": "^[a-z][a-z0-9_]*$"
+                            }
+                          }
+                        }
+                      },
+                      "points": {
+                        "type": "array",
+                        "maxItems": 16,
+                        "items": {
+                          "type": "string",
+                          "pattern": "^[a-z][a-z0-9_]*$"
+                        }
+                      },
+                      "outline": {
+                        "type": "boolean"
+                      },
+                      "silhouette": {
+                        "type": "boolean",
+                        "description": "Draw the traced profile outline (side view geometry)."
+                      }
+                    }
+                  },
+                  "source_photo": {
+                    "anyOf": [
+                      {
+                        "type": "null"
+                      },
+                      {
+                        "enum": [
+                          "front",
+                          "noglasses",
+                          "profile90",
+                          "smile"
+                        ]
+                      }
+                    ],
+                    "description": "The photo this value was measured on (V3B)."
+                  },
+                  "notes": {
+                    "type": "array",
+                    "maxItems": 4,
+                    "items": {
+                      "enum": [
+                        "eyewear"
+                      ]
+                    }
+                  },
+                  "locked": {
+                    "type": "boolean",
+                    "description": "Free view: the value exists in the full passport; value, components and overlay are removed server-side."
+                  }
+                }
+              }
+            },
+            "views": {
+              "type": "array",
+              "maxItems": 6,
+              "description": "One entry per measurement photo role (V3B).",
+              "items": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                  "role",
+                  "label_zh",
+                  "status",
+                  "reason",
+                  "measured",
+                  "total"
+                ],
+                "properties": {
+                  "role": {
+                    "enum": [
+                      "front",
+                      "noglasses",
+                      "profile90",
+                      "smile"
+                    ]
+                  },
+                  "label_zh": {
+                    "type": "string"
+                  },
+                  "status": {
+                    "enum": [
+                      "measured",
+                      "not_provided",
+                      "unavailable"
+                    ]
+                  },
+                  "reason": {
+                    "anyOf": [
+                      {
+                        "type": "null"
+                      },
+                      {
+                        "enum": [
+                          "upper_third_occluded",
+                          "hairline_not_found",
+                          "no_iris",
+                          "mouth_open",
+                          "eyes_closed",
+                          "pose_off_axis",
+                          "out_of_range",
+                          "color_unavailable",
+                          "needs_side_photo",
+                          "no_face",
+                          "side_photo_rejected",
+                          "side_not_true_profile",
+                          "resolution_too_low",
+                          "landmarks_unclear",
+                          "lips_unclear",
+                          "needs_smile_photo",
+                          "smile_photo_rejected",
+                          "hair_unavailable"
+                        ]
+                      }
+                    ]
+                  },
+                  "measured": {
+                    "type": "integer",
+                    "minimum": 0
+                  },
+                  "total": {
+                    "type": "integer",
+                    "minimum": 0
+                  },
+                  "capture": {
+                    "type": "object",
+                    "description": "User-confirmed framing (crop box in source pixels, rotation, source size).",
+                    "additionalProperties": false,
+                    "properties": {
+                      "crop": {
+                        "type": "array",
+                        "items": {
+                          "type": "number"
+                        },
+                        "minItems": 4,
+                        "maxItems": 4
+                      },
+                      "rotate_deg": {
+                        "type": "number"
+                      },
+                      "source_w": {
+                        "type": "integer"
+                      },
+                      "source_h": {
+                        "type": "integer"
+                      },
+                      "output_w": {
+                        "type": "integer"
+                      },
+                      "output_h": {
+                        "type": "integer"
+                      },
+                      "edited": {
+                        "type": "boolean"
+                      }
+                    }
+                  }
+                }
+              }
+            },
+            "catalog": {
+              "type": "object",
+              "description": "How the 176-candidate research pool is classified (config/face_metrics.yaml catalog_status).",
+              "additionalProperties": {
+                "type": "integer",
+                "minimum": 0
+              }
+            }
+          },
+          "description": "V3A/V3B measurement profile (CV)."
+        }
+      ]
+    },
+    "aesthetic_score": {
+      "description": "v0.6 (Issue #31, D36) AI 面部美学参考分: deterministic geometric harmony score computed by src/aesthetic_passport/scoring from the front photo's CV landmarks (never by the model). overall = 0.35 symmetry + 0.25 thirds + 0.25 fifths + 0.15 golden_ratio (config/scoring.yaml). A geometry reference, not an attractiveness verdict and not a population rank (percentiles: #41, separate field). Null on documents older than 0.6.",
+      "type": [
+        "object",
+        "null"
+      ],
+      "additionalProperties": false,
+      "required": [
+        "scoring_version",
+        "status",
+        "overall_score",
+        "component_scores",
+        "weights",
+        "quality_flags",
+        "confidence",
+        "tier",
+        "components",
+        "strengths",
+        "improvement",
+        "copy_zh",
+        "provenance"
+      ],
+      "properties": {
+        "scoring_version": {
+          "type": "string"
+        },
+        "status": {
+          "enum": [
+            "full",
+            "limited",
+            "unavailable"
+          ],
+          "description": "full = all four components on a good photo; limited = computed but a photo-condition flag lowers confidence; unavailable = no overall score."
+        },
+        "overall_score": {
+          "type": [
+            "number",
+            "null"
+          ],
+          "minimum": 0,
+          "maximum": 100,
+          "description": "0–100, one decimal; null unless all four components were measured."
+        },
+        "component_scores": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "symmetry",
+            "thirds",
+            "fifths",
+            "golden_ratio"
+          ],
+          "properties": {
+            "symmetry": {
+              "type": [
+                "number",
+                "null"
+              ],
+              "minimum": 0,
+              "maximum": 100
+            },
+            "thirds": {
+              "type": [
+                "number",
+                "null"
+              ],
+              "minimum": 0,
+              "maximum": 100
+            },
+            "fifths": {
+              "type": [
+                "number",
+                "null"
+              ],
+              "minimum": 0,
+              "maximum": 100
+            },
+            "golden_ratio": {
+              "type": [
+                "number",
+                "null"
+              ],
+              "minimum": 0,
+              "maximum": 100
+            }
+          }
+        },
+        "weights": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "symmetry",
+            "thirds",
+            "fifths",
+            "golden_ratio"
+          ],
+          "properties": {
+            "symmetry": {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 1
+            },
+            "thirds": {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 1
+            },
+            "fifths": {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 1
+            },
+            "golden_ratio": {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 1
+            }
+          }
+        },
+        "quality_flags": {
+          "type": "array",
+          "items": {
+            "enum": [
+              "pose_unknown",
+              "pose_yaw",
+              "pose_pitch",
+              "pose_off_axis",
+              "head_roll",
+              "mouth_open",
+              "eyes_closed",
+              "eyewear",
+              "forehead_covered",
+              "face_too_small",
+              "no_landmarks",
+              "landmarks_unclear"
+            ]
+          }
+        },
+        "confidence": {
+          "enum": [
+            "high",
+            "medium",
+            "low",
+            null
+          ]
+        },
+        "tier": {
+          "type": [
+            "object",
+            "null"
+          ],
+          "additionalProperties": false,
+          "required": [
+            "key",
+            "label_zh",
+            "min"
+          ],
+          "properties": {
+            "key": {
+              "type": "string"
+            },
+            "label_zh": {
+              "type": "string"
+            },
+            "min": {
+              "type": "number"
+            }
+          }
+        },
+        "components": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "key",
+              "name_zh",
+              "about_zh",
+              "weight",
+              "score",
+              "status",
+              "missing_reason",
+              "measured"
+            ],
+            "properties": {
+              "key": {
+                "enum": [
+                  "symmetry",
+                  "thirds",
+                  "fifths",
+                  "golden_ratio"
+                ]
+              },
+              "name_zh": {
+                "type": "string"
+              },
+              "about_zh": {
+                "type": "string"
+              },
+              "weight": {
+                "type": "number"
+              },
+              "score": {
+                "type": [
+                  "number",
+                  "null"
+                ],
+                "minimum": 0,
+                "maximum": 100
+              },
+              "status": {
+                "enum": [
+                  "measured",
+                  "not_measured"
+                ]
+              },
+              "missing_reason": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "measured": {
+                "type": [
+                  "object",
+                  "null"
+                ],
+                "description": "The raw geometry behind the component score (shares, eye-width units, ratio, residuals)."
+              }
+            }
+          }
+        },
+        "strengths": {
+          "type": "array",
+          "maxItems": 2,
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "component",
+              "text_zh"
+            ],
+            "properties": {
+              "component": {
+                "enum": [
+                  "symmetry",
+                  "thirds",
+                  "fifths",
+                  "golden_ratio"
+                ]
+              },
+              "text_zh": {
+                "type": "string"
+              }
+            }
+          }
+        },
+        "improvement": {
+          "type": [
+            "object",
+            "null"
+          ],
+          "additionalProperties": false,
+          "required": [
+            "component",
+            "text_zh"
+          ],
+          "properties": {
+            "component": {
+              "enum": [
+                "symmetry",
+                "thirds",
+                "fifths",
+                "golden_ratio"
+              ]
+            },
+            "text_zh": {
+              "type": "string"
+            }
+          }
+        },
+        "copy_zh": {
+          "type": "object",
+          "required": [
+            "name",
+            "scale_note",
+            "status",
+            "flags"
+          ],
+          "properties": {
+            "name": {
+              "type": "string"
+            },
+            "scale_note": {
+              "type": "string"
+            },
+            "status": {
+              "type": "string"
+            },
+            "flags": {
+              "type": "object",
+              "additionalProperties": {
+                "type": "string"
+              }
+            }
+          }
+        },
+        "provenance": {
+          "type": "object",
+          "required": [
+            "layer",
+            "source",
+            "landmark_model",
+            "method"
+          ],
+          "properties": {
+            "layer": {
+              "const": "scoring"
+            }
+          }
+        }
+      }
+    },
+    "analysis": {
+      "$ref": "analysis.schema.json"
+    },
+    "derived": {
+      "description": "Computed by src/aesthetic_passport/rules.py from analysis + anchors + user_context + config/rules.yaml. Never produced by a model.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "display_labels",
+        "ranked_recommendations",
+        "top5",
+        "excluded_recommendations",
+        "consistency_flags",
+        "overall_confidence",
+        "rules_version",
+        "hair_references",
+        "style_profile",
+        "hair_option_checks",
+        "glasses_size",
+        "plan",
+        "outfit_checks",
+        "feedback_applied",
+        "derived_version"
+      ],
+      "properties": {
+        "display_labels": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "face_shape",
+            "style",
+            "color",
+            "seasonal_leaning"
+          ],
+          "properties": {
+            "face_shape": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "label",
+                "label_zh",
+                "probability",
+                "ambiguous_with"
+              ],
+              "properties": {
+                "label": {
+                  "type": "string"
+                },
+                "label_zh": {
+                  "type": "string"
+                },
+                "probability": {
+                  "type": "number",
+                  "minimum": 0,
+                  "maximum": 1
+                },
+                "ambiguous_with": {
+                  "type": [
+                    "string",
+                    "null"
+                  ]
+                }
+              }
+            },
+            "style": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "system",
+                "primary",
+                "primary_zh",
+                "secondary",
+                "secondary_zh",
+                "between",
+                "confidence",
+                "coordinates"
+              ],
+              "properties": {
+                "system": {
+                  "type": "string"
+                },
+                "primary": {
+                  "type": "string"
+                },
+                "primary_zh": {
+                  "type": "string"
+                },
+                "secondary": {
+                  "type": "string"
+                },
+                "secondary_zh": {
+                  "type": "string"
+                },
+                "between": {
+                  "type": "boolean"
+                },
+                "confidence": {
+                  "type": "number",
+                  "minimum": 0,
+                  "maximum": 1
+                },
+                "coordinates": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "required": [
+                    "visual_weight",
+                    "angular_rounded"
+                  ],
+                  "properties": {
+                    "visual_weight": {
+                      "type": "number"
+                    },
+                    "angular_rounded": {
+                      "type": "number"
+                    }
+                  }
+                }
+              }
+            },
+            "color": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "summary_zh",
+                "confidence",
+                "temperature_confidence",
+                "chroma_confidence"
+              ],
+              "properties": {
+                "summary_zh": {
+                  "type": "string"
+                },
+                "confidence": {
+                  "type": "number",
+                  "minimum": 0,
+                  "maximum": 1
+                },
+                "temperature_confidence": {
+                  "type": "number",
+                  "minimum": 0,
+                  "maximum": 1,
+                  "description": "after C6/C12 caps"
+                },
+                "chroma_confidence": {
+                  "type": "number",
+                  "minimum": 0,
+                  "maximum": 1,
+                  "description": "after C12 caps"
+                }
+              }
+            },
+            "seasonal_leaning": {
+              "description": "Shown only when the gated rules pass (D15); null otherwise. Report §6.",
+              "anyOf": [
+                {
+                  "type": "null"
+                },
+                {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "required": [
+                    "primary",
+                    "primary_zh",
+                    "secondary",
+                    "secondary_zh",
+                    "text_zh"
+                  ],
+                  "properties": {
+                    "primary": {
+                      "type": "string",
+                      "enum": [
+                        "spring",
+                        "summer",
+                        "autumn",
+                        "winter"
+                      ]
+                    },
+                    "primary_zh": {
+                      "type": "string"
+                    },
+                    "secondary": {
+                      "type": [
+                        "string",
+                        "null"
+                      ]
+                    },
+                    "secondary_zh": {
+                      "type": [
+                        "string",
+                        "null"
+                      ]
+                    },
+                    "text_zh": {
+                      "type": "string"
+                    }
+                  }
+                }
+              ]
+            }
+          }
+        },
+        "ranked_recommendations": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "rec_id",
+              "rank",
+              "priority_score",
+              "score_breakdown"
+            ],
+            "properties": {
+              "rec_id": {
+                "type": "string"
+              },
+              "rank": {
+                "type": "integer",
+                "minimum": 1
+              },
+              "priority_score": {
+                "type": "number",
+                "minimum": 0
+              },
+              "score_breakdown": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                  "impact_norm",
+                  "confidence",
+                  "effort_factor",
+                  "goal_bonus",
+                  "consent_penalty"
+                ],
+                "properties": {
+                  "impact_norm": {
+                    "type": "number"
+                  },
+                  "confidence": {
+                    "type": "number"
+                  },
+                  "effort_factor": {
+                    "type": "number"
+                  },
+                  "goal_bonus": {
+                    "type": "number"
+                  },
+                  "consent_penalty": {
+                    "type": "number"
+                  },
+                  "feedback_factor": {
+                    "type": "number"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "top5": {
+          "type": "array",
+          "maxItems": 5,
+          "items": {
+            "type": "string"
+          }
+        },
+        "excluded_recommendations": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "rec_id",
+              "reason"
+            ],
+            "properties": {
+              "rec_id": {
+                "type": "string"
+              },
+              "reason": {
+                "type": "string",
+                "enum": [
+                  "violates_constraint",
+                  "dangling_evidence",
+                  "category_cap",
+                  "below_top_n",
+                  "duplicate",
+                  "user_hidden"
+                ]
+              }
+            }
+          }
+        },
+        "consistency_flags": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "code",
+              "severity",
+              "message",
+              "affected"
+            ],
+            "properties": {
+              "code": {
+                "type": "string",
+                "pattern": "^C[0-9]{1,2}$"
+              },
+              "severity": {
+                "type": "string",
+                "enum": [
+                  "info",
+                  "warn",
+                  "high"
+                ]
+              },
+              "message": {
+                "type": "string"
+              },
+              "affected": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        },
+        "overall_confidence": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1
+        },
+        "rules_version": {
+          "type": "string"
+        },
+        "hair_references": {
+          "description": "Rules layer: closest entries of the adapted hairstyle catalog (config/hairstyles.json) for the model's hair_direction and the face shape. Report §5 参考款式.",
+          "type": "array",
+          "maxItems": 3,
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "catalog_id",
+              "name",
+              "name_zh",
+              "fits_face_shape",
+              "length",
+              "fade",
+              "params_mm",
+              "reasons_zh"
+            ],
+            "properties": {
+              "catalog_id": {
+                "type": "string"
+              },
+              "name": {
+                "type": "string"
+              },
+              "name_zh": {
+                "type": "string"
+              },
+              "fits_face_shape": {
+                "type": "boolean"
+              },
+              "length": {
+                "type": "string"
+              },
+              "fade": {
+                "type": "string"
+              },
+              "params_mm": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                  "top",
+                  "side",
+                  "back"
+                ],
+                "properties": {
+                  "top": {
+                    "type": [
+                      "number",
+                      "null"
+                    ]
+                  },
+                  "side": {
+                    "type": [
+                      "number",
+                      "null"
+                    ]
+                  },
+                  "back": {
+                    "type": [
+                      "number",
+                      "null"
+                    ]
+                  }
+                }
+              },
+              "reasons_zh": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        },
+        "style_profile": {
+          "description": "Four layers (D25): observed features live in analysis; here = inferred position (face_only / overall), the user's preference overlay and target. Feedback never moves face_only.",
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "face_only",
+            "overall",
+            "radius",
+            "primary",
+            "secondary",
+            "between",
+            "preference_overlay",
+            "rules_zh",
+            "prototypes",
+            "names_zh",
+            "guide"
+          ],
+          "properties": {
+            "face_only": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "x",
+                "y"
+              ],
+              "properties": {
+                "x": {
+                  "type": "number"
+                },
+                "y": {
+                  "type": "number"
+                }
+              }
+            },
+            "overall": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "x",
+                "y"
+              ],
+              "properties": {
+                "x": {
+                  "type": "number"
+                },
+                "y": {
+                  "type": "number"
+                }
+              }
+            },
+            "radius": {
+              "description": "Uncertainty radius in plane units.",
+              "type": "number",
+              "minimum": 0
+            },
+            "primary": {
+              "type": "string",
+              "enum": [
+                "sweet",
+                "boyish",
+                "modern",
+                "elegant",
+                "classic",
+                "natural",
+                "romantic",
+                "dramatic"
+              ]
+            },
+            "secondary": {
+              "type": "string",
+              "enum": [
+                "sweet",
+                "boyish",
+                "modern",
+                "elegant",
+                "classic",
+                "natural",
+                "romantic",
+                "dramatic"
+              ]
+            },
+            "between": {
+              "type": "boolean"
+            },
+            "preference_overlay": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "liked",
+                "disliked",
+                "target"
+              ],
+              "properties": {
+                "liked": {
+                  "type": "array",
+                  "items": {
+                    "type": "string",
+                    "enum": [
+                      "sweet",
+                      "boyish",
+                      "modern",
+                      "elegant",
+                      "classic",
+                      "natural",
+                      "romantic",
+                      "dramatic"
+                    ]
+                  }
+                },
+                "disliked": {
+                  "type": "array",
+                  "items": {
+                    "type": "string",
+                    "enum": [
+                      "sweet",
+                      "boyish",
+                      "modern",
+                      "elegant",
+                      "classic",
+                      "natural",
+                      "romantic",
+                      "dramatic"
+                    ]
+                  }
+                },
+                "target": {
+                  "type": [
+                    "string",
+                    "null"
+                  ],
+                  "enum": [
+                    "sweet",
+                    "boyish",
+                    "modern",
+                    "elegant",
+                    "classic",
+                    "natural",
+                    "romantic",
+                    "dramatic",
+                    null
+                  ]
+                }
+              }
+            },
+            "rules_zh": {
+              "description": "config/styles.yaml rules for primary (empty when the file is missing).",
+              "type": "object",
+              "additionalProperties": {
+                "type": "string"
+              }
+            },
+            "prototypes": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                  "key",
+                  "name_zh",
+                  "x",
+                  "y"
+                ],
+                "properties": {
+                  "key": {
+                    "type": "string",
+                    "enum": [
+                      "sweet",
+                      "boyish",
+                      "modern",
+                      "elegant",
+                      "classic",
+                      "natural",
+                      "romantic",
+                      "dramatic"
+                    ]
+                  },
+                  "name_zh": {
+                    "type": "string"
+                  },
+                  "x": {
+                    "type": "number"
+                  },
+                  "y": {
+                    "type": "number"
+                  }
+                }
+              }
+            },
+            "names_zh": {
+              "type": "object",
+              "additionalProperties": {
+                "type": "string"
+              }
+            },
+            "guide": {
+              "description": "config/styles.yaml text: the inferred style's summary and examples for the user's presentation, and the transition toward the target style (null without a target).",
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "summary_zh",
+                "keywords_zh",
+                "examples_zh",
+                "avoid_zh",
+                "transition"
+              ],
+              "properties": {
+                "summary_zh": {
+                  "type": "string"
+                },
+                "keywords_zh": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "examples_zh": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "avoid_zh": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "transition": {
+                  "anyOf": [
+                    {
+                      "type": "null"
+                    },
+                    {
+                      "type": "object",
+                      "additionalProperties": false,
+                      "required": [
+                        "to",
+                        "keep_zh",
+                        "add_zh"
+                      ],
+                      "properties": {
+                        "to": {
+                          "type": "string"
+                        },
+                        "keep_zh": {
+                          "type": "array",
+                          "items": {
+                            "type": "string"
+                          }
+                        },
+                        "add_zh": {
+                          "type": "array",
+                          "items": {
+                            "type": "string"
+                          }
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          }
+        },
+        "hair_option_checks": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "tier",
+              "status",
+              "issues",
+              "catalog_ids",
+              "rank"
+            ],
+            "properties": {
+              "tier": {
+                "type": "string",
+                "enum": [
+                  "safe",
+                  "bold",
+                  "easy"
+                ]
+              },
+              "status": {
+                "type": "string",
+                "enum": [
+                  "ok",
+                  "warn",
+                  "excluded"
+                ]
+              },
+              "issues": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              },
+              "catalog_ids": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              },
+              "rank": {
+                "type": "integer",
+                "minimum": 1
+              }
+            }
+          }
+        },
+        "glasses_size": {
+          "anyOf": [
+            {
+              "type": "null"
+            },
+            {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "method",
+                "total_width_mm",
+                "lens_width_mm",
+                "bridge_mm",
+                "note_zh"
+              ],
+              "properties": {
+                "method": {
+                  "type": "string",
+                  "enum": [
+                    "iris_scale",
+                    "relative"
+                  ]
+                },
+                "total_width_mm": {
+                  "anyOf": [
+                    {
+                      "type": "null"
+                    },
+                    {
+                      "type": "array",
+                      "minItems": 2,
+                      "maxItems": 2,
+                      "items": {
+                        "type": "number"
+                      }
+                    }
+                  ]
+                },
+                "lens_width_mm": {
+                  "anyOf": [
+                    {
+                      "type": "null"
+                    },
+                    {
+                      "type": "array",
+                      "minItems": 2,
+                      "maxItems": 2,
+                      "items": {
+                        "type": "number"
+                      }
+                    }
+                  ]
+                },
+                "bridge_mm": {
+                  "anyOf": [
+                    {
+                      "type": "null"
+                    },
+                    {
+                      "type": "array",
+                      "minItems": 2,
+                      "maxItems": 2,
+                      "items": {
+                        "type": "number"
+                      }
+                    }
+                  ]
+                },
+                "note_zh": {
+                  "type": "string"
+                }
+              }
+            }
+          ]
+        },
+        "plan": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "today",
+            "next_haircut",
+            "invest"
+          ],
+          "properties": {
+            "today": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                  "rec_id",
+                  "action",
+                  "cost_band",
+                  "time_to_effect",
+                  "success_check",
+                  "pairs_with",
+                  "evidence"
+                ],
+                "properties": {
+                  "rec_id": {
+                    "type": "string"
+                  },
+                  "action": {
+                    "type": "string"
+                  },
+                  "cost_band": {
+                    "type": "string"
+                  },
+                  "time_to_effect": {
+                    "type": "string"
+                  },
+                  "success_check": {
+                    "type": "string"
+                  },
+                  "pairs_with": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    }
+                  },
+                  "evidence": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            },
+            "next_haircut": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                  "rec_id",
+                  "action",
+                  "cost_band",
+                  "time_to_effect",
+                  "success_check",
+                  "pairs_with",
+                  "evidence"
+                ],
+                "properties": {
+                  "rec_id": {
+                    "type": "string"
+                  },
+                  "action": {
+                    "type": "string"
+                  },
+                  "cost_band": {
+                    "type": "string"
+                  },
+                  "time_to_effect": {
+                    "type": "string"
+                  },
+                  "success_check": {
+                    "type": "string"
+                  },
+                  "pairs_with": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    }
+                  },
+                  "evidence": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            },
+            "invest": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                  "rec_id",
+                  "action",
+                  "cost_band",
+                  "time_to_effect",
+                  "success_check",
+                  "pairs_with",
+                  "evidence"
+                ],
+                "properties": {
+                  "rec_id": {
+                    "type": "string"
+                  },
+                  "action": {
+                    "type": "string"
+                  },
+                  "cost_band": {
+                    "type": "string"
+                  },
+                  "time_to_effect": {
+                    "type": "string"
+                  },
+                  "success_check": {
+                    "type": "string"
+                  },
+                  "pairs_with": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    }
+                  },
+                  "evidence": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "outfit_checks": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "status",
+            "items",
+            "frame_used"
+          ],
+          "properties": {
+            "status": {
+              "type": "string",
+              "enum": [
+                "ok",
+                "skipped"
+              ]
+            },
+            "frame_used": {
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "items": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                  "garment_id",
+                  "status",
+                  "issues",
+                  "score",
+                  "search_zh"
+                ],
+                "properties": {
+                  "garment_id": {
+                    "type": "string"
+                  },
+                  "status": {
+                    "type": "string",
+                    "enum": [
+                      "ok",
+                      "warn",
+                      "excluded",
+                      "unknown"
+                    ]
+                  },
+                  "issues": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    }
+                  },
+                  "score": {
+                    "type": "number"
+                  },
+                  "search_zh": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "feedback_applied": {
+          "description": "What the last rerank used and what changed (one-line note for the UI).",
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "event_count",
+            "changes",
+            "note_zh"
+          ],
+          "properties": {
+            "event_count": {
+              "type": "integer",
+              "minimum": 0
+            },
+            "changes": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                  "target_type",
+                  "target_id",
+                  "effect"
+                ],
+                "properties": {
+                  "target_type": {
+                    "type": "string"
+                  },
+                  "target_id": {
+                    "type": "string"
+                  },
+                  "effect": {
+                    "type": "string",
+                    "enum": [
+                      "boosted",
+                      "demoted",
+                      "hidden",
+                      "target_set",
+                      "context_changed"
+                    ]
+                  }
+                }
+              }
+            },
+            "note_zh": {
+              "type": [
+                "string",
+                "null"
+              ]
+            }
+          }
+        },
+        "derived_version": {
+          "description": "Increments on every rerank of the same passport.",
+          "type": "integer",
+          "minimum": 1
+        },
+        "measurement_insights": {
+          "description": "V3A (D34) rules-layer reading of measurement_profile: 看到的 → 意味着 → 所以建议. Bands are illustrative common ranges (config/rules.yaml measurement_insights), never good/bad. Null without a profile.",
+          "anyOf": [
+            {
+              "type": "null"
+            },
+            {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "items",
+                "pillars"
+              ],
+              "properties": {
+                "items": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "required": [
+                      "metric_id",
+                      "pillar",
+                      "band",
+                      "label_zh",
+                      "seen_zh",
+                      "means_zh",
+                      "advice",
+                      "confidence",
+                      "priority",
+                      "highlight"
+                    ],
+                    "properties": {
+                      "metric_id": {
+                        "type": "string",
+                        "pattern": "^(M\\d{3}|BA\\d{2})$"
+                      },
+                      "pillar": {
+                        "enum": [
+                          "harmony",
+                          "architecture",
+                          "expression",
+                          "skin"
+                        ]
+                      },
+                      "band": {
+                        "enum": [
+                          "low",
+                          "typical",
+                          "high"
+                        ]
+                      },
+                      "label_zh": {
+                        "type": "string",
+                        "maxLength": 30
+                      },
+                      "seen_zh": {
+                        "type": "string",
+                        "maxLength": 80
+                      },
+                      "means_zh": {
+                        "type": "string",
+                        "maxLength": 120
+                      },
+                      "advice": {
+                        "type": "array",
+                        "maxItems": 4,
+                        "items": {
+                          "type": "object",
+                          "additionalProperties": false,
+                          "required": [
+                            "area",
+                            "page",
+                            "label_zh",
+                            "text_zh",
+                            "rec_id"
+                          ],
+                          "properties": {
+                            "area": {
+                              "enum": [
+                                "hair",
+                                "makeup",
+                                "brows",
+                                "glasses",
+                                "color",
+                                "outfit",
+                                "photo"
+                              ]
+                            },
+                            "page": {
+                              "enum": [
+                                "hair",
+                                "makeup",
+                                "glasses",
+                                "color",
+                                "outfit",
+                                "plan"
+                              ]
+                            },
+                            "label_zh": {
+                              "type": "string"
+                            },
+                            "text_zh": {
+                              "type": "string",
+                              "maxLength": 120
+                            },
+                            "rec_id": {
+                              "type": [
+                                "string",
+                                "null"
+                              ],
+                              "pattern": "^r\\d+$"
+                            }
+                          }
+                        }
+                      },
+                      "confidence": {
+                        "enum": [
+                          "high",
+                          "medium",
+                          "low"
+                        ]
+                      },
+                      "priority": {
+                        "type": "integer",
+                        "minimum": 1
+                      },
+                      "highlight": {
+                        "type": "boolean"
+                      }
+                    }
+                  }
+                },
+                "pillars": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "required": [
+                      "key",
+                      "measured",
+                      "total",
+                      "summary_zh",
+                      "notable"
+                    ],
+                    "properties": {
+                      "key": {
+                        "enum": [
+                          "harmony",
+                          "architecture",
+                          "expression",
+                          "skin"
+                        ]
+                      },
+                      "measured": {
+                        "type": "integer",
+                        "minimum": 0
+                      },
+                      "total": {
+                        "type": "integer",
+                        "minimum": 0
+                      },
+                      "summary_zh": {
+                        "type": "string",
+                        "maxLength": 160
+                      },
+                      "notable": {
+                        "type": "array",
+                        "items": {
+                          "type": "string"
+                        }
+                      }
+                    }
+                  }
+                },
+                "assessments": {
+                  "type": "array",
+                  "maxItems": 160,
+                  "description": "V3B: the rules layer's assessment of each measured value against an illustrative or literature reference range. Separate from the CV value; never a score.",
+                  "items": {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "required": [
+                      "metric_id",
+                      "band",
+                      "label_zh",
+                      "range",
+                      "position",
+                      "basis"
+                    ],
+                    "properties": {
+                      "metric_id": {
+                        "type": "string",
+                        "pattern": "^(M\\d{3}|BA\\d{2})$"
+                      },
+                      "band": {
+                        "enum": [
+                          "low",
+                          "typical",
+                          "high"
+                        ]
+                      },
+                      "label_zh": {
+                        "type": "string",
+                        "maxLength": 24
+                      },
+                      "range": {
+                        "type": "array",
+                        "items": {
+                          "type": "number"
+                        },
+                        "minItems": 2,
+                        "maxItems": 2
+                      },
+                      "position": {
+                        "type": "number",
+                        "minimum": 0,
+                        "maximum": 1,
+                        "description": "Where the value sits on the reference bar (0..1)."
+                      },
+                      "basis": {
+                        "enum": [
+                          "literature",
+                          "mesh",
+                          "illustrative"
+                        ]
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          ]
+        }
+      }
+    },
+    "meta": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "analysis_model",
+        "prompt_version",
+        "rules_version",
+        "latency_ms",
+        "cost_usd_est",
+        "retries"
+      ],
+      "properties": {
+        "analysis_model": {
+          "type": "string"
+        },
+        "prompt_version": {
+          "type": "string"
+        },
+        "rules_version": {
+          "type": "string"
+        },
+        "latency_ms": {
+          "type": [
+            "integer",
+            "null"
+          ]
+        },
+        "cost_usd_est": {
+          "type": [
+            "number",
+            "null"
+          ]
+        },
+        "retries": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "quick": {
+          "anyOf": [
+            {
+              "type": "null"
+            },
+            {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "model",
+                "prompt_version",
+                "latency_ms",
+                "ok"
+              ],
+              "properties": {
+                "model": {
+                  "type": "string"
+                },
+                "prompt_version": {
+                  "type": "string"
+                },
+                "latency_ms": {
+                  "type": [
+                    "integer",
+                    "null"
+                  ]
+                },
+                "ok": {
+                  "type": "boolean"
+                }
+              }
+            }
+          ]
+        }
+      }
+    },
+    "previews": {
+      "type": "array",
+      "maxItems": 12,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "rec_id",
+          "status",
+          "image_model",
+          "before_ref",
+          "after_ref",
+          "identity_check",
+          "prompt_used",
+          "target_id",
+          "kind",
+          "ai_label"
+        ],
+        "properties": {
+          "rec_id": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "pending",
+              "succeeded",
+              "failed",
+              "skipped",
+              "fallback"
+            ]
+          },
+          "image_model": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "before_ref": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "after_ref": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "identity_check": {
+            "type": "string",
+            "enum": [
+              "unchecked",
+              "pass",
+              "fail"
+            ]
+          },
+          "prompt_used": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "target_id": {
+            "description": "hair_options tier (safe|bold|easy) or current, optionally _hc<i> (a hair_color_directions index, V2.1 Look Studio); or a recommendation id.",
+            "type": "string"
+          },
+          "kind": {
+            "type": "string",
+            "enum": [
+              "hair",
+              "glasses",
+              "neckline"
+            ]
+          },
+          "ai_label": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "reference_percentiles": {
+      "description": "v0.7 (Issue #41): approximate position of the aesthetic_score and of frontal ratios inside published, self-selected reference scan cohorts (config/reference_distributions.json; docs/scoring/REFERENCE_DISTRIBUTIONS.md). Rules layer: computed from aesthetic_score and the front landmarks, never by the model. Not a population rank. Null on documents older than 0.7.",
+      "type": [
+        "object",
+        "null"
+      ],
+      "additionalProperties": false,
+      "required": [
+        "engine_version",
+        "reference_distribution_version",
+        "rank",
+        "ratios",
+        "copy_zh",
+        "provenance"
+      ],
+      "properties": {
+        "engine_version": {
+          "type": "string"
+        },
+        "reference_distribution_version": {
+          "type": "string"
+        },
+        "rank": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "status",
+            "scoring_version",
+            "reference_distribution_version",
+            "reference_id"
+          ],
+          "properties": {
+            "status": {
+              "enum": [
+                "ok",
+                "unavailable"
+              ]
+            },
+            "reason": {
+              "enum": [
+                "no_score",
+                "partial_score",
+                "out_of_range",
+                "score_scale_unverified"
+              ]
+            },
+            "reason_zh": {
+              "type": "string"
+            },
+            "scoring_version": {
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "mapping_mode": {
+              "enum": [
+                "direct",
+                "crosswalk"
+              ]
+            },
+            "reference_distribution_version": {
+              "type": "string"
+            },
+            "reference_id": {
+              "type": "string"
+            },
+            "score": {
+              "type": "number"
+            },
+            "reference_score": {
+              "type": "number"
+            },
+            "percentile_estimate": {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 100,
+              "description": "% of reference scans scoring lower (rounded)."
+            },
+            "top_percent_estimate": {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 100
+            },
+            "precision": {
+              "enum": [
+                "interpolated",
+                "lower_tail_bound",
+                "upper_tail_bound"
+              ]
+            },
+            "approximate": {
+              "const": true
+            },
+            "label_zh": {
+              "type": "string"
+            },
+            "higher_than_zh": {
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "note_zh": {
+              "type": "string"
+            },
+            "method": {
+              "type": "string"
+            },
+            "cohort": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "kind",
+                "n",
+                "source_date",
+                "source_url",
+                "publisher",
+                "population_representative"
+              ],
+              "properties": {
+                "kind": {
+                  "type": "string"
+                },
+                "n": {
+                  "type": "integer"
+                },
+                "source_date": {
+                  "type": "string"
+                },
+                "source_url": {
+                  "type": "string"
+                },
+                "publisher": {
+                  "type": "string"
+                },
+                "population_representative": {
+                  "const": false
+                }
+              }
+            }
+          }
+        },
+        "ratios": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "reference_id",
+            "reference_distribution_version",
+            "rails",
+            "measured",
+            "verified",
+            "note_zh",
+            "attribution",
+            "source_url"
+          ],
+          "properties": {
+            "reference_id": {
+              "type": "string"
+            },
+            "reference_distribution_version": {
+              "type": "string"
+            },
+            "rails": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                  "id",
+                  "name_zh",
+                  "unit",
+                  "status",
+                  "value",
+                  "text_zh",
+                  "rail",
+                  "higher_is_better",
+                  "definition_verified"
+                ],
+                "properties": {
+                  "id": {
+                    "type": "string"
+                  },
+                  "name_zh": {
+                    "type": "string"
+                  },
+                  "unit": {
+                    "enum": [
+                      "deg",
+                      "ratio",
+                      "fraction"
+                    ]
+                  },
+                  "status": {
+                    "enum": [
+                      "ok",
+                      "unavailable"
+                    ]
+                  },
+                  "reason": {
+                    "enum": [
+                      "no_face",
+                      "no_iris",
+                      "mouth_open",
+                      "pose_off_axis",
+                      "out_of_range",
+                      "definition_unverified"
+                    ]
+                  },
+                  "value": {
+                    "type": [
+                      "number",
+                      "null"
+                    ]
+                  },
+                  "percentile_estimate": {
+                    "type": "number",
+                    "minimum": 0,
+                    "maximum": 100
+                  },
+                  "precision": {
+                    "enum": [
+                      "interpolated",
+                      "lower_tail_bound",
+                      "upper_tail_bound"
+                    ]
+                  },
+                  "band": {
+                    "enum": [
+                      "very_low",
+                      "low",
+                      "typical",
+                      "high",
+                      "very_high"
+                    ]
+                  },
+                  "band_zh": {
+                    "type": "string"
+                  },
+                  "approximate": {
+                    "const": true
+                  },
+                  "text_zh": {
+                    "type": "string"
+                  },
+                  "reference_id": {
+                    "type": "string"
+                  },
+                  "reference_distribution_version": {
+                    "type": "string"
+                  },
+                  "rail": {
+                    "type": "object",
+                    "additionalProperties": {
+                      "type": "number"
+                    },
+                    "description": "Published quantiles p5…p95."
+                  },
+                  "higher_is_better": {
+                    "type": "null",
+                    "description": "Always null: a ratio's size position is never a quality judgement."
+                  },
+                  "definition_verified": {
+                    "type": "boolean"
+                  }
+                }
+              }
+            },
+            "measured": {
+              "type": "integer"
+            },
+            "verified": {
+              "type": "integer"
+            },
+            "note_zh": {
+              "type": "string"
+            },
+            "attribution": {
+              "type": "string"
+            },
+            "source_url": {
+              "type": "string"
+            }
+          }
+        },
+        "copy_zh": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "rank_title",
+            "ratios_title",
+            "ratios_unverified_note"
+          ],
+          "properties": {
+            "rank_title": {
+              "type": "string"
+            },
+            "ratios_title": {
+              "type": "string"
+            },
+            "ratios_unverified_note": {
+              "type": "string"
+            }
+          }
+        },
+        "provenance": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "layer",
+            "inputs",
+            "data",
+            "settings",
+            "reference_doc"
+          ],
+          "properties": {
+            "layer": {
+              "const": "rules"
+            },
+            "inputs": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "data": {
+              "type": "string"
+            },
+            "settings": {
+              "type": "string"
+            },
+            "reference_doc": {
+              "type": "string"
+            }
+          }
+        }
+      }
+    }
+  }
+}

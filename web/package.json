@@ -1,0 +1,47 @@
+{
+  "name": "aesthetic-passport-web",
+  "version": "0.2.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev -p 3000",
+    "build": "next build",
+    "start": "next start -p 3000",
+    "typecheck": "tsc --noEmit",
+    "types": "node scripts/gen-types.mjs",
+    "screenshots": "node scripts/screenshots.mjs",
+    "test": "vitest run && npm run test:modules",
+    "test:modules": "node lib/copy/run-tests.mjs && node lib/tint/run-tests.mjs && node components/cards/run-tests.cjs && node components/ds/render-tests.mjs"
+  },
+  "dependencies": {
+    "@react-pdf/renderer": "4.9.0",
+    "class-variance-authority": "0.7.1",
+    "clsx": "2.1.1",
+    "cropperjs": "2.3.1",
+    "html-to-image": "1.11.13",
+    "lucide-react": "1.61.0",
+    "next": "16.4.2",
+    "radix-ui": "1.8.1",
+    "react": "19.3.1",
+    "react-compare-slider": "4.0.0",
+    "react-dom": "19.3.1",
+    "react-dropzone": "20.1.4",
+    "sonner": "2.0.8",
+    "tailwind-merge": "3.7.0"
+  },
+  "devDependencies": {
+    "@tailwindcss/postcss": "4.3.3",
+    "@testing-library/dom": "10.4.0",
+    "@testing-library/react": "16.3.0",
+    "@types/node": "22.20.5",
+    "@types/react": "19.3.0",
+    "@types/react-dom": "19.3.0",
+    "@vitejs/plugin-react": "4.7.0",
+    "jsdom": "26.1.0",
+    "json-schema-to-typescript": "16.0.0",
+    "playwright": "1.64.1",
+    "tailwindcss": "4.3.3",
+    "typescript": "5.9.3",
+    "unpdf": "1.9.1",
+    "vitest": "3.2.4"
+  }
+}

@@ -1,0 +1,21 @@
+/** Hair-only palette; makeup palettes and controls remain owned by #35. */
+export const HAIR_SHADES = [
+  { group: '深色', name: '自然黑', hex: '#201F20' },
+  { group: '深色', name: '柔黑', hex: '#302C2A' },
+  { group: '深色', name: '蓝黑', hex: '#252C38' },
+  { group: '深色', name: '浓咖', hex: '#3B2B24' },
+  { group: '棕色', name: '冷棕', hex: '#62574D' },
+  { group: '棕色', name: '巧克力', hex: '#684536' },
+  { group: '棕色', name: '栗棕', hex: '#80513A' },
+  { group: '棕色', name: '焦糖棕', hex: '#A5784E' },
+  { group: '棕色', name: '蘑菇灰棕', hex: '#82786A' },
+  { group: '红色', name: '赤褐', hex: '#80402C' },
+  { group: '红色', name: '铜红', hex: '#AA613D' },
+  { group: '红色', name: '酒红', hex: '#632E40' },
+  { group: '红色', name: '玫瑰棕', hex: '#8A5A63' },
+  { group: '浅色', name: '深金', hex: '#AC9268' },
+  { group: '浅色', name: '蜂蜜金', hex: '#C6A36B' },
+  { group: '浅色', name: '亚麻金', hex: '#C0B199' },
+  { group: '浅色', name: '米金', hex: '#D6BF91' },
+  { group: '浅色', name: '银灰', hex: '#B4B2B1' },
+] as const;

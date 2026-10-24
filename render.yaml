@@ -1,0 +1,33 @@
+# Render blueprint for the API. The web app goes to Vercel (see README → 部署).
+services:
+  - type: web
+    name: aesthetic-passport-api
+    runtime: docker
+    dockerfilePath: ./Dockerfile
+    plan: starter               # MediaPipe needs ~1 GB RAM; the free plan is too small
+    healthCheckPath: /api/health
+    disk:
+      name: runs
+      mountPath: /data          # SQLite job store + 24 h media (RUNS_DIR=/data/runs)
+      sizeGB: 1
+    envVars:
+      - key: DEEPSEEK_API_KEY
+        sync: false
+      - key: DASHSCOPE_API_KEY
+        sync: false
+      - key: DASHSCOPE_BASE_URL
+        sync: false             # optional; Beijing workspace endpoint, https://<WorkspaceId>.cn-beijing.maas.aliyuncs.com/api/v1
+      - key: ANALYSIS_PROVIDER
+        value: auto
+      - key: IMAGE_EDIT_PROVIDER
+        value: auto
+      - key: WEB_ORIGINS
+        sync: false             # e.g. https://aesthetic-passport.vercel.app
+      - key: INVITE_CODES
+        sync: false
+      - key: DAILY_PASSPORT_LIMIT
+        value: "30"
+      - key: IP_PASSPORTS_PER_HOUR
+        value: "5"
+      - key: IP_HASH_SALT
+        generateValue: true

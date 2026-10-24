@@ -1,0 +1,105 @@
+{
+  "version": "refdist-2026-10-23.2",
+  "notes": "Published aggregate statistics only. No faces, photos or per-person data were ingested. See docs/scoring/REFERENCE_DISTRIBUTIONS.md.",
+  "overall_score": {
+    "id": "tfr-harmony-2026-08-19",
+    "publisher": "The Face Report (Known by One, LLC)",
+    "title": "Face analysis study: 15,447 facial scans",
+    "source_url": "https://thefacereport.com/guides/face-analysis-study",
+    "source_date": "2026-08-19",
+    "published": "2026-09-04",
+    "retrieved": "2026-10-23",
+    "license": "No licence stated for the harmony statistics; we reuse a handful of published aggregate facts with citation and copy none of the page's text, charts or data files.",
+    "score_engine": "The Face Report overall harmony score (0-100), engine as recalibrated June-July 2026",
+    "n_scans": 15447,
+    "n_scored": 15429,
+    "cohort": {
+      "kind": "self_selected_scans",
+      "description": "People who ran a front photo through the publisher's free analysers on one UTC day; repeat scans possible; skews young and male; no demographic split.",
+      "description_zh": "某一天主动使用该网站免费分析工具的扫描（自愿参与，可能有重复，偏年轻、偏男性），不是对人群的随机抽样",
+      "population_representative": false
+    },
+    "summary": {"mean": 71.5, "median": 75, "max_observed": 92},
+    "bins": [
+      {"lo": null, "hi": 50, "share": 0.074},
+      {"lo": 50, "hi": 60, "share": 0.079},
+      {"lo": 60, "hi": 70, "share": 0.166},
+      {"lo": 70, "hi": 80, "share": 0.382},
+      {"lo": 80, "hi": null, "share": 0.299}
+    ],
+    "top_thresholds": [
+      {"score": 80, "top_share": 0.299},
+      {"score": 84, "top_share": 0.10},
+      {"score": 89, "top_share": 0.01},
+      {"score": 91, "top_share": 0.001}
+    ],
+    "component_medians": {
+      "source_url": "https://thefacereport.com/sample-report", "retrieved": "2026-10-23", "n_scans": 7997,
+      "note": "Median scan per sub-score as shown on the publisher's sample report. Used only to compare our component medians during calibration (scripts/calibrate_score_scale.py); never to rank.",
+      "values": {"symmetry": 75, "thirds": 73, "fifths": 77, "golden_ratio": 76}
+    },
+    "publisher_checks": [
+      {"source_url": "https://thefacereport.com/sample-report", "overall": 79,
+       "components": {"symmetry": 81, "thirds": 70, "fifths": 85, "golden_ratio": 78},
+       "publisher_rank": "Top 30% - ahead of 70% of scans",
+       "note": "0.35*81 + 0.25*70 + 0.25*85 + 0.15*78 = 78.8, so the published weights reproduce the overall; our CDF places 79 at top 35%, one rounding step from the publisher's own claim."}
+    ]
+  },
+  "ratio_norms": {
+    "id": "tfr-ratio-norms-2026-08-31",
+    "publisher": "The Face Report (Known by One, LLC)",
+    "title": "Facial measurement norms: 14,144 frontal scans",
+    "source_url": "https://thefacereport.com/guides/facial-measurement-norms",
+    "source_date": "2026-08-31",
+    "retrieved": "2026-10-23",
+    "license": "CC BY 4.0",
+    "attribution": "Facial measurement norms (14,144 frontal scans, 31 Aug 2026) by The Face Report, https://thefacereport.com/guides/facial-measurement-norms, CC BY 4.0. Values copied unchanged; landmark indices are our own reconstruction.",
+    "n_scans": 14144,
+    "landmark_model": "478-point browser face mesh (publisher does not name the model; MediaPipe Face Landmarker topology assumed)",
+    "cohort": {
+      "kind": "self_selected_scans",
+      "description": "People who ran a front photo through the publisher's free analysers on one UTC day; skews young; no demographic split; no published pose filter or outlier removal.",
+      "description_zh": "某一天主动上传正脸照的扫描（自愿参与，偏年轻），不是对人群的随机抽样",
+      "population_representative": false
+    },
+    "quantile_levels": [5, 10, 25, 50, 75, 90, 95],
+    "metrics": [
+      {"id": "canthal_tilt", "name_zh": "眼角倾斜", "unit": "deg", "decimals": 1,
+       "published_definition": "Angle of the inner-to-outer eye-corner line against a fitted face-horizontal axis; positive = outer corner higher.",
+       "quantiles": [-2.0, -0.6, 1.7, 3.9, 6.0, 7.8, 8.9], "mean": 3.4},
+      {"id": "eye_spacing", "name_zh": "内眼角间距 / 眼宽", "unit": "ratio", "decimals": 2,
+       "published_definition": "Inner-eye-corner distance divided by the average visible width of one eye.",
+       "quantiles": [1.08, 1.11, 1.17, 1.24, 1.32, 1.40, 1.45]},
+      {"id": "fwhr", "name_zh": "面宽 / 上面部高（眼睑起算）", "unit": "ratio", "decimals": 2,
+       "published_definition": "Cheekbone width divided by visible upper-face height (upper-eyelid midpoint to upper lip).",
+       "quantiles": [1.72, 1.79, 1.89, 2.02, 2.17, 2.34, 2.49]},
+      {"id": "face_length_width", "name_zh": "脸长 / 脸宽", "unit": "ratio", "decimals": 2,
+       "published_definition": "Visible face-mesh height (mesh top to chin) divided by cheekbone width.",
+       "quantiles": [1.10, 1.13, 1.17, 1.22, 1.26, 1.31, 1.34]},
+      {"id": "ipd_face_width", "name_zh": "瞳距 / 脸宽", "unit": "ratio", "decimals": 2,
+       "published_definition": "Distance between iris centres divided by cheekbone width.",
+       "quantiles": [0.44, 0.45, 0.46, 0.48, 0.50, 0.52, 0.53]},
+      {"id": "midface_length", "name_zh": "中面部长 / 脸长", "unit": "fraction", "decimals": 2,
+       "published_definition": "Brow midpoint to nose base divided by visible face height.",
+       "quantiles": [0.39, 0.40, 0.42, 0.44, 0.46, 0.48, 0.49]},
+      {"id": "lower_face_length", "name_zh": "下面部长 / 脸长", "unit": "fraction", "decimals": 2,
+       "published_definition": "Nose base to chin divided by visible face height.",
+       "quantiles": [0.34, 0.35, 0.38, 0.40, 0.42, 0.44, 0.46]},
+      {"id": "jaw_cheek_width", "name_zh": "下颌宽 / 颧宽", "unit": "ratio", "decimals": 2,
+       "published_definition": "Detected jaw width divided by cheekbone width.",
+       "quantiles": [0.75, 0.76, 0.78, 0.79, 0.81, 0.83, 0.84]},
+      {"id": "mouth_face_width", "name_zh": "嘴宽 / 脸宽", "unit": "ratio", "decimals": 2,
+       "published_definition": "Mouth-corner width divided by cheekbone width.",
+       "quantiles": [0.32, 0.33, 0.35, 0.38, 0.40, 0.44, 0.48]},
+      {"id": "nose_mouth_width", "name_zh": "鼻翼宽 / 嘴宽", "unit": "ratio", "decimals": 2,
+       "published_definition": "Alar (nostril) width divided by mouth width.",
+       "quantiles": [0.69, 0.74, 0.79, 0.84, 0.88, 0.92, 0.94]},
+      {"id": "nose_length", "name_zh": "鼻长 / 脸长", "unit": "fraction", "decimals": 2,
+       "published_definition": "Nose bridge to tip divided by visible face height.",
+       "quantiles": [0.18, 0.19, 0.20, 0.22, 0.23, 0.24, 0.25]},
+      {"id": "lip_fullness", "name_zh": "唇厚 / 嘴宽", "unit": "ratio", "decimals": 2,
+       "published_definition": "Outer-lip height (upper-lip top to lower-lip bottom) divided by mouth width.",
+       "quantiles": [0.25, 0.28, 0.33, 0.38, 0.44, 0.50, 0.55]}
+    ]
+  }
+}

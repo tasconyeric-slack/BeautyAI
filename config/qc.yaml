@@ -1,0 +1,198 @@
+# Photo QC + anchor measurement config v0.4 (src/aesthetic_passport/qc.py, anchors.py)
+# Forgiving gate: most problems are a `warn` (photo still analysed, warning passed to the model);
+# only clearly unusable photos are a `reject`. Thresholds are starting values — tune on real phone photos.
+
+photo_roles:                      # D20 (amends D14): only the front photo is required
+  required: [front]
+  optional: [profile90, noglasses, profile45, smile, hair]   # V3B (D35): profile90 = true side, noglasses = glasses-free front
+  face_optional: [hair]           # the hair photo may show the back of the head: no face checks
+
+gate:
+  # Separate framing from native resolution (#55). face_too_small means low relative occupancy only;
+  # insufficient visible face pixels use the existing blurry/detail code with resolution-specific guidance.
+  # Intersect landmark bounds with the image: off-image pixels never count. No upper framing limit.
+  face_rel_min: 0.16              # max(face height / image height, face width / image width) below this → warn
+  face_rel_reject: 0.06           # … below this → reject
+  min_face_box_px: 120            # shorter visible side (px, on the ≤1600 px working image) — below: detail warning
+  min_face_box_px_reject: 80      # below: reject
+  multi_face_min_rel_area: 0.35   # a second face counts only if its box is ≥ 35% of the largest face's area
+  # Sharpness (D28): measured on eyes, brows and lips (never cheeks: smooth skin has no detail to lose), on the face
+  # scaled DOWN to ≤ sharp_eval_face_px wide (never up: upsampling a small sharp face made it look blurry).
+  # edge_width = local contrast / strongest gradient (px; a crisp edge is ~2–4 px; σ blur adds ~2.5σ). Horizontal
+  # features hide horizontal motion blur, so the x-direction width counts too, divided by sharp_x_factor.
+  # detail_px = evaluated face width × 1.6 / edge_width (a sharp-equivalent face width; reported as blur_score).
+  # Calibrated 2026-10-23 on public-domain portraits: ID crops 358×441 / 413×531, JPEG q60, bilateral smoothing all
+  # ≤ 5.1 px; Gaussian σ3 on an ID crop ≥ 6.8 px; 4× upsampled faces ≥ 5.4 px; motion blur ≥ 6 px.
+  sharp_eval_face_px: 256
+  sharp_x_factor: 2.2
+  edge_width_warn: 5.3            # above → blurry (warn)
+  edge_width_reject: 8.5          # above → blurry (reject)
+  detail_px_warn: 60              # blurry (warn) when detail_px is below this AND edge_width > detail_min_edge_width
+  detail_px_reject: 30            # blurry (reject) when detail_px is below this AND edge_width > detail_min_edge_width
+  detail_min_edge_width: 4.0      # softness condition; native resolution is checked separately even for crisp edges
+  blur_laplacian_var_min: 80      # face-optional photos only (back of the head): Laplacian on the frame scaled to ≤512 px
+  face_luma_min: 70               # mean luminance (0-255) inside the face oval — below: warn
+  face_luma_reject_min: 40
+  face_luma_max: 200              # above: warn
+  face_luma_reject_max: 230
+  clipped_highlight_max_frac: 0.05   # fraction of face pixels with any channel ≥ 250 — above: warn
+  clipped_highlight_reject_frac: 0.20
+  pose:                           # degrees, from the FaceLandmarker facial transformation matrix
+    front:     {yaw_max: 12, pitch_max: 20, roll_max: 10}
+    smile:     {yaw_max: 15, pitch_max: 20, roll_max: 12}
+    noglasses: {yaw_max: 12, pitch_max: 20, roll_max: 10}
+    profile45: {yaw_min: 30, yaw_max: 55, pitch_max: 20, roll_max: 15}   # compared against |yaw|: either side
+  pose_reject_factor: 2.2         # beyond limit × factor → reject (front/smile pose_off_axis)
+  profile45_reject_below_yaw: 12  # a "profile" this close to frontal is the wrong photo → reject
+  # passed = front != reject (D20). A failed gate stops the run before any model call.
+  # Beauty-filter suspicion (warn only): median gradient inside both cheek discs, same down-only scale as sharpness.
+  # Naturally smooth skin and strong smoothing overlap (calibration: natural 1.6–4.0, bilateral filter 1.1–2.0), so the
+  # limit is conservative: it flags only near-textureless skin. Tune on real filtered phone photos (I1).
+  beauty_filter_roles: [front]
+  beauty_filter_cheek_texture_min: 1.2
+  # Glasses hint (V3B, warn only, uncalibrated): share of selfie-segmenter "others / accessories" pixels in the
+  # eye + brow band. The person's own answer at upload ("这张照片戴了眼镜") is the primary signal.
+  eyewear_roles: [front, noglasses]
+  eyewear_others_frac: 0.08
+  # True side profile (V3B, D35). MediaPipe's yaw reads only ~40° on a real 90° profile, so the angle test is
+  # geometric: in a true profile the nose tip is ON the head outline; in a 45° photo the far cheek lies beyond it.
+  profile90:
+    frontal_yaw_below: 25         # MediaPipe |yaw| below this → clearly a front / three-quarter photo → reject
+    max_nose_gap: 0.05            # MediaPipe nose tip → traced outline ÷ (nasion→chin) above this → three-quarter → reject
+    face_h_px_reject: 160         # face-skin height in native pixels below this → face_too_small (reject: unmeasurable)
+    face_h_px_warn: 320           # … below this → face_too_small (warn: small features get "resolution too low")
+  # occluded_eyes: not a gate in v1 (blendshapes are unreliable for sunglasses / hair occlusion).
+
+lighting_consistency:
+  # Per usable (non-rejected) photo, take the mean a* and mean b* of the face crop (OpenCV Lab, 0-255 scale).
+  # spread = max(range(mean_a*), range(mean_b*)) across usable photos; range = max - min.
+  # This is only a RELATIVE consistency check between the user's photos, never an absolute skin-color read.
+  # It only lowers color confidence downstream; it never rejects a photo or the run.
+  high_if_spread_below: 6
+  medium_if_spread_below: 12
+  # else low
+
+anchors:
+  # MediaPipe FaceLandmarker (478 pts) indices. Verified 2026-10-22 with scripts/debug_landmarks.py on two
+  # frontal test portraits: every point below sits where its name says. forehead_* = 54/284, the lateral
+  # forehead edge at temple level (the widest forehead line). 103/332 (used by haircut-vision-advisor) sit
+  # higher, near the hairline, and are often under hair — they are kept only for the face-shape heuristic,
+  # whose thresholds were calibrated on them (heuristic_forehead below).
+  # Normalized landmark coords are converted to pixels (x*width, y*height) before any distance.
+  # If any ratio falls outside the passport schema range, anchors = null and a warning is logged.
+  # Measurements are never clamped.
+  landmarks:
+    forehead_top: 10
+    chin: 152
+    cheek_left: 234
+    cheek_right: 454
+    jaw_left: 172
+    jaw_right: 397
+    forehead_left: 54
+    forehead_right: 284
+    glabella: 9
+    subnasale: 2
+    left_eye_outer: 33
+    left_eye_inner: 133
+    right_eye_inner: 362
+    right_eye_outer: 263
+  heuristic_forehead: {left: 103, right: 332}
+  reliability:
+    high_if_front_yaw_below: 6
+    medium_if_front_yaw_below: 12
+
+retake_messages_zh:
+  no_face: "未能可靠识别人脸或五官，请露出眼睛、鼻子和嘴巴，对焦后重拍。"
+  multiple_faces: "画面里有多张人脸，请单人拍摄。"
+  face_too_small: "脸部在画面中占比偏小。可裁掉多余背景并保留完整五官；重新拍摄时请靠近一些。"
+  blurry: "照片有些模糊，请擦干净镜头、保持手稳后重拍。"
+  underexposed: "光线偏暗，请面向窗户在白天自然光下拍摄。"
+  overexposed: "脸部过曝，请避开直射阳光或强闪光。"
+  pose_off_axis: "头部有明显倾斜或转动，请平视镜头、下巴放平。"
+  wrong_angle_for_role: "侧脸照需要约 45° 转头，请露出一侧颧骨和下颌线。"
+  occluded_eyes: "眼睛被遮挡，请摘下墨镜、撩开遮眼的头发。"
+  lighting_inconsistent: "几张照片的光线差别较大，色彩判断会更保守。可以的话在同一处光线下重拍。"
+  beauty_filter_suspect: "照片可能开了美颜或滤镜，肤色与质感会不准。可以的话关掉美颜重拍。"
+  eyewear_detected: "可能戴着眼镜：可以正常分析，眼部和眉部的个别项目会标注影响；补充一张无眼镜正脸照会更准。"
+  profile_unclear: "侧面轮廓不清晰：请在明亮的纯色背景前拍，撩开挡住额头、鼻子或下巴的头发，手不要挡脸。"
+
+# Role-specific wording (falls back to retake_messages_zh).
+retake_messages_role_zh:
+  profile90:
+    wrong_angle_for_role: "这张更像 45° 半侧面。侧脸照需要接近 90°：只露出一侧脸，鼻尖在脸的轮廓线上，看不到另一侧脸颊。"
+    face_too_small: "侧脸在照片里像素太少，鼻唇角等细节误差会过大。请上传原图，或靠近一些拍，让头部占画面高度一半左右。"
+    no_face: "没有找到侧脸轮廓，请在明亮的纯色背景前拍一张 90° 侧脸。"
+  noglasses:
+    eyewear_detected: "这张照片里似乎仍有眼镜，请摘下眼镜再拍。"
+
+# Contextual wording for the existing blurry/detail code; these are not public issue codes.
+retake_messages_context_zh:
+  low_face_resolution: "脸部实际像素不足，分辨率或有效细节不够。请上传更高分辨率的清晰原图，避免截图、压缩或放大小图。"
+
+color_sampling:
+  # Regional median colors on the front photo (src/aesthetic_passport/color_sample.py, D15). A signal, not a verdict.
+  cheek_radius_frac: 0.11        # cheek disc radius as a fraction of cheekbone width
+  cheek_outward_frac: 0.06       # shift the disc centre outward from the eye–mouth midpoint (× cheekbone width)
+  skin_L_keep: [20, 80]          # keep pixels between these L percentiles (drops shadows and specular highlights)
+  hair_L_keep: [10, 90]
+  brow_darkest_frac: 0.3         # brows: darkest 30% of the brow hull (brow hair, not the skin between hairs)
+  iris_radius_keep: [0.45, 0.85] # annulus inside the iris circle: skip the pupil and the limbal edge
+  min_pixels: {skin: 300, brow: 40, iris: 20, lip: 80, hair: 300}
+  reliability:
+    face_luma_ok: [80, 190]      # outside → at most medium
+    clipped_frac_medium: 0.03    # above → at most medium
+    clipped_frac_low: 0.10       # above → low
+
+preview_masks:
+  # Recommended Look masks (src/aesthetic_passport/masks.py). Fractions of the cheekbone width unless noted.
+  protect_above_brow_frac: 0.02  # protected face region starts this far above the brow line (forehead stays editable)
+  feature_pad_frac: 0.03         # padding around eyes / nose / mouth / brows hulls
+  hair_dilate_frac: 0.12         # brief table: 25–40 px on a typical 300 px-wide face
+  hair_room_w: 0.80              # half-ellipse above the brows for added volume: half-width × face width
+  hair_room_h: 0.95              #   height × face width
+  hair_room_below: 0.55          # band beside the face down to ~ear level (× face width)
+  brows_dilate_frac: 0.02
+  glasses_dilate_frac: 0.04
+  facial_hair_dilate_frac: 0.03
+  clothing_below_chin_frac: 0.25
+  clothing_dilate_frac: 0.03
+  crop_half_width: 1.25          # crop sent to the model: ± this × face width around the face centre
+  crop_above: 0.90               # × face height above the face box
+  crop_below: 0.55
+  crop_below_clothing: 1.60
+  feather_px: 11                 # brief: 8–15 px
+  # V2 soft protection (D22): the core (eyes, nose, mouth hulls dilated by core_pad_px) is always the original;
+  # the edge zone (cheek outline, temples, jaw outline = the rest of the old protected region) may be covered only
+  # by pixels the result itself segments as hair, so long hair and fringes are not cut off.
+  core_pad_px: 6
+  soft_protection: true
+  composite_mode: feather        # feather | seamless (cv2.seamlessClone; off by default, D22)
+  color_transfer: true           # Lab mean/std transfer of the edited crop onto the original over the boundary band
+  color_band_px: 18
+  # Quality gate: core pixels unchanged (by construction) and enough change inside the edit region; otherwise one
+  # regeneration, then status `fallback` (the UI shows the style illustration instead).
+  min_hair_change: 3.0           # mean |Δ| (0–255) over the edit mask; catches "nothing changed". Tune in I1 on real photos
+  max_attempts: 2
+  concurrency: 3
+  # Issue #56: image-edit models can move, zoom or tilt the head. The generated face's rigid landmarks register it
+  # back onto the original before compositing; anything not a small rigid move is rejected (retry, then fallback).
+  # Fractions are × cheekbone width. Landmark jitter on an unmoved edit measured ≈ 0.01. Provisional: confirm on
+  # consented real photos with live Qwen output.
+  registration:
+    min_shift_frac: 0.015           # smaller offsets (landmark jitter, inside the 6 px feature pad) are not resampled
+    max_shift_frac: 0.25            # larger head moves are reframings: reject
+    max_scale_dev: 0.12             # |scale − 1|
+    max_rotation_deg: 8
+    max_residual_frac: 0.03         # largest landmark error after alignment: above it the face was reshaped
+    min_face_area_frac: 0.25        # a detected face smaller than this × the original face box is ignored
+    max_composite_drift_frac: 0.03  # final composite: mean offset of any eye/brow/nose/mouth group vs the original
+
+preview_label:
+  text: "AI 试看"
+  ascii_fallback: "AI PREVIEW"   # when no CJK font is installed
+  font_candidates:
+    - /usr/share/fonts/truetype/wqy/wqy-zenhei.ttc
+    - /usr/share/fonts/opentype/noto/NotoSansCJK-Regular.ttc
+    - /usr/share/fonts/noto-cjk/NotoSansCJK-Regular.ttc
+  height_frac: 0.045             # label text height × image height
+  producer: "形象护照 Aesthetic Passport"

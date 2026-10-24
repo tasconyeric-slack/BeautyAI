@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 500" role="img" aria-label="示意插画：改造前（顶部吹高、两侧贴头皮）">
+  <rect width="400" height="500" fill="#ECE8DF"/>
+  <g stroke="#1A1A1A" stroke-opacity=".12" stroke-width="1"><path d="M0 420h400M0 440h400M0 460h400M0 480h400" /></g>
+  <path d="M30 500C52 412 132 382 200 380C268 382 348 412 370 500Z" fill="#2E3B55"/>
+  <path d="M176 382L200 418L224 382" fill="#F5F0E6"/>
+  <rect x="170" y="300" width="60" height="86" rx="18" fill="#C9BBAA"/>
+  <ellipse cx="127" cy="238" rx="11" ry="21" fill="#C3B4A2"/>
+  <ellipse cx="273" cy="238" rx="11" ry="21" fill="#C3B4A2"/>
+  <ellipse cx="200" cy="232" rx="73" ry="104" fill="#D3C6B6"/>
+  <path d="M200 336c-30 0-52-12-64-34 18 14 40 20 64 20s46-6 64-20c-12 22-34 34-64 34z" fill="#1A1A1A" fill-opacity=".06"/>
+  <path d="M127 228C123 188 128 160 140 140C150 100 176 58 216 54C258 52 284 78 277 118C281 150 280 190 274 228C270 200 266 172 258 152C238 138 164 138 142 152C134 172 130 200 127 228Z" fill="#262626"/>
+  <path d="M180 78C196 70 222 68 242 78M168 98C188 88 222 86 252 98" stroke="#5A5A5A" stroke-width="2" fill="none" stroke-linecap="round"/>
+</svg>

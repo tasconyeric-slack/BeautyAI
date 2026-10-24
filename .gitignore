@@ -1,0 +1,60 @@
+# User photos and generated reports — never stage new media by default.
+# Existing curated demo images are already tracked; any NEW PNG/JPEG/WebP asset
+# requires deliberate review and an explicit git add -f.
+data/
+runs/
+eval/raw/
+*.jpg
+*.jpeg
+*.png
+*.heic
+*.webp
+*.avif
+*.tif
+*.tiff
+*.bmp
+*.gif
+
+# Downloaded model binaries
+models/
+*.task
+*.tflite
+
+# Credentials / local environment (all directories)
+.env
+.env.*
+!.env.example
+!**/.env.example
+*.pem
+*.p12
+*.pfx
+*.key
+*.keystore
+*service-account*.json
+*credentials*.json
+*secrets*.json
+
+# Runtime stores, exports and debugging artifacts
+*.db
+*.sqlite
+*.sqlite3
+*.db-journal
+*.db-wal
+*.db-shm
+*.log
+*.log.*
+
+# Python
+__pycache__/
+*.egg-info/
+.pytest_cache/
+.ruff_cache/
+.venv/
+.mypy_cache/
+
+# Node
+node_modules/
+.next/
+web/out/
+web/next-env.d.ts
+*.tsbuildinfo

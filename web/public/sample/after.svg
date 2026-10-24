@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 500" role="img" aria-label="示意插画：改造后（顶部压低做纹理、两侧剪刀修、轻薄碎刘海）">
+  <rect width="400" height="500" fill="#ECE8DF"/>
+  <g stroke="#1A1A1A" stroke-opacity=".12" stroke-width="1"><path d="M0 420h400M0 440h400M0 460h400M0 480h400" /></g>
+  <path d="M30 500C52 412 132 382 200 380C268 382 348 412 370 500Z" fill="#2E3B55"/>
+  <path d="M176 382L200 418L224 382" fill="#F5F0E6"/>
+  <rect x="170" y="300" width="60" height="86" rx="18" fill="#C9BBAA"/>
+  <ellipse cx="127" cy="238" rx="11" ry="21" fill="#C3B4A2"/>
+  <ellipse cx="273" cy="238" rx="11" ry="21" fill="#C3B4A2"/>
+  <ellipse cx="200" cy="232" rx="73" ry="104" fill="#D3C6B6"/>
+  <path d="M200 336c-30 0-52-12-64-34 18 14 40 20 64 20s46-6 64-20c-12 22-34 34-64 34z" fill="#1A1A1A" fill-opacity=".06"/>
+  <path d="M123 222C114 186 118 146 142 124C168 101 234 100 260 122C284 144 287 186 278 222C275 204 272 190 266 178C262 172 256 168 250 170C244 173 238 168 232 171C226 175 220 169 213 172C207 176 200 170 193 173C186 177 180 171 173 174C166 178 160 172 153 176C146 180 140 184 136 196C131 206 127 214 123 222Z" fill="#262626"/>
+  <path d="M158 124l9 14M186 114l7 16M214 112l5 17M240 118l3 16M150 146l7 11M262 142l2 13" stroke="#5A5A5A" stroke-width="2" fill="none" stroke-linecap="round"/>
+</svg>

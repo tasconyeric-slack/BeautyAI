@@ -1,0 +1,35 @@
+[project]
+name = "aesthetic-passport"
+version = "0.2.0"
+description = "AI Personal Aesthetic Passport — MVP"
+requires-python = ">=3.11"
+dependencies = [
+  "jsonschema>=4.18",
+  "referencing>=0.30",
+  "pyyaml>=6",
+]
+
+[project.optional-dependencies]
+# pipeline: CV (QC, anchors, color, masks) + model calls. api: FastAPI service. MediaPipe also needs the system
+# libraries libegl1 + libgles2 (see Dockerfile).
+pipeline = [
+  "mediapipe",
+  "opencv-contrib-python",   # same cv2 build mediapipe depends on; avoids two cv2 packages
+  "numpy",
+  "pillow",
+  "pillow-heif",             # iPhone HEIC uploads
+  "openai",                  # client for DeepSeek's OpenAI-compatible endpoint (no OpenAI models used)
+  "httpx",                   # Model Studio (Qwen image edit) client
+  "jinja2",
+  "python-dotenv",
+]
+api = ["fastapi", "uvicorn[standard]", "python-multipart"]
+dev = ["pytest", "ruff"]
+
+[tool.pytest.ini_options]
+pythonpath = ["src"]
+testpaths = ["tests"]
+
+[tool.ruff]
+line-length = 120
+target-version = "py311"

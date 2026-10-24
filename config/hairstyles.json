@@ -1,0 +1,3750 @@
+{
+  "_source": "Adapted from haircut-vision-advisor assets/hairstyles.json (MIT, see config/hairstyles.LICENSE). Changes: added name_zh; kept face-shape fit, length, fade, textures, maintenance and mm parameters. Added fringe (bool) and top_volume (low|moderate|high) per style so the rules can match hair_direction. Optional `presentations` limits a style to the user's chosen vocabulary domain (D9).",
+  "styles": [
+    {
+      "id": "classic_buzz",
+      "name": "Classic Buzz",
+      "name_zh": "经典寸头",
+      "face_shapes": [
+        "oval",
+        "square",
+        "diamond"
+      ],
+      "length": "very_short",
+      "fade": "none",
+      "textures": [
+        "all"
+      ],
+      "maintenance": "low",
+      "params_mm": {
+        "top": 10,
+        "side": 7,
+        "back": 7
+      },
+      "fringe": false,
+      "top_volume": "low",
+      "aliases_zh": [
+        "圆寸",
+        "均匀寸头"
+      ],
+      "presentation": [
+        "masculine",
+        "androgynous"
+      ],
+      "length_band": "very_short",
+      "fringe_type": "none",
+      "curl": "straight",
+      "texture_fit": [
+        "straight",
+        "wavy",
+        "curly",
+        "coily"
+      ],
+      "density_fit": [
+        "low",
+        "medium",
+        "high"
+      ],
+      "maintenance_min_per_day": 1,
+      "trim_weeks": 3,
+      "price_band_cny": [
+        40,
+        100
+      ],
+      "needs_perm": false,
+      "needs_dye": false,
+      "tier_bias": [
+        "easy",
+        "safe"
+      ],
+      "barber_script_zh": [
+        "请把顶部留到一厘米，两侧留七毫米。",
+        "后面和两侧接顺，不做贴皮的渐变。",
+        "额前顺着原来的发际线收齐，不另外剪刘海。"
+      ]
+    },
+    {
+      "id": "tapered_crew",
+      "name": "Tapered Crew Cut",
+      "name_zh": "渐变短平头",
+      "face_shapes": [
+        "oval",
+        "round",
+        "square"
+      ],
+      "length": "short",
+      "fade": "taper",
+      "textures": [
+        "straight",
+        "wavy",
+        "curly"
+      ],
+      "maintenance": "low",
+      "params_mm": {
+        "top": 25,
+        "side": 9,
+        "back": 9
+      },
+      "fringe": false,
+      "top_volume": "low",
+      "aliases_zh": [
+        "美式短平头",
+        "自然渐变平头"
+      ],
+      "presentation": [
+        "masculine",
+        "androgynous"
+      ],
+      "length_band": "short",
+      "fringe_type": "none",
+      "curl": "straight",
+      "texture_fit": [
+        "straight",
+        "wavy",
+        "curly"
+      ],
+      "density_fit": [
+        "medium",
+        "high"
+      ],
+      "maintenance_min_per_day": 2,
+      "trim_weeks": 4,
+      "price_band_cny": [
+        60,
+        160
+      ],
+      "needs_perm": false,
+      "needs_dye": false,
+      "tier_bias": [
+        "safe",
+        "easy"
+      ],
+      "barber_script_zh": [
+        "顶部留两厘米半，前面比后面稍长一点。",
+        "两侧和后面留九毫米，用自然渐变衔接。",
+        "额前向上梳开，吹干后用少量哑光发泥固定。"
+      ]
+    },
+    {
+      "id": "textured_crop",
+      "name": "Textured Crop",
+      "name_zh": "纹理短碎发",
+      "face_shapes": [
+        "oval",
+        "round",
+        "square",
+        "oblong"
+      ],
+      "length": "short",
+      "fade": "low",
+      "textures": [
+        "straight",
+        "wavy",
+        "curly"
+      ],
+      "maintenance": "low",
+      "params_mm": {
+        "top": 35,
+        "side": 8,
+        "back": 8
+      },
+      "fringe": true,
+      "top_volume": "moderate",
+      "aliases_zh": [
+        "纹理短发",
+        "低渐变碎盖"
+      ],
+      "presentation": [
+        "masculine",
+        "androgynous"
+      ],
+      "length_band": "short",
+      "fringe_type": "blunt",
+      "curl": "straight",
+      "texture_fit": [
+        "straight",
+        "wavy",
+        "curly"
+      ],
+      "density_fit": [
+        "medium",
+        "high"
+      ],
+      "maintenance_min_per_day": 3,
+      "trim_weeks": 4,
+      "price_band_cny": [
+        60,
+        180
+      ],
+      "needs_perm": false,
+      "needs_dye": false,
+      "tier_bias": [
+        "safe",
+        "easy"
+      ],
+      "barber_script_zh": [
+        "顶部留三厘米半，剪出分开的短束。",
+        "两侧八毫米做低渐变，不把渐变推到太阳穴上方。",
+        "刘海向前落下来，边缘剪碎，不做厚重的一条线。"
+      ]
+    },
+    {
+      "id": "classic_side_part",
+      "name": "Classic Side Part",
+      "name_zh": "经典侧分",
+      "face_shapes": [
+        "oval",
+        "square",
+        "heart",
+        "diamond"
+      ],
+      "length": "medium",
+      "fade": "taper",
+      "textures": [
+        "straight",
+        "wavy"
+      ],
+      "maintenance": "medium",
+      "params_mm": {
+        "top": 65,
+        "side": 18,
+        "back": 18
+      },
+      "fringe": false,
+      "top_volume": "moderate",
+      "aliases_zh": [
+        "三七分短发",
+        "经典分头"
+      ],
+      "presentation": [
+        "masculine",
+        "androgynous"
+      ],
+      "length_band": "medium",
+      "fringe_type": "none",
+      "curl": "straight",
+      "texture_fit": [
+        "straight",
+        "wavy"
+      ],
+      "density_fit": [
+        "low",
+        "medium",
+        "high"
+      ],
+      "maintenance_min_per_day": 5,
+      "trim_weeks": 5,
+      "price_band_cny": [
+        80,
+        220
+      ],
+      "needs_perm": false,
+      "needs_dye": false,
+      "tier_bias": [
+        "safe"
+      ],
+      "barber_script_zh": [
+        "顶部按原来的分线留出梳向一侧的长度。",
+        "两侧做自然渐变，分线下面不要剃出白道。",
+        "额前留长一点侧梳，吹风先把发根方向带好。"
+      ]
+    },
+    {
+      "id": "soft_quiff",
+      "name": "Soft Quiff",
+      "name_zh": "低调飞机头",
+      "face_shapes": [
+        "oval",
+        "round",
+        "square",
+        "heart"
+      ],
+      "length": "medium",
+      "fade": "mid",
+      "textures": [
+        "straight",
+        "wavy"
+      ],
+      "maintenance": "high",
+      "params_mm": {
+        "top": 80,
+        "side": 10,
+        "back": 10
+      },
+      "fringe": false,
+      "top_volume": "high",
+      "aliases_zh": [
+        "自然小飞机头",
+        "轻蓬短发"
+      ],
+      "presentation": [
+        "masculine",
+        "androgynous"
+      ],
+      "length_band": "medium",
+      "fringe_type": "none",
+      "curl": "straight",
+      "texture_fit": [
+        "straight",
+        "wavy"
+      ],
+      "density_fit": [
+        "medium",
+        "high"
+      ],
+      "maintenance_min_per_day": 5,
+      "trim_weeks": 4,
+      "price_band_cny": [
+        80,
+        220
+      ],
+      "needs_perm": false,
+      "needs_dye": false,
+      "tier_bias": [
+        "safe"
+      ],
+      "barber_script_zh": [
+        "额前保留能往上带的长度，顶部做轻层次。",
+        "两侧剪短接顺，后脑勺不要堆一块重量。",
+        "前额吹出小弧度就好，不用做很高的定型。"
+      ]
+    },
+    {
+      "id": "low_pompadour",
+      "name": "Low Pompadour",
+      "name_zh": "低蓬巴杜",
+      "face_shapes": [
+        "oval",
+        "round",
+        "square"
+      ],
+      "length": "medium",
+      "fade": "low",
+      "textures": [
+        "straight",
+        "wavy"
+      ],
+      "maintenance": "high",
+      "params_mm": {
+        "top": 95,
+        "side": 12,
+        "back": 14
+      },
+      "fringe": false,
+      "top_volume": "high",
+      "aliases_zh": [
+        "低背蓬发型",
+        "低弧度油头"
+      ],
+      "presentation": [
+        "masculine",
+        "androgynous"
+      ],
+      "length_band": "medium",
+      "fringe_type": "none",
+      "curl": "straight",
+      "texture_fit": [
+        "straight",
+        "wavy"
+      ],
+      "density_fit": [
+        "medium",
+        "high"
+      ],
+      "maintenance_min_per_day": 12,
+      "trim_weeks": 4,
+      "price_band_cny": [
+        100,
+        280
+      ],
+      "needs_perm": false,
+      "needs_dye": false,
+      "tier_bias": [
+        "bold"
+      ],
+      "barber_script_zh": [
+        "顶部留够往后梳的长度，前端比头顶稍长。",
+        "两侧按原款渐变衔接，后面收得干净一些。",
+        "前额只做低弧度，用少量发油向后梳顺。"
+      ]
+    },
+    {
+      "id": "french_crop",
+      "name": "French Crop",
+      "name_zh": "法式短碎",
+      "face_shapes": [
+        "oval",
+        "oblong",
+        "heart",
+        "diamond"
+      ],
+      "length": "short",
+      "fade": "low",
+      "textures": [
+        "straight",
+        "wavy"
+      ],
+      "maintenance": "low",
+      "params_mm": {
+        "top": 40,
+        "side": 7,
+        "back": 7
+      },
+      "fringe": true,
+      "top_volume": "low",
+      "aliases_zh": [
+        "法式短刘海",
+        "低渐变法式短发"
+      ],
+      "presentation": [
+        "masculine",
+        "androgynous"
+      ],
+      "length_band": "short",
+      "fringe_type": "blunt",
+      "curl": "straight",
+      "texture_fit": [
+        "straight",
+        "wavy"
+      ],
+      "density_fit": [
+        "medium",
+        "high"
+      ],
+      "maintenance_min_per_day": 3,
+      "trim_weeks": 4,
+      "price_band_cny": [
+        80,
+        200
+      ],
+      "needs_perm": false,
+      "needs_dye": false,
+      "tier_bias": [
+        "safe",
+        "easy"
+      ],
+      "barber_script_zh": [
+        "顶部留四厘米，层次集中在表面。",
+        "两侧七毫米做低渐变，后面跟两侧自然接上。",
+        "刘海向前盖住一点额头，边线剪碎别切得太齐。"
+      ]
+    },
+    {
+      "id": "curtain_fringe",
+      "name": "Curtain Fringe",
+      "name_zh": "中分八字刘海",
+      "face_shapes": [
+        "oval",
+        "oblong",
+        "heart",
+        "diamond"
+      ],
+      "length": "medium",
+      "fade": "none",
+      "textures": [
+        "straight",
+        "wavy"
+      ],
+      "maintenance": "medium",
+      "params_mm": {
+        "top": 120,
+        "side": 70,
+        "back": 65
+      },
+      "fringe": true,
+      "top_volume": "moderate",
+      "aliases_zh": [
+        "八字中分",
+        "窗帘式刘海"
+      ],
+      "presentation": [
+        "masculine",
+        "androgynous"
+      ],
+      "length_band": "medium",
+      "fringe_type": "curtain",
+      "curl": "straight",
+      "texture_fit": [
+        "straight",
+        "wavy"
+      ],
+      "density_fit": [
+        "low",
+        "medium",
+        "high"
+      ],
+      "maintenance_min_per_day": 6,
+      "trim_weeks": 6,
+      "price_band_cny": [
+        80,
+        240
+      ],
+      "needs_perm": false,
+      "needs_dye": false,
+      "tier_bias": [
+        "safe"
+      ],
+      "barber_script_zh": [
+        "顶部留十二厘米，分开后能自然垂到两边。",
+        "两侧留七厘米，后面接顺，不做削边。",
+        "中间分开做八字刘海，用吹风把发根往后带。"
+      ]
+    },
+    {
+      "id": "caesar_cut",
+      "name": "Caesar Cut",
+      "name_zh": "凯撒短刘海",
+      "face_shapes": [
+        "oval",
+        "oblong",
+        "square",
+        "diamond"
+      ],
+      "length": "short",
+      "fade": "none",
+      "textures": [
+        "straight",
+        "wavy",
+        "curly"
+      ],
+      "maintenance": "low",
+      "params_mm": {
+        "top": 32,
+        "side": 22,
+        "back": 22
+      },
+      "fringe": true,
+      "top_volume": "low",
+      "aliases_zh": [
+        "凯撒头",
+        "低层次短刘海"
+      ],
+      "presentation": [
+        "masculine",
+        "androgynous"
+      ],
+      "length_band": "short",
+      "fringe_type": "blunt",
+      "curl": "straight",
+      "texture_fit": [
+        "straight",
+        "wavy",
+        "curly"
+      ],
+      "density_fit": [
+        "medium",
+        "high"
+      ],
+      "maintenance_min_per_day": 2,
+      "trim_weeks": 4,
+      "price_band_cny": [
+        50,
+        160
+      ],
+      "needs_perm": false,
+      "needs_dye": false,
+      "tier_bias": [
+        "safe",
+        "easy"
+      ],
+      "barber_script_zh": [
+        "顶部留三厘米左右，保持低低的轮廓。",
+        "两侧和后面留两厘米多，用剪刀接顺，不做渐变。",
+        "刘海留短向前梳，边缘轻轻剪碎就好。"
+      ]
+    },
+    {
+      "id": "slick_back_taper",
+      "name": "Slick Back Taper",
+      "name_zh": "渐变背头",
+      "face_shapes": [
+        "oval",
+        "square",
+        "diamond"
+      ],
+      "length": "medium",
+      "fade": "taper",
+      "textures": [
+        "straight",
+        "wavy"
+      ],
+      "maintenance": "high",
+      "params_mm": {
+        "top": 100,
+        "side": 24,
+        "back": 24
+      },
+      "fringe": false,
+      "top_volume": "moderate",
+      "aliases_zh": [
+        "自然渐变后梳",
+        "中长背头"
+      ],
+      "presentation": [
+        "masculine",
+        "androgynous"
+      ],
+      "length_band": "medium",
+      "fringe_type": "none",
+      "curl": "straight",
+      "texture_fit": [
+        "straight",
+        "wavy"
+      ],
+      "density_fit": [
+        "medium",
+        "high"
+      ],
+      "maintenance_min_per_day": 10,
+      "trim_weeks": 5,
+      "price_band_cny": [
+        100,
+        280
+      ],
+      "needs_perm": false,
+      "needs_dye": false,
+      "tier_bias": [
+        "bold"
+      ],
+      "barber_script_zh": [
+        "顶部保留十厘米，让整片头发可以向后梳。",
+        "两侧和后面留两厘米多，边缘做自然渐变。",
+        "前面不另外剪刘海，用梳子和发蜡往后整理。"
+      ]
+    },
+    {
+      "id": "rounded_afro_taper",
+      "name": "Rounded Afro Taper",
+      "name_zh": "圆形卷发渐变",
+      "face_shapes": [
+        "oval",
+        "oblong",
+        "heart",
+        "diamond"
+      ],
+      "length": "medium",
+      "fade": "taper",
+      "textures": [
+        "coily"
+      ],
+      "maintenance": "medium",
+      "params_mm": {
+        "top": 90,
+        "side": 55,
+        "back": 55
+      },
+      "fringe": false,
+      "top_volume": "high",
+      "aliases_zh": [
+        "自然圆卷头",
+        "圆轮廓卷发"
+      ],
+      "presentation": [
+        "masculine",
+        "androgynous"
+      ],
+      "length_band": "medium",
+      "fringe_type": "none",
+      "curl": "wool",
+      "texture_fit": [
+        "coily"
+      ],
+      "density_fit": [
+        "medium",
+        "high"
+      ],
+      "maintenance_min_per_day": 6,
+      "trim_weeks": 6,
+      "price_band_cny": [
+        120,
+        320
+      ],
+      "needs_perm": false,
+      "needs_dye": false,
+      "tier_bias": [
+        "bold"
+      ],
+      "barber_script_zh": [
+        "请顺着原生紧卷，干发状态把顶部修成圆弧。",
+        "两侧和后面保留卷束，再把边缘自然收短。",
+        "额前不另剪直刘海，抹卷发霜后用手托出卷形。"
+      ]
+    },
+    {
+      "id": "short_curl_taper",
+      "name": "Short Curl Taper",
+      "name_zh": "短卷发渐变",
+      "face_shapes": [
+        "oval",
+        "round",
+        "square",
+        "heart"
+      ],
+      "length": "short",
+      "fade": "taper",
+      "textures": [
+        "curly",
+        "coily"
+      ],
+      "maintenance": "medium",
+      "params_mm": {
+        "top": 55,
+        "side": 20,
+        "back": 20
+      },
+      "fringe": false,
+      "top_volume": "moderate",
+      "aliases_zh": [
+        "自然短卷头",
+        "短卷收边"
+      ],
+      "presentation": [
+        "masculine",
+        "androgynous"
+      ],
+      "length_band": "short",
+      "fringe_type": "none",
+      "curl": "wool",
+      "texture_fit": [
+        "curly",
+        "coily"
+      ],
+      "density_fit": [
+        "medium",
+        "high"
+      ],
+      "maintenance_min_per_day": 5,
+      "trim_weeks": 5,
+      "price_band_cny": [
+        100,
+        280
+      ],
+      "needs_perm": false,
+      "needs_dye": false,
+      "tier_bias": [
+        "safe"
+      ],
+      "barber_script_zh": [
+        "顶部留五厘米半，按原生卷束一束束修。",
+        "两侧和后面留两厘米，边缘渐变接顺。",
+        "额前露出来，湿发抹少量卷发霜再自然晾干。"
+      ]
+    },
+    {
+      "id": "long_soft_layers",
+      "name": "Long Soft Layers",
+      "name_zh": "长发柔和层次",
+      "face_shapes": [
+        "oval",
+        "round",
+        "square",
+        "heart"
+      ],
+      "length": "long",
+      "fade": "none",
+      "textures": [
+        "straight",
+        "wavy",
+        "curly"
+      ],
+      "maintenance": "medium",
+      "params_mm": {
+        "top": 240,
+        "side": 220,
+        "back": 260
+      },
+      "fringe": false,
+      "top_volume": "moderate",
+      "aliases_zh": [
+        "柔层次长发",
+        "自然长层次"
+      ],
+      "presentation": [
+        "feminine",
+        "masculine",
+        "androgynous"
+      ],
+      "length_band": "chest",
+      "fringe_type": "none",
+      "curl": "straight",
+      "texture_fit": [
+        "straight",
+        "wavy",
+        "curly"
+      ],
+      "density_fit": [
+        "medium",
+        "high"
+      ],
+      "maintenance_min_per_day": 5,
+      "trim_weeks": 12,
+      "price_band_cny": [
+        100,
+        280
+      ],
+      "needs_perm": false,
+      "needs_dye": false,
+      "tier_bias": [
+        "safe"
+      ],
+      "barber_script_zh": [
+        "请保留胸前的长度，只修掉发尾不齐的部分。",
+        "层次从下段开始接，底边保留厚度，不要整体打薄。",
+        "前面不另剪刘海，顺着原分线吹顺就可以。"
+      ]
+    },
+    {
+      "id": "textured_pixie",
+      "name": "Textured Pixie",
+      "name_zh": "纹理精灵短发",
+      "face_shapes": [
+        "oval",
+        "heart",
+        "diamond",
+        "square"
+      ],
+      "length": "short",
+      "fade": "none",
+      "textures": [
+        "straight",
+        "wavy",
+        "curly"
+      ],
+      "maintenance": "medium",
+      "params_mm": {
+        "top": 55,
+        "side": 30,
+        "back": 28
+      },
+      "fringe": true,
+      "top_volume": "moderate",
+      "presentations": [
+        "feminine",
+        "androgynous"
+      ],
+      "aliases_zh": [
+        "精灵短发",
+        "轻纹理耳上短发"
+      ],
+      "presentation": [
+        "feminine",
+        "androgynous"
+      ],
+      "length_band": "short",
+      "fringe_type": "side",
+      "curl": "straight",
+      "texture_fit": [
+        "straight",
+        "wavy",
+        "curly"
+      ],
+      "density_fit": [
+        "low",
+        "medium",
+        "high"
+      ],
+      "maintenance_min_per_day": 5,
+      "trim_weeks": 5,
+      "price_band_cny": [
+        80,
+        240
+      ],
+      "needs_perm": false,
+      "needs_dye": false,
+      "tier_bias": [
+        "bold"
+      ],
+      "barber_script_zh": [
+        "顶部留五厘米半，两侧留三厘米左右露出耳朵。",
+        "后颈留两厘米多，和头顶的轻层次接起来。",
+        "刘海留短向侧面拨，少量发泥抓出几束就好。"
+      ]
+    },
+    {
+      "id": "disconnected_undercut",
+      "name": "Disconnected Undercut",
+      "name_zh": "断层削边",
+      "face_shapes": [
+        "oval",
+        "round",
+        "square"
+      ],
+      "length": "medium",
+      "fade": "high",
+      "textures": [
+        "straight",
+        "wavy",
+        "curly"
+      ],
+      "maintenance": "high",
+      "params_mm": {
+        "top": 105,
+        "side": 6,
+        "back": 6
+      },
+      "fringe": false,
+      "top_volume": "high",
+      "aliases_zh": [
+        "断层油头",
+        "两侧削边长顶"
+      ],
+      "presentation": [
+        "masculine",
+        "androgynous"
+      ],
+      "length_band": "medium",
+      "fringe_type": "none",
+      "curl": "straight",
+      "texture_fit": [
+        "straight",
+        "wavy",
+        "curly"
+      ],
+      "density_fit": [
+        "medium",
+        "high"
+      ],
+      "maintenance_min_per_day": 12,
+      "trim_weeks": 3,
+      "price_band_cny": [
+        100,
+        300
+      ],
+      "needs_perm": false,
+      "needs_dye": false,
+      "tier_bias": [
+        "bold"
+      ],
+      "barber_script_zh": [
+        "顶部留十厘米左右，和两侧保留明显的断层。",
+        "两侧和后面收至六毫米，高渐变的位置先给我确认。",
+        "额前保留整片往后梳，用定型产品固定走向。"
+      ]
+    },
+    {
+      "id": "chin_blunt_bob",
+      "name": "Chin Blunt Bob",
+      "name_zh": "下巴齐线波波头",
+      "face_shapes": [
+        "oval",
+        "round",
+        "square",
+        "heart"
+      ],
+      "length": "medium",
+      "fade": "none",
+      "textures": [
+        "straight",
+        "wavy"
+      ],
+      "maintenance": "low",
+      "params_mm": {
+        "top": 180,
+        "side": 150,
+        "back": 170
+      },
+      "fringe": false,
+      "top_volume": "low",
+      "presentations": [
+        "feminine",
+        "androgynous"
+      ],
+      "aliases_zh": [
+        "下巴一刀切",
+        "齐线短波波"
+      ],
+      "presentation": [
+        "feminine",
+        "androgynous"
+      ],
+      "length_band": "chin",
+      "fringe_type": "none",
+      "curl": "straight",
+      "texture_fit": [
+        "straight",
+        "wavy"
+      ],
+      "density_fit": [
+        "low",
+        "medium"
+      ],
+      "maintenance_min_per_day": 3,
+      "trim_weeks": 8,
+      "price_band_cny": [
+        80,
+        220
+      ],
+      "needs_perm": false,
+      "needs_dye": false,
+      "tier_bias": [
+        "safe",
+        "easy"
+      ],
+      "barber_script_zh": [
+        "长度剪到下巴，底边留成整齐的一条线。",
+        "里面只做少量去重，发尾保留厚度不要打碎。",
+        "前面不剪刘海，分线留活一点，能把头发别到耳后。"
+      ]
+    },
+    {
+      "id": "chin_air_bob",
+      "name": "Air Fringe Bob",
+      "name_zh": "空气刘海下巴波波",
+      "face_shapes": [
+        "oval",
+        "round",
+        "square",
+        "heart"
+      ],
+      "length": "medium",
+      "fade": "none",
+      "textures": [
+        "straight",
+        "wavy"
+      ],
+      "maintenance": "medium",
+      "params_mm": {
+        "top": 180,
+        "side": 150,
+        "back": 170
+      },
+      "fringe": true,
+      "top_volume": "moderate",
+      "presentations": [
+        "feminine"
+      ],
+      "aliases_zh": [
+        "薄刘海波波头",
+        "轻刘海短波波"
+      ],
+      "presentation": [
+        "feminine"
+      ],
+      "length_band": "chin",
+      "fringe_type": "air",
+      "curl": "straight",
+      "texture_fit": [
+        "straight",
+        "wavy"
+      ],
+      "density_fit": [
+        "low",
+        "medium"
+      ],
+      "maintenance_min_per_day": 5,
+      "trim_weeks": 5,
+      "price_band_cny": [
+        100,
+        260
+      ],
+      "needs_perm": false,
+      "needs_dye": false,
+      "tier_bias": [
+        "safe"
+      ],
+      "barber_script_zh": [
+        "底边停在下巴下面一指，后面和两侧接成平线。",
+        "头顶不要剪高层次，表面留顺滑一点。",
+        "刘海取薄薄一层留到眉毛附近，吹出一点弧度就好。"
+      ]
+    },
+    {
+      "id": "chin_curtain_c_bob",
+      "name": "Curtain C-Curl Bob",
+      "name_zh": "八字内扣下巴短发",
+      "face_shapes": [
+        "oval",
+        "round",
+        "square",
+        "heart"
+      ],
+      "length": "medium",
+      "fade": "none",
+      "textures": [
+        "straight",
+        "wavy"
+      ],
+      "maintenance": "medium",
+      "params_mm": {
+        "top": 180,
+        "side": 150,
+        "back": 170
+      },
+      "fringe": true,
+      "top_volume": "moderate",
+      "presentations": [
+        "feminine"
+      ],
+      "aliases_zh": [
+        "八字内扣波波",
+        "下巴内扣短发"
+      ],
+      "presentation": [
+        "feminine"
+      ],
+      "length_band": "chin",
+      "fringe_type": "curtain",
+      "curl": "c_curl",
+      "texture_fit": [
+        "straight",
+        "wavy"
+      ],
+      "density_fit": [
+        "medium",
+        "high"
+      ],
+      "maintenance_min_per_day": 5,
+      "trim_weeks": 7,
+      "price_band_cny": [
+        280,
+        680
+      ],
+      "needs_perm": true,
+      "needs_dye": false,
+      "tier_bias": [
+        "safe",
+        "bold"
+      ],
+      "barber_script_zh": [
+        "长度剪到下巴，后颈略收进去但别推高。",
+        "只把发尾烫一个向内的大弯，侧面不要烫蓬。",
+        "八字刘海最短到眼尾，往两侧接到下巴的长度。"
+      ]
+    },
+    {
+      "id": "chin_blunt_fringe_bob",
+      "name": "Full Fringe Bob",
+      "name_zh": "齐刘海下巴波波",
+      "face_shapes": [
+        "oval",
+        "oblong",
+        "heart",
+        "diamond"
+      ],
+      "length": "medium",
+      "fade": "none",
+      "textures": [
+        "straight"
+      ],
+      "maintenance": "medium",
+      "params_mm": {
+        "top": 180,
+        "side": 150,
+        "back": 170
+      },
+      "fringe": true,
+      "top_volume": "low",
+      "presentations": [
+        "feminine"
+      ],
+      "aliases_zh": [
+        "齐刘海短波波",
+        "复古直线波波"
+      ],
+      "presentation": [
+        "feminine"
+      ],
+      "length_band": "chin",
+      "fringe_type": "blunt",
+      "curl": "straight",
+      "texture_fit": [
+        "straight"
+      ],
+      "density_fit": [
+        "medium",
+        "high"
+      ],
+      "maintenance_min_per_day": 6,
+      "trim_weeks": 5,
+      "price_band_cny": [
+        100,
+        260
+      ],
+      "needs_perm": false,
+      "needs_dye": false,
+      "tier_bias": [
+        "bold"
+      ],
+      "barber_script_zh": [
+        "两侧剪到下巴尖，后面保留清楚的平线。",
+        "轮廓做紧凑一点，发尾不剪成很碎的薄片。",
+        "齐刘海留到眉毛上沿，厚度先少取一点再确认。"
+      ]
+    },
+    {
+      "id": "chin_side_french_bob",
+      "name": "Side French Bob",
+      "name_zh": "侧分法式短波波",
+      "face_shapes": [
+        "oval",
+        "round",
+        "square",
+        "heart"
+      ],
+      "length": "medium",
+      "fade": "none",
+      "textures": [
+        "straight",
+        "wavy"
+      ],
+      "maintenance": "medium",
+      "params_mm": {
+        "top": 180,
+        "side": 150,
+        "back": 170
+      },
+      "fringe": true,
+      "top_volume": "moderate",
+      "presentations": [
+        "feminine"
+      ],
+      "aliases_zh": [
+        "偏分法式波波",
+        "下巴法式波纹"
+      ],
+      "presentation": [
+        "feminine"
+      ],
+      "length_band": "chin",
+      "fringe_type": "side",
+      "curl": "french_wave",
+      "texture_fit": [
+        "straight",
+        "wavy"
+      ],
+      "density_fit": [
+        "medium",
+        "high"
+      ],
+      "maintenance_min_per_day": 7,
+      "trim_weeks": 8,
+      "price_band_cny": [
+        320,
+        780
+      ],
+      "needs_perm": true,
+      "needs_dye": false,
+      "tier_bias": [
+        "bold"
+      ],
+      "barber_script_zh": [
+        "底边放在嘴角和下巴之间，耳侧留得松一点。",
+        "烫松松的法式波纹，波峰不要从发根就开始。",
+        "前面留一片侧刘海到颧骨，跟侧边自然接上。"
+      ]
+    },
+    {
+      "id": "chin_natural_curl_bob",
+      "name": "Natural Curl Bob",
+      "name_zh": "原生卷下巴波波",
+      "face_shapes": [
+        "oval",
+        "round",
+        "square",
+        "heart"
+      ],
+      "length": "medium",
+      "fade": "none",
+      "textures": [
+        "curly",
+        "coily"
+      ],
+      "maintenance": "low",
+      "params_mm": {
+        "top": 180,
+        "side": 150,
+        "back": 170
+      },
+      "fringe": false,
+      "top_volume": "high",
+      "presentations": [
+        "feminine",
+        "androgynous"
+      ],
+      "aliases_zh": [
+        "自然卷短波波",
+        "下巴圆卷发"
+      ],
+      "presentation": [
+        "feminine",
+        "androgynous"
+      ],
+      "length_band": "chin",
+      "fringe_type": "none",
+      "curl": "wool",
+      "texture_fit": [
+        "curly",
+        "coily"
+      ],
+      "density_fit": [
+        "medium",
+        "high"
+      ],
+      "maintenance_min_per_day": 3,
+      "trim_weeks": 10,
+      "price_band_cny": [
+        120,
+        320
+      ],
+      "needs_perm": false,
+      "needs_dye": false,
+      "tier_bias": [
+        "easy",
+        "safe"
+      ],
+      "barber_script_zh": [
+        "请在干发时确认长度，卷回来刚好停在下巴。",
+        "顺着原生卷修成圆轮廓，里面不要用牙剪掏空。",
+        "前面不另剪直刘海，湿发抹少量卷发霜托住卷束。"
+      ]
+    },
+    {
+      "id": "chin_graduated_bob",
+      "name": "Graduated Bob",
+      "name_zh": "后短前长下巴波波",
+      "face_shapes": [
+        "oval",
+        "round",
+        "square",
+        "heart"
+      ],
+      "length": "medium",
+      "fade": "none",
+      "textures": [
+        "straight",
+        "wavy"
+      ],
+      "maintenance": "medium",
+      "params_mm": {
+        "top": 180,
+        "side": 165,
+        "back": 140
+      },
+      "fringe": true,
+      "top_volume": "moderate",
+      "presentations": [
+        "feminine"
+      ],
+      "aliases_zh": [
+        "低层次堆积波波",
+        "前长后短短发"
+      ],
+      "presentation": [
+        "feminine"
+      ],
+      "length_band": "chin",
+      "fringe_type": "side",
+      "curl": "straight",
+      "texture_fit": [
+        "straight",
+        "wavy"
+      ],
+      "density_fit": [
+        "low",
+        "medium"
+      ],
+      "maintenance_min_per_day": 5,
+      "trim_weeks": 6,
+      "price_band_cny": [
+        120,
+        300
+      ],
+      "needs_perm": false,
+      "needs_dye": false,
+      "tier_bias": [
+        "safe"
+      ],
+      "barber_script_zh": [
+        "前面留到下巴，后颈只比前面短一到两厘米。",
+        "后脑勺做低位置堆积，顶部别剪出很短的层次。",
+        "侧刘海留到颧骨下方，吹风时顺着侧边带过去。"
+      ]
+    },
+    {
+      "id": "chin_asymmetric_bob",
+      "name": "Asymmetric Bob",
+      "name_zh": "不对称下巴短发",
+      "face_shapes": [
+        "oval",
+        "round",
+        "square",
+        "heart"
+      ],
+      "length": "medium",
+      "fade": "none",
+      "textures": [
+        "straight"
+      ],
+      "maintenance": "medium",
+      "params_mm": {
+        "top": 180,
+        "side": 150,
+        "back": 170
+      },
+      "fringe": true,
+      "top_volume": "low",
+      "presentations": [
+        "feminine",
+        "androgynous"
+      ],
+      "aliases_zh": [
+        "长短边波波",
+        "偏斜线短波波"
+      ],
+      "presentation": [
+        "feminine",
+        "androgynous"
+      ],
+      "length_band": "chin",
+      "fringe_type": "side",
+      "curl": "straight",
+      "texture_fit": [
+        "straight"
+      ],
+      "density_fit": [
+        "medium",
+        "high"
+      ],
+      "maintenance_min_per_day": 6,
+      "trim_weeks": 6,
+      "price_band_cny": [
+        120,
+        320
+      ],
+      "needs_perm": false,
+      "needs_dye": false,
+      "tier_bias": [
+        "bold"
+      ],
+      "barber_script_zh": [
+        "一侧停在下巴，另一侧比下巴长两厘米，先确认长边方向。",
+        "后面用斜线接到长边，底边不要切成水平线。",
+        "刘海朝长边侧梳，短边保留能别耳后的长度。"
+      ]
+    },
+    {
+      "id": "chin_air_c_bob",
+      "name": "Air C-Curl Bob",
+      "name_zh": "空气刘海内扣短发",
+      "face_shapes": [
+        "oval",
+        "round",
+        "square",
+        "heart"
+      ],
+      "length": "medium",
+      "fade": "none",
+      "textures": [
+        "straight",
+        "wavy"
+      ],
+      "maintenance": "medium",
+      "params_mm": {
+        "top": 180,
+        "side": 150,
+        "back": 170
+      },
+      "fringe": true,
+      "top_volume": "moderate",
+      "presentations": [
+        "feminine"
+      ],
+      "aliases_zh": [
+        "空气内扣波波",
+        "轻弯下巴短发"
+      ],
+      "presentation": [
+        "feminine"
+      ],
+      "length_band": "chin",
+      "fringe_type": "air",
+      "curl": "c_curl",
+      "texture_fit": [
+        "straight",
+        "wavy"
+      ],
+      "density_fit": [
+        "low",
+        "medium"
+      ],
+      "maintenance_min_per_day": 5,
+      "trim_weeks": 6,
+      "price_band_cny": [
+        260,
+        620
+      ],
+      "needs_perm": true,
+      "needs_dye": false,
+      "tier_bias": [
+        "safe"
+      ],
+      "barber_script_zh": [
+        "两侧到下巴下一指，底边比普通波波留松一点。",
+        "发尾烫小幅内扣，顶部保持自然，不加根部烫。",
+        "空气刘海留到眉毛下面，边缘剪轻，别取太宽。"
+      ]
+    },
+    {
+      "id": "chin_shag_wave",
+      "name": "Chin Shag Wave",
+      "name_zh": "下巴层次法式卷",
+      "face_shapes": [
+        "oval",
+        "round",
+        "square",
+        "heart"
+      ],
+      "length": "medium",
+      "fade": "none",
+      "textures": [
+        "straight",
+        "wavy"
+      ],
+      "maintenance": "high",
+      "params_mm": {
+        "top": 180,
+        "side": 150,
+        "back": 170
+      },
+      "fringe": true,
+      "top_volume": "high",
+      "presentations": [
+        "feminine"
+      ],
+      "aliases_zh": [
+        "短层次法式卷",
+        "下巴轻狼尾卷"
+      ],
+      "presentation": [
+        "feminine"
+      ],
+      "length_band": "chin",
+      "fringe_type": "curtain",
+      "curl": "french_wave",
+      "texture_fit": [
+        "straight",
+        "wavy"
+      ],
+      "density_fit": [
+        "medium",
+        "high"
+      ],
+      "maintenance_min_per_day": 8,
+      "trim_weeks": 8,
+      "price_band_cny": [
+        350,
+        850
+      ],
+      "needs_perm": true,
+      "needs_dye": false,
+      "tier_bias": [
+        "bold"
+      ],
+      "barber_script_zh": [
+        "后面留到下巴下方，耳侧做轻一点的层次。",
+        "法式波浪从耳朵附近开始，后颈留一点碎尾。",
+        "八字刘海中间到鼻梁，两边接进侧面层次。"
+      ]
+    },
+    {
+      "id": "chin_blunt_wool",
+      "name": "Full Fringe Wool Bob",
+      "name_zh": "齐刘海下巴羊毛卷",
+      "face_shapes": [
+        "oval",
+        "round",
+        "square",
+        "heart"
+      ],
+      "length": "medium",
+      "fade": "none",
+      "textures": [
+        "straight",
+        "wavy"
+      ],
+      "maintenance": "high",
+      "params_mm": {
+        "top": 180,
+        "side": 150,
+        "back": 170
+      },
+      "fringe": true,
+      "top_volume": "high",
+      "presentations": [
+        "feminine"
+      ],
+      "aliases_zh": [
+        "短羊毛卷波波",
+        "齐刘海小卷短发"
+      ],
+      "presentation": [
+        "feminine"
+      ],
+      "length_band": "chin",
+      "fringe_type": "blunt",
+      "curl": "wool",
+      "texture_fit": [
+        "straight",
+        "wavy"
+      ],
+      "density_fit": [
+        "low",
+        "medium"
+      ],
+      "maintenance_min_per_day": 9,
+      "trim_weeks": 8,
+      "price_band_cny": [
+        380,
+        980
+      ],
+      "needs_perm": true,
+      "needs_dye": false,
+      "tier_bias": [
+        "bold"
+      ],
+      "barber_script_zh": [
+        "请按烫后停在下巴来留长度，先算好小卷回缩。",
+        "全头做均匀小卷，侧边重量不要集中在一圈。",
+        "齐刘海烫后留到眉毛，分小束修剪，别一次剪太短。"
+      ]
+    },
+    {
+      "id": "chin_natural_wave",
+      "name": "Natural Wave Bob",
+      "name_zh": "自然波纹下巴短发",
+      "face_shapes": [
+        "oval",
+        "round",
+        "square",
+        "heart"
+      ],
+      "length": "medium",
+      "fade": "none",
+      "textures": [
+        "wavy",
+        "curly"
+      ],
+      "maintenance": "low",
+      "params_mm": {
+        "top": 180,
+        "side": 150,
+        "back": 170
+      },
+      "fringe": false,
+      "top_volume": "moderate",
+      "presentations": [
+        "feminine"
+      ],
+      "aliases_zh": [
+        "免烫波纹波波",
+        "下巴松弛短发"
+      ],
+      "presentation": [
+        "feminine"
+      ],
+      "length_band": "chin",
+      "fringe_type": "none",
+      "curl": "french_wave",
+      "texture_fit": [
+        "wavy",
+        "curly"
+      ],
+      "density_fit": [
+        "low",
+        "medium",
+        "high"
+      ],
+      "maintenance_min_per_day": 3,
+      "trim_weeks": 9,
+      "price_band_cny": [
+        100,
+        280
+      ],
+      "needs_perm": false,
+      "needs_dye": false,
+      "tier_bias": [
+        "safe",
+        "easy"
+      ],
+      "barber_script_zh": [
+        "自然干后长度停在下巴下方，保留原来的波纹。",
+        "底边只剪少量长层次，不拉直头发再剪得太短。",
+        "前面不另剪刘海，湿发用手抓出波纹，不需要烫。"
+      ]
+    },
+    {
+      "id": "collarbone_blunt_lob",
+      "name": "Collarbone Blunt Lob",
+      "name_zh": "锁骨齐线长波波",
+      "face_shapes": [
+        "oval",
+        "round",
+        "square",
+        "heart"
+      ],
+      "length": "long",
+      "fade": "none",
+      "textures": [
+        "straight",
+        "wavy"
+      ],
+      "maintenance": "low",
+      "params_mm": {
+        "top": 280,
+        "side": 250,
+        "back": 280
+      },
+      "fringe": false,
+      "top_volume": "low",
+      "presentations": [
+        "feminine",
+        "androgynous"
+      ],
+      "aliases_zh": [
+        "锁骨一刀切",
+        "齐线锁骨发"
+      ],
+      "presentation": [
+        "feminine",
+        "androgynous"
+      ],
+      "length_band": "collarbone",
+      "fringe_type": "none",
+      "curl": "straight",
+      "texture_fit": [
+        "straight",
+        "wavy"
+      ],
+      "density_fit": [
+        "low",
+        "medium",
+        "high"
+      ],
+      "maintenance_min_per_day": 3,
+      "trim_weeks": 10,
+      "price_band_cny": [
+        100,
+        280
+      ],
+      "needs_perm": false,
+      "needs_dye": false,
+      "tier_bias": [
+        "safe",
+        "easy"
+      ],
+      "barber_script_zh": [
+        "底边剪到锁骨下一指，前后长度保持接近。",
+        "先保留发尾厚度，发量多的地方只在里面少量去重。",
+        "前面不另剪刘海，能扎起来的长度请帮我保留。"
+      ]
+    },
+    {
+      "id": "collarbone_air_lob",
+      "name": "Air Fringe Lob",
+      "name_zh": "空气刘海锁骨发",
+      "face_shapes": [
+        "oval",
+        "round",
+        "square",
+        "heart"
+      ],
+      "length": "long",
+      "fade": "none",
+      "textures": [
+        "straight",
+        "wavy"
+      ],
+      "maintenance": "medium",
+      "params_mm": {
+        "top": 280,
+        "side": 250,
+        "back": 280
+      },
+      "fringe": true,
+      "top_volume": "moderate",
+      "presentations": [
+        "feminine"
+      ],
+      "aliases_zh": [
+        "薄刘海锁骨发",
+        "轻盈锁骨直发"
+      ],
+      "presentation": [
+        "feminine"
+      ],
+      "length_band": "collarbone",
+      "fringe_type": "air",
+      "curl": "straight",
+      "texture_fit": [
+        "straight",
+        "wavy"
+      ],
+      "density_fit": [
+        "low",
+        "medium"
+      ],
+      "maintenance_min_per_day": 5,
+      "trim_weeks": 6,
+      "price_band_cny": [
+        100,
+        280
+      ],
+      "needs_perm": false,
+      "needs_dye": false,
+      "tier_bias": [
+        "safe"
+      ],
+      "barber_script_zh": [
+        "长度落在锁骨，底边留一点柔和的弧线。",
+        "只修下段少量层次，头顶别打得太碎。",
+        "刘海薄取到眉毛下沿，两侧留长到颧骨。"
+      ]
+    },
+    {
+      "id": "collarbone_curtain_c",
+      "name": "Curtain C-Curl Lob",
+      "name_zh": "八字内扣锁骨发",
+      "face_shapes": [
+        "oval",
+        "round",
+        "square",
+        "heart"
+      ],
+      "length": "long",
+      "fade": "none",
+      "textures": [
+        "straight",
+        "wavy"
+      ],
+      "maintenance": "medium",
+      "params_mm": {
+        "top": 280,
+        "side": 250,
+        "back": 280
+      },
+      "fringe": true,
+      "top_volume": "moderate",
+      "presentations": [
+        "feminine"
+      ],
+      "aliases_zh": [
+        "锁骨八字内扣",
+        "大弯锁骨发"
+      ],
+      "presentation": [
+        "feminine"
+      ],
+      "length_band": "collarbone",
+      "fringe_type": "curtain",
+      "curl": "c_curl",
+      "texture_fit": [
+        "straight",
+        "wavy"
+      ],
+      "density_fit": [
+        "medium",
+        "high"
+      ],
+      "maintenance_min_per_day": 5,
+      "trim_weeks": 8,
+      "price_band_cny": [
+        300,
+        780
+      ],
+      "needs_perm": true,
+      "needs_dye": false,
+      "tier_bias": [
+        "safe",
+        "bold"
+      ],
+      "barber_script_zh": [
+        "锁骨下面留一指长度，后面剪成轻微的圆弧。",
+        "发尾烫一个向内的大弯，层次放在下三分之一。",
+        "八字刘海最短到颧骨，向外带开再接到肩侧。"
+      ]
+    },
+    {
+      "id": "collarbone_blunt_c",
+      "name": "Full Fringe C-Curl Lob",
+      "name_zh": "齐刘海内扣锁骨发",
+      "face_shapes": [
+        "oval",
+        "round",
+        "square",
+        "heart"
+      ],
+      "length": "long",
+      "fade": "none",
+      "textures": [
+        "straight",
+        "wavy"
+      ],
+      "maintenance": "medium",
+      "params_mm": {
+        "top": 280,
+        "side": 250,
+        "back": 280
+      },
+      "fringe": true,
+      "top_volume": "moderate",
+      "presentations": [
+        "feminine"
+      ],
+      "aliases_zh": [
+        "齐刘海锁骨内扣",
+        "复古锁骨大弯"
+      ],
+      "presentation": [
+        "feminine"
+      ],
+      "length_band": "collarbone",
+      "fringe_type": "blunt",
+      "curl": "c_curl",
+      "texture_fit": [
+        "straight",
+        "wavy"
+      ],
+      "density_fit": [
+        "medium",
+        "high"
+      ],
+      "maintenance_min_per_day": 6,
+      "trim_weeks": 6,
+      "price_band_cny": [
+        300,
+        760
+      ],
+      "needs_perm": true,
+      "needs_dye": false,
+      "tier_bias": [
+        "bold"
+      ],
+      "barber_script_zh": [
+        "底边到锁骨下方，两侧别剪成前短后长。",
+        "只把发尾做一道圆圆的内扣，卷位保持在下段。",
+        "齐刘海盖到眉毛，边缘略剪轻，宽度先让我确认。"
+      ]
+    },
+    {
+      "id": "collarbone_side_wave",
+      "name": "Side Wave Lob",
+      "name_zh": "侧刘海法式锁骨发",
+      "face_shapes": [
+        "oval",
+        "round",
+        "square",
+        "heart"
+      ],
+      "length": "long",
+      "fade": "none",
+      "textures": [
+        "straight",
+        "wavy"
+      ],
+      "maintenance": "medium",
+      "params_mm": {
+        "top": 280,
+        "side": 250,
+        "back": 280
+      },
+      "fringe": true,
+      "top_volume": "moderate",
+      "presentations": [
+        "feminine"
+      ],
+      "aliases_zh": [
+        "偏分锁骨波浪",
+        "侧分法式长波波"
+      ],
+      "presentation": [
+        "feminine"
+      ],
+      "length_band": "collarbone",
+      "fringe_type": "side",
+      "curl": "french_wave",
+      "texture_fit": [
+        "straight",
+        "wavy"
+      ],
+      "density_fit": [
+        "medium",
+        "high"
+      ],
+      "maintenance_min_per_day": 7,
+      "trim_weeks": 9,
+      "price_band_cny": [
+        350,
+        880
+      ],
+      "needs_perm": true,
+      "needs_dye": false,
+      "tier_bias": [
+        "bold"
+      ],
+      "barber_script_zh": [
+        "请把烫后的底边控制在锁骨下一指。",
+        "中段开始烫松的法式波浪，两侧不要做成小密卷。",
+        "侧刘海留到鼻尖附近，能和脸旁的波浪连上。"
+      ]
+    },
+    {
+      "id": "collarbone_natural_wool",
+      "name": "Natural Wool Lob",
+      "name_zh": "原生卷锁骨发",
+      "face_shapes": [
+        "oval",
+        "round",
+        "square",
+        "heart"
+      ],
+      "length": "long",
+      "fade": "none",
+      "textures": [
+        "curly",
+        "coily"
+      ],
+      "maintenance": "low",
+      "params_mm": {
+        "top": 280,
+        "side": 250,
+        "back": 280
+      },
+      "fringe": false,
+      "top_volume": "high",
+      "presentations": [
+        "feminine"
+      ],
+      "aliases_zh": [
+        "免烫锁骨卷",
+        "自然紧卷锁骨发"
+      ],
+      "presentation": [
+        "feminine"
+      ],
+      "length_band": "collarbone",
+      "fringe_type": "none",
+      "curl": "wool",
+      "texture_fit": [
+        "curly",
+        "coily"
+      ],
+      "density_fit": [
+        "medium",
+        "high"
+      ],
+      "maintenance_min_per_day": 3,
+      "trim_weeks": 12,
+      "price_band_cny": [
+        140,
+        380
+      ],
+      "needs_perm": false,
+      "needs_dye": false,
+      "tier_bias": [
+        "safe",
+        "easy"
+      ],
+      "barber_script_zh": [
+        "干发时以锁骨为终点，先留足原生卷回缩的空间。",
+        "外轮廓留圆润的长层次，不把底边剪薄。",
+        "不另做刘海，湿发分区抹卷发霜后轻轻托卷。"
+      ]
+    },
+    {
+      "id": "collarbone_butterfly",
+      "name": "Collarbone Butterfly Layers",
+      "name_zh": "锁骨蝴蝶层次",
+      "face_shapes": [
+        "oval",
+        "round",
+        "square",
+        "heart"
+      ],
+      "length": "long",
+      "fade": "none",
+      "textures": [
+        "straight",
+        "wavy"
+      ],
+      "maintenance": "high",
+      "params_mm": {
+        "top": 280,
+        "side": 250,
+        "back": 280
+      },
+      "fringe": true,
+      "top_volume": "moderate",
+      "presentations": [
+        "feminine"
+      ],
+      "aliases_zh": [
+        "短蝴蝶层次",
+        "八字轻层次锁骨发"
+      ],
+      "presentation": [
+        "feminine"
+      ],
+      "length_band": "collarbone",
+      "fringe_type": "curtain",
+      "curl": "straight",
+      "texture_fit": [
+        "straight",
+        "wavy"
+      ],
+      "density_fit": [
+        "medium",
+        "high"
+      ],
+      "maintenance_min_per_day": 8,
+      "trim_weeks": 8,
+      "price_band_cny": [
+        120,
+        340
+      ],
+      "needs_perm": false,
+      "needs_dye": false,
+      "tier_bias": [
+        "bold"
+      ],
+      "barber_script_zh": [
+        "后面留到锁骨，前面从下巴开始做两段层次。",
+        "顶部保留长一点，层次主要放在脸旁，不整体削薄。",
+        "八字刘海到颧骨，吹的时候把前面两片向外带开。"
+      ]
+    },
+    {
+      "id": "collarbone_flick_lob",
+      "name": "Outward Flick Lob",
+      "name_zh": "外翘锁骨发",
+      "face_shapes": [
+        "oval",
+        "round",
+        "square",
+        "heart"
+      ],
+      "length": "long",
+      "fade": "none",
+      "textures": [
+        "straight",
+        "wavy"
+      ],
+      "maintenance": "medium",
+      "params_mm": {
+        "top": 280,
+        "side": 250,
+        "back": 280
+      },
+      "fringe": false,
+      "top_volume": "moderate",
+      "presentations": [
+        "feminine"
+      ],
+      "aliases_zh": [
+        "外翻锁骨短发",
+        "锁骨外弯长波波"
+      ],
+      "presentation": [
+        "feminine"
+      ],
+      "length_band": "collarbone",
+      "fringe_type": "none",
+      "curl": "c_curl",
+      "texture_fit": [
+        "straight",
+        "wavy"
+      ],
+      "density_fit": [
+        "low",
+        "medium",
+        "high"
+      ],
+      "maintenance_min_per_day": 7,
+      "trim_weeks": 9,
+      "price_band_cny": [
+        100,
+        300
+      ],
+      "needs_perm": false,
+      "needs_dye": false,
+      "tier_bias": [
+        "safe"
+      ],
+      "barber_script_zh": [
+        "长度刚碰锁骨，保留碰到肩膀能外翘的余量。",
+        "底边少量剪轻，不烫发，日常用圆梳向外吹一个弯。",
+        "前面不另剪刘海，分线两边留到下巴以下。"
+      ]
+    },
+    {
+      "id": "collarbone_air_wool",
+      "name": "Air Fringe Wool Lob",
+      "name_zh": "空气刘海锁骨羊毛卷",
+      "face_shapes": [
+        "oval",
+        "round",
+        "square",
+        "heart"
+      ],
+      "length": "long",
+      "fade": "none",
+      "textures": [
+        "straight",
+        "wavy"
+      ],
+      "maintenance": "high",
+      "params_mm": {
+        "top": 280,
+        "side": 250,
+        "back": 280
+      },
+      "fringe": true,
+      "top_volume": "high",
+      "presentations": [
+        "feminine"
+      ],
+      "aliases_zh": [
+        "轻刘海锁骨小卷",
+        "锁骨空气羊毛卷"
+      ],
+      "presentation": [
+        "feminine"
+      ],
+      "length_band": "collarbone",
+      "fringe_type": "air",
+      "curl": "wool",
+      "texture_fit": [
+        "straight",
+        "wavy"
+      ],
+      "density_fit": [
+        "low",
+        "medium"
+      ],
+      "maintenance_min_per_day": 10,
+      "trim_weeks": 8,
+      "price_band_cny": [
+        420,
+        1080
+      ],
+      "needs_perm": true,
+      "needs_dye": false,
+      "tier_bias": [
+        "bold"
+      ],
+      "barber_script_zh": [
+        "烫后长度到锁骨下方，剪前请先预留卷缩长度。",
+        "卷从耳上开始做，侧边用长层次分散小卷的重量。",
+        "空气刘海取少量做松卷，干后留在眉毛附近。"
+      ]
+    },
+    {
+      "id": "collarbone_natural_wave",
+      "name": "Natural Wave Lob",
+      "name_zh": "原生波纹锁骨发",
+      "face_shapes": [
+        "oval",
+        "round",
+        "square",
+        "heart"
+      ],
+      "length": "long",
+      "fade": "none",
+      "textures": [
+        "wavy",
+        "curly"
+      ],
+      "maintenance": "low",
+      "params_mm": {
+        "top": 280,
+        "side": 250,
+        "back": 280
+      },
+      "fringe": true,
+      "top_volume": "moderate",
+      "presentations": [
+        "feminine"
+      ],
+      "aliases_zh": [
+        "免烫法式锁骨发",
+        "自然波浪长波波"
+      ],
+      "presentation": [
+        "feminine"
+      ],
+      "length_band": "collarbone",
+      "fringe_type": "side",
+      "curl": "french_wave",
+      "texture_fit": [
+        "wavy",
+        "curly"
+      ],
+      "density_fit": [
+        "low",
+        "medium",
+        "high"
+      ],
+      "maintenance_min_per_day": 3,
+      "trim_weeks": 12,
+      "price_band_cny": [
+        120,
+        320
+      ],
+      "needs_perm": false,
+      "needs_dye": false,
+      "tier_bias": [
+        "safe",
+        "easy"
+      ],
+      "barber_script_zh": [
+        "顺着原生波纹修到锁骨下方，不做额外烫发。",
+        "只在发尾剪长层次，湿发和干发的落点都帮我看一下。",
+        "侧刘海留到下巴，能一起扎起，日常用手抓出波纹。"
+      ]
+    },
+    {
+      "id": "collarbone_wispy_lob",
+      "name": "Wispy Layered Lob",
+      "name_zh": "轻碎边锁骨发",
+      "face_shapes": [
+        "oval",
+        "round",
+        "square",
+        "heart"
+      ],
+      "length": "long",
+      "fade": "none",
+      "textures": [
+        "straight"
+      ],
+      "maintenance": "medium",
+      "params_mm": {
+        "top": 280,
+        "side": 250,
+        "back": 280
+      },
+      "fringe": true,
+      "top_volume": "moderate",
+      "presentations": [
+        "feminine"
+      ],
+      "aliases_zh": [
+        "轻层次锁骨碎发",
+        "薄边锁骨长波波"
+      ],
+      "presentation": [
+        "feminine"
+      ],
+      "length_band": "collarbone",
+      "fringe_type": "air",
+      "curl": "straight",
+      "texture_fit": [
+        "straight"
+      ],
+      "density_fit": [
+        "medium",
+        "high"
+      ],
+      "maintenance_min_per_day": 6,
+      "trim_weeks": 8,
+      "price_band_cny": [
+        120,
+        320
+      ],
+      "needs_perm": false,
+      "needs_dye": false,
+      "tier_bias": [
+        "safe"
+      ],
+      "barber_script_zh": [
+        "后面到锁骨下一指，两侧做稍短的轻层次。",
+        "底边用点剪做出细碎感，发根和中段不要用牙剪掏空。",
+        "空气刘海中间到眉下，两边逐渐接长到颧骨。"
+      ]
+    },
+    {
+      "id": "shoulder_u_cut",
+      "name": "Shoulder U Cut",
+      "name_zh": "肩下U形直发",
+      "face_shapes": [
+        "oval",
+        "round",
+        "square",
+        "heart"
+      ],
+      "length": "long",
+      "fade": "none",
+      "textures": [
+        "straight",
+        "wavy"
+      ],
+      "maintenance": "low",
+      "params_mm": {
+        "top": 350,
+        "side": 320,
+        "back": 360
+      },
+      "fringe": false,
+      "top_volume": "low",
+      "presentations": [
+        "feminine"
+      ],
+      "aliases_zh": [
+        "肩下圆弧直发",
+        "低层次肩下发"
+      ],
+      "presentation": [
+        "feminine"
+      ],
+      "length_band": "shoulder",
+      "fringe_type": "none",
+      "curl": "straight",
+      "texture_fit": [
+        "straight",
+        "wavy"
+      ],
+      "density_fit": [
+        "low",
+        "medium",
+        "high"
+      ],
+      "maintenance_min_per_day": 3,
+      "trim_weeks": 12,
+      "price_band_cny": [
+        100,
+        280
+      ],
+      "needs_perm": false,
+      "needs_dye": false,
+      "tier_bias": [
+        "safe",
+        "easy"
+      ],
+      "barber_script_zh": [
+        "最长的地方留在肩下五厘米，后面剪成浅浅的U形。",
+        "只在发尾做很低的层次，扎起来时边缘不要散太多。",
+        "前面不剪刘海，脸旁留到下巴以下，日常顺梳就好。"
+      ]
+    },
+    {
+      "id": "shoulder_air_straight",
+      "name": "Shoulder Air Fringe",
+      "name_zh": "空气刘海肩下直发",
+      "face_shapes": [
+        "oval",
+        "round",
+        "square",
+        "heart"
+      ],
+      "length": "long",
+      "fade": "none",
+      "textures": [
+        "straight",
+        "wavy"
+      ],
+      "maintenance": "medium",
+      "params_mm": {
+        "top": 350,
+        "side": 320,
+        "back": 360
+      },
+      "fringe": true,
+      "top_volume": "moderate",
+      "presentations": [
+        "feminine"
+      ],
+      "aliases_zh": [
+        "薄刘海肩下长发",
+        "肩下轻直发"
+      ],
+      "presentation": [
+        "feminine"
+      ],
+      "length_band": "shoulder",
+      "fringe_type": "air",
+      "curl": "straight",
+      "texture_fit": [
+        "straight",
+        "wavy"
+      ],
+      "density_fit": [
+        "low",
+        "medium"
+      ],
+      "maintenance_min_per_day": 5,
+      "trim_weeks": 6,
+      "price_band_cny": [
+        100,
+        300
+      ],
+      "needs_perm": false,
+      "needs_dye": false,
+      "tier_bias": [
+        "safe"
+      ],
+      "barber_script_zh": [
+        "整体留在肩下五厘米，底边保留柔和的平线。",
+        "头顶不剪短，只在耳下做一点贴脸的长层次。",
+        "空气刘海留在眉毛和眼睛之间，两边接到颧骨。"
+      ]
+    },
+    {
+      "id": "shoulder_curtain_c",
+      "name": "Shoulder Curtain C-Curl",
+      "name_zh": "八字肩下C卷",
+      "face_shapes": [
+        "oval",
+        "round",
+        "square",
+        "heart"
+      ],
+      "length": "long",
+      "fade": "none",
+      "textures": [
+        "straight",
+        "wavy"
+      ],
+      "maintenance": "medium",
+      "params_mm": {
+        "top": 350,
+        "side": 320,
+        "back": 360
+      },
+      "fringe": true,
+      "top_volume": "moderate",
+      "presentations": [
+        "feminine"
+      ],
+      "aliases_zh": [
+        "肩下大内扣",
+        "八字肩下大弯"
+      ],
+      "presentation": [
+        "feminine"
+      ],
+      "length_band": "shoulder",
+      "fringe_type": "curtain",
+      "curl": "c_curl",
+      "texture_fit": [
+        "straight",
+        "wavy"
+      ],
+      "density_fit": [
+        "medium",
+        "high"
+      ],
+      "maintenance_min_per_day": 6,
+      "trim_weeks": 9,
+      "price_band_cny": [
+        350,
+        880
+      ],
+      "needs_perm": true,
+      "needs_dye": false,
+      "tier_bias": [
+        "safe",
+        "bold"
+      ],
+      "barber_script_zh": [
+        "烫好后底边停在肩下五厘米，先保留足够长度。",
+        "发尾只做一个大C弯，层次从下巴下面开始。",
+        "八字刘海最短到颧骨，向后带开接进前面的层次。"
+      ]
+    },
+    {
+      "id": "shoulder_blunt_c",
+      "name": "Shoulder Full Fringe C-Curl",
+      "name_zh": "齐刘海肩下C卷",
+      "face_shapes": [
+        "oval",
+        "round",
+        "square",
+        "heart"
+      ],
+      "length": "long",
+      "fade": "none",
+      "textures": [
+        "straight",
+        "wavy"
+      ],
+      "maintenance": "medium",
+      "params_mm": {
+        "top": 350,
+        "side": 320,
+        "back": 360
+      },
+      "fringe": true,
+      "top_volume": "moderate",
+      "presentations": [
+        "feminine"
+      ],
+      "aliases_zh": [
+        "齐刘海肩下内扣",
+        "整齐刘海肩下卷"
+      ],
+      "presentation": [
+        "feminine"
+      ],
+      "length_band": "shoulder",
+      "fringe_type": "blunt",
+      "curl": "c_curl",
+      "texture_fit": [
+        "straight",
+        "wavy"
+      ],
+      "density_fit": [
+        "medium",
+        "high"
+      ],
+      "maintenance_min_per_day": 7,
+      "trim_weeks": 6,
+      "price_band_cny": [
+        350,
+        880
+      ],
+      "needs_perm": true,
+      "needs_dye": false,
+      "tier_bias": [
+        "bold"
+      ],
+      "barber_script_zh": [
+        "长度保留到肩下，底边做圆弧但不要剪成尖尾。",
+        "卷集中在最下面一段，中段保持自然顺直。",
+        "齐刘海留到眉毛下沿，先修中间再决定两边的宽度。"
+      ]
+    },
+    {
+      "id": "shoulder_side_french",
+      "name": "Shoulder Side French Waves",
+      "name_zh": "侧分肩下法式卷",
+      "face_shapes": [
+        "oval",
+        "round",
+        "square",
+        "heart"
+      ],
+      "length": "long",
+      "fade": "none",
+      "textures": [
+        "straight",
+        "wavy"
+      ],
+      "maintenance": "high",
+      "params_mm": {
+        "top": 350,
+        "side": 320,
+        "back": 360
+      },
+      "fringe": true,
+      "top_volume": "moderate",
+      "presentations": [
+        "feminine"
+      ],
+      "aliases_zh": [
+        "偏分肩下波浪",
+        "侧刘海肩下法式卷"
+      ],
+      "presentation": [
+        "feminine"
+      ],
+      "length_band": "shoulder",
+      "fringe_type": "side",
+      "curl": "french_wave",
+      "texture_fit": [
+        "straight",
+        "wavy"
+      ],
+      "density_fit": [
+        "medium",
+        "high"
+      ],
+      "maintenance_min_per_day": 8,
+      "trim_weeks": 10,
+      "price_band_cny": [
+        420,
+        1080
+      ],
+      "needs_perm": true,
+      "needs_dye": false,
+      "tier_bias": [
+        "bold"
+      ],
+      "barber_script_zh": [
+        "烫后长度留在肩下，侧边比后面短一到两厘米。",
+        "波浪从耳垂下面开始，卷纹放松一点不要烫成弹簧。",
+        "侧刘海留到鼻尖下方，日常朝侧后方吹开。"
+      ]
+    },
+    {
+      "id": "shoulder_natural_wool",
+      "name": "Shoulder Natural Curls",
+      "name_zh": "原生卷肩下长发",
+      "face_shapes": [
+        "oval",
+        "round",
+        "square",
+        "heart"
+      ],
+      "length": "long",
+      "fade": "none",
+      "textures": [
+        "curly",
+        "coily"
+      ],
+      "maintenance": "low",
+      "params_mm": {
+        "top": 350,
+        "side": 320,
+        "back": 360
+      },
+      "fringe": false,
+      "top_volume": "high",
+      "presentations": [
+        "feminine"
+      ],
+      "aliases_zh": [
+        "免烫肩下羊毛卷",
+        "肩下自然紧卷"
+      ],
+      "presentation": [
+        "feminine"
+      ],
+      "length_band": "shoulder",
+      "fringe_type": "none",
+      "curl": "wool",
+      "texture_fit": [
+        "curly",
+        "coily"
+      ],
+      "density_fit": [
+        "medium",
+        "high"
+      ],
+      "maintenance_min_per_day": 3,
+      "trim_weeks": 12,
+      "price_band_cny": [
+        160,
+        420
+      ],
+      "needs_perm": false,
+      "needs_dye": false,
+      "tier_bias": [
+        "safe",
+        "easy"
+      ],
+      "barber_script_zh": [
+        "请按自然干后的长度保留到肩下，别拉直后一次剪太多。",
+        "用长层次分开卷束，最底下保留重量，不做整体打薄。",
+        "前面不剪短刘海，洗后少量卷发霜抓卷就可以。"
+      ]
+    },
+    {
+      "id": "shoulder_shag_wave",
+      "name": "Shoulder Shag Waves",
+      "name_zh": "肩下层次法式卷",
+      "face_shapes": [
+        "oval",
+        "round",
+        "square",
+        "heart"
+      ],
+      "length": "long",
+      "fade": "none",
+      "textures": [
+        "straight",
+        "wavy"
+      ],
+      "maintenance": "high",
+      "params_mm": {
+        "top": 350,
+        "side": 320,
+        "back": 360
+      },
+      "fringe": true,
+      "top_volume": "high",
+      "presentations": [
+        "feminine"
+      ],
+      "aliases_zh": [
+        "中长轻狼尾卷",
+        "肩下蓬松层次卷"
+      ],
+      "presentation": [
+        "feminine"
+      ],
+      "length_band": "shoulder",
+      "fringe_type": "curtain",
+      "curl": "french_wave",
+      "texture_fit": [
+        "straight",
+        "wavy"
+      ],
+      "density_fit": [
+        "medium",
+        "high"
+      ],
+      "maintenance_min_per_day": 10,
+      "trim_weeks": 9,
+      "price_band_cny": [
+        450,
+        1180
+      ],
+      "needs_perm": true,
+      "needs_dye": false,
+      "tier_bias": [
+        "bold"
+      ],
+      "barber_script_zh": [
+        "后面留在肩下，耳侧和头顶做分明一点的层次。",
+        "法式卷从中段开始，后颈留长尾，不要剪成整齐波波。",
+        "八字刘海中间到鼻梁，两边接进颧骨下的碎层次。"
+      ]
+    },
+    {
+      "id": "shoulder_hime",
+      "name": "Shoulder Hime Cut",
+      "name_zh": "肩下姬发式",
+      "face_shapes": [
+        "oval",
+        "round",
+        "square",
+        "heart"
+      ],
+      "length": "long",
+      "fade": "none",
+      "textures": [
+        "straight"
+      ],
+      "maintenance": "high",
+      "params_mm": {
+        "top": 350,
+        "side": 320,
+        "back": 360
+      },
+      "fringe": true,
+      "top_volume": "low",
+      "presentations": [
+        "feminine"
+      ],
+      "aliases_zh": [
+        "肩下公主切",
+        "双层直线长发"
+      ],
+      "presentation": [
+        "feminine"
+      ],
+      "length_band": "shoulder",
+      "fringe_type": "blunt",
+      "curl": "straight",
+      "texture_fit": [
+        "straight"
+      ],
+      "density_fit": [
+        "medium",
+        "high"
+      ],
+      "maintenance_min_per_day": 8,
+      "trim_weeks": 5,
+      "price_band_cny": [
+        140,
+        380
+      ],
+      "needs_perm": false,
+      "needs_dye": false,
+      "tier_bias": [
+        "bold"
+      ],
+      "barber_script_zh": [
+        "后面保留到肩下，底边剪齐不要做很多层次。",
+        "脸旁单独留两片到下巴的直线短层，宽度先给我确认。",
+        "齐刘海落在眉毛附近，跟两边短片分开剪，不连成斜线。"
+      ]
+    },
+    {
+      "id": "shoulder_natural_wave",
+      "name": "Shoulder Natural Waves",
+      "name_zh": "原生波纹肩下发",
+      "face_shapes": [
+        "oval",
+        "round",
+        "square",
+        "heart"
+      ],
+      "length": "long",
+      "fade": "none",
+      "textures": [
+        "wavy",
+        "curly"
+      ],
+      "maintenance": "low",
+      "params_mm": {
+        "top": 350,
+        "side": 320,
+        "back": 360
+      },
+      "fringe": true,
+      "top_volume": "moderate",
+      "presentations": [
+        "feminine"
+      ],
+      "aliases_zh": [
+        "免烫肩下波浪",
+        "自然大波纹肩下发"
+      ],
+      "presentation": [
+        "feminine"
+      ],
+      "length_band": "shoulder",
+      "fringe_type": "side",
+      "curl": "french_wave",
+      "texture_fit": [
+        "wavy",
+        "curly"
+      ],
+      "density_fit": [
+        "low",
+        "medium",
+        "high"
+      ],
+      "maintenance_min_per_day": 3,
+      "trim_weeks": 12,
+      "price_band_cny": [
+        120,
+        340
+      ],
+      "needs_perm": false,
+      "needs_dye": false,
+      "tier_bias": [
+        "safe",
+        "easy"
+      ],
+      "barber_script_zh": [
+        "保留到肩下，顺着原来的波纹修齐落点。",
+        "发尾做低位置长层次，不把卷纹剪断成很多短碎发。",
+        "侧刘海留到下巴下方，湿发用手托出波纹，不另烫卷。"
+      ]
+    },
+    {
+      "id": "shoulder_air_wool",
+      "name": "Shoulder Air Wool Curls",
+      "name_zh": "空气刘海肩下羊毛卷",
+      "face_shapes": [
+        "oval",
+        "round",
+        "square",
+        "heart"
+      ],
+      "length": "long",
+      "fade": "none",
+      "textures": [
+        "straight",
+        "wavy"
+      ],
+      "maintenance": "high",
+      "params_mm": {
+        "top": 350,
+        "side": 320,
+        "back": 360
+      },
+      "fringe": true,
+      "top_volume": "high",
+      "presentations": [
+        "feminine"
+      ],
+      "aliases_zh": [
+        "肩下轻刘海小卷",
+        "中长空气羊毛卷"
+      ],
+      "presentation": [
+        "feminine"
+      ],
+      "length_band": "shoulder",
+      "fringe_type": "air",
+      "curl": "wool",
+      "texture_fit": [
+        "straight",
+        "wavy"
+      ],
+      "density_fit": [
+        "low",
+        "medium"
+      ],
+      "maintenance_min_per_day": 12,
+      "trim_weeks": 9,
+      "price_band_cny": [
+        480,
+        1280
+      ],
+      "needs_perm": true,
+      "needs_dye": false,
+      "tier_bias": [
+        "bold"
+      ],
+      "barber_script_zh": [
+        "烫好后到肩下五厘米，先帮我算好小卷的回缩量。",
+        "小卷分层排开，耳边不要留一整块厚重的卷。",
+        "空气刘海只取薄薄一片做松卷，干后不要短过眉毛。"
+      ]
+    },
+    {
+      "id": "shoulder_chestnut_layers",
+      "name": "Chestnut Shoulder Layers",
+      "name_zh": "柔棕肩下层次发",
+      "face_shapes": [
+        "oval",
+        "round",
+        "square",
+        "heart"
+      ],
+      "length": "long",
+      "fade": "none",
+      "textures": [
+        "straight",
+        "wavy"
+      ],
+      "maintenance": "medium",
+      "params_mm": {
+        "top": 350,
+        "side": 320,
+        "back": 360
+      },
+      "fringe": true,
+      "top_volume": "moderate",
+      "presentations": [
+        "feminine"
+      ],
+      "aliases_zh": [
+        "肩下柔棕直发",
+        "低层次棕色肩下发"
+      ],
+      "presentation": [
+        "feminine"
+      ],
+      "length_band": "shoulder",
+      "fringe_type": "curtain",
+      "curl": "straight",
+      "texture_fit": [
+        "straight",
+        "wavy"
+      ],
+      "density_fit": [
+        "medium",
+        "high"
+      ],
+      "maintenance_min_per_day": 6,
+      "trim_weeks": 8,
+      "price_band_cny": [
+        380,
+        980
+      ],
+      "needs_perm": false,
+      "needs_dye": true,
+      "tier_bias": [
+        "bold"
+      ],
+      "barber_script_zh": [
+        "肩下长度保留，脸旁从下巴开始接轻层次。",
+        "发色做接近原生深度的柔棕，先试一束确认色差再染。",
+        "八字刘海到颧骨，不烫卷，日常吹出向后的弧线。"
+      ]
+    },
+    {
+      "id": "chest_straight_u",
+      "name": "Chest U-Cut Straight Hair",
+      "name_zh": "胸前U形长直发",
+      "face_shapes": [
+        "oval",
+        "round",
+        "square",
+        "heart"
+      ],
+      "length": "long",
+      "fade": "none",
+      "textures": [
+        "straight",
+        "wavy"
+      ],
+      "maintenance": "low",
+      "params_mm": {
+        "top": 450,
+        "side": 420,
+        "back": 470
+      },
+      "fringe": false,
+      "top_volume": "low",
+      "presentations": [
+        "feminine",
+        "androgynous"
+      ],
+      "aliases_zh": [
+        "胸前圆弧直发",
+        "低层次长直发"
+      ],
+      "presentation": [
+        "feminine",
+        "androgynous"
+      ],
+      "length_band": "chest",
+      "fringe_type": "none",
+      "curl": "straight",
+      "texture_fit": [
+        "straight",
+        "wavy"
+      ],
+      "density_fit": [
+        "low",
+        "medium",
+        "high"
+      ],
+      "maintenance_min_per_day": 3,
+      "trim_weeks": 16,
+      "price_band_cny": [
+        120,
+        320
+      ],
+      "needs_perm": false,
+      "needs_dye": false,
+      "tier_bias": [
+        "safe",
+        "easy"
+      ],
+      "barber_script_zh": [
+        "请把最长处留到胸前，背后底边剪成浅U形。",
+        "层次只做最下面一段，别把整头头发打薄。",
+        "前面不另剪刘海，保留扎马尾时能一起收进去的长度。"
+      ]
+    },
+    {
+      "id": "chest_air_straight",
+      "name": "Chest Air Fringe Straight Hair",
+      "name_zh": "空气刘海胸前直发",
+      "face_shapes": [
+        "oval",
+        "round",
+        "square",
+        "heart"
+      ],
+      "length": "long",
+      "fade": "none",
+      "textures": [
+        "straight",
+        "wavy"
+      ],
+      "maintenance": "medium",
+      "params_mm": {
+        "top": 450,
+        "side": 420,
+        "back": 470
+      },
+      "fringe": true,
+      "top_volume": "moderate",
+      "presentations": [
+        "feminine"
+      ],
+      "aliases_zh": [
+        "空气刘海长直发",
+        "薄刘海胸前发"
+      ],
+      "presentation": [
+        "feminine"
+      ],
+      "length_band": "chest",
+      "fringe_type": "air",
+      "curl": "straight",
+      "texture_fit": [
+        "straight",
+        "wavy"
+      ],
+      "density_fit": [
+        "low",
+        "medium"
+      ],
+      "maintenance_min_per_day": 5,
+      "trim_weeks": 6,
+      "price_band_cny": [
+        120,
+        340
+      ],
+      "needs_perm": false,
+      "needs_dye": false,
+      "tier_bias": [
+        "safe"
+      ],
+      "barber_script_zh": [
+        "长发留到胸前，底边修成柔和的圆弧。",
+        "脸旁从下巴以下接长层次，顶部保留完整长度。",
+        "空气刘海中间留到眉下，侧边自然接长，不做厚盖。"
+      ]
+    },
+    {
+      "id": "chest_curtain_c",
+      "name": "Chest Curtain C-Curls",
+      "name_zh": "八字胸前C卷",
+      "face_shapes": [
+        "oval",
+        "round",
+        "square",
+        "heart"
+      ],
+      "length": "long",
+      "fade": "none",
+      "textures": [
+        "straight",
+        "wavy"
+      ],
+      "maintenance": "medium",
+      "params_mm": {
+        "top": 450,
+        "side": 420,
+        "back": 470
+      },
+      "fringe": true,
+      "top_volume": "moderate",
+      "presentations": [
+        "feminine"
+      ],
+      "aliases_zh": [
+        "长发八字大弯",
+        "胸前内扣大卷"
+      ],
+      "presentation": [
+        "feminine"
+      ],
+      "length_band": "chest",
+      "fringe_type": "curtain",
+      "curl": "c_curl",
+      "texture_fit": [
+        "straight",
+        "wavy"
+      ],
+      "density_fit": [
+        "medium",
+        "high"
+      ],
+      "maintenance_min_per_day": 7,
+      "trim_weeks": 10,
+      "price_band_cny": [
+        450,
+        1180
+      ],
+      "needs_perm": true,
+      "needs_dye": false,
+      "tier_bias": [
+        "safe",
+        "bold"
+      ],
+      "barber_script_zh": [
+        "烫后的最长处落在胸前，底边留U形。",
+        "只把下段烫出大C弯，耳朵以上不加卷度。",
+        "八字刘海最短到颧骨，两边连到胸前长发的层次里。"
+      ]
+    },
+    {
+      "id": "chest_blunt_c",
+      "name": "Chest Full Fringe C-Curls",
+      "name_zh": "齐刘海胸前C卷",
+      "face_shapes": [
+        "oval",
+        "round",
+        "square",
+        "heart"
+      ],
+      "length": "long",
+      "fade": "none",
+      "textures": [
+        "straight",
+        "wavy"
+      ],
+      "maintenance": "high",
+      "params_mm": {
+        "top": 450,
+        "side": 420,
+        "back": 470
+      },
+      "fringe": true,
+      "top_volume": "moderate",
+      "presentations": [
+        "feminine"
+      ],
+      "aliases_zh": [
+        "齐刘海长发内扣",
+        "胸前复古大弯"
+      ],
+      "presentation": [
+        "feminine"
+      ],
+      "length_band": "chest",
+      "fringe_type": "blunt",
+      "curl": "c_curl",
+      "texture_fit": [
+        "straight",
+        "wavy"
+      ],
+      "density_fit": [
+        "medium",
+        "high"
+      ],
+      "maintenance_min_per_day": 8,
+      "trim_weeks": 6,
+      "price_band_cny": [
+        450,
+        1180
+      ],
+      "needs_perm": true,
+      "needs_dye": false,
+      "tier_bias": [
+        "bold"
+      ],
+      "barber_script_zh": [
+        "长度留在胸前，发尾保持饱满，不要剪成细尖。",
+        "卷只放在最下面十厘米，烫一个圆润的大弯。",
+        "齐刘海到眉毛下沿，两端稍留长一点，先别取太宽。"
+      ]
+    },
+    {
+      "id": "chest_side_french",
+      "name": "Chest Side French Waves",
+      "name_zh": "侧分胸前法式卷",
+      "face_shapes": [
+        "oval",
+        "round",
+        "square",
+        "heart"
+      ],
+      "length": "long",
+      "fade": "none",
+      "textures": [
+        "straight",
+        "wavy"
+      ],
+      "maintenance": "high",
+      "params_mm": {
+        "top": 450,
+        "side": 420,
+        "back": 470
+      },
+      "fringe": true,
+      "top_volume": "moderate",
+      "presentations": [
+        "feminine"
+      ],
+      "aliases_zh": [
+        "胸前松法式卷",
+        "长发侧分大波浪"
+      ],
+      "presentation": [
+        "feminine"
+      ],
+      "length_band": "chest",
+      "fringe_type": "side",
+      "curl": "french_wave",
+      "texture_fit": [
+        "straight",
+        "wavy"
+      ],
+      "density_fit": [
+        "medium",
+        "high"
+      ],
+      "maintenance_min_per_day": 10,
+      "trim_weeks": 12,
+      "price_band_cny": [
+        520,
+        1380
+      ],
+      "needs_perm": true,
+      "needs_dye": false,
+      "tier_bias": [
+        "bold"
+      ],
+      "barber_script_zh": [
+        "烫后保留胸前长度，前面比后面做轻一点的长层次。",
+        "波浪从耳下开始，做大而松的波纹，不要紧密小卷。",
+        "侧刘海留到下巴附近，向后接进第一道波浪。"
+      ]
+    },
+    {
+      "id": "chest_natural_wool",
+      "name": "Chest Natural Tight Curls",
+      "name_zh": "原生卷胸前长发",
+      "face_shapes": [
+        "oval",
+        "round",
+        "square",
+        "heart"
+      ],
+      "length": "long",
+      "fade": "none",
+      "textures": [
+        "curly",
+        "coily"
+      ],
+      "maintenance": "low",
+      "params_mm": {
+        "top": 450,
+        "side": 420,
+        "back": 470
+      },
+      "fringe": false,
+      "top_volume": "high",
+      "presentations": [
+        "feminine"
+      ],
+      "aliases_zh": [
+        "免烫长羊毛卷",
+        "胸前自然紧卷长发"
+      ],
+      "presentation": [
+        "feminine"
+      ],
+      "length_band": "chest",
+      "fringe_type": "none",
+      "curl": "wool",
+      "texture_fit": [
+        "curly",
+        "coily"
+      ],
+      "density_fit": [
+        "medium",
+        "high"
+      ],
+      "maintenance_min_per_day": 3,
+      "trim_weeks": 16,
+      "price_band_cny": [
+        180,
+        480
+      ],
+      "needs_perm": false,
+      "needs_dye": false,
+      "tier_bias": [
+        "safe",
+        "easy"
+      ],
+      "barber_script_zh": [
+        "干发后最长处留在胸前，原生紧卷先少量修剪再看落点。",
+        "用长层次把重量分开，发尾卷束要完整，不整体削薄。",
+        "前面不另剪刘海，湿发分区涂少量卷发霜，轻轻托卷就好。"
+      ]
+    },
+    {
+      "id": "chest_butterfly_layers",
+      "name": "Chest Butterfly Layers",
+      "name_zh": "胸前蝴蝶层次发",
+      "face_shapes": [
+        "oval",
+        "round",
+        "square",
+        "heart"
+      ],
+      "length": "long",
+      "fade": "none",
+      "textures": [
+        "straight",
+        "wavy"
+      ],
+      "maintenance": "high",
+      "params_mm": {
+        "top": 450,
+        "side": 420,
+        "back": 470
+      },
+      "fringe": true,
+      "top_volume": "moderate",
+      "presentations": [
+        "feminine"
+      ],
+      "aliases_zh": [
+        "长蝴蝶层次",
+        "八字长层次吹卷"
+      ],
+      "presentation": [
+        "feminine"
+      ],
+      "length_band": "chest",
+      "fringe_type": "curtain",
+      "curl": "c_curl",
+      "texture_fit": [
+        "straight",
+        "wavy"
+      ],
+      "density_fit": [
+        "medium",
+        "high"
+      ],
+      "maintenance_min_per_day": 12,
+      "trim_weeks": 10,
+      "price_band_cny": [
+        160,
+        420
+      ],
+      "needs_perm": false,
+      "needs_dye": false,
+      "tier_bias": [
+        "bold"
+      ],
+      "barber_script_zh": [
+        "后面保留胸前长度，脸旁从下巴开始做两段明显层次。",
+        "不用烫发，发尾用圆梳或大卷筒吹出向外的大弯。",
+        "八字刘海留到颧骨，下层接到锁骨，吹开后能跟长发连上。"
+      ]
+    },
+    {
+      "id": "chest_air_french",
+      "name": "Chest Air Fringe French Waves",
+      "name_zh": "空气刘海胸前法式卷",
+      "face_shapes": [
+        "oval",
+        "round",
+        "square",
+        "heart"
+      ],
+      "length": "long",
+      "fade": "none",
+      "textures": [
+        "straight",
+        "wavy"
+      ],
+      "maintenance": "high",
+      "params_mm": {
+        "top": 450,
+        "side": 420,
+        "back": 470
+      },
+      "fringe": true,
+      "top_volume": "moderate",
+      "presentations": [
+        "feminine"
+      ],
+      "aliases_zh": [
+        "长发空气法式卷",
+        "轻刘海胸前波浪"
+      ],
+      "presentation": [
+        "feminine"
+      ],
+      "length_band": "chest",
+      "fringe_type": "air",
+      "curl": "french_wave",
+      "texture_fit": [
+        "straight",
+        "wavy"
+      ],
+      "density_fit": [
+        "low",
+        "medium"
+      ],
+      "maintenance_min_per_day": 10,
+      "trim_weeks": 10,
+      "price_band_cny": [
+        520,
+        1380
+      ],
+      "needs_perm": true,
+      "needs_dye": false,
+      "tier_bias": [
+        "bold"
+      ],
+      "barber_script_zh": [
+        "胸前长度保留，后面剪成浅圆弧，不要尖V尾。",
+        "从肩膀上方开始做松波浪，上半段尽量保留自然。",
+        "空气刘海留到眉毛下面，发根不烫成很硬的弧度。"
+      ]
+    },
+    {
+      "id": "chest_blunt_wool",
+      "name": "Chest Full Fringe Wool Curls",
+      "name_zh": "齐刘海胸前羊毛卷",
+      "face_shapes": [
+        "oval",
+        "round",
+        "square",
+        "heart"
+      ],
+      "length": "long",
+      "fade": "none",
+      "textures": [
+        "straight",
+        "wavy"
+      ],
+      "maintenance": "high",
+      "params_mm": {
+        "top": 450,
+        "side": 420,
+        "back": 470
+      },
+      "fringe": true,
+      "top_volume": "high",
+      "presentations": [
+        "feminine"
+      ],
+      "aliases_zh": [
+        "长齐刘海羊毛卷",
+        "胸前复古小卷"
+      ],
+      "presentation": [
+        "feminine"
+      ],
+      "length_band": "chest",
+      "fringe_type": "blunt",
+      "curl": "wool",
+      "texture_fit": [
+        "straight",
+        "wavy"
+      ],
+      "density_fit": [
+        "low",
+        "medium"
+      ],
+      "maintenance_min_per_day": 15,
+      "trim_weeks": 10,
+      "price_band_cny": [
+        580,
+        1580
+      ],
+      "needs_perm": true,
+      "needs_dye": false,
+      "tier_bias": [
+        "bold"
+      ],
+      "barber_script_zh": [
+        "按烫完停在胸前来预留长度，先确认小卷回缩再剪。",
+        "小卷从中上段分区排开，底边留长层次，不堆成三角。",
+        "齐刘海做比长发略松的卷，干后保留到眉毛再细修。"
+      ]
+    },
+    {
+      "id": "chest_natural_wave",
+      "name": "Chest Natural Waves",
+      "name_zh": "原生波纹胸前长发",
+      "face_shapes": [
+        "oval",
+        "round",
+        "square",
+        "heart"
+      ],
+      "length": "long",
+      "fade": "none",
+      "textures": [
+        "wavy",
+        "curly"
+      ],
+      "maintenance": "low",
+      "params_mm": {
+        "top": 450,
+        "side": 420,
+        "back": 470
+      },
+      "fringe": true,
+      "top_volume": "moderate",
+      "presentations": [
+        "feminine"
+      ],
+      "aliases_zh": [
+        "免烫胸前波浪",
+        "自然长波纹"
+      ],
+      "presentation": [
+        "feminine"
+      ],
+      "length_band": "chest",
+      "fringe_type": "side",
+      "curl": "french_wave",
+      "texture_fit": [
+        "wavy",
+        "curly"
+      ],
+      "density_fit": [
+        "low",
+        "medium",
+        "high"
+      ],
+      "maintenance_min_per_day": 3,
+      "trim_weeks": 16,
+      "price_band_cny": [
+        140,
+        380
+      ],
+      "needs_perm": false,
+      "needs_dye": false,
+      "tier_bias": [
+        "safe",
+        "easy"
+      ],
+      "barber_script_zh": [
+        "顺着原生波纹保留胸前长度，只修掉不齐的发尾。",
+        "低位置接长层次，让每束波纹连贯，不做额外烫发。",
+        "侧刘海留到锁骨，能一起扎起，日常湿发轻抓就好。"
+      ]
+    },
+    {
+      "id": "chest_cocoa_layers",
+      "name": "Cocoa Chest Layers",
+      "name_zh": "可可棕胸前层次发",
+      "face_shapes": [
+        "oval",
+        "round",
+        "square",
+        "heart"
+      ],
+      "length": "long",
+      "fade": "none",
+      "textures": [
+        "straight",
+        "wavy"
+      ],
+      "maintenance": "medium",
+      "params_mm": {
+        "top": 450,
+        "side": 420,
+        "back": 470
+      },
+      "fringe": false,
+      "top_volume": "moderate",
+      "presentations": [
+        "feminine"
+      ],
+      "aliases_zh": [
+        "可可棕长层次",
+        "深棕胸前直发"
+      ],
+      "presentation": [
+        "feminine"
+      ],
+      "length_band": "chest",
+      "fringe_type": "none",
+      "curl": "straight",
+      "texture_fit": [
+        "straight",
+        "wavy"
+      ],
+      "density_fit": [
+        "medium",
+        "high"
+      ],
+      "maintenance_min_per_day": 6,
+      "trim_weeks": 10,
+      "price_band_cny": [
+        480,
+        1280
+      ],
+      "needs_perm": false,
+      "needs_dye": true,
+      "tier_bias": [
+        "bold"
+      ],
+      "barber_script_zh": [
+        "长度保留在胸前，脸旁只从锁骨开始接长层次。",
+        "染成接近原生深度的可可棕，先做一束试色确认，不强求漂浅。",
+        "不另剪刘海，也不烫卷，发尾保留厚度，日常顺着吹。"
+      ]
+    }
+  ],
+  "_v2_notes": {
+    "price_band_cny": "人民币参考区间 [最低, 最高]，按一次剪发及本款所需烫染估算，不是门店报价；城市、发长和产品会影响价格。",
+    "maintenance_min_per_day": "日常造型参考分钟数，不含洗发和完全吹干；省心方向不超过三分钟。",
+    "length_band": "chin 下巴、collarbone 锁骨、shoulder 肩下、chest 胸前；原有短发沿用 length，精灵短发保留 short。",
+    "texture_fit": "可采用本款方案的原生发质；需化学烫发的版本标 needs_perm，自然卷版本单列，不要求改变原生卷度。",
+    "density_fit": "用户自述发量：low 偏少、medium 适中、high 偏多；不从照片推断健康或脱发。",
+    "params_mm": "保留 V1 顶部、两侧、后部的目标发束长度参考；长发的自然垂落终点以 length_band 和口述为准，现场确认后再剪。",
+    "presentation": "用户自选表达方向；新增款同时保留 presentations 供 V1 规则读取，不代表性别身份。"
+  }
+}

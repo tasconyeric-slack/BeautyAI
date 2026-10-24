@@ -1,0 +1,35 @@
+{
+  "$comment": "Fictional landing-page case (A1). Not a real person: every value is invented and the portrait is the parameter-drawn IllustratedAvatar. Always shown with the label 插画示意. Authorized real-person cases (授权展示) are added after I1 with written consent.",
+  "id": "case_illustrated_01",
+  "kind": "illustrated",
+  "label": "插画示意",
+  "expression": "中性表达",
+  "summary": "轮廓干净、明暗对比适中；用有层次的齐耳短发和灰绿、驼色，把重点留给眉眼",
+  "face": "心形脸",
+  "signature": ["额部较宽、下巴收窄", "眉眼清晰", "中等明暗对比"],
+  "color": {
+    "name": "中性偏暖 · 中等 · 中对比",
+    "favor": [
+      { "hex": "#6F7B5E", "name_zh": "灰橄榄绿" },
+      { "hex": "#A47E5B", "name_zh": "浅驼" },
+      { "hex": "#8C5A4A", "name_zh": "砖红棕" },
+      { "hex": "#3F4A52", "name_zh": "石板蓝灰" }
+    ],
+    "neutrals": [
+      { "hex": "#E4DCCD", "name_zh": "燕麦白" },
+      { "hex": "#8A8378", "name_zh": "暖灰" },
+      { "hex": "#2F2C29", "name_zh": "深炭" }
+    ]
+  },
+  "style": { "name": "自然型，靠近前卫型", "plane": { "x": 3.2, "y": -0.6 } },
+  "best_direction": "齐耳层次短发配侧分刘海，近脸换灰橄榄绿与浅驼",
+  "hair": [
+    { "tier": "safe", "tier_zh": "稳妥", "name": "齐耳层次短发 · 侧分刘海" },
+    { "tier": "bold", "tier_zh": "突破", "name": "纹理狼尾 · 碎刘海" },
+    { "tier": "easy", "tier_zh": "省心", "name": "利落短发 · 无刘海" }
+  ],
+  "avatar": {
+    "hair": { "length": "ear", "fringe": "side", "curl": "straight", "colorHex": "#2E2622" },
+    "presentation": "neutral"
+  }
+}

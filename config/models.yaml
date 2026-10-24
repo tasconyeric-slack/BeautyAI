@@ -1,0 +1,67 @@
+# Model routing v0.4 — analysis: DeepSeek only (D10); image edit: Qwen via DashScope (D17).
+# Rule: exactly ONE provider serves production analysis. Qwen / GLM can be added later as new
+# entries under `providers:` plus a small adapter in src/aesthetic_passport/providers/.
+
+providers:
+  deepseek:
+    # OpenAI-compatible endpoint; called with the `openai` Python SDK.
+    base_url: "https://api.deepseek.com"
+    api_key_env: DEEPSEEK_API_KEY
+    timeout_s: 120
+    sdk_max_retries: 2            # transport-level retries (429 / 5xx / connection) inside the SDK
+  qwen:
+    # Alibaba Model Studio / DashScope, China (Beijing) region. Use a Beijing-region API key.
+    # This URL is the fallback. Set the env var named by `base_url_env` to override it, e.g. the Beijing
+    # workspace-specific endpoint https://<WorkspaceId>.cn-beijing.maas.aliyuncs.com/api/v1 (observed 2026-10-23:
+    # this legacy host answered 404 InvalidParameter "Model not exist" for qwen-image-edit-plus).
+    base_url: "https://dashscope.aliyuncs.com/api/v1"
+    base_url_env: DASHSCOPE_BASE_URL
+    api_key_env: DASHSCOPE_API_KEY
+    timeout_s: 120
+
+production:
+  analysis:
+    provider: deepseek
+    model: "deepseek-flash"       # verified 2026-10-22: the only DeepSeek model with image input (DeepSeek-V4.1-Flash-1017)
+    # Thinking mode is ON by default server-side (effort high) and ignores temperature. JSON mode + thinking is
+    # undocumented, so the analysis call disables it (D16). Values: disabled | enabled.
+    thinking: disabled
+    reasoning_effort: high        # only sent when thinking = enabled (low | high | max)
+    temperature: 0.2              # ignored by the server while thinking is enabled
+    max_output_tokens: 12000      # v0.2 fixture output ≈ 6.7k tokens; 8000 risked truncation (stop_reason=length)
+    response_format: json_object  # DeepSeek JSON mode: guarantees parseable JSON, NOT schema conformance.
+                                  # The full schema is sent in the system prompt and always re-checked
+                                  # locally by validate_analysis() + check_output_contract().
+    max_retries_on_invalid: 1     # one retry, continuing the same conversation with the error list
+    image_max_long_side: 1568     # px; usable photos are downscaled to this before upload
+    image_jpeg_quality: 90
+  quick:
+    # D21: first-look call on the front photo only (prompts/analyzer_quick.md). Same provider and model as analysis.
+    max_output_tokens: 1200
+    image_max_long_side: 1024
+    max_retries_on_invalid: 1
+
+  image_edit:
+    # D17: Qwen first; identity is guaranteed by the mask composite in preview.py, not by the model.
+    # Same API also serves qwen-image-edit, qwen-image-edit-max and the newer qwen-image-2.0 family.
+    provider: qwen
+    model: "qwen-image-2.0"
+    seed: 1234                    # fixed seed: same input → as close to the same output as the API allows
+    prompt_version: preview-0.5   # prompts/image_edit.md
+
+offline:
+  evaluator:
+    # W4 model-as-judge. Must differ from the production model (D1). Decide before W4.
+    provider: "<W4: fill>"
+    model: "<W4: fill>"
+
+# USD per 1M tokens, used only for meta.cost_usd_est and runs/<id>/calls.jsonl.
+# Copy the numbers from DeepSeek's current pricing page. While any value is null, cost is logged as null.
+# Verified 2026-10-22 on api-docs.deepseek.com/quick_start/pricing. PEAK rates (conservative); off-peak is half.
+pricing:
+  deepseek-flash:
+    input_cache_hit: 0.006
+    input_cache_miss: 0.30
+    output: 1.20
+  qwen-image-2.0:
+    per_image: 0.03               # estimated USD per generated image (official Beijing price: CNY 0.20/image)

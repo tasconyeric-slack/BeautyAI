@@ -1,0 +1,305 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://aesthetic-passport.local/schema/api.schema.json",
+  "title": "PassportResponse (API v0.3)",
+  "description": "Shell returned by GET /api/passport/{id} and the mutation endpoints. entitlement never enters the passport (D27).",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "id",
+    "status",
+    "stage",
+    "partial",
+    "passport",
+    "entitlement",
+    "media",
+    "error",
+    "created_at"
+  ],
+  "properties": {
+    "id": {
+      "type": "string"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "scanning",
+        "quick_ready",
+        "full_ready",
+        "qc_failed",
+        "analysis_failed",
+        "deleted"
+      ]
+    },
+    "stage": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "partial": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "input_quality",
+        "anchors",
+        "quick",
+        "analysis",
+        "previews"
+      ],
+      "properties": {
+        "input_quality": {
+          "anyOf": [
+            {
+              "type": "null"
+            },
+            {
+              "$ref": "passport.schema.json#/properties/input_quality"
+            }
+          ]
+        },
+        "anchors": {
+          "$ref": "passport.schema.json#/properties/anchors"
+        },
+        "quick": {
+          "anyOf": [
+            {
+              "type": "null"
+            },
+            {
+              "$ref": "quick.schema.json"
+            }
+          ]
+        },
+        "analysis": {
+          "type": "string",
+          "enum": [
+            "pending",
+            "ready",
+            "failed"
+          ]
+        },
+        "previews": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/preview_state"
+          }
+        }
+      }
+    },
+    "passport": {
+      "description": "The passport. For a free entitlement the server removes paid content first (entitlement.locked lists what); that trimmed view keeps the passport's shape but may hold fewer items than passport.schema requires.",
+      "anyOf": [
+        {
+          "type": "null"
+        },
+        {
+          "$ref": "passport.schema.json"
+        },
+        {
+          "type": "object",
+          "required": [
+            "schema_version",
+            "passport_id",
+            "analysis",
+            "derived"
+          ],
+          "tsType": "Passport"
+        }
+      ]
+    },
+    "entitlement": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "paid",
+        "unlock_scope",
+        "share_token",
+        "free_previews_left",
+        "price_cny",
+        "locked"
+      ],
+      "properties": {
+        "paid": {
+          "type": "boolean"
+        },
+        "unlock_scope": {
+          "type": "string",
+          "enum": [
+            "free",
+            "full"
+          ]
+        },
+        "share_token": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "free_previews_left": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "price_cny": {
+          "type": "number"
+        },
+        "locked": {
+          "description": "Paid parts removed from this response (free view).",
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "media": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "front",
+        "thumb",
+        "expires_at",
+        "expired"
+      ],
+      "properties": {
+        "front": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "thumb": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "expires_at": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "expired": {
+          "type": "boolean"
+        },
+        "photos": {
+          "type": "object",
+          "description": "V3B: role → media URL for every measurement photo kept until the TTL.",
+          "additionalProperties": {
+            "type": [
+              "string",
+              "null"
+            ]
+          }
+        }
+      }
+    },
+    "error": {
+      "anyOf": [
+        {
+          "type": "null"
+        },
+        {
+          "type": "object",
+          "required": [
+            "code",
+            "detail"
+          ],
+          "properties": {
+            "code": {
+              "type": "string"
+            },
+            "detail": {
+              "type": "string"
+            }
+          }
+        }
+      ]
+    },
+    "created_at": {
+      "type": "string"
+    }
+  },
+  "$defs": {
+    "preview_state": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "target_id",
+        "kind",
+        "status",
+        "image_model",
+        "after_url",
+        "before_url",
+        "error",
+        "ai_label"
+      ],
+      "properties": {
+        "target_id": {
+          "type": "string",
+          "description": "hair: safe|bold|easy|current, optionally _hc<i> (hair_color_directions index, D30); or a recommendation id."
+        },
+        "kind": {
+          "type": "string",
+          "enum": [
+            "hair",
+            "glasses",
+            "neckline"
+          ]
+        },
+        "status": {
+          "type": "string",
+          "enum": [
+            "pending",
+            "succeeded",
+            "failed",
+            "skipped",
+            "fallback"
+          ]
+        },
+        "image_model": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "after_url": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "before_url": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "error": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "ai_label": {
+          "type": "string"
+        },
+        "crop_box": {
+          "description": "V2.1 (D30): where the preview crop sits on the original front photo, normalised [x0, y0, x1, y1]; null when unknown.",
+          "type": [
+            "array",
+            "null"
+          ],
+          "items": {
+            "type": "number",
+            "minimum": 0,
+            "maximum": 1
+          },
+          "minItems": 4,
+          "maxItems": 4
+        }
+      }
+    }
+  }
+}

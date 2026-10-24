@@ -1,0 +1,755 @@
+# Rules layer config v0.1
+# Everything here is a tunable heuristic, NOT ground truth. Change values, bump rules_version,
+# re-run `python -m aesthetic_passport.assemble` on examples and the eval set, and log the change.
+
+rules_version: "0.5.0"
+
+# ---------------------------------------------------------------------------
+# 1. Ranking: priority = impact_norm * confidence * effort_factor * goal_bonus * consent_penalty
+# ---------------------------------------------------------------------------
+ranking:
+  top_n: 5
+  max_per_category: 2
+  effort_factor:        # effort 1 (trivial) .. 5 (major change)
+    1: 1.00
+    2: 0.90
+    3: 0.75
+    4: 0.60
+    5: 0.45
+  goal_bonus: 1.20      # applied when rec.category serves one of user_context.optimize_focus
+  consent_penalty: 0.70 # applied when constraint_check.status == requires_consent
+  # violates -> excluded outright
+
+  # optimize_focus (user-facing) -> recommendation categories it covers
+  focus_to_categories:
+    hair: [hairstyle]
+    brows_eyes: [brows, makeup]
+    glasses: [glasses]
+    facial_hair: [facial_hair]
+    makeup: [makeup, brows]
+    color_wardrobe: [color_palette, clothing, accessories]
+    overall_style: [hairstyle, clothing, color_palette, accessories, glasses]
+    photos: [photo_presentation]
+
+  # Categories that a hard constraint can make illegal (checked by rules, not trusted to the model)
+  constraint_guards:
+    accepts_dye_false:
+      # a hairstyle / color_palette rec whose text mentions dye keywords is forced to `violates`
+      categories: [hairstyle, color_palette]
+      keywords: ["染", "挑染", "漂", "dye", "bleach", "highlights"]
+    accepts_perm_false:
+      categories: [hairstyle]
+      keywords: ["烫", "perm"]
+    accepts_glasses_change_false:
+      categories: [glasses]
+      keywords: []      # any glasses rec -> violates
+
+# ---------------------------------------------------------------------------
+# 2. Style display labels (UI vocabulary only).
+#    Each type is a prototype point in (visual_weight 1..5, angular_rounded -2..2).
+#    primary = nearest prototype, secondary = second nearest.
+#    `between` = true when the two distances differ by < between_margin.
+#    These coordinates are an initial heuristic placement of the common 风格八型 grid.
+# ---------------------------------------------------------------------------
+style_labels:
+  system: "eight_types_v0"
+  between_margin: 0.35
+  prototypes:
+    sweet:     {visual_weight: 1.8, angular_rounded:  1.2}
+    boyish:    {visual_weight: 1.7, angular_rounded: -1.1}
+    modern:    {visual_weight: 2.5, angular_rounded: -1.5}
+    elegant:   {visual_weight: 3.0, angular_rounded:  1.2}
+    classic:   {visual_weight: 3.0, angular_rounded:  0.0}
+    natural:   {visual_weight: 3.1, angular_rounded: -0.9}
+    romantic:  {visual_weight: 4.2, angular_rounded:  1.3}
+    dramatic:  {visual_weight: 4.2, angular_rounded: -1.3}
+  # D25: one vocabulary for every presentation (modern → 前卫型). Examples/rules vary by presentation in styles.yaml.
+  names_zh:
+    sweet: 少女型
+    boyish: 少年型
+    modern: 前卫型
+    elegant: 优雅型
+    classic: 古典型
+    natural: 自然型
+    romantic: 浪漫型
+    dramatic: 戏剧型
+
+# ---------------------------------------------------------------------------
+# 2b. Style profile (derived.style_profile, D25 four layers). Plane: x = visual_weight (1..5), y = angular_rounded
+#     (-2 straight .. +2 curved). face_only = the model's dimensions; overall = face_only shifted by the user's
+#     self-selected body frame and height (small nudges, never measured from photos).
+# ---------------------------------------------------------------------------
+style_profile:
+  frame_shift:            # user-selected skeleton type → (dx, dy)
+    straight: [0.25, -0.30]
+    wave: [-0.25, 0.30]
+    natural: [0.15, -0.20]
+  height_shift:           # height_cm thresholds → dx
+    tall_cm: 170
+    tall_dx: 0.15
+    petite_cm: 156
+    petite_dx: -0.15
+  radius_base: 0.25       # uncertainty radius = radius_base + radius_per_missing_conf × (1 - confidence)
+  radius_per_missing_conf: 1.1
+  plane_x: [1.0, 5.0]
+  plane_y: [-2.0, 2.0]
+
+# ---------------------------------------------------------------------------
+# 2b'. Face page "常见范围" grey bands (illustrative ranges to read proportions; never "good/bad", no score).
+#      Exported to web/lib/generated/rules-config.json by `make types`.
+# ---------------------------------------------------------------------------
+face_common_ranges:
+  third: [0.31, 0.35]          # each of the three vertical thirds, as a fraction of hairline→chin
+  third_of_two: [0.46, 0.54]   # middle / lower when the upper third is not measured
+  eye_gap: [0.9, 1.1]          # inner-eye distance ÷ eye width
+  length_width: [1.25, 1.45]   # face length ÷ cheekbone width
+  forehead: [0.85, 1.0]        # forehead ÷ cheekbone width
+  jaw: [0.75, 0.9]             # jaw ÷ cheekbone width
+
+# ---------------------------------------------------------------------------
+# 2b''. Measurement insights (V3A, D34): measurement → what it means → what you can do.
+#      Rules layer only (src/aesthetic_passport/insights.py). Input: passport.measurement_profile (CV); output:
+#      derived.measurement_insights. Bands are illustrative "常见范围" for orientation, never good/bad and never a score.
+#      Where no literature range fits MediaPipe's own landmark definitions (brow / eye angles), the band is centred on
+#      the value of MediaPipe's canonical face mesh (an average model) — a reference point, not a beauty standard.
+#      Advice areas map to pages and to the recommendation categories whose top-ranked item is linked.
+# ---------------------------------------------------------------------------
+measurement_insights:
+  highlights: 3
+  areas:
+    hair: {page: hair, label_zh: 发型, categories: [hairstyle]}
+    makeup: {page: makeup, label_zh: 妆容, categories: [makeup]}
+    brows: {page: makeup, label_zh: 眉形, categories: [brows, makeup]}
+    glasses: {page: glasses, label_zh: 眼镜, categories: [glasses]}
+    color: {page: color, label_zh: 色彩, categories: [color_palette]}
+    outfit: {page: outfit, label_zh: 穿搭, categories: [clothing, accessories]}
+    photo: {page: plan, label_zh: 拍照, categories: [photo_presentation]}
+  pillar_typical_zh:            # pillar summary when nothing in it stands out
+    harmony: 已测比例都在常见范围附近，纵横分配比较均衡。
+    architecture: 额、颧、下颌的宽度过渡在常见范围内，发型外轮廓的选择面较宽。
+    expression: 眼、眉、唇的角度与比例在常见范围内，妆容可以按想要的风格自由选择。
+    skin: 这张照片的光线与角度条件良好，肤色观察可以参考。
+  metrics:
+    M001:
+      priority: 1
+      band: [1.25, 1.45]
+      seen_zh: 面长约为颧宽的 {value} 倍
+      low:
+        label_zh: 脸型偏短宽
+        means_zh: 横向比例更突出，纵向线条能让整体比例更舒展。
+        advice:
+          - {area: hair, text_zh: 头顶留一点高度、两侧收薄，发型轮廓做成纵向线条。}
+          - {area: glasses, text_zh: 镜框宽度不超过颧骨，上下略窄的款式更协调。}
+      typical:
+        label_zh: 长宽比例居中
+        means_zh: 脸的长宽比例在常见范围内，发型轮廓的选择面较宽。
+        advice:
+          - {area: hair, text_zh: 以想要的风格为主来决定发型轮廓，不必刻意拉长或加宽。}
+      high:
+        label_zh: 脸型偏修长
+        means_zh: 纵向比例更突出，横向元素能平衡长度。
+        advice:
+          - {area: hair, text_zh: 加入刘海或侧分刘海，在颧骨附近加一点蓬松度，头顶不要再加高。}
+          - {area: glasses, text_zh: 可以选上下稍深、横向有存在感的镜框。}
+    M017:
+      priority: 4
+      band: [0.30, 0.36]
+      seen_zh: 上庭约占三庭的 {value}
+      low:
+        label_zh: 额头较短
+        means_zh: 上庭占比偏小，露出额头能让纵向比例更舒展。
+        advice:
+          - {area: hair, text_zh: 适合露额或后梳，顶部做一点蓬松；厚重齐刘海会让上庭更短。}
+      high:
+        label_zh: 额头较高
+        means_zh: 上庭占比偏大，刘海可以调节上中下三段的观感。
+        advice:
+          - {area: hair, text_zh: 空气刘海、八字刘海或侧分刘海都能自然缩短额头的观感。}
+    M025:
+      priority: 5
+      band: [0.88, 1.12]
+      seen_zh: 中庭约为下庭的 {value} 倍
+      typical:
+        label_zh: 中下庭接近
+        means_zh: 眉间到鼻底与鼻底到下巴长度接近，纵向分配均衡。
+        advice: []
+      low:
+        label_zh: 下庭相对较长
+        means_zh: 鼻底到下巴这一段比眉间到鼻底更长，视觉重心偏下。
+        advice:
+          - {area: hair, text_zh: 头顶或刘海增加一点分量，把视觉重心往上带。}
+          - {area: makeup, text_zh: 腮红位置略高、靠近颧骨，唇妆不要过于浓重。}
+      high:
+        label_zh: 中庭相对较长
+        means_zh: 眉间到鼻底这一段更长，横向元素能缩短中庭观感。
+        advice:
+          - {area: hair, text_zh: 眉上碎刘海或空气刘海能缩短中庭观感。}
+          - {area: makeup, text_zh: 腮红横向晕染，位置不要太高。}
+    M005:
+      priority: 6
+      band: [0.85, 1.0]
+      seen_zh: 额宽约为颧宽的 {value}
+      low:
+        label_zh: 额部相对较窄
+        means_zh: 上半脸比颧骨窄，太阳穴附近补一点宽度更平衡。
+        advice:
+          - {area: hair, text_zh: 额角两侧留碎发或空气刘海，在太阳穴附近增加一点发量。}
+      high:
+        label_zh: 额部相对较宽
+        means_zh: 额头宽度接近或超过颧骨，额头两侧的过渡决定上半脸的观感。
+        advice:
+          - {area: hair, text_zh: 侧分或八字刘海让额头两侧有发丝过渡，大面积露额会更强调宽度。}
+    M006:
+      priority: 2
+      band: [0.75, 0.9]
+      seen_zh: 下颌宽约为颧宽的 {value}
+      typical:
+        label_zh: 下颌过渡适中
+        means_zh: 颧骨到下颌的收窄程度在常见范围内，下脸轮廓既不过尖也不过宽。
+        advice:
+          - {area: hair, text_zh: 下巴到锁骨之间的长度都容易驾驭，可按打理时间来选。}
+      low:
+        label_zh: 下颌收窄
+        means_zh: 颧骨到下颌明显收窄，下巴附近的分量会影响上下平衡。
+        advice:
+          - {area: hair, text_zh: 下巴到锁骨之间加发量（内扣、外翻或波浪），平衡上宽下窄。}
+          - {area: glasses, text_zh: 镜框下缘略宽或圆润的款式与下脸更协调。}
+      high:
+        label_zh: 下颌较宽
+        means_zh: 下颌宽度接近颧骨，脸的下半部分存在感较强。
+        advice:
+          - {area: hair, text_zh: 发尾不要正好停在下颌线，过锁骨或带层次的长度更顺。}
+          - {area: outfit, text_zh: V 领、开领能把视线从下颌延伸到颈部。}
+    M098:
+      priority: 3
+      band: [112, 132]
+      seen_zh: 下巴收拢角约 {value}
+      typical:
+        label_zh: 下巴轮廓柔和
+        means_zh: 下巴收拢的角度居中，下脸轮廓柔和、不显锐利。
+        advice:
+          - {area: glasses, text_zh: 圆角方框或椭圆框与下脸轮廓都协调，可以按风格选。}
+      low:
+        label_zh: 下脸收拢偏 V
+        means_zh: 下巴较尖、两侧下颌线向中间收拢，下脸轮廓利落。
+        advice:
+          - {area: hair, text_zh: 下巴高度附近加一点发量（内扣或波浪），让下脸有落点。}
+          - {area: glasses, text_zh: 下缘略宽的方圆框、飞行员框与下脸更协调。}
+      high:
+        label_zh: 下脸宽平偏 U
+        means_zh: 下巴较宽、下颌线走向平缓，下脸轮廓圆润稳重。
+        advice:
+          - {area: hair, text_zh: 长度过锁骨，脸侧有层次落点，避免下巴高度的厚重 bob。}
+          - {area: glasses, text_zh: 上缘有重点的眉线框、猫眼框能把视线带到上半脸。}
+    M033:
+      priority: 2
+      band: [0.9, 1.1]
+      seen_zh: 两眼之间约为 {value} 个眼宽
+      low:
+        label_zh: 眼距偏近
+        means_zh: 两眼之间的距离小于一只眼宽，五官向中心集中。
+        advice:
+          - {area: makeup, text_zh: 眼妆重点放在外眼角，内眼角保持干净或轻微提亮。}
+          - {area: brows, text_zh: 眉头间距不要修得太近，略向外留出空间。}
+      typical:
+        label_zh: 眼距居中
+        means_zh: 两眼之间约等于一只眼宽，眼妆可以按想要的风格自由选择。
+        advice: []
+      high:
+        label_zh: 眼距偏宽
+        means_zh: 两眼之间的距离大于一只眼宽，五官分布更舒展。
+        advice:
+          - {area: makeup, text_zh: 眼线和眼影在内眼角稍加强，重点不要全放在眼尾。}
+          - {area: brows, text_zh: 眉头可以略向内延伸，让眉眼更集中。}
+    M044:
+      priority: 3
+      band: [0, 6]
+      seen_zh: 外眼角倾斜约 {value}
+      typical:
+        label_zh: 眼角走向平和
+        means_zh: 外眼角略高于内眼角，眼神自然，眼线方向可以随妆容风格变化。
+        advice:
+          - {area: makeup, text_zh: 眼线顺着眼型延长 2–3 mm 即可，想要更利落再微微上扬。}
+      low:
+        label_zh: 外眼角偏平或略下垂
+        means_zh: 外眼角不高于内眼角，眼神显得柔和、无辜感更强。
+        advice:
+          - {area: makeup, text_zh: 想要更精神时，眼线尾部微微上扬，外眼角阴影向斜上方晕染。}
+      high:
+        label_zh: 外眼角上扬
+        means_zh: 外眼角明显高于内眼角，眼神更利落。
+        advice:
+          - {area: makeup, text_zh: 想要更柔和时，眼线顺着眼型平拉，下眼尾轻扫浅色阴影。}
+    M041:
+      priority: 7
+      band: [0.24, 0.33]
+      seen_zh: 眼睛高约为眼宽的 {value}
+      low:
+        label_zh: 眼型细长
+        means_zh: 眼睛横向更长，眼神清冷、利落。
+        advice:
+          - {area: makeup, text_zh: 想让眼睛更圆时，上眼线中段略加粗，下眼睑后三分之一轻扫阴影。}
+      high:
+        label_zh: 眼型偏圆
+        means_zh: 眼睛纵向更开，显得明亮、有亲和力。
+        advice:
+          - {area: makeup, text_zh: 想要更成熟时，眼线向外平拉，增加横向感。}
+    M054:
+      priority: 8
+      band: [-10, -3]
+      seen_zh: 眉毛连线倾斜约 {value}
+      low:
+        label_zh: 眉尾偏低
+        means_zh: 眉尾明显低于眉头，眉形更平缓、温和。
+        advice:
+          - {area: brows, text_zh: 修眉时保留眉峰，眉尾不要再向下延长。}
+      high:
+        label_zh: 眉尾上扬
+        means_zh: 眉尾高于常见位置，眉形更有力度。
+        advice:
+          - {area: brows, text_zh: 想要柔和时，眉峰弧度放缓，眉尾接近眉头的高度。}
+    M055:
+      priority: 6
+      band: [0.45, 0.75]
+      seen_zh: 眉眼距离约为眼宽的 {value}
+      typical:
+        label_zh: 眉眼距离适中
+        means_zh: 眉眼之间距离居中，修眉时保持现有高度即可。
+        advice:
+          - {area: brows, text_zh: 按现有眉毛的位置修整杂毛，不必刻意画高或压低。}
+      low:
+        label_zh: 眉眼较近
+        means_zh: 眉毛离眼睛近，轮廓更深、神情更集中。
+        advice:
+          - {area: brows, text_zh: 眉毛下缘修干净，不要再向下画。}
+          - {area: makeup, text_zh: 眼影集中在眼皮下半部分，避免把眼窝涂满。}
+      high:
+        label_zh: 眉眼较远
+        means_zh: 眉毛离眼睛较远，神情舒展、温和。
+        advice:
+          - {area: brows, text_zh: 眉毛下缘可略向下补画，缩短眉眼距离。}
+          - {area: makeup, text_zh: 眼影向眼窝方向晕开，连接眉眼。}
+    M062:
+      priority: 9
+      band: [0.21, 0.26]
+      seen_zh: 鼻翼宽约为颧宽的 {value}
+      high:
+        label_zh: 鼻翼较宽
+        means_zh: 鼻翼在脸宽中占比偏大，鼻部存在感较强。
+        advice:
+          - {area: makeup, text_zh: 鼻侧影很轻即可，重点放在鼻梁中线的提亮。}
+      low:
+        label_zh: 鼻翼较窄
+        means_zh: 鼻翼在脸宽中占比偏小，鼻部线条秀气。
+        advice: []
+    M076:
+      priority: 8
+      band: [0.30, 0.38]
+      seen_zh: 嘴宽约为颧宽的 {value}
+      low:
+        label_zh: 嘴型较小
+        means_zh: 嘴宽在脸宽中占比偏小，唇部显得精致。
+        advice:
+          - {area: makeup, text_zh: 唇色可以选中高饱和，唇线贴着自然唇缘画满。}
+      high:
+        label_zh: 嘴型较宽
+        means_zh: 嘴宽在脸宽中占比偏大，笑容更有感染力。
+        advice:
+          - {area: makeup, text_zh: 唇色偏中低饱和更自然，唇峰画清楚，唇角不要额外描出。}
+    M080:
+      priority: 9
+      band: [0.5, 0.85]
+      seen_zh: 上唇厚度约为下唇的 {value}
+      low:
+        label_zh: 上唇较薄
+        means_zh: 下唇比上唇明显更厚，唇形重心在下。
+        advice:
+          - {area: makeup, text_zh: 上唇中央点一点高光，唇峰画清楚。}
+      high:
+        label_zh: 上下唇接近
+        means_zh: 上唇和下唇厚度接近，唇形饱满。
+        advice:
+          - {area: makeup, text_zh: 下唇中央可稍加亮，让上下唇有层次。}
+    M114:
+      priority: 10
+      band: [0, 0.035]
+      seen_zh: 左右对应点平均偏差约为颧宽的 {value}
+      typical:
+        label_zh: 左右差异常见
+        means_zh: 人脸都有不对称，这张照片的左右差异在常见范围内。
+        advice: []
+      high:
+        label_zh: 左右差异较明显
+        means_zh: 照片中左右差异较大，可能来自表情、光线或头部角度，不一定是结构本身。
+        advice:
+          - {area: hair, text_zh: 侧分通常比中分更不容易让左右差异被注意到。}
+          - {area: photo, text_zh: 正对镜头、放松表情再拍一张，可以确认这是结构还是拍摄造成的。}
+    M148:
+      priority: 11
+      highlight: false
+      band: [0, 6]
+      seen_zh: 左右脸颊明度相差 {value}
+      typical:
+        label_zh: 光线均匀
+        means_zh: 左右光线接近，肤色和对称的测量更可靠。
+        advice: []
+      high:
+        label_zh: 一侧光线更亮
+        means_zh: 左右受光不均，会让肤色、轮廓和对称的判断偏差更大。
+        advice:
+          - {area: photo, text_zh: 面向窗户、让光从正前方来再拍一张，测量会更准。}
+          - {area: color, text_zh: 色彩结论在光线均匀的照片上更可靠。}
+    M013:
+      priority: 12
+      highlight: false
+      band: [0, 4]
+      seen_zh: 头部倾斜约 {value}
+      high:
+        label_zh: 头部有倾斜
+        means_zh: 角度类测量已扣除倾斜，但比例仍可能受影响。
+        advice:
+          - {area: photo, text_zh: 平视镜头、下巴放平重拍，测量会更准。}
+    # --- V3B side profile (only with a true side photo) ---
+    M125:
+      priority: 3
+      basis: literature
+      band: [-0.1, 0.0]
+      seen_zh: 上唇到 E 线的距离约为 E 线长度的 {value}
+      typical:
+        label_zh: 唇与鼻、下巴关系均衡
+        means_zh: 上唇位于鼻尖—下巴连线稍后方，侧面线条顺畅。
+        advice:
+          - {area: makeup, text_zh: 侧面唇妆可以按喜好选择，哑光或水光都不会改变侧面平衡。}
+      low:
+        label_zh: 上唇在 E 线后方较多
+        means_zh: 鼻尖与下巴相对更突出，侧面唇部存在感较弱。
+        advice:
+          - {area: makeup, text_zh: 唇峰与唇中加一点高光或水光质地，侧面唇形更饱满。}
+          - {area: photo, text_zh: 拍侧脸时略微抬下巴，避免低头压住下巴线。}
+      high:
+        label_zh: 上唇接近或超过 E 线
+        means_zh: 唇部在侧面更靠前，是侧面轮廓里存在感较强的部分。
+        advice:
+          - {area: makeup, text_zh: 唇妆选哑光、颜色不过分饱和，避免唇线外扩。}
+          - {area: hair, text_zh: 下巴附近有一点层次或发量，能平衡侧面中下部的重心。}
+    M131:
+      priority: 4
+      basis: literature
+      band: [163, 175]
+      seen_zh: 眉间—鼻底—下巴前点的侧面夹角约 {value}
+      typical:
+        label_zh: 侧面轮廓弧度适中
+        means_zh: 额、鼻底、下巴三点的侧面关系在常见参考范围内。
+        advice: []
+      low:
+        label_zh: 侧面较凸
+        means_zh: 中面部（鼻底附近）相对额与下巴更靠前，侧面线条弧度明显。
+        advice:
+          - {area: hair, text_zh: 额前留一点刘海或蓬松度、下巴附近有发量，能让侧面轮廓更平顺。}
+          - {area: glasses, text_zh: 镜框不要太窄小，略有存在感的镜框能平衡侧面。}
+      high:
+        label_zh: 侧面较平直
+        means_zh: 额、鼻底、下巴接近一条直线，侧面线条利落。
+        advice:
+          - {area: hair, text_zh: 侧面可以利用后脑和头顶的蓬松度增加立体感。}
+    M128:
+      priority: 5
+      band: [-0.12, 0.0]
+      seen_zh: 下巴前点到鼻根—鼻底延长线的距离约为面高的 {value}
+      typical:
+        label_zh: 下巴前后位置适中
+        means_zh: 下巴相对鼻根—鼻底线的位置在常见参考范围内。
+        advice: []
+      low:
+        label_zh: 下巴相对后缩
+        means_zh: 侧面看下巴位置偏后，下脸轮廓会显得柔和。
+        advice:
+          - {area: hair, text_zh: 下巴到锁骨之间加一点发量或层次，给下脸一个落点。}
+          - {area: photo, text_zh: 拍照时下巴微微前伸、略抬，侧面下颌线会更清楚。}
+      high:
+        label_zh: 下巴相对前突
+        means_zh: 侧面下巴存在感较强，下脸线条利落。
+        advice:
+          - {area: hair, text_zh: 额前与头顶留一点分量，平衡下巴的存在感。}
+
+# ---------------------------------------------------------------------------
+# 2c. Feedback (D26). Events only re-rank derived output; analysis is never touched.
+# ---------------------------------------------------------------------------
+feedback:
+  like_factor: 1.35
+  neutral_factor: 1.0
+  dislike_factor: 0.45
+  # dislike with one of these reason tags (web/lib/copy feedback.reasons) → hidden instead of demoted
+  hide_reasons: ["超出预算", "打理时间太长", "暂时不想烫发", "暂时不想染发", "不符合日常场合", "不像我"]
+  hair_like_bonus: -1.5      # rank offset (lower = earlier)
+  hair_dislike_penalty: 2.5
+  garment_like_bonus: 0.5
+  garment_dislike_penalty: 1.0
+  style_target_bonus: 0.3    # garments matching the target style
+
+# ---------------------------------------------------------------------------
+# 2d. Hair options (derived.hair_option_checks).
+# ---------------------------------------------------------------------------
+hair_options:
+  tier_order: [safe, bold, easy]
+  min_param_differences: 2   # of length / fringe / curl, between any two directions
+  catalog_matches: 2
+
+# ---------------------------------------------------------------------------
+# 2e. Glasses size (derived.glasses_size). Horizontal visible iris diameter ≈ 11.7 mm across adults → px scale.
+# ---------------------------------------------------------------------------
+glasses:
+  iris_mm: 11.7
+  min_iris_px: 14            # below this the scale is too coarse → relative advice only
+  total_width_factor: [0.97, 1.03]   # × cheekbone width
+  endpiece_mm: 6
+  bridge_from_intercanthal: 0.62     # bridge ≈ this × inner-eye-corner distance (mm)
+  bridge_clamp: [14, 24]
+
+# ---------------------------------------------------------------------------
+# 2f. Plan (derived.plan): today / next_haircut / invest.
+# ---------------------------------------------------------------------------
+plan:
+  today: [today]
+  next_haircut: [next_haircut]
+  invest: [weeks, months]
+  max_per_column: 4
+
+face_shape_names_zh:
+  oval: 椭圆脸
+  oblong: 长脸
+  round: 圆脸
+  square: 方脸
+  rectangle: 长方脸
+  heart: 心形脸
+  diamond: 菱形脸
+  triangle: 梨形脸
+face_shape_ambiguity_margin: 0.15   # top-2 probabilities closer than this -> "ambiguous_with"
+
+color_names_zh:
+  temperature: {cool: 冷调, neutral_cool: 中性偏冷, neutral: 中性, neutral_warm: 中性偏暖, warm: 暖调}
+  depth: {light: 浅, light_medium: 浅中, medium: 中等, medium_deep: 中深, deep: 深}
+  contrast: {low: 低对比, medium_low: 中低对比, medium: 中对比, medium_high: 中高对比, high: 高对比}
+  chroma: {muted: 灰调, soft: 柔和, medium: 适中, clear: 清透, bright: 鲜明}
+  season: {spring: 春季型, summer: 夏季型, autumn: 秋季型, winter: 冬季型}
+
+# ---------------------------------------------------------------------------
+# 3. Consistency checks. Each check can add a flag and/or adjust values.
+# ---------------------------------------------------------------------------
+consistency:
+  # C1: long measured face but model says round/square with high probability
+  c1_long_face_ratio: 1.45
+  c1_conflicting_shapes: [round, square]
+  c1_prob_threshold: 0.5
+  # C2: short/wide measured face but model says oblong/rectangle
+  c2_short_face_ratio: 1.20
+  c2_conflicting_shapes: [oblong, rectangle]
+  # C3: jaw nearly as wide as cheekbones but model says heart/triangle-inverse
+  c3_wide_jaw: 0.95
+  c3_conflicting_shapes: [heart, diamond]
+  # C6: color confidence caps
+  color_conf_cap_default: 0.60
+  color_conf_cap_low_lighting: 0.40
+  # C11: the CV heuristic's top face shape is not among the model's top-2 candidates → warn
+  # C12: model temperature contradicts the measured skin b* (or measurement reliability is low)
+  #      → temperature and chroma confidence capped at color_conf_cap_low_lighting
+  c12_warm_b_min: 18.0     # measured skin b* at/above this reads "warm" in this photo
+  c12_cool_b_max: 10.0     # at/below this reads "cool"; in between is neutral (no contradiction possible)
+  # Seasonal leaning is displayed only if temperature AND chroma confidence (after caps) reach this and C12 is not raised
+  seasonal_min_conf: 0.50
+  # Overall confidence
+  overall_penalty_per_high_flag: 0.85
+  overall_penalty_per_warn_flag: 0.95
+  overall_penalty_low_lighting: 0.85
+  overall_penalty_low_anchor_reliability: 0.90
+
+# ---------------------------------------------------------------------------
+# 4. Acceptance checks (scripts/summarize_runs.py). Terms that must never appear in model output:
+#    attractiveness scoring, medical/surgical/dermatology advice, sensitive inference, loaded wording.
+# ---------------------------------------------------------------------------
+safety_terms:
+  attractiveness: ["颜值", "打分", "评分", "好看", "难看", "丑", "美丑", "黄金比例", "golden ratio", "beauty score", "attractive"]
+  medical: ["整容", "医美", "手术", "玻尿酸", "肉毒", "注射", "填充剂", "皮肤病", "痤疮", "治疗", "药", "dermatolog", "surgery", "botox", "filler"]
+  sensitive: ["岁", "年龄", "民族", "种族", "人种", "体重", "肥胖", "减肥", "ethnic", "race", "weight loss"]
+  loaded: ["缺陷", "显老", "显胖", "不好看", "缺点", "完美", "标准脸", "遮肉", "显瘦", "变美", "逆袭"]
+
+# ---------------------------------------------------------------------------
+# 5. CV face-shape heuristic (src/aesthetic_passport/face_shape.py).
+#    Adapted from haircut-vision-advisor (MIT): each label = weighted sum of "nearness" terms over
+#    aspect = face length / cheekbone width, forehead = forehead / cheekbone, jaw = jaw / cheekbone.
+#    Term kinds: near(value, target, tolerance) = clamp(1 - |value - target| / tolerance);
+#                above(value, start, span)      = clamp((value - start) / span);
+#                below_one(value, span)          = clamp((1 - value) / span).
+#    The forehead ratio uses landmarks 103/332 (config/qc.yaml anchors.heuristic_forehead), which is what
+#    these numbers were calibrated on. Its 6 labels are a subset of the schema's 8 (no rectangle/triangle).
+#    Scores express heuristic fit, not probabilities.
+# ---------------------------------------------------------------------------
+face_shape_heuristic:
+  ambiguous_margin: 0.10
+  labels:
+    round:
+      - {w: 0.55, near: [aspect, 1.08, 0.30]}
+      - {w: 0.25, near: [jaw, 0.90, 0.20]}
+      - {w: 0.20, near: [forehead, 0.90, 0.22]}
+    square:
+      - {w: 0.45, near: [aspect, 1.18, 0.30]}
+      - {w: 0.35, near: [jaw, 0.96, 0.16]}
+      - {w: 0.20, near: [forehead, 0.91, 0.22]}
+    oblong:
+      - {w: 0.65, above: [aspect, 1.34, 0.34]}
+      - {w: 0.20, near: [jaw, 0.86, 0.22]}
+      - {w: 0.15, near: [forehead, 0.90, 0.22]}
+    heart:
+      - {w: 0.45, above: [forehead_minus_jaw, -0.02, 0.22]}
+      - {w: 0.25, near: [forehead, 0.96, 0.19]}
+      - {w: 0.30, below_one: [jaw, 0.25]}
+    diamond:
+      - {w: 0.55, below_one: [max_forehead_jaw, 0.25]}
+      - {w: 0.25, near: [aspect, 1.35, 0.32]}
+      - {w: 0.20, near: [forehead_minus_jaw_abs, 0.0, 0.16]}
+    oval:
+      - {w: 0.55, near: [aspect, 1.36, 0.30]}
+      - {w: 0.25, near: [jaw, 0.82, 0.19]}
+      - {w: 0.20, near: [forehead, 0.88, 0.20]}
+
+# ---------------------------------------------------------------------------
+# 6. Hairstyle catalog fit (derived.hair_references, report §5 参考款式). Pure rules, no model call.
+#    Catalog: config/hairstyles.json (adapted MIT). Texture must be compatible (catalog "all" or the observed
+#    texture; "unclear" counts as compatible) and the side treatment must agree with hair_direction.side_volume
+#    (a reference may never contradict the recommendation); then score = face shape + length + fringe + top + upkeep.
+# ---------------------------------------------------------------------------
+hair_catalog:
+  max_results: 2
+  min_score: 45
+  relative_min: 0.85             # also within 85% of the best match — show one good reference rather than pad
+  face_shape_model_top: 38       # model's top face shape in the style's face_shapes
+  face_shape_cv_top: 26          # else the CV heuristic's top shape
+  face_shape_none: 8
+  length_exact: 30
+  length_adjacent: 14
+  # hair_direction.length → catalog length scale (shaved < very_short < short < medium < long)
+  length_map: {buzz: very_short, very_short: very_short, short: short, medium: medium, long: long, very_long: long}
+  sides_match: 10                # side treatment agrees (required; styles that disagree are filtered out)
+  sides_fades: {tight: [low, mid, high, taper], controlled: [none, taper], full: [none]}
+  low_upkeep_minutes: 5          # daily_minutes ≤ this → prefer low-maintenance styles
+  upkeep_bonus: 8
+  fringe_match: 10               # style has a fringe ⇔ hair_direction.fringe != none
+  top_volume_exact: 10
+  top_volume_adjacent: 4
+  # The catalog uses 6 face shapes; map the schema's other two onto their closest catalog shape.
+  shape_alias: {rectangle: oblong, triangle: square}
+
+# ---------------------------------------------------------------------------
+# V3B (D35) assessment bands → derived.measurement_insights.assessments
+#   Every measured value gets a position on a reference bar and a short descriptive label. This is the rules
+#   layer's *assessment*, separate from the CV *measurement*. Never good / bad, never a score.
+#   basis: mesh        — centred on MediaPipe's canonical (average) face mesh; a reference point, not a standard
+#          literature  — published soft-tissue profile norms (mostly adult samples; populations differ)
+#          illustrative — a plain orientation range chosen by us; not calibrated on real photos yet
+#   Metrics with copy in measurement_insights.metrics reuse that band and those labels.
+#   Format: id: [lo, hi, basis, low label, high label]   (empty label = that side is not described)
+# ---------------------------------------------------------------------------
+measurement_bands:
+  typical_zh: 常见范围内
+  M012: [0.78, 0.86, illustrative, 轮廓偏椭圆, 轮廓偏方圆]
+  M018: [0.30, 0.36, illustrative, 中庭偏短, 中庭偏长]
+  M019: [0.30, 0.37, illustrative, 下庭偏短, 下庭偏长]
+  M024: [0.85, 1.15, illustrative, 上庭相对短, 上庭相对长]
+  M083: [0.15, 0.22, mesh, 人中偏短, 人中偏长]
+  M021: [0.55, 0.68, mesh, 下巴段偏短, 下巴段偏长]
+  M030: [0.0, 0.2, illustrative, "", 五等分差异较大]
+  M034: [0.22, 0.27, mesh, 眼距偏近, 眼距偏开]
+  M035: [0.38, 0.45, mesh, 瞳距偏窄, 瞳距偏宽]
+  M037: [2.1, 2.6, mesh, 眼裂偏短, 眼裂偏长]
+  M051: [0.25, 0.31, mesh, 眉偏短, 眉偏长]
+  M056: [0.6, 0.85, mesh, 眉头偏近, 眉头偏开]
+  M057: [0.5, 0.75, mesh, 眉峰靠内, 眉峰靠外]
+  M072: [1.3, 1.7, mesh, 鼻形偏短宽, 鼻形偏修长]
+  M073: [0.0, 4.0, illustrative, "", 鼻轴偏斜]
+  M078: [0.25, 0.38, mesh, 唇偏薄, 唇偏丰满]
+  M081: [0.08, 0.2, mesh, 唇峰平缓, 唇峰明显]
+  M085: [0.0, 3.0, illustrative, "", 嘴角线倾斜]
+  M090: [130, 148, mesh, 下颌角偏锐, 下颌角偏钝]
+  M093: [0.33, 0.45, mesh, 下巴偏窄, 下巴偏宽]
+  M103: [0.0, 0.08, illustrative, "", 两眼宽度差异较明显]
+  M104: [0.0, 0.15, illustrative, "", 两眼开合差异较明显]
+  M105: [0.0, 0.08, illustrative, "", 外眼角高低差较明显]
+  M107: [0.0, 0.15, illustrative, "", 眉高差异较明显]
+  M110: [0.0, 0.02, illustrative, "", 鼻尖偏离中线]
+  M137: [55, 75, illustrative, 照片中肤色偏深, 照片中肤色偏浅]
+  M139: [10, 20, illustrative, 偏冷（偏粉）, 偏暖（偏黄）]
+  M141: [0.0, 6.0, illustrative, "", 两颊色差较大]
+  M088: [0.0, 0.08, illustrative, "", 嘴唇张开]
+  M002: [12.5, 15.0, mesh, 面宽相对较窄, 面宽相对较宽]
+  M003: [0.95, 1.05, mesh, 颞部收窄, 颞部饱满]
+  M011: [0.82, 0.92, mesh, 面颊下段收窄, 面颊下段较宽]
+  M169: [0.42, 0.55, mesh, 五官较集中, 五官较舒展]
+  M170: [0.36, 0.44, mesh, 五官重心偏上, 五官重心偏下]
+  M022: [0.25, 0.36, illustrative, 上唇段偏短, 上唇段偏长]
+  M026: [0.34, 0.41, mesh, 眼口距离偏短, 眼口距离偏长]
+  M027: [0.0, 0.15, illustrative, "", 左右外侧宽度差较大]
+  M028: [0.78, 0.95, mesh, 眼宽小于一“眼”, 眼宽接近一“眼”]
+  M031: [0.24, 0.29, mesh, 面中部紧凑, 面中部较长]
+  M032: [0.38, 0.44, mesh, 下面部偏短, 下面部偏长]
+  M036: [0.55, 0.62, mesh, 外眼角间距偏窄, 外眼角间距偏宽]
+  M045: [0.16, 0.21, mesh, 眼型细长, 眼型偏圆]
+  M048: [0.6, 0.8, mesh, 虹膜遮挡较多, 虹膜露出较多]
+  M049: [-0.05, 0.05, illustrative, 瞳孔偏低, 瞳孔偏高]
+  M050: [-0.3, -0.1, mesh, 下睑覆盖较多, 下方留白较多]
+  BA04: [70, 90, mesh, 内眼角偏尖, 内眼角圆钝]
+  BA05: [45, 62, mesh, 外眼角偏尖, 外眼角圆钝]
+  BA06: [0.42, 0.58, mesh, 弧顶靠内, 弧顶靠外]
+  M058: [0.14, 0.25, mesh, 眉形偏平直, 眉弧明显]
+  M060: [0.0, 0.08, illustrative, "", 眉尾高低差较明显]
+  M061: [1.45, 1.8, mesh, 眉较短, 眉较长]
+  BA08: [0.1, 0.3, mesh, 眉头偏外, 眉头偏内]
+  BA09: [0.3, 0.5, mesh, 眉尾偏短, 眉尾外延较长]
+  M063: [0.9, 1.05, illustrative, 鼻翼窄于眼距, 鼻翼宽于眼距]
+  M064: [0.28, 0.33, mesh, 鼻偏短, 鼻偏长]
+  M065: [0.75, 0.9, mesh, 鼻尖位置偏高, 鼻尖位置偏低]
+  M077: [1.3, 1.6, illustrative, 嘴宽偏窄, 嘴宽偏宽]
+  BA17: [0.09, 0.15, mesh, 上唇偏薄, 上唇偏厚]
+  M079: [0.15, 0.22, mesh, 下唇偏薄, 下唇偏厚]
+  M082: [0.25, 0.34, mesh, 唇峰较近, 唇峰较开]
+  M086: [0.0, 0.015, illustrative, "", 唇中线偏离]
+  BA10: [0.72, 0.88, mesh, 嘴宽小于瞳距, 嘴宽接近瞳距]
+  M091: [22, 34, mesh, 下颌线平缓, 下颌线陡峭]
+  M094: [160, 176, mesh, 下巴偏尖, 下巴平圆]
+  M095: [158, 170, mesh, 面颊转折明显, 面颊平直]
+  M096: [168, 180, mesh, 颧部转折明显, 颧部平顺]
+  M106: [0.0, 0.06, illustrative, "", 内眼角高低差较明显]
+  M108: [0.0, 0.05, illustrative, "", 眉弧左右差异较明显]
+  M113: [0.0, 0.03, illustrative, "", 轮廓左右差异较明显]
+  BA11: [0.0, 0.025, illustrative, "", 下颌左右宽差较明显]
+  BA12: [0.0, 0.025, illustrative, "", 颧部左右宽差较明显]
+  BA13: [0.0, 0.02, illustrative, "", 下巴偏离中线]
+  M138: [8, 16, illustrative, 照片中偏少红, 照片中偏红润]
+  BA16: [14, 24, illustrative, 肤色清淡, 肤色浓郁]
+  M156: [10, 35, illustrative, 发色很深, 发色偏浅]
+  M157: [0.0, 12, illustrative, "", 眉色与发色差异较大]
+  M158: [35, 60, illustrative, 肤发对比柔和, 肤发对比强烈]
+  BA14: [15, 28, illustrative, 唇色接近肤色, 唇色与肤色对比明显]
+  M149: [1.6, 4.0, illustrative, 可能有美颜平滑, 纹理较明显]
+  M150: [0.0, 5.3, illustrative, "", 边缘偏模糊]
+  M153: [0.4, 1.6, illustrative, 发量视觉较少, 发量视觉较多]
+  M154: [0.75, 0.95, illustrative, 外廓偏窄长, 外廓偏宽]
+  M155: [1.0, 1.25, illustrative, 两侧贴合, 两侧蓬松]
+  # side profile — literature references (adult samples; populations differ, so read as orientation only)
+  M117: [90, 110, literature, 鼻小柱与上唇夹角较小, 鼻小柱与上唇夹角较大]
+  M118: [115, 135, literature, 鼻额转折明显, 鼻额过渡平缓]
+  M119: [-0.02, 0.04, illustrative, 鼻背略凹, 鼻背有起伏]
+  M121: [0.25, 0.4, mesh, 鼻尖突出较少, 鼻尖突出明显]
+  M124: [0.03, 0.11, literature, 上唇偏后, 上唇偏前]
+  M125: [-0.1, 0.0, literature, 上唇在 E 线后方较多, 上唇超过 E 线]
+  M126: [-0.07, 0.01, literature, 下唇在 E 线后方较多, 下唇超过 E 线]
+  M127: [110, 140, literature, 颏唇沟较深, 颏唇沟较浅]
+  M128: [-0.12, 0.0, illustrative, 下巴相对后缩, 下巴相对前突]
+  M131: [163, 175, literature, 侧面较凸, 侧面较平直]
+  BA01: [120, 132, literature, 鼻颏角偏小, 鼻颏角偏大]
+  BA02: [30, 40, literature, 鼻背较贴面, 鼻背较挺出]
+  BA03: [0.28, 0.36, literature, 上唇段偏短, 上唇段偏长]
+  # smile — illustrative
+  BA20: [1.05, 1.3, illustrative, 笑时嘴角展开少, 笑时展开幅度大]
+  BA21: [0.0, 15, illustrative, 嘴角平或向下, 嘴角上扬明显]
+  BA22: [0.0, 0.04, illustrative, "", 左右上扬不一致]
+  BA23: [0.55, 0.9, illustrative, 笑眼明显, 笑时眼形变化小]

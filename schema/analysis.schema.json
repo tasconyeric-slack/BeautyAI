@@ -1,0 +1,1727 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://aesthetic-passport.local/schema/analysis.schema.json",
+  "title": "LLM Analysis Output v0.2",
+  "description": "Production analyzer output, analyzer-0.3 (schema v0.3). Model layer only: the rules layer derives labels, rankings, style positions, checks and plans from it.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "observations",
+    "profile_summary",
+    "face_structure",
+    "feature_characteristics",
+    "current_styling",
+    "color_profile",
+    "style_dimensions",
+    "works",
+    "doesnt_work",
+    "hair_direction",
+    "glasses_direction",
+    "photo_direction",
+    "recommendations",
+    "limitations",
+    "feature_signature",
+    "hair_options",
+    "makeup_direction",
+    "outfit_direction"
+  ],
+  "properties": {
+    "observations": {
+      "description": "Atomic, neutral, visible facts. Every judgment and recommendation elsewhere must cite these ids. 10-20 items.",
+      "type": "array",
+      "minItems": 6,
+      "maxItems": 24,
+      "items": {
+        "$ref": "#/$defs/observation"
+      }
+    },
+    "profile_summary": {
+      "description": "Report §1 passport header: the answer in one line. Chinese.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "one_liner",
+        "best_direction",
+        "evidence"
+      ],
+      "properties": {
+        "one_liner": {
+          "type": "string",
+          "minLength": 4,
+          "maxLength": 60
+        },
+        "best_direction": {
+          "type": "string",
+          "minLength": 4,
+          "maxLength": 60
+        },
+        "evidence": {
+          "$ref": "#/$defs/evidence"
+        }
+      }
+    },
+    "face_structure": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "shape_candidates",
+        "jawline",
+        "cheekbones",
+        "evidence"
+      ],
+      "properties": {
+        "shape_candidates": {
+          "description": "1-3 candidates, probabilities should sum to ~1.0.",
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 3,
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "label",
+              "probability"
+            ],
+            "properties": {
+              "label": {
+                "type": "string",
+                "enum": [
+                  "oval",
+                  "oblong",
+                  "round",
+                  "square",
+                  "rectangle",
+                  "heart",
+                  "diamond",
+                  "triangle"
+                ]
+              },
+              "probability": {
+                "type": "number",
+                "minimum": 0,
+                "maximum": 1
+              }
+            }
+          }
+        },
+        "jawline": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "definition",
+            "shape"
+          ],
+          "properties": {
+            "definition": {
+              "type": "string",
+              "enum": [
+                "soft",
+                "moderate",
+                "defined"
+              ]
+            },
+            "shape": {
+              "type": "string",
+              "enum": [
+                "rounded",
+                "tapered",
+                "angular",
+                "square"
+              ]
+            }
+          }
+        },
+        "cheekbones": {
+          "type": "string",
+          "enum": [
+            "flat",
+            "moderate",
+            "prominent"
+          ]
+        },
+        "evidence": {
+          "$ref": "#/$defs/evidence"
+        }
+      }
+    },
+    "feature_characteristics": {
+      "type": "array",
+      "minItems": 3,
+      "maxItems": 8,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "feature",
+          "descriptors",
+          "evidence"
+        ],
+        "properties": {
+          "feature": {
+            "type": "string",
+            "enum": [
+              "eyes",
+              "brows",
+              "nose",
+              "lips",
+              "forehead",
+              "chin",
+              "hairline",
+              "neck"
+            ]
+          },
+          "descriptors": {
+            "type": "array",
+            "minItems": 1,
+            "maxItems": 4,
+            "items": {
+              "type": "string",
+              "maxLength": 40
+            }
+          },
+          "evidence": {
+            "$ref": "#/$defs/evidence"
+          }
+        }
+      }
+    },
+    "current_styling": {
+      "description": "What the person is currently doing. Needed to say what works / what doesn't.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "hair",
+        "glasses",
+        "facial_hair",
+        "makeup_level",
+        "visible_clothing_colors"
+      ],
+      "properties": {
+        "hair": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "length",
+            "volume_distribution",
+            "part",
+            "texture",
+            "fringe"
+          ],
+          "properties": {
+            "length": {
+              "type": "string",
+              "enum": [
+                "buzz",
+                "very_short",
+                "short",
+                "medium",
+                "long",
+                "very_long"
+              ]
+            },
+            "volume_distribution": {
+              "type": "string",
+              "enum": [
+                "flat",
+                "top_heavy",
+                "side_heavy",
+                "balanced",
+                "back_heavy"
+              ]
+            },
+            "part": {
+              "type": "string",
+              "enum": [
+                "none",
+                "center",
+                "side",
+                "unclear"
+              ]
+            },
+            "texture": {
+              "type": "string",
+              "enum": [
+                "straight",
+                "wavy",
+                "curly",
+                "coily",
+                "unclear"
+              ]
+            },
+            "fringe": {
+              "type": "string",
+              "enum": [
+                "none",
+                "light",
+                "heavy",
+                "swept",
+                "unclear"
+              ]
+            }
+          }
+        },
+        "glasses": {
+          "anyOf": [
+            {
+              "type": "null"
+            },
+            {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "frame_shape",
+                "frame_weight"
+              ],
+              "properties": {
+                "frame_shape": {
+                  "type": "string",
+                  "enum": [
+                    "round",
+                    "oval",
+                    "rectangular",
+                    "square",
+                    "cat_eye",
+                    "aviator",
+                    "browline",
+                    "geometric",
+                    "rimless"
+                  ]
+                },
+                "frame_weight": {
+                  "type": "string",
+                  "enum": [
+                    "thin",
+                    "medium",
+                    "thick"
+                  ]
+                }
+              }
+            }
+          ]
+        },
+        "facial_hair": {
+          "type": "string",
+          "enum": [
+            "none",
+            "stubble",
+            "moustache",
+            "short_beard",
+            "full_beard",
+            "not_applicable"
+          ]
+        },
+        "makeup_level": {
+          "type": "string",
+          "enum": [
+            "none_visible",
+            "light",
+            "moderate",
+            "full",
+            "not_applicable"
+          ]
+        },
+        "visible_clothing_colors": {
+          "type": "array",
+          "maxItems": 4,
+          "items": {
+            "type": "string",
+            "maxLength": 20
+          }
+        }
+      }
+    },
+    "color_profile": {
+      "description": "Phone photos have uncontrolled white balance: keep temperature_confidence <= 0.6. Measured color samples (if given) are signals to weigh, not truth. Report §6 Color.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "temperature",
+        "temperature_confidence",
+        "depth",
+        "depth_confidence",
+        "contrast",
+        "contrast_confidence",
+        "chroma",
+        "chroma_confidence",
+        "favor_families",
+        "neutral_families",
+        "caution_families",
+        "seasonal_leaning",
+        "lighting_caveat",
+        "evidence",
+        "combos",
+        "hair_color_directions",
+        "lip_families"
+      ],
+      "properties": {
+        "temperature": {
+          "type": "string",
+          "enum": [
+            "cool",
+            "neutral_cool",
+            "neutral",
+            "neutral_warm",
+            "warm"
+          ]
+        },
+        "temperature_confidence": {
+          "$ref": "#/$defs/confidence"
+        },
+        "depth": {
+          "type": "string",
+          "enum": [
+            "light",
+            "light_medium",
+            "medium",
+            "medium_deep",
+            "deep"
+          ]
+        },
+        "depth_confidence": {
+          "$ref": "#/$defs/confidence"
+        },
+        "contrast": {
+          "type": "string",
+          "enum": [
+            "low",
+            "medium_low",
+            "medium",
+            "medium_high",
+            "high"
+          ]
+        },
+        "contrast_confidence": {
+          "$ref": "#/$defs/confidence"
+        },
+        "chroma": {
+          "type": "string",
+          "enum": [
+            "muted",
+            "soft",
+            "medium",
+            "clear",
+            "bright"
+          ]
+        },
+        "chroma_confidence": {
+          "$ref": "#/$defs/confidence"
+        },
+        "favor_families": {
+          "$ref": "#/$defs/color_families"
+        },
+        "neutral_families": {
+          "$ref": "#/$defs/color_families"
+        },
+        "caution_families": {
+          "$ref": "#/$defs/color_families"
+        },
+        "seasonal_leaning": {
+          "description": "Direction only, never a diagnosis. The rules layer decides whether it is shown at all.",
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "primary",
+            "secondary",
+            "note"
+          ],
+          "properties": {
+            "primary": {
+              "type": "string",
+              "enum": [
+                "spring",
+                "summer",
+                "autumn",
+                "winter"
+              ]
+            },
+            "secondary": {
+              "type": [
+                "string",
+                "null"
+              ],
+              "enum": [
+                "spring",
+                "summer",
+                "autumn",
+                "winter",
+                null
+              ]
+            },
+            "note": {
+              "type": "string",
+              "maxLength": 60
+            }
+          }
+        },
+        "lighting_caveat": {
+          "type": "string",
+          "maxLength": 120
+        },
+        "evidence": {
+          "$ref": "#/$defs/evidence"
+        },
+        "combos": {
+          "description": "2-4 ready color pairings from the favor/neutral families.",
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 4,
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "name",
+              "hexes",
+              "use"
+            ],
+            "properties": {
+              "name": {
+                "type": "string",
+                "maxLength": 16
+              },
+              "hexes": {
+                "type": "array",
+                "minItems": 2,
+                "maxItems": 3,
+                "items": {
+                  "type": "string",
+                  "pattern": "^#[0-9A-Fa-f]{6}$"
+                }
+              },
+              "use": {
+                "type": "string",
+                "maxLength": 40
+              }
+            }
+          }
+        },
+        "hair_color_directions": {
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 3,
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "name",
+              "hex",
+              "requires_dye",
+              "note"
+            ],
+            "properties": {
+              "name": {
+                "type": "string",
+                "maxLength": 16
+              },
+              "hex": {
+                "type": "string",
+                "pattern": "^#[0-9A-Fa-f]{6}$"
+              },
+              "requires_dye": {
+                "type": "boolean"
+              },
+              "note": {
+                "type": "string",
+                "maxLength": 50
+              }
+            }
+          }
+        },
+        "lip_families": {
+          "type": "array",
+          "minItems": 3,
+          "maxItems": 8,
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "name",
+              "hex",
+              "finish",
+              "note"
+            ],
+            "properties": {
+              "name": {
+                "type": "string",
+                "maxLength": 16
+              },
+              "hex": {
+                "type": "string",
+                "pattern": "^#[0-9A-Fa-f]{6}$"
+              },
+              "finish": {
+                "type": "string",
+                "enum": [
+                  "sheer",
+                  "satin",
+                  "matte"
+                ]
+              },
+              "note": {
+                "type": "string",
+                "maxLength": 40
+              }
+            }
+          }
+        }
+      }
+    },
+    "style_dimensions": {
+      "description": "Continuous dimensions are the real data. Style-type labels are derived from them by the rules layer.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "visual_weight",
+        "angular_rounded",
+        "compact_elongated",
+        "soft_sharp",
+        "youthful_mature"
+      ],
+      "properties": {
+        "visual_weight": {
+          "$ref": "#/$defs/dim_1_5"
+        },
+        "angular_rounded": {
+          "$ref": "#/$defs/dim_bipolar"
+        },
+        "compact_elongated": {
+          "$ref": "#/$defs/dim_bipolar"
+        },
+        "soft_sharp": {
+          "$ref": "#/$defs/dim_bipolar"
+        },
+        "youthful_mature": {
+          "$ref": "#/$defs/dim_bipolar"
+        }
+      }
+    },
+    "works": {
+      "type": "array",
+      "minItems": 1,
+      "maxItems": 6,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "text",
+          "evidence"
+        ],
+        "properties": {
+          "text": {
+            "type": "string",
+            "maxLength": 140
+          },
+          "evidence": {
+            "$ref": "#/$defs/evidence"
+          }
+        }
+      }
+    },
+    "doesnt_work": {
+      "type": "array",
+      "minItems": 0,
+      "maxItems": 6,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "text",
+          "evidence",
+          "severity"
+        ],
+        "properties": {
+          "text": {
+            "type": "string",
+            "maxLength": 140
+          },
+          "evidence": {
+            "$ref": "#/$defs/evidence"
+          },
+          "severity": {
+            "type": "string",
+            "enum": [
+              "low",
+              "medium",
+              "high"
+            ]
+          }
+        }
+      }
+    },
+    "hair_direction": {
+      "description": "Report §5 Hair: the target hairstyle as parameters plus copyable barber scripts.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "keep",
+        "change",
+        "avoid",
+        "length",
+        "top_volume",
+        "side_volume",
+        "part",
+        "fringe",
+        "texture_approach",
+        "evidence"
+      ],
+      "properties": {
+        "keep": {
+          "type": "array",
+          "minItems": 0,
+          "maxItems": 4,
+          "items": {
+            "type": "string",
+            "maxLength": 40
+          }
+        },
+        "change": {
+          "type": "array",
+          "minItems": 0,
+          "maxItems": 4,
+          "items": {
+            "type": "string",
+            "maxLength": 40
+          }
+        },
+        "avoid": {
+          "type": "array",
+          "minItems": 0,
+          "maxItems": 4,
+          "items": {
+            "type": "string",
+            "maxLength": 40
+          }
+        },
+        "length": {
+          "type": "string",
+          "enum": [
+            "buzz",
+            "very_short",
+            "short",
+            "medium",
+            "long",
+            "very_long"
+          ]
+        },
+        "top_volume": {
+          "type": "string",
+          "enum": [
+            "low",
+            "moderate",
+            "high"
+          ]
+        },
+        "side_volume": {
+          "type": "string",
+          "enum": [
+            "tight",
+            "controlled",
+            "full"
+          ]
+        },
+        "part": {
+          "type": "string",
+          "enum": [
+            "none",
+            "center",
+            "soft_off_center",
+            "side",
+            "deep_side"
+          ]
+        },
+        "fringe": {
+          "type": "string",
+          "enum": [
+            "none",
+            "light",
+            "curtain",
+            "swept",
+            "heavy"
+          ]
+        },
+        "texture_approach": {
+          "type": "string",
+          "maxLength": 40
+        },
+        "evidence": {
+          "$ref": "#/$defs/evidence"
+        }
+      }
+    },
+    "glasses_direction": {
+      "description": "Report §7 Glasses. null when the person neither wears glasses nor accepts a glasses change.",
+      "anyOf": [
+        {
+          "type": "null"
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "frame_shapes",
+            "frame_width",
+            "frame_weight",
+            "colors",
+            "material",
+            "avoid",
+            "evidence"
+          ],
+          "properties": {
+            "frame_shapes": {
+              "type": "array",
+              "minItems": 1,
+              "maxItems": 3,
+              "items": {
+                "type": "string",
+                "enum": [
+                  "round",
+                  "oval",
+                  "rectangular",
+                  "square",
+                  "cat_eye",
+                  "aviator",
+                  "browline",
+                  "geometric",
+                  "rimless"
+                ]
+              }
+            },
+            "frame_width": {
+              "type": "string",
+              "enum": [
+                "narrower",
+                "matched",
+                "wider"
+              ]
+            },
+            "frame_weight": {
+              "type": "string",
+              "enum": [
+                "thin",
+                "medium",
+                "bold"
+              ]
+            },
+            "colors": {
+              "type": "array",
+              "minItems": 1,
+              "maxItems": 3,
+              "items": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                  "name",
+                  "hex"
+                ],
+                "properties": {
+                  "name": {
+                    "type": "string",
+                    "maxLength": 20
+                  },
+                  "hex": {
+                    "type": "string",
+                    "pattern": "^#[0-9A-Fa-f]{6}$"
+                  }
+                }
+              }
+            },
+            "material": {
+              "type": "string",
+              "enum": [
+                "metal",
+                "acetate",
+                "mixed",
+                "rimless"
+              ]
+            },
+            "avoid": {
+              "type": "array",
+              "minItems": 0,
+              "maxItems": 4,
+              "items": {
+                "type": "string",
+                "maxLength": 40
+              }
+            },
+            "evidence": {
+              "$ref": "#/$defs/evidence"
+            }
+          }
+        }
+      ]
+    },
+    "photo_direction": {
+      "description": "Report §8 Photo presence: how to be photographed. Chinese, each field one short phrase.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "best_angle",
+        "camera_height",
+        "expression",
+        "lighting",
+        "framing",
+        "avoid",
+        "evidence"
+      ],
+      "properties": {
+        "best_angle": {
+          "type": "string",
+          "maxLength": 40
+        },
+        "camera_height": {
+          "type": "string",
+          "maxLength": 40
+        },
+        "expression": {
+          "type": "string",
+          "maxLength": 40
+        },
+        "lighting": {
+          "type": "string",
+          "maxLength": 40
+        },
+        "framing": {
+          "type": "string",
+          "maxLength": 40
+        },
+        "avoid": {
+          "type": "array",
+          "minItems": 0,
+          "maxItems": 4,
+          "items": {
+            "type": "string",
+            "maxLength": 40
+          }
+        },
+        "evidence": {
+          "$ref": "#/$defs/evidence"
+        }
+      }
+    },
+    "recommendations": {
+      "description": "6-8 CANDIDATES across >=3 categories. The rules layer ranks them and keeps the top 5.",
+      "type": "array",
+      "minItems": 5,
+      "maxItems": 10,
+      "items": {
+        "$ref": "#/$defs/recommendation"
+      }
+    },
+    "limitations": {
+      "description": "What this analysis could not see or judge reliably from these photos.",
+      "type": "array",
+      "maxItems": 6,
+      "items": {
+        "type": "string",
+        "maxLength": 140
+      }
+    },
+    "feature_signature": {
+      "$ref": "#/$defs/feature_signature"
+    },
+    "hair_options": {
+      "description": "Exactly 3 directions, one per tier (safe, bold, easy).",
+      "type": "array",
+      "minItems": 3,
+      "maxItems": 3,
+      "items": {
+        "$ref": "#/$defs/hair_option"
+      }
+    },
+    "makeup_direction": {
+      "description": "Makeup for feminine/androgynous presentation, grooming for masculine (mode).",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "mode",
+        "base_tone",
+        "lip",
+        "blush",
+        "brow",
+        "eye_focus",
+        "grooming",
+        "evidence"
+      ],
+      "properties": {
+        "mode": {
+          "type": "string",
+          "enum": [
+            "makeup",
+            "grooming"
+          ]
+        },
+        "base_tone": {
+          "type": "string",
+          "maxLength": 40
+        },
+        "lip": {
+          "type": "string",
+          "maxLength": 50
+        },
+        "blush": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "placement",
+            "hex",
+            "note"
+          ],
+          "properties": {
+            "placement": {
+              "type": "string",
+              "enum": [
+                "horizontal",
+                "diagonal",
+                "apple"
+              ]
+            },
+            "hex": {
+              "type": "string",
+              "pattern": "^#[0-9A-Fa-f]{6}$"
+            },
+            "note": {
+              "type": "string",
+              "maxLength": 40
+            }
+          }
+        },
+        "brow": {
+          "type": "string",
+          "maxLength": 50
+        },
+        "eye_focus": {
+          "type": "string",
+          "maxLength": 50
+        },
+        "grooming": {
+          "type": "array",
+          "maxItems": 4,
+          "items": {
+            "type": "string",
+            "maxLength": 50
+          }
+        },
+        "evidence": {
+          "$ref": "#/$defs/evidence"
+        }
+      }
+    },
+    "outfit_direction": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "formulas",
+        "items",
+        "occasions",
+        "evidence"
+      ],
+      "properties": {
+        "formulas": {
+          "type": "array",
+          "minItems": 3,
+          "maxItems": 5,
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "title",
+              "pieces",
+              "why"
+            ],
+            "properties": {
+              "title": {
+                "type": "string",
+                "maxLength": 20
+              },
+              "pieces": {
+                "type": "array",
+                "minItems": 2,
+                "maxItems": 4,
+                "items": {
+                  "type": "string",
+                  "maxLength": 24
+                }
+              },
+              "why": {
+                "type": "string",
+                "maxLength": 60
+              }
+            }
+          }
+        },
+        "items": {
+          "type": "array",
+          "minItems": 6,
+          "maxItems": 12,
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "garment_id",
+              "name_zh",
+              "color_name",
+              "hex",
+              "why"
+            ],
+            "properties": {
+              "garment_id": {
+                "type": "string",
+                "pattern": "^[a-z][a-z0-9_]{2,48}$"
+              },
+              "name_zh": {
+                "type": "string",
+                "maxLength": 20
+              },
+              "color_name": {
+                "type": "string",
+                "maxLength": 12
+              },
+              "hex": {
+                "type": "string",
+                "pattern": "^#[0-9A-Fa-f]{6}$"
+              },
+              "why": {
+                "type": "string",
+                "maxLength": 50
+              }
+            }
+          }
+        },
+        "occasions": {
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 4,
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "occasion",
+              "look"
+            ],
+            "properties": {
+              "occasion": {
+                "type": "string",
+                "enum": [
+                  "commute",
+                  "date",
+                  "formal",
+                  "casual"
+                ]
+              },
+              "look": {
+                "type": "string",
+                "maxLength": 80
+              }
+            }
+          }
+        },
+        "evidence": {
+          "$ref": "#/$defs/evidence"
+        }
+      }
+    }
+  },
+  "$defs": {
+    "confidence": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 1
+    },
+    "evidence": {
+      "description": "Observation ids, e.g. [\"o1\", \"o4\"].",
+      "type": "array",
+      "minItems": 1,
+      "maxItems": 6,
+      "items": {
+        "type": "string",
+        "pattern": "^o[0-9]{1,2}$"
+      }
+    },
+    "dim_1_5": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "value",
+        "confidence",
+        "evidence"
+      ],
+      "properties": {
+        "value": {
+          "type": "number",
+          "minimum": 1,
+          "maximum": 5
+        },
+        "confidence": {
+          "$ref": "#/$defs/confidence"
+        },
+        "evidence": {
+          "$ref": "#/$defs/evidence"
+        }
+      }
+    },
+    "dim_bipolar": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "value",
+        "confidence",
+        "evidence"
+      ],
+      "properties": {
+        "value": {
+          "type": "number",
+          "minimum": -2,
+          "maximum": 2
+        },
+        "confidence": {
+          "$ref": "#/$defs/confidence"
+        },
+        "evidence": {
+          "$ref": "#/$defs/evidence"
+        }
+      }
+    },
+    "color_families": {
+      "type": "array",
+      "minItems": 1,
+      "maxItems": 6,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "name",
+          "hex_examples",
+          "reason"
+        ],
+        "properties": {
+          "name": {
+            "type": "string",
+            "maxLength": 20
+          },
+          "hex_examples": {
+            "type": "array",
+            "minItems": 1,
+            "maxItems": 3,
+            "items": {
+              "type": "string",
+              "pattern": "^#[0-9A-Fa-f]{6}$"
+            }
+          },
+          "reason": {
+            "type": "string",
+            "maxLength": 80
+          }
+        }
+      }
+    },
+    "recommendation": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "category",
+        "action",
+        "why",
+        "how_to",
+        "evidence",
+        "expected_effect",
+        "avoid",
+        "impact",
+        "effort",
+        "confidence",
+        "constraint_check",
+        "visual_edit_spec",
+        "cost_band",
+        "time_to_effect",
+        "pairs_with",
+        "success_check"
+      ],
+      "properties": {
+        "id": {
+          "type": "string",
+          "pattern": "^r[0-9]{1,2}$"
+        },
+        "category": {
+          "type": "string",
+          "enum": [
+            "hairstyle",
+            "brows",
+            "glasses",
+            "facial_hair",
+            "makeup",
+            "color_palette",
+            "clothing",
+            "accessories",
+            "photo_presentation"
+          ]
+        },
+        "action": {
+          "type": "string",
+          "minLength": 6,
+          "maxLength": 80
+        },
+        "why": {
+          "type": "string",
+          "minLength": 6,
+          "maxLength": 160
+        },
+        "how_to": {
+          "description": "Concrete steps, e.g. what to say to a barber, what to search for when shopping.",
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 4,
+          "items": {
+            "type": "string",
+            "maxLength": 100
+          }
+        },
+        "evidence": {
+          "$ref": "#/$defs/evidence"
+        },
+        "expected_effect": {
+          "type": "string",
+          "maxLength": 100
+        },
+        "avoid": {
+          "type": "string",
+          "maxLength": 80
+        },
+        "impact": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 5
+        },
+        "effort": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 5
+        },
+        "confidence": {
+          "$ref": "#/$defs/confidence"
+        },
+        "constraint_check": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "status",
+            "note"
+          ],
+          "properties": {
+            "status": {
+              "type": "string",
+              "enum": [
+                "compliant",
+                "requires_consent",
+                "violates"
+              ]
+            },
+            "note": {
+              "type": "string",
+              "maxLength": 80
+            }
+          }
+        },
+        "visual_edit_spec": {
+          "description": "Non-null only when a local photo edit can preview this recommendation.",
+          "anyOf": [
+            {
+              "type": "null"
+            },
+            {
+              "$ref": "#/$defs/edit_spec"
+            }
+          ]
+        },
+        "cost_band": {
+          "type": "string",
+          "enum": [
+            "free",
+            "low",
+            "medium",
+            "high"
+          ]
+        },
+        "time_to_effect": {
+          "type": "string",
+          "enum": [
+            "today",
+            "next_haircut",
+            "weeks",
+            "months"
+          ]
+        },
+        "pairs_with": {
+          "description": "Other recommendation ids that work well together with this one.",
+          "type": "array",
+          "maxItems": 3,
+          "items": {
+            "type": "string",
+            "pattern": "^r[0-9]{1,2}$"
+          }
+        },
+        "success_check": {
+          "description": "How the user can tell it worked. Chinese, one sentence.",
+          "type": "string",
+          "minLength": 4,
+          "maxLength": 60
+        }
+      }
+    },
+    "observation": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "category",
+        "text",
+        "photo_ids",
+        "polarity",
+        "region"
+      ],
+      "properties": {
+        "id": {
+          "type": "string",
+          "pattern": "^o[0-9]{1,2}$"
+        },
+        "category": {
+          "type": "string",
+          "enum": [
+            "structure",
+            "feature",
+            "color",
+            "hair",
+            "grooming",
+            "glasses",
+            "clothing",
+            "photo"
+          ]
+        },
+        "text": {
+          "type": "string",
+          "minLength": 4,
+          "maxLength": 120
+        },
+        "photo_ids": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "string",
+            "enum": [
+              "front",
+              "profile45",
+              "smile",
+              "hair"
+            ]
+          }
+        },
+        "polarity": {
+          "type": "string",
+          "enum": [
+            "strength",
+            "neutral",
+            "issue"
+          ]
+        },
+        "region": {
+          "description": "Where on the photo this is visible; `overall` = whole impression.",
+          "type": "string",
+          "enum": [
+            "forehead",
+            "hairline",
+            "brow",
+            "eye",
+            "nose",
+            "cheekbone",
+            "cheek",
+            "lip",
+            "jaw",
+            "chin",
+            "neck",
+            "hair",
+            "crown",
+            "skin",
+            "overall"
+          ]
+        }
+      }
+    },
+    "region": {
+      "type": "string",
+      "enum": [
+        "forehead",
+        "hairline",
+        "brow",
+        "eye",
+        "nose",
+        "cheekbone",
+        "cheek",
+        "lip",
+        "jaw",
+        "chin",
+        "neck",
+        "hair",
+        "crown",
+        "skin",
+        "overall"
+      ]
+    },
+    "feature_signature": {
+      "description": "Exactly 3 signature traits for the passport cover. Neutral description, never a judgment.",
+      "type": "array",
+      "minItems": 3,
+      "maxItems": 3,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "title",
+          "observation_ids",
+          "region",
+          "styling_implication"
+        ],
+        "properties": {
+          "title": {
+            "type": "string",
+            "minLength": 2,
+            "maxLength": 16
+          },
+          "observation_ids": {
+            "type": "array",
+            "minItems": 1,
+            "maxItems": 3,
+            "items": {
+              "type": "string",
+              "pattern": "^o[0-9]{1,2}$"
+            }
+          },
+          "region": {
+            "$ref": "#/$defs/region"
+          },
+          "styling_implication": {
+            "type": "string",
+            "minLength": 4,
+            "maxLength": 60
+          }
+        }
+      }
+    },
+    "edit_spec": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "region",
+        "target_description",
+        "preserve"
+      ],
+      "properties": {
+        "region": {
+          "type": "string",
+          "enum": [
+            "hair",
+            "brows",
+            "glasses",
+            "facial_hair",
+            "clothing_top"
+          ]
+        },
+        "target_description": {
+          "description": "English, concrete, physical description of the target look for an image-edit model.",
+          "type": "string",
+          "minLength": 10,
+          "maxLength": 360
+        },
+        "preserve": {
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 6,
+          "items": {
+            "type": "string",
+            "maxLength": 40
+          }
+        }
+      }
+    },
+    "hair_option": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "tier",
+        "name_zh",
+        "params",
+        "maintenance",
+        "requires",
+        "barber_script",
+        "avoid",
+        "visual_edit_spec",
+        "evidence",
+        "confidence"
+      ],
+      "properties": {
+        "tier": {
+          "description": "safe = closest to now; bold = a clear change; easy = lowest upkeep.",
+          "type": "string",
+          "enum": [
+            "safe",
+            "bold",
+            "easy"
+          ]
+        },
+        "name_zh": {
+          "type": "string",
+          "minLength": 2,
+          "maxLength": 20
+        },
+        "params": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "length",
+            "fringe",
+            "curl",
+            "color"
+          ],
+          "properties": {
+            "length": {
+              "type": "string",
+              "enum": [
+                "buzz",
+                "very_short",
+                "short",
+                "ear",
+                "chin",
+                "collarbone",
+                "shoulder",
+                "chest"
+              ]
+            },
+            "fringe": {
+              "type": "string",
+              "enum": [
+                "none",
+                "air",
+                "curtain",
+                "blunt",
+                "side",
+                "light",
+                "swept"
+              ]
+            },
+            "curl": {
+              "type": "string",
+              "enum": [
+                "straight",
+                "c_curl",
+                "french_wave",
+                "wool",
+                "natural"
+              ]
+            },
+            "color": {
+              "description": "keep = natural/current color.",
+              "type": "string",
+              "maxLength": 20
+            },
+            "top_volume": {
+              "type": [
+                "string",
+                "null"
+              ],
+              "enum": [
+                "low",
+                "moderate",
+                "high",
+                null
+              ]
+            },
+            "side_volume": {
+              "type": [
+                "string",
+                "null"
+              ],
+              "enum": [
+                "tight",
+                "controlled",
+                "full",
+                null
+              ]
+            },
+            "part": {
+              "type": [
+                "string",
+                "null"
+              ],
+              "enum": [
+                "none",
+                "center",
+                "soft_off_center",
+                "side",
+                "deep_side",
+                null
+              ]
+            }
+          }
+        },
+        "maintenance": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "daily_minutes",
+            "trim_weeks",
+            "note"
+          ],
+          "properties": {
+            "daily_minutes": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 60
+            },
+            "trim_weeks": {
+              "type": "integer",
+              "minimum": 2,
+              "maximum": 26
+            },
+            "note": {
+              "type": "string",
+              "maxLength": 40
+            }
+          }
+        },
+        "requires": {
+          "type": "array",
+          "maxItems": 3,
+          "items": {
+            "type": "string",
+            "enum": [
+              "perm",
+              "dye",
+              "grow_out",
+              "straighten"
+            ]
+          }
+        },
+        "barber_script": {
+          "type": "array",
+          "minItems": 3,
+          "maxItems": 3,
+          "items": {
+            "type": "string",
+            "minLength": 6,
+            "maxLength": 60
+          }
+        },
+        "avoid": {
+          "type": "string",
+          "maxLength": 60
+        },
+        "visual_edit_spec": {
+          "$ref": "#/$defs/edit_spec"
+        },
+        "evidence": {
+          "$ref": "#/$defs/evidence"
+        },
+        "confidence": {
+          "$ref": "#/$defs/confidence"
+        }
+      }
+    }
+  }
+}

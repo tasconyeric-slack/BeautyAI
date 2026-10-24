@@ -1,0 +1,102 @@
+{
+  "syntheticOnly": true,
+  "externalRequests": [],
+  "checks": [
+    {
+      "kind": "avatar",
+      "width": 1080,
+      "height": 1440,
+      "bytes": 188229,
+      "photoElements": 0,
+      "AIGC": {
+        "Label": "1",
+        "ContentProducer": "AestheticPassport",
+        "ProduceID": "synthetic-avatar-001",
+        "ReservedCode1": "",
+        "ContentPropagator": "AestheticPassport",
+        "PropagateID": "synthetic-avatar-001",
+        "ReservedCode2": ""
+      }
+    },
+    {
+      "kind": "palette",
+      "width": 1080,
+      "height": 1440,
+      "bytes": 148153,
+      "photoElements": 0,
+      "AIGC": {
+        "Label": "1",
+        "ContentProducer": "AestheticPassport",
+        "ProduceID": "synthetic-palette-001",
+        "ReservedCode1": "",
+        "ContentPropagator": "AestheticPassport",
+        "PropagateID": "synthetic-palette-001",
+        "ReservedCode2": ""
+      }
+    },
+    {
+      "kind": "portrait",
+      "width": 1080,
+      "height": 1440,
+      "bytes": 169720,
+      "photoElements": 1,
+      "AIGC": {
+        "Label": "1",
+        "ContentProducer": "AestheticPassport",
+        "ProduceID": "synthetic-portrait-001",
+        "ReservedCode1": "",
+        "ContentPropagator": "AestheticPassport",
+        "PropagateID": "synthetic-portrait-001",
+        "ReservedCode2": ""
+      }
+    },
+    {
+      "kind": "stylist",
+      "width": 1080,
+      "height": 1440,
+      "bytes": 191224,
+      "photoElements": 0,
+      "AIGC": {
+        "Label": "1",
+        "ContentProducer": "AestheticPassport",
+        "ProduceID": "synthetic-stylist-001",
+        "ReservedCode1": "",
+        "ContentPropagator": "AestheticPassport",
+        "PropagateID": "synthetic-stylist-001",
+        "ReservedCode2": ""
+      }
+    },
+    {
+      "kind": "compare-3:4",
+      "width": 1080,
+      "height": 1440,
+      "bytes": 153120,
+      "photoElements": 2,
+      "AIGC": {
+        "Label": "1",
+        "ContentProducer": "AestheticPassport",
+        "ProduceID": "synthetic-compare-3:4-001",
+        "ReservedCode1": "",
+        "ContentPropagator": "AestheticPassport",
+        "PropagateID": "synthetic-compare-3:4-001",
+        "ReservedCode2": ""
+      }
+    },
+    {
+      "kind": "compare-9:16",
+      "width": 1080,
+      "height": 1920,
+      "bytes": 195379,
+      "photoElements": 2,
+      "AIGC": {
+        "Label": "1",
+        "ContentProducer": "AestheticPassport",
+        "ProduceID": "synthetic-compare-9:16-001",
+        "ReservedCode1": "",
+        "ContentPropagator": "AestheticPassport",
+        "PropagateID": "synthetic-compare-9:16-001",
+        "ReservedCode2": ""
+      }
+    }
+  ]
+}

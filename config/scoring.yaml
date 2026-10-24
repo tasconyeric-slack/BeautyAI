@@ -1,0 +1,126 @@
+# AI 面部美学参考分 — deterministic geometry/harmony scorer (Issue #31, D36).
+# Code: src/aesthetic_passport/scoring/. Every threshold and conversion constant lives here, so calibration can be
+# patched without touching code. Changing anything that moves a score must bump `version`.
+#
+# Provenance of each number (details + links: docs/scoring/COMPETITOR_FORMULA.md):
+#   [public]   stated on The Face Report's public tool pages
+#   [inferred] derived by us from their published examples (fits the examples; their exact constant is not public)
+#   [ours]     our own product calibration where nothing public exists
+#
+# The scale is a geometric harmony REFERENCE on one front photo. It is not a verdict on attractiveness, and it is
+# not a population rank: there is no percentile here (that is Issue #41, which consumes `overall_score` only).
+
+version: "aes-geo-1.0"
+method: "35/25/25/15 geometric harmony on MediaPipe face-mesh landmarks (front photo, roll-corrected frame)"
+landmark_model: "mediapipe_face_mesh_478"
+
+weights:                      # [public] attractiveness + psl-score pages: symmetry 35, thirds 25, fifths 25, golden 15
+  symmetry: 0.35
+  thirds: 0.25
+  fifths: 0.25
+  golden_ratio: 0.15
+
+symmetry:
+  # [public] symmetry page: a midline fitted through upper forehead, forehead centre, nose bridge, nose base and chin
+  # bottom; each left point is reflected across it and the full 2D residual to its right partner is divided by the
+  # pair's average distance from the midline; 12 bilateral pairs; feature weights jaw 35 / eyes 25 / brows 15 /
+  # mouth 15 / nose 10. Pairs per feature are only partly listed publicly — the exact indices below are [ours].
+  midline: [10, 151, 168, 2, 152]
+  features:
+    eyes:  {weight: 0.25, pairs: [[133, 362], [33, 263], [159, 386], [145, 374]]}   # inner, outer corner; lids
+    brows: {weight: 0.15, pairs: [[107, 336], [105, 334], [70, 300]]}               # head, peak, tail
+    nose:  {weight: 0.10, pairs: [[129, 358]]}                                      # outer ala
+    mouth: {weight: 0.15, pairs: [[61, 291]]}                                       # commissures
+    jaw:   {weight: 0.35, pairs: [[127, 356], [234, 454], [172, 397]]}              # temple, cheekbone, jaw contour
+  # [inferred/ours] "fixed penalty": points lost per unit of mean normalized residual (0.05 → −20).
+  penalty: 400
+
+thirds:
+  # [public] visible thirds against the face-mesh template split 18/41/41 (the hairline is not visible, so the
+  # window starts at the mesh's upper-forehead point). The brow level 105/334 is [inferred]: on MediaPipe's
+  # canonical mesh it reproduces 17.8 / 40.7 / 41.4 ≈ 18/41/41 exactly; glabella (9) would give 19/40/41.
+  levels: {top: [10], brow: [105, 334], nose_base: [2], chin: [152]}
+  reference: [0.18, 0.41, 0.41]
+  # [inferred] points per unit of mean relative deviation. Fits both published examples: median scan 16/44/40 → 73
+  # and the sample report 19/44/37 → 70 (both ≈ 100 − 400 × mean |share ÷ reference − 1|).
+  penalty: 400
+
+fifths:
+  # [public] five eye-width segments: face edge → outer eye → inner eye → inner eye → outer eye → face edge.
+  # Face edge = cheekbone contour 234/454 (the same width the golden-ratio term uses) [ours].
+  cuts: [234, 33, 133, 362, 263, 454]
+  # [ours] points per unit of mean |segment ÷ eye width − 1| (eye width = mean of the two eye segments). Set so a
+  # typical face lands near the published median fifths score (77); the canonical mesh scores ≈ 74.
+  penalty: 140
+
+golden_ratio:
+  # [public] visible face length (mesh top 10 → chin 152) ÷ cheekbone width (234 → 454); proxy target ≈ 1.38 for the
+  # visible window (phi 1.618 applies to hairline → chin); "every 10 points ≈ 5 % relative deviation".
+  length: [10, 152]
+  width: [234, 454]
+  target: 1.38
+  penalty: 200
+
+# Photo-condition gates. A component that cannot be measured honestly is null (never estimated); without all four
+# components there is no overall score. Soft flags keep the score but mark it limited (never full confidence).
+quality:
+  full_max_yaw: 5             # |yaw| ≤ this (and pitch below) → full; the competitor's symmetry tool withholds > 2°
+  limited_max_yaw: 12         # |yaw| > this → symmetry and fifths not scored (a turned head is not asymmetric)
+  full_max_pitch: 10
+  limited_max_pitch: 20       # |pitch| > this → thirds and golden ratio not scored (vertical proportions distorted)
+  max_roll: 20                # roll is corrected by the frame; beyond this the landmark fit itself degrades
+  min_face_width_px: 80       # cheekbone width in pixels below this → no score (too few pixels for 2 % effects)
+
+# Tier bands: thresholds [public] (attractiveness page: 87 / 83 / 78 / 60); labels are our own neutral wording.
+tiers:
+  - {min: 87, key: t5, label_zh: "几何协调度很高"}
+  - {min: 83, key: t4, label_zh: "几何协调度高"}
+  - {min: 78, key: t3, label_zh: "几何协调度较高"}
+  - {min: 60, key: t2, label_zh: "几何协调度中等"}
+  - {min: 0,  key: t1, label_zh: "比例个性鲜明"}
+
+copy_zh:
+  name: "AI 面部美学参考分"
+  scale_note: "按 4 项面部几何（对称 35%、三庭 25%、五眼 25%、长宽比 15%）在这张正脸照上计算的协调度参考，不代表整体外貌；分数本身不是排名，与参考扫描人群的对照单独标注。"
+  components:
+    symmetry: {name: "左右对称", about: "12 对左右镜像关键点相对拟合中线的偏差"}
+    thirds: {name: "三庭均衡", about: "可见额顶—眉—鼻底—下巴三段，对照参考 18 / 41 / 41"}
+    fifths: {name: "五眼均衡", about: "脸宽按五段切分，各段相对眼宽的偏差"}
+    golden_ratio: {name: "长宽比", about: "可见脸长 ÷ 颧骨宽，对照参考 1.38"}
+  features: {eyes: "眼部", brows: "眉部", nose: "鼻翼", mouth: "嘴角", jaw: "脸部轮廓"}
+  strengths:
+    symmetry: "左右对称度高：12 对镜像点的平均偏差约 {residual_pct}%，{best_feature}最一致。"
+    thirds: "三庭接近参考：你的可见三庭约 {upper} / {middle} / {lower}（参考 18 / 41 / 41）。"
+    fifths: "五眼接近均分：五段宽度相对眼宽的平均偏差约 {dev_pct}%。"
+    golden_ratio: "脸型长宽比 {ratio}，与参考 1.38 相差约 {dev_pct}%。"
+  improvements:
+    symmetry: "左右差异主要在{worst_feature}。拍照时正对镜头、放松表情可以减少姿态带来的差异；侧分或不对称的刘海能在视觉上弱化左右差。"
+    thirds_upper_long: "上庭占比偏大：轻薄刘海或额前碎发可以在视觉上缩短上庭。"
+    thirds_upper_short: "上庭占比偏小：露出额头、发根蓬松可以在视觉上拉长上庭。"
+    thirds_middle_long: "中庭占比偏大：眉形略平、眉尾稍长，横向的视觉线条可以缓和中庭长度。"
+    thirds_middle_short: "中庭占比偏小：眉形保留一点弧度、眼妆向上晕染可以舒展中段。"
+    thirds_lower_long: "下庭占比偏大：发尾在下巴附近有体积的发型可以平衡下半脸。"
+    thirds_lower_short: "下庭占比偏小：露出下颌线、发尾落在锁骨附近可以拉长下半脸。"
+    fifths_outer_wide: "两侧轮廓相对眼宽偏宽：两侧发丝自然下垂贴近脸颊、减少耳侧蓬松，可以收窄外侧视觉宽度。"
+    fifths_outer_narrow: "两侧轮廓相对眼宽偏窄：耳侧适度蓬松的发型可以平衡五段宽度。"
+    fifths_inner_wide: "两眼间距相对眼宽偏宽：眉头与内眼角的妆面重点可以在视觉上拉近距离。"
+    fifths_inner_narrow: "两眼间距相对眼宽偏窄：眉头间距略留宽、眼妆重点放在外眼角可以拉开视觉距离。"
+    golden_ratio_wide: "脸型偏宽短：发顶增加高度、两侧收紧可以拉长视觉比例。"
+    golden_ratio_long: "脸型偏长：两侧增加蓬松度或留刘海可以缩短视觉长度。"
+  flags:
+    pose_unknown: "未能读取头部姿态"
+    pose_yaw: "头部略有左右转动"
+    pose_pitch: "头部略有抬头或低头"
+    pose_off_axis: "头部转动或俯仰过大"
+    head_roll: "头部倾斜较大"
+    mouth_open: "嘴部张开或在笑"
+    eyes_closed: "眼睛闭合或眯眼"
+    eyewear: "戴眼镜，眼眉关键点可能被遮挡"
+    forehead_covered: "额头被头发遮挡，额顶点是估计位置"
+    face_too_small: "脸部像素太少"
+    no_landmarks: "没有可用的面部关键点"
+    landmarks_unclear: "关键点位置异常，本项不计算"
+  status:
+    full: "照片条件良好，四项均已测量"
+    limited: "已计算，但照片条件会影响准确度"
+    unavailable: "这张照片无法给出可靠的总分"

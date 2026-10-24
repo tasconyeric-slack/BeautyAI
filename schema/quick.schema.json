@@ -1,0 +1,31 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://aesthetic-passport.local/schema/quick.schema.json",
+  "title": "Quick analysis (analyzer-quick-0.1)",
+  "description": "First-look result (~15 s, ≤1k output tokens). Shown during the reveal; replaced by the full analysis.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "summary_zh",
+    "feature_signature",
+    "observations"
+  ],
+  "properties": {
+    "summary_zh": {
+      "type": "string",
+      "minLength": 4,
+      "maxLength": 60
+    },
+    "feature_signature": {
+      "$ref": "analysis.schema.json#/$defs/feature_signature"
+    },
+    "observations": {
+      "type": "array",
+      "minItems": 3,
+      "maxItems": 8,
+      "items": {
+        "$ref": "analysis.schema.json#/$defs/observation"
+      }
+    }
+  }
+}

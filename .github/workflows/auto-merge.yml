@@ -1,0 +1,170 @@
+# Merge only after both CI and Codex have reviewed the CURRENT PR commit.
+# This privileged workflow runs from main; never checkout or execute PR code.
+name: auto-merge-ci-codex-green
+
+on:
+  workflow_run:
+    workflows: ["ci"]
+    types: [completed]
+  issue_comment:
+    types: [created, edited]
+  workflow_dispatch:
+
+permissions:
+  actions: read
+  contents: write
+  issues: read
+  pull-requests: write
+
+jobs:
+  merge:
+    if: >-
+      ${{ github.event_name == 'workflow_dispatch' ||
+          (github.event_name == 'workflow_run' && github.event.workflow_run.conclusion == 'success' && github.event.workflow_run.event == 'pull_request') ||
+          (github.event_name == 'issue_comment' && github.event.issue.pull_request != null && github.event.comment.user.login == 'chatgpt-codex-connector[bot]') }}
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Merge eligible reviewed PRs into main
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const { owner, repo } = context.repo;
+            const bot = 'chatgpt-codex-connector[bot]';
+            let candidates = [];
+
+            if (context.eventName === 'issue_comment') {
+              candidates = [context.issue.number];
+            } else if (context.eventName === 'workflow_run') {
+              candidates = (context.payload.workflow_run.pull_requests || []).map(pr => pr.number);
+            }
+            // The workflow_run webhook occasionally omits pull_requests.
+            // Dispatch also checks all open PRs to recover missed bot events.
+            if (!candidates.length) {
+              const open = await github.paginate(github.rest.pulls.list, {
+                owner, repo, state: 'open', per_page: 100
+              });
+              candidates = open.map(pr => pr.number);
+            }
+
+            for (const number of new Set(candidates)) {
+              const { data: pr } = await github.rest.pulls.get({
+                owner, repo, pull_number: number
+              });
+              if (pr.state !== 'open' || pr.draft || pr.base.ref !== 'main') {
+                core.info('Skip #' + number + ': not an open, ready PR for main');
+                continue;
+              }
+              if (pr.head.repo?.full_name !== owner + '/' + repo) {
+                core.info('Skip #' + number + ': fork PR');
+                continue;
+              }
+              const labels = new Set(pr.labels.map(label => label.name));
+              if (labels.has('manual-review') || labels.has('no-automerge')) {
+                core.info('Skip #' + number + ': manual review label');
+                continue;
+              }
+
+              // Sensitive changes get human review even when CI and Codex pass.
+              // Path rules cover known critical surfaces, not arbitrary code semantics.
+              // Authors must add manual-review for other safety-sensitive changes.
+              const files = await github.paginate(github.rest.pulls.listFiles, {
+                owner, repo, pull_number: number, per_page: 100
+              });
+              const sensitive = files.some(({filename: path}) =>
+                /^\.github\/(workflows|scripts)\//.test(path) ||
+                /^\.github\/(CODEOWNERS|dependabot\.ya?ml)$/.test(path) ||
+                /^(render\.yaml|Dockerfile|vercel\.json|netlify\.toml)$/.test(path) ||
+                /^web\/next\.config\./.test(path) ||
+                /(^|\/)(auth|authentication|authorization|secrets?|payments?|billing|checkout|webhooks?)\//i.test(path) ||
+                /^src\/aesthetic_passport\/api\/(entitlement|retention|settings|store|ratelimit)\.py$/.test(path)
+              );
+              if (sensitive) {
+                core.info('Skip #' + number + ': sensitive code, permission or deployment changes');
+                continue;
+              }
+
+              // Codex maintains an issue comment on each PR, with the latest
+              // status/commit/findings encoded in codex-review-state:v1.
+              // Fail closed if its contract ever changes or is unavailable.
+              const comments = await github.paginate(github.rest.issues.listComments, {
+                owner, repo, issue_number: number, per_page: 100
+              });
+              const summaries = comments.filter(comment =>
+                comment.user?.login === bot &&
+                comment.body?.includes('<!-- codex-pull-request-review-summary -->')
+              ).sort((a, b) => Date.parse(b.updated_at) - Date.parse(a.updated_at));
+              const summary = summaries[0];
+              const match = summary?.body?.match(/<!-- codex-review-state:v1 (\{[^\r\n]*\}) -->/);
+              let review = null;
+              try {
+                if (match) review = JSON.parse(match[1]);
+              } catch (err) {
+                core.info('Skip #' + number + ': invalid Codex review summary');
+                continue;
+              }
+              const code = review?.code_review;
+              if (code?.status !== 'completed' ||
+                  code.commit_sha !== pr.head.sha ||
+                  code.has_unresolved_findings !== false) {
+                core.info('Skip #' + number + ': Codex not clean on current HEAD');
+                continue;
+              }
+              if (review?.security_review?.has_unresolved_findings === true) {
+                core.info('Skip #' + number + ': Codex security finding');
+                continue;
+              }
+
+              const reviews = await github.paginate(github.rest.pulls.listReviews, {
+                owner, repo, pull_number: number, per_page: 100
+              });
+              const latestByReviewer = new Map();
+              for (const r of reviews) {
+                if (r.state !== 'DISMISSED') latestByReviewer.set(r.user.login, r.state);
+              }
+              if ([...latestByReviewer.values()].includes('CHANGES_REQUESTED')) {
+                core.info('Skip #' + number + ': outstanding formal change request');
+                continue;
+              }
+
+              // Verify the newest pull_request CI run for this exact head or
+              // GitHub-generated merge commit. Do not reuse an older green run.
+              const runGroups = await Promise.all(
+                [...new Set([pr.head.sha, pr.merge_commit_sha].filter(Boolean))].map(
+                  head_sha => github.rest.actions.listWorkflowRuns({
+                    owner, repo, workflow_id: 'ci.yml', event: 'pull_request',
+                    head_sha, per_page: 100
+                  })
+                )
+              );
+              const runs = runGroups.flatMap(group => group.data.workflow_runs)
+                .filter(run =>
+                  run.event === 'pull_request' &&
+                  run.head_branch === pr.head.ref &&
+                  [pr.head.sha, pr.merge_commit_sha].includes(run.head_sha) &&
+                  (!run.pull_requests?.length ||
+                   run.pull_requests.some(link => link.number === number))
+                )
+                .sort((a, b) => b.run_number - a.run_number ||
+                      b.run_attempt - a.run_attempt);
+              const ci = runs[0];
+              if (!ci || ci.status !== 'completed' || ci.conclusion !== 'success') {
+                core.info('Skip #' + number + ': latest CI not successful');
+                continue;
+              }
+
+              // GitHub checks the head SHA atomically, preventing merges if
+              // another commit is pushed between validation and the merge.
+              const { data: fresh } = await github.rest.pulls.get({
+                owner, repo, pull_number: number
+              });
+              if (fresh.state !== 'open' || fresh.draft ||
+                  fresh.head.sha !== pr.head.sha || fresh.base.ref !== 'main') {
+                core.info('Skip #' + number + ': PR changed during checks');
+                continue;
+              }
+              const result = await github.rest.pulls.merge({
+                owner, repo, pull_number: number,
+                sha: pr.head.sha, merge_method: 'squash'
+              });
+              core.info('Codex-and-CI-approved merge #' + number + ': ' + result.data.sha);
+            }

@@ -1,0 +1,383 @@
+# Facial feature atlas (Issue #32, D39). Read by the face page (web/components/face/atlas-model.ts) through
+# web/lib/generated/face-atlas.json (`make types` → scripts/export_web_config.py). tests/test_face_atlas.py keeps
+# this catalog consistent with config/face_metrics.yaml and config/rules.yaml.
+#
+# The atlas is a *view* over data the passport already carries. It never measures, scores or infers anything:
+#   measured   — values from measurement_profile (CV layer), bands / labels from derived.measurement_insights (rules);
+#   observed   — sentences from analysis.observations / feature_characteristics / feature_signature (the model);
+#   entered    — facts from user_context (what the person chose or typed).
+# A region with none of these says so; it is never filled in.
+#
+# Benchmark: the public assessment taxonomy on https://www.qoves.com/ (categories only — no formula, copy or asset
+# is reused). `concepts` maps each benchmark concept to what this product can honestly do with ordinary photos:
+#   measured    — metric ids below (live availability decides what is shown: measured / needs photo / locked)
+#   observed    — only the analysis model's description of the photo (no number)
+#   deferred    — computable in principle; needs a segmentation / view we do not have (catalog id when one exists)
+#   unsupported — out of scope by design (skin condition, demographic inference, …) or not visible in these photos
+#
+# Region fields:
+#   key · name_zh · about_zh · view (front|side: the photo its crop is cut from)
+#   metrics       — the region's own metrics (every registry metric belongs to exactly one region)
+#   related       — metrics of other regions that are quoted here too (not counted twice)
+#   observation_regions / features / signature_regions — analysis enums quoted in this region
+#   crop          — point names (geometry.json) the region crop must contain; `extend: top|bottom` keeps the photo
+#                   up to that edge (hair above the hairline, the neck below the chin). No crop → no picture.
+#   focus         — metrics whose own measurement lines are drawn on the crop, in order of preference
+#   cues          — styling implications keyed by the rules layer's assessment band of one measured metric
+#                   ({metric, band: low|typical|high, area, text_zh}); `area` is a rules.yaml measurement_insights area.
+#                   Used only when the metric is measured, visible and not low-confidence, and only after the rules
+#                   layer's own advice and the model's recommendations for the region.
+
+version: "face-atlas-0.1"
+benchmark:
+  name_zh: 公开面部评估分类
+  source: https://www.qoves.com/
+  note_zh: 只参照公开的评估分类来检查覆盖面；不复制任何公式、文案或图片，也不按项数比较。
+
+provenance_zh:
+  measured: 测量
+  rules: 规则
+  observed: AI 观察
+  entered: 你填写的
+
+# analysis.observations categories that describe the face itself. glasses / clothing / photo notes are shown as context
+# in their region, but never make a region count as observed (a T-shirt collar is not a neck trait).
+facial_observation_categories: [structure, feature, color, hair, grooming]
+
+concept_status_zh:
+  measured: 已测量
+  needs_photo: 需补充照片
+  locked: 完整护照可见
+  not_measured: 本次未测
+  observed: AI 文字观察
+  not_observed: 照片中未描述
+  deferred: 待研究
+  unsupported: 不做
+
+regions:
+  - key: general
+    name_zh: 整体印象
+    about_zh: 脸型、长宽与左右平衡。描述的是结构，不是好坏。
+    view: front
+    metrics: [M001, M012, M002, M169, M170, M114, M113]
+    related: [M005, M006]
+    observation_regions: [overall]
+    features: []
+    signature_regions: [overall]
+    crop: {points: [forehead_top, chin, cheek_l, cheek_r]}
+    focus: [M001, M114]
+    concepts:
+      - {zh: 脸型, status: measured, metrics: [M001, M012], note_zh: 另有分析模型给出的脸型候选与概率。}
+      - {zh: 长宽与宽度平衡, status: measured, metrics: [M001, M005, M006]}
+      - {zh: 五官分布与集中度, status: measured, metrics: [M169, M170]}
+      - {zh: 左右对称, status: measured, metrics: [M114, M113]}
+      - {zh: 可见表情, status: observed, note_zh: 中性照只记录嘴是否张开；表情由分析模型文字描述。}
+      - {zh: 结构辨识度, status: measured, metrics: [M001, M012, M169], note_zh: 由各区域偏离常见范围的项汇总，不是分数。}
+    cues:
+      - {metric: M012, band: low, area: hair, text_zh: 轮廓偏椭圆：发尾和刘海顺着弧线走就能呼应脸型，不需要额外修饰外形。}
+      - {metric: M012, band: high, area: hair, text_zh: 轮廓偏方圆：想要柔和时，发型外轮廓加入弧线与层次；想要利落时，直线条同样成立。}
+      - {metric: M170, band: high, area: hair, text_zh: 五官重心偏下：头顶留一点高度或加一点刘海，视觉重心会往上带。}
+      - {metric: M170, band: low, area: makeup, text_zh: 五官重心偏上：唇色稍明亮、腮红位置略低，视线会更均匀地往下分布。}
+
+  - key: proportions
+    name_zh: 三庭五眼
+    about_zh: 纵向三段与横向五段的分配，决定刘海、腮红和妆容重心放在哪里。
+    view: front
+    metrics: [M017, M018, M019, M025, M024, M083, M021, M030, M022, M026, M027, M028, M031, M032]
+    related: []
+    observation_regions: []
+    features: []
+    signature_regions: []
+    crop: {points: [hairline, forehead_top, chin, cheek_l, cheek_r]}
+    focus: [M018, M025, M030]
+    concepts:
+      - {zh: 三庭, status: measured, metrics: [M017, M018, M019, M024]}
+      - {zh: 中庭与下庭, status: measured, metrics: [M025, M032]}
+      - {zh: 人中与下巴段, status: measured, metrics: [M083, M021, M022]}
+      - {zh: 五眼, status: measured, metrics: [M030, M027, M028]}
+      - {zh: 眼、鼻、口的纵向间距, status: measured, metrics: [M026, M031]}
+    cues:
+      - {metric: M018, band: high, area: makeup, text_zh: 中庭偏长：腮红横向晕染、位置略高，鼻部高光短一些，中段观感更紧凑。}
+      - {metric: M018, band: low, area: makeup, text_zh: 中庭偏短：腮红略纵向、鼻梁高光细长一些，可以舒展中段。}
+      - {metric: M019, band: high, area: makeup, text_zh: 下庭偏长：唇妆轮廓清晰、颜色稍明亮，视线会停在唇部。}
+      - {metric: M019, band: low, area: outfit, text_zh: 下庭偏短：V 领或开得稍低的领口，能把下半张脸到颈部的纵向线条延长。}
+      - {metric: M025, band: typical, area: hair, text_zh: 中庭与下庭接近：刘海长短和腮红高低都不需要刻意补偿，按想要的风格来选。}
+      - {metric: M032, band: high, area: hair, text_zh: 下面部偏长：刘海或头顶增加一点分量，把视觉重心往上带。}
+      - {metric: M032, band: low, area: makeup, text_zh: 下面部偏短：唇妆轮廓清晰一些、腮红不要打得太低，视线会均匀落在中下段。}
+      - {metric: M031, band: low, area: makeup, text_zh: 面中部紧凑：腮红横向晕开、鼻部不必再加高光，中段观感更舒展。}
+
+  - key: hair
+    name_zh: 发型与发际线
+    about_zh: 额头露出多少、额宽、发量分布与发色，是发型轮廓最直接的依据。
+    view: front
+    metrics: [M005, M153, M154, M155, M156, M158]
+    related: [M017, M024]
+    observation_regions: [hairline, forehead, hair, crown]
+    features: [forehead, hairline]
+    signature_regions: [hair, hairline, forehead, crown]
+    crop: {points: [hairline, temple_l, temple_r, glabella], extend: top}
+    focus: [M005, M155]
+    concepts:
+      - {zh: 额头露出与上庭, status: measured, metrics: [M017, M024], note_zh: 刘海遮住额头时上庭不测量。}
+      - {zh: 额部宽度, status: measured, metrics: [M005]}
+      - {zh: 发际线形状, status: deferred, catalog: M152, note_zh: 额角发际需要更细的发际分割；形状由分析模型文字描述。}
+      - {zh: 发量与分布, status: measured, metrics: [M153, M154, M155]}
+      - {zh: 发色与肤发对比, status: measured, metrics: [M156, M158]}
+    cues:
+      - {metric: M155, band: low, area: hair, text_zh: 两侧头发贴合：在颧骨附近做一点层次或外翻，能让头型轮廓更饱满。}
+      - {metric: M155, band: high, area: hair, text_zh: 两侧蓬松：两侧打薄或内收，把发量留在头顶，轮廓更利落。}
+      - {metric: M154, band: high, area: hair, text_zh: 头型外廓偏宽：头顶留一点高度、两侧收薄，外轮廓更纵向。}
+      - {metric: M154, band: low, area: hair, text_zh: 头型外廓偏窄长：两侧加一点蓬松度，头顶不必再加高。}
+
+  - key: brows
+    name_zh: 眉
+    about_zh: 眉弧、倾斜、长度、眉头眉尾位置与眉色，是眉形建议的直接依据。
+    view: front
+    metrics: [M051, M054, M055, M056, M057, M058, M061, BA08, BA09, M157, M107, M108, M060]
+    related: []
+    observation_regions: [brow]
+    features: [brows]
+    signature_regions: [brow]
+    crop: {points: [brow_l_tail, brow_r_tail, brow_l_peak, brow_r_peak, eye_l_bottom, eye_r_bottom]}
+    focus: [M054, M058, M055]
+    concepts:
+      - {zh: 眉弧, status: measured, metrics: [M058, M057]}
+      - {zh: 眉形, status: observed}
+      - {zh: 粗细, status: deferred, note_zh: 眉毛上下边界在网格上只是近似，需要毛发级分割。}
+      - {zh: 浓密度, status: deferred, catalog: M059, note_zh: 需要毛发级分割；浓淡由分析模型文字描述。}
+      - {zh: 眉头位置, status: measured, metrics: [BA08, M056]}
+      - {zh: 眉尾长度, status: measured, metrics: [BA09, M061, M051]}
+      - {zh: 倾斜, status: measured, metrics: [M054]}
+      - {zh: 眉色, status: measured, metrics: [M157]}
+      - {zh: 左右对称, status: measured, metrics: [M107, M108, M060]}
+    cues:
+      - {metric: M058, band: low, area: brows, text_zh: 眉形偏平直：保留平直的走向更自然；想要柔和一点，只在眉峰处微微提一点弧度。}
+      - {metric: M058, band: high, area: brows, text_zh: 眉弧明显：画眉时顺着原有弧度填色，眉峰不再加高，避免显得用力。}
+      - {metric: BA09, band: low, area: brows, text_zh: 眉尾偏短：眉尾可以向外延长到鼻翼与外眼角连线附近，眉形更完整。}
+      - {metric: M061, band: low, area: brows, text_zh: 眉较短：眉尾略向外延长，与眼睛长度更匹配。}
+      - {metric: M157, band: high, area: brows, text_zh: 眉色与发色差异较大：眉笔或眉粉选在发色与眉色之间的色调，过渡更自然。}
+      - {metric: M056, band: high, area: brows, text_zh: 眉头偏开：眉头可以向内补一点，起笔对准内眼角上方，五官更集中。}
+      - {metric: M056, band: low, area: brows, text_zh: 眉头偏近：眉头之间留出一点空隙，起笔对准内眼角上方，眉间更舒展。}
+      - {metric: BA08, band: low, area: brows, text_zh: 眉头偏外：眉头起笔向内移一点，与内眼角上下对齐。}
+
+  - key: eyes
+    name_zh: 眼
+    about_zh: 眼型、开合、外眼角倾斜与眼距，影响眼妆与镜框的选择。
+    view: front
+    metrics: [M033, M034, M035, M036, M037, M041, M044, M045, M048, M049, M050, BA04, BA05, BA06, M103, M104, M105, M106]
+    related: [M055]
+    observation_regions: [eye]
+    features: [eyes]
+    signature_regions: [eye]
+    crop: {points: [eye_l_outer, eye_r_outer, brow_l_low, brow_r_low, eye_l_bottom, eye_r_bottom]}
+    focus: [M044, M033, M041]
+    concepts:
+      - {zh: 眼型, status: measured, metrics: [M041, M045]}
+      - {zh: 开合与虹膜露出, status: measured, metrics: [M041, M048]}
+      - {zh: 外眼角倾斜, status: measured, metrics: [M044, BA05]}
+      - {zh: 眼距, status: measured, metrics: [M033, M034, M035]}
+      - {zh: 上睑形态, status: measured, metrics: [BA06], note_zh: 双眼皮褶线需要高分辨率眼周分割，暂不测（目录 M047）。}
+      - {zh: 下睑与眼下留白, status: measured, metrics: [M050]}
+      - {zh: 睫毛, status: unsupported, note_zh: 普通人像照片的分辨率看不清睫毛，不做判断。}
+      - {zh: 虹膜大小与颜色, status: measured, metrics: [M037], note_zh: 颜色来自照片取色，只作参考。}
+      - {zh: 左右一致, status: measured, metrics: [M103, M104, M105, M106]}
+    cues:
+      - {metric: M045, band: low, area: makeup, text_zh: 眼型细长：眼线在眼尾自然拉长、眼中部的眼影稍提亮，能保留细长的特点。}
+      - {metric: M045, band: high, area: makeup, text_zh: 眼型偏圆：眼线在眼尾略微拉长，眼型会更舒展。}
+      - {metric: M050, band: high, area: makeup, text_zh: 眼下留白较多：下眼睑后三分之一加一点细眼影，眼型上下更平衡。}
+      - {metric: M034, band: low, area: makeup, text_zh: 眼距偏近：眼影重心放在外眼角、内眼角稍提亮，两眼间观感更舒展。}
+      - {metric: M034, band: high, area: makeup, text_zh: 眼距偏开：眼影重心靠近内眼角，眉头也不要离得太远，五官更集中。}
+
+  - key: nose
+    name_zh: 鼻
+    about_zh: 鼻翼宽度、鼻长与鼻尖，以及侧脸上的鼻额角、鼻唇角与鼻尖突出度。
+    view: front
+    metrics: [M062, M063, M064, M065, M072, M073, M110, M117, M118, M119, M121, BA02]
+    related: [M077]
+    observation_regions: [nose]
+    features: [nose]
+    signature_regions: [nose]
+    crop: {points: [nasion, alar_l, alar_r, subnasale, eye_l_inner, eye_r_inner]}
+    focus: [M062, M063, M072]
+    concepts:
+      - {zh: 正面宽度, status: measured, metrics: [M062, M063]}
+      - {zh: 鼻长与鼻形, status: measured, metrics: [M064, M072]}
+      - {zh: 鼻梁走向, status: measured, metrics: [M073, M119], note_zh: 鼻背起伏只能在侧脸照上测量。}
+      - {zh: 鼻尖, status: measured, metrics: [M065], note_zh: 鼻尖小叶宽度在网格上没有稳定边界（目录 M071）。}
+      - {zh: 鼻孔, status: deferred, catalog: M067, note_zh: 需要鼻孔分割。}
+      - {zh: 鼻尖突出度, status: measured, metrics: [M121, BA02]}
+      - {zh: 鼻额角, status: measured, metrics: [M118]}
+      - {zh: 鼻唇角, status: measured, metrics: [M117]}
+    cues:
+      - {metric: M062, band: typical, area: makeup, text_zh: 鼻翼宽度在常见范围内：鼻部修容不是必需的，妆容重点可以放在眼和唇。}
+      - {metric: M062, band: high, area: makeup, text_zh: 鼻翼较宽：鼻梁高光细而直、鼻翼不必加阴影，视线会集中在鼻梁中线。}
+      - {metric: M062, band: low, area: makeup, text_zh: 鼻翼较窄：鼻部保持自然即可，腮红和唇色可以稍有存在感来平衡中段。}
+      - {metric: M072, band: high, area: makeup, text_zh: 鼻形偏修长：鼻部高光短一些、只打在鼻梁上段，中段观感更紧凑。}
+      - {metric: M072, band: low, area: makeup, text_zh: 鼻形偏短宽：鼻梁高光从眉间开始拉一条细线，能舒展鼻部的纵向线条。}
+      - {metric: M063, band: high, area: makeup, text_zh: 鼻翼宽于眼距：内眼角稍作提亮、鼻梁高光保持细窄，中段的横向比例更平衡。}
+
+  - key: cheeks
+    name_zh: 颧颊
+    about_zh: 颞部到颧骨、再到下颌的宽度过渡与转折，决定腮红位置和两侧发量。
+    view: front
+    metrics: [M003, M096, M095, M011, BA12]
+    related: [M005, M006]
+    observation_regions: [cheekbone, cheek]
+    features: []
+    signature_regions: [cheekbone, cheek]
+    crop: {points: [cheek_l, cheek_r, eye_l_bottom, eye_r_bottom, face_mouth_l, face_mouth_r, temple_l, temple_r]}
+    focus: [M096, M003]
+    concepts:
+      - {zh: 颧骨宽度, status: measured, metrics: [M003, M011]}
+      - {zh: 颧部高度, status: deferred, catalog: M136, note_zh: 颧部最突点需要深度信息，正面照只给宽度。}
+      - {zh: 轮廓弧度与转折, status: measured, metrics: [M096, M095]}
+      - {zh: 饱满与立体感, status: observed, note_zh: 需要深度信息（目录 M099），只由分析模型文字描述。}
+      - {zh: 左右一致, status: measured, metrics: [BA12]}
+    cues:
+      - {metric: M096, band: low, area: makeup, text_zh: 颧部转折明显：腮红从颧骨下方斜向太阳穴晕开，柔化转折；不必再加颧骨高光。}
+      - {metric: M096, band: high, area: makeup, text_zh: 颧部平顺：腮红打在颧骨最高处、略向上提，能增加面部的立体层次。}
+      - {metric: M003, band: low, area: hair, text_zh: 颞部收窄：太阳穴两侧留一点发量或侧分刘海，上半张脸的宽度过渡更平顺。}
+      - {metric: M003, band: high, area: hair, text_zh: 颞部饱满：两侧头发贴合一点，蓬松度放在头顶或颧骨以下。}
+      - {metric: M095, band: low, area: makeup, text_zh: 面颊转折明显：腮红用圆形手法晕染在笑肌上，转折会柔和一些。}
+      - {metric: M095, band: high, area: makeup, text_zh: 面颊平直：腮红打在笑肌最高处、带一点弧度晕开，面部更有层次。}
+
+  - key: lips
+    name_zh: 口唇与微笑
+    about_zh: 嘴宽、上下唇比例、唇峰与嘴角；有微笑照时再看微笑展开与左右对称。
+    view: front
+    metrics: [M076, M077, M078, M079, M080, M081, M082, M085, BA17, BA10, M086, BA14, BA20, BA21, BA22, BA23]
+    related: []
+    observation_regions: [lip]
+    features: [lips]
+    signature_regions: [lip]
+    crop: {points: [mouth_l, mouth_r, subnasale, lip_bottom]}
+    focus: [M080, M076, M081]
+    concepts:
+      - {zh: 红唇比例, status: measured, metrics: [M080, BA17, M079, M078]}
+      - {zh: 嘴宽, status: measured, metrics: [M076, M077, BA10]}
+      - {zh: 唇形, status: observed}
+      - {zh: 唇峰, status: measured, metrics: [M081, M082]}
+      - {zh: 嘴角, status: measured, metrics: [M085]}
+      - {zh: 微笑展开与对称, status: measured, metrics: [BA20, BA21, BA22, BA23], note_zh: 需要一张自然微笑照。}
+      - {zh: 露齿程度, status: deferred, note_zh: 需要微笑照上的牙齿分割，尚未实现。}
+      - {zh: 唇色与肤色, status: measured, metrics: [BA14]}
+    cues:
+      - {metric: M078, band: low, area: makeup, text_zh: 唇偏薄：选有光泽的唇釉或稍亮的颜色，唇线贴着原唇线画，唇部更有存在感。}
+      - {metric: M078, band: high, area: makeup, text_zh: 唇偏丰满：哑光或丝绒质地、贴合原唇形涂抹，就能突出饱满的特点。}
+      - {metric: M081, band: low, area: makeup, text_zh: 唇峰平缓：用唇线笔轻轻勾出唇峰，唇形会更清晰。}
+      - {metric: M081, band: high, area: makeup, text_zh: 唇峰明显：唇峰轮廓本身就清楚，可以用晕染的唇妆让整体柔和一点。}
+      - {metric: BA14, band: low, area: makeup, text_zh: 唇色接近肤色：日常唇妆选比唇色深一到两度的颜色，面部会更有精神。}
+      - {metric: BA17, band: low, area: makeup, text_zh: 上唇偏薄：唇峰处用唇线笔略微勾出轮廓，上下唇比例更均衡。}
+      - {metric: M079, band: high, area: makeup, text_zh: 下唇偏厚：上唇颜色稍亮或带一点光泽，上下唇观感更均衡。}
+
+  - key: jaw
+    name_zh: 下颌与下巴
+    about_zh: 下颌宽度与转角、下巴的宽度与收拢，以及侧脸上下巴的前后位置。
+    view: front
+    metrics: [M006, M098, M090, M093, M091, M094, BA11, BA13, M128, M127]
+    related: []
+    observation_regions: [jaw, chin]
+    features: [chin]
+    signature_regions: [jaw, chin]
+    crop: {points: [jaw_l, jaw_r, chin, face_mouth_l, face_mouth_r]}
+    focus: [M006, M098, M090]
+    concepts:
+      - {zh: 正面轮廓, status: measured, metrics: [M091, M094]}
+      - {zh: 下颌与颧骨关系, status: measured, metrics: [M006]}
+      - {zh: 下颌线清晰度, status: deferred, catalog: M097, note_zh: 清晰度受光线主导，需要光照归一化；清晰程度由分析模型文字描述。}
+      - {zh: 下颌转角, status: measured, metrics: [M090]}
+      - {zh: 下巴形态, status: measured, metrics: [M093, M098]}
+      - {zh: 侧面前后位置, status: measured, metrics: [M128, M127]}
+      - {zh: 左右一致, status: measured, metrics: [BA11, BA13]}
+    cues:
+      - {metric: M090, band: low, area: outfit, text_zh: 下颌角偏锐：圆领、船领或柔软的领口质地，能与利落的下颌线形成平衡。}
+      - {metric: M090, band: high, area: outfit, text_zh: 下颌角偏钝：V 领或有棱角的翻领能增加一点线条感。}
+      - {metric: M093, band: low, area: hair, text_zh: 下巴偏窄：发尾在下巴附近略微外翻或留一点量，下半张脸更平衡。}
+      - {metric: M093, band: high, area: outfit, text_zh: 下巴偏宽：V 领和细长的吊坠能把视线往下引，下半张脸的线条更纵向。}
+
+  - key: profile
+    name_zh: 侧脸轮廓
+    about_zh: 只在真实 90° 侧脸照上测量：面部凸度、E 线与 S 线上的唇部位置。不会用正脸推算。
+    view: side
+    metrics: [M131, M124, M125, M126, BA01, BA03]
+    related: [M117, M128]
+    observation_regions: []
+    features: []
+    signature_regions: []
+    crop: {points: [p_glabella, p_nasion, p_pronasale, p_pogonion, p_gnathion]}
+    focus: [M131, M125]
+    concepts:
+      - {zh: 侧面凸度, status: measured, metrics: [M131]}
+      - {zh: E 线 · 唇部位置, status: measured, metrics: [M125, M126]}
+      - {zh: S 线 · 上唇, status: measured, metrics: [M124]}
+      - {zh: 鼻与下巴的关系, status: measured, metrics: [BA01, BA03]}
+      - {zh: 额部轮廓, status: deferred, catalog: M122, note_zh: 额部常被头发遮挡，待加入遮挡判定。}
+      - {zh: 头部基准平面, status: deferred, catalog: M130, note_zh: 需要耳屏与眶下点，侧脸轮廓上不可见。}
+    cues: []
+
+  - key: ears_neck
+    name_zh: 耳与颈
+    about_zh: 耳部与颈部只在照片清楚露出时由分析模型文字描述；没有可测量的关键点。
+    view: front
+    metrics: []
+    related: []
+    observation_regions: [neck]
+    features: [neck]
+    signature_regions: [neck]
+    crop: {points: [jaw_l, jaw_r, chin], extend: bottom}
+    focus: []
+    concepts:
+      - {zh: 耳部形态, status: unsupported, note_zh: 关键点模型没有耳部点，耳朵也常被头发遮挡；不做判断。}
+      - {zh: 颈部线条, status: observed}
+      - {zh: 颏颈角, status: deferred, catalog: M129, note_zh: 需要可见的颈前缘，衣领与头发常遮挡。}
+    cues: []
+
+  - key: skin
+    name_zh: 肤色与拍摄
+    about_zh: 照片中的肤色明度、冷暖与饱和度，以及光线和角度。只描述照片里的观感，不判断皮肤健康。
+    view: front
+    metrics: [M137, M138, M139, BA16, M141, M148, M013, M088, M149, M150]
+    related: [M158, BA14]
+    observation_regions: [skin]
+    features: []
+    signature_regions: [skin]
+    crop: {points: [cheek_sample_l, cheek_sample_r, eye_l_bottom, eye_r_bottom, nose_tip]}
+    focus: [M137]
+    concepts:
+      - {zh: 肤色明度、冷暖与饱和度, status: measured, metrics: [M137, M139, BA16, M138], note_zh: 手机白平衡未校准，只是相对参考。}
+      - {zh: 纹理观感, status: measured, metrics: [M149], note_zh: 只用来提示美颜滤镜，不评价皮肤纹理。}
+      - {zh: 左右光线与角度, status: measured, metrics: [M148, M141, M013]}
+      - {zh: 肤色均匀度, status: unsupported, catalog: M140, note_zh: 接近皮肤状态判断，不做。}
+      - {zh: 泛红, status: unsupported, catalog: M143, note_zh: 属皮肤状态，不做；红绿倾向只是颜色数值。}
+      - {zh: 油光, status: unsupported, catalog: M146, note_zh: 属皮肤状态，不做。}
+      - {zh: 眼下阴影, status: unsupported, note_zh: 普通照片里主要由光线决定，不做判断；拍照建议见行动方案。}
+      - {zh: 毛孔与细纹, status: unsupported, catalog: M144, note_zh: 普通照片无法可靠测量，且属于皮肤状态判断，不做。}
+    cues:
+      - {metric: M139, band: low, area: color, text_zh: 照片中肤色偏冷（偏粉）：近脸处用低饱和的冷粉、雾蓝、灰紫，肤色更清透。}
+      - {metric: M139, band: high, area: color, text_zh: 照片中肤色偏暖（偏黄）：近脸处用暖米、珊瑚、橄榄绿等带黄调的颜色更协调。}
+      - {metric: M139, band: typical, area: color, text_zh: 照片中肤色冷暖居中：近脸颜色先看明度与饱和度，冷暖两侧都有可选的颜色。}
+      - {metric: BA16, band: low, area: color, text_zh: 肤色清淡：近脸选低饱和、柔和的颜色，高饱和色适合放在远离脸的位置。}
+      - {metric: BA16, band: high, area: color, text_zh: 肤色浓郁：有一定饱和度的颜色放在近脸处也压得住。}
+
+# Measurements that relate two regions. Shown in the atlas overview as cross-region relationships, with the rules
+# layer's own band label; nothing is added.
+relations:
+  - {metric: M055, regions: [brows, eyes], zh: 眉与眼的距离}
+  - {metric: M063, regions: [nose, eyes], zh: 鼻翼与眼距}
+  - {metric: M077, regions: [lips, nose], zh: 嘴宽与鼻翼}
+  - {metric: BA10, regions: [lips, eyes], zh: 嘴宽与瞳距}
+  - {metric: M005, regions: [hair, cheeks], zh: 额宽与颧宽}
+  - {metric: M006, regions: [jaw, cheeks], zh: 下颌与颧宽}
+  - {metric: M025, regions: [nose, jaw], zh: 中庭与下庭}
+  - {metric: M157, regions: [brows, hair], zh: 眉色与发色}
+  - {metric: M158, regions: [skin, hair], zh: 肤色与发色}
+  - {metric: BA14, regions: [lips, skin], zh: 唇色与肤色}
+  - {metric: M128, regions: [jaw, profile], zh: 下巴与侧面轮廓}
+
+# Overview limits.
+overview:
+  strongest: 4        # distinctive readings shown in the overview
+  relations: 6        # cross-region relationships shown
+  opportunities: 3    # top-ranked recommendations tied back to regions
+  implications: 3     # styling implications per region
+  facts: 8            # measured facts listed per region before "在工作台查看全部"

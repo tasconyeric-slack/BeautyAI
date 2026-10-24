@@ -1,0 +1,1138 @@
+{
+  "observations": [
+    {
+      "id": "o1",
+      "category": "structure",
+      "region": "jaw",
+      "text": "下颌线条圆润，向下巴自然收窄",
+      "photo_ids": [
+        "front"
+      ],
+      "polarity": "strength"
+    },
+    {
+      "id": "o2",
+      "category": "structure",
+      "region": "cheekbone",
+      "text": "颧骨不突出，脸颊外缘弧线连续流畅",
+      "photo_ids": [
+        "front"
+      ],
+      "polarity": "strength"
+    },
+    {
+      "id": "o3",
+      "category": "structure",
+      "region": "nose",
+      "text": "眉到鼻底的中段在纵向上略长于鼻底到下巴",
+      "photo_ids": [
+        "front"
+      ],
+      "polarity": "neutral"
+    },
+    {
+      "id": "o4",
+      "category": "feature",
+      "region": "eye",
+      "text": "眼型偏长，眼尾微微上扬，两眼间距约一只眼宽",
+      "photo_ids": [
+        "front"
+      ],
+      "polarity": "strength"
+    },
+    {
+      "id": "o5",
+      "category": "feature",
+      "region": "brow",
+      "text": "自然弧形眉，眉色比发色浅，眉尾偏短",
+      "photo_ids": [
+        "front"
+      ],
+      "polarity": "neutral"
+    },
+    {
+      "id": "o6",
+      "category": "feature",
+      "region": "lip",
+      "text": "唇形饱满，唇峰弧度柔和，唇色偏粉",
+      "photo_ids": [
+        "front"
+      ],
+      "polarity": "strength"
+    },
+    {
+      "id": "o7",
+      "category": "hair",
+      "region": "hair",
+      "text": "深棕长直发过胸，中分后两侧贴脸垂下",
+      "photo_ids": [
+        "front"
+      ],
+      "polarity": "issue"
+    },
+    {
+      "id": "o8",
+      "category": "hair",
+      "region": "crown",
+      "text": "头顶头发贴近头皮，缺少蓬松的弧度",
+      "photo_ids": [
+        "front"
+      ],
+      "polarity": "issue"
+    },
+    {
+      "id": "o9",
+      "category": "hair",
+      "region": "hairline",
+      "text": "额头完全露出，发际线呈圆弧形",
+      "photo_ids": [
+        "front"
+      ],
+      "polarity": "neutral"
+    },
+    {
+      "id": "o10",
+      "category": "color",
+      "region": "skin",
+      "text": "肤色偏白，脸颊透出淡淡的粉色",
+      "photo_ids": [
+        "front"
+      ],
+      "polarity": "strength"
+    },
+    {
+      "id": "o11",
+      "category": "color",
+      "region": "hair",
+      "text": "发色与瞳孔为深棕色，与肤色的明暗差中等",
+      "photo_ids": [
+        "front"
+      ],
+      "polarity": "neutral"
+    },
+    {
+      "id": "o12",
+      "category": "clothing",
+      "region": "neck",
+      "text": "上衣为芥末黄针织衫，靠近脸部时肤色看起来发灰",
+      "photo_ids": [
+        "front"
+      ],
+      "polarity": "issue"
+    },
+    {
+      "id": "o13",
+      "category": "photo",
+      "region": "overall",
+      "text": "室内顶光，眼下与鼻翼两侧有阴影",
+      "photo_ids": [
+        "front"
+      ],
+      "polarity": "issue"
+    },
+    {
+      "id": "o14",
+      "category": "structure",
+      "region": "neck",
+      "text": "颈部线条修长，肩颈过渡平缓",
+      "photo_ids": [
+        "front"
+      ],
+      "polarity": "strength"
+    }
+  ],
+  "feature_signature": [
+    {
+      "title": "柔和的下颌曲线",
+      "observation_ids": [
+        "o1",
+        "o2"
+      ],
+      "region": "jaw",
+      "styling_implication": "发尾与领口选带弧度的形状，呼应脸部曲线"
+    },
+    {
+      "title": "中段略长",
+      "observation_ids": [
+        "o3",
+        "o9"
+      ],
+      "region": "nose",
+      "styling_implication": "空气刘海或横向腮红能把视线留在脸部中段"
+    },
+    {
+      "title": "清浅的冷调肤色",
+      "observation_ids": [
+        "o10",
+        "o11"
+      ],
+      "region": "skin",
+      "styling_implication": "近脸用低饱和的灰粉、雾蓝，肤色更清透"
+    }
+  ],
+  "profile_summary": {
+    "one_liner": "曲线柔和的鹅蛋脸，肤色清浅偏冷；用有弧度的发型和低饱和色放大温柔感",
+    "best_direction": "锁骨发加空气刘海，近脸换雾霾蓝、灰粉",
+    "evidence": [
+      "o1",
+      "o3",
+      "o7",
+      "o10"
+    ]
+  },
+  "face_structure": {
+    "shape_candidates": [
+      {
+        "label": "oval",
+        "probability": 0.6
+      },
+      {
+        "label": "oblong",
+        "probability": 0.25
+      },
+      {
+        "label": "heart",
+        "probability": 0.15
+      }
+    ],
+    "jawline": {
+      "definition": "soft",
+      "shape": "tapered"
+    },
+    "cheekbones": "moderate",
+    "evidence": [
+      "o1",
+      "o2",
+      "o3"
+    ]
+  },
+  "feature_characteristics": [
+    {
+      "feature": "eyes",
+      "descriptors": [
+        "偏长",
+        "眼尾微扬",
+        "眼距适中"
+      ],
+      "evidence": [
+        "o4"
+      ]
+    },
+    {
+      "feature": "brows",
+      "descriptors": [
+        "自然弧眉",
+        "眉色偏浅",
+        "眉尾偏短"
+      ],
+      "evidence": [
+        "o5"
+      ]
+    },
+    {
+      "feature": "lips",
+      "descriptors": [
+        "饱满",
+        "唇峰柔和",
+        "唇色偏粉"
+      ],
+      "evidence": [
+        "o6"
+      ]
+    },
+    {
+      "feature": "forehead",
+      "descriptors": [
+        "完全露出",
+        "发际线圆弧"
+      ],
+      "evidence": [
+        "o9"
+      ]
+    },
+    {
+      "feature": "neck",
+      "descriptors": [
+        "修长",
+        "肩颈过渡平缓"
+      ],
+      "evidence": [
+        "o14"
+      ]
+    }
+  ],
+  "current_styling": {
+    "hair": {
+      "length": "very_long",
+      "volume_distribution": "flat",
+      "part": "center",
+      "texture": "straight",
+      "fringe": "none"
+    },
+    "glasses": null,
+    "facial_hair": "not_applicable",
+    "makeup_level": "light",
+    "visible_clothing_colors": [
+      "芥末黄"
+    ]
+  },
+  "color_profile": {
+    "temperature": "neutral_cool",
+    "temperature_confidence": 0.5,
+    "depth": "light_medium",
+    "depth_confidence": 0.6,
+    "contrast": "medium",
+    "contrast_confidence": 0.6,
+    "chroma": "soft",
+    "chroma_confidence": 0.55,
+    "favor_families": [
+      {
+        "name": "雾霾蓝",
+        "hex_examples": [
+          "#7A8FA6",
+          "#94A7BA"
+        ],
+        "reason": "低饱和冷色与清浅肤色接近，脸色更干净"
+      },
+      {
+        "name": "灰粉",
+        "hex_examples": [
+          "#C9A3A6",
+          "#D8B4B8"
+        ],
+        "reason": "呼应脸颊的淡粉，柔和不抢"
+      },
+      {
+        "name": "薰衣草紫",
+        "hex_examples": [
+          "#A99BBF"
+        ],
+        "reason": "冷调中明度，适合靠近脸部的针织与丝巾"
+      },
+      {
+        "name": "珍珠白",
+        "hex_examples": [
+          "#F2EFEA"
+        ],
+        "reason": "比纯白柔和，与中等明暗差协调"
+      }
+    ],
+    "neutral_families": [
+      {
+        "name": "灰褐",
+        "hex_examples": [
+          "#8B7E74"
+        ],
+        "reason": "代替黑色做下装与外套，过渡更柔和"
+      },
+      {
+        "name": "深灰蓝",
+        "hex_examples": [
+          "#3E4A5A"
+        ],
+        "reason": "需要正式感时的深色底色"
+      }
+    ],
+    "caution_families": [
+      {
+        "name": "芥末黄",
+        "hex_examples": [
+          "#C9A227"
+        ],
+        "reason": "偏暖偏浊，靠近脸部时肤色发灰"
+      },
+      {
+        "name": "荧光橙",
+        "hex_examples": [
+          "#FF6A13"
+        ],
+        "reason": "饱和度过高，压过面部"
+      }
+    ],
+    "seasonal_leaning": {
+      "primary": "summer",
+      "secondary": "winter",
+      "note": "冷调、柔和、中等对比；建议白天窗边复拍确认"
+    },
+    "lighting_caveat": "照片为室内顶光，冷暖判断仅供参考，建议白天窗边复拍确认",
+    "combos": [
+      {
+        "name": "雾蓝配珍珠白",
+        "hexes": [
+          "#7A8FA6",
+          "#F2EFEA"
+        ],
+        "use": "通勤上衣与内搭"
+      },
+      {
+        "name": "灰粉配灰褐",
+        "hexes": [
+          "#C9A3A6",
+          "#8B7E74"
+        ],
+        "use": "约会的针织与半裙"
+      },
+      {
+        "name": "薰衣草配深灰蓝",
+        "hexes": [
+          "#A99BBF",
+          "#3E4A5A"
+        ],
+        "use": "正式场合的内搭与外套"
+      }
+    ],
+    "hair_color_directions": [
+      {
+        "name": "自然深棕",
+        "hex": "#3B2A24",
+        "requires_dye": false,
+        "note": "保持现有发色最稳妥"
+      },
+      {
+        "name": "冷棕",
+        "hex": "#5A4A42",
+        "requires_dye": true,
+        "note": "低饱和冷棕，发色与肤色过渡更柔和"
+      },
+      {
+        "name": "灰茶色",
+        "hex": "#6B5B53",
+        "requires_dye": true,
+        "note": "偏冷的浅一度发色，整体更轻盈"
+      }
+    ],
+    "lip_families": [
+      {
+        "name": "豆沙粉",
+        "hex": "#B5707A",
+        "finish": "satin",
+        "note": "日常最稳妥"
+      },
+      {
+        "name": "玫瑰豆沙",
+        "hex": "#A85C6A",
+        "finish": "satin",
+        "note": "通勤与约会都适用"
+      },
+      {
+        "name": "裸粉",
+        "hex": "#C98E8E",
+        "finish": "sheer",
+        "note": "淡妆或素颜时提气色"
+      },
+      {
+        "name": "烟粉",
+        "hex": "#B88A90",
+        "finish": "matte",
+        "note": "雾面质感更温柔"
+      },
+      {
+        "name": "柔雾莓果",
+        "hex": "#8E3B5A",
+        "finish": "matte",
+        "note": "晚间或正式场合"
+      },
+      {
+        "name": "樱桃红",
+        "hex": "#A3263F",
+        "finish": "satin",
+        "note": "需要存在感时的冷调红"
+      }
+    ],
+    "evidence": [
+      "o10",
+      "o11",
+      "o12",
+      "o13"
+    ]
+  },
+  "style_dimensions": {
+    "visual_weight": {
+      "value": 2.9,
+      "confidence": 0.6,
+      "evidence": [
+        "o1",
+        "o2",
+        "o6"
+      ]
+    },
+    "angular_rounded": {
+      "value": 0.7,
+      "confidence": 0.6,
+      "evidence": [
+        "o1",
+        "o2",
+        "o5"
+      ]
+    },
+    "compact_elongated": {
+      "value": 0.3,
+      "confidence": 0.55,
+      "evidence": [
+        "o3",
+        "o14"
+      ]
+    },
+    "soft_sharp": {
+      "value": -0.9,
+      "confidence": 0.6,
+      "evidence": [
+        "o1",
+        "o6"
+      ]
+    },
+    "youthful_mature": {
+      "value": 0.1,
+      "confidence": 0.5,
+      "evidence": [
+        "o4",
+        "o6"
+      ]
+    }
+  },
+  "works": [
+    {
+      "text": "下颌与脸颊的曲线连续柔和，适合有弧度的发尾与领口",
+      "evidence": [
+        "o1",
+        "o2"
+      ]
+    },
+    {
+      "text": "颈部修长，方领、小V领都能露出肩颈线条",
+      "evidence": [
+        "o14"
+      ]
+    },
+    {
+      "text": "肤色清浅透粉，低饱和冷色让脸色更干净",
+      "evidence": [
+        "o10"
+      ]
+    }
+  ],
+  "doesnt_work": [
+    {
+      "text": "长直发中分贴脸垂下，让脸部中段看起来更长",
+      "evidence": [
+        "o3",
+        "o7"
+      ],
+      "severity": "high"
+    },
+    {
+      "text": "头顶贴平，头型缺少弧度，与柔和的脸部曲线不呼应",
+      "evidence": [
+        "o8"
+      ],
+      "severity": "medium"
+    },
+    {
+      "text": "芥末黄针织靠近脸部，肤色看起来发灰",
+      "evidence": [
+        "o12",
+        "o10"
+      ],
+      "severity": "medium"
+    },
+    {
+      "text": "顶光在眼下留下阴影，照片里的气色偏暗",
+      "evidence": [
+        "o13"
+      ],
+      "severity": "low"
+    }
+  ],
+  "hair_direction": {
+    "keep": [
+      "自然深棕发色",
+      "柔顺的直发质感"
+    ],
+    "change": [
+      "长度剪到锁骨上下",
+      "加轻薄的空气刘海",
+      "发尾吹出内扣弧度"
+    ],
+    "avoid": [
+      "头顶贴平的超长直发",
+      "厚重齐刘海"
+    ],
+    "length": "medium",
+    "top_volume": "moderate",
+    "side_volume": "controlled",
+    "part": "soft_off_center",
+    "fringe": "light",
+    "texture_approach": "吹风时发根向上托，发尾向内卷",
+    "evidence": [
+      "o3",
+      "o7",
+      "o8",
+      "o9"
+    ]
+  },
+  "hair_options": [
+    {
+      "tier": "safe",
+      "name_zh": "锁骨发 · 空气刘海",
+      "params": {
+        "length": "collarbone",
+        "fringe": "air",
+        "curl": "c_curl",
+        "color": "keep",
+        "top_volume": "moderate",
+        "side_volume": "controlled",
+        "part": "soft_off_center"
+      },
+      "maintenance": {
+        "daily_minutes": 10,
+        "trim_weeks": 8,
+        "note": "吹风时发尾向内带一下即可"
+      },
+      "requires": [],
+      "barber_script": [
+        "长度剪到锁骨，发尾打薄做内扣",
+        "前面做空气刘海，长度在眉毛下面一点",
+        "头顶留一点层次，吹出自然蓬松"
+      ],
+      "avoid": "刘海剪得太厚太齐",
+      "visual_edit_spec": {
+        "region": "hair",
+        "target_description": "collarbone-length straight hair with soft inward C-curl ends, light see-through air bangs ending just below the eyebrows, natural dark brown color, gentle volume at the crown, slightly off-center part",
+        "preserve": [
+          "face shape",
+          "eyes",
+          "skin tone",
+          "expression",
+          "background"
+        ]
+      },
+      "evidence": [
+        "o3",
+        "o7",
+        "o8"
+      ],
+      "confidence": 0.75
+    },
+    {
+      "tier": "bold",
+      "name_zh": "法式慵懒卷 · 八字刘海",
+      "params": {
+        "length": "shoulder",
+        "fringe": "curtain",
+        "curl": "french_wave",
+        "color": "keep",
+        "top_volume": "moderate",
+        "side_volume": "full",
+        "part": "center"
+      },
+      "maintenance": {
+        "daily_minutes": 15,
+        "trim_weeks": 10,
+        "note": "用弹力素抓出卷度，不需要每天吹"
+      },
+      "requires": [
+        "perm"
+      ],
+      "barber_script": [
+        "剪到肩膀上下，做大一点的法式慵懒卷",
+        "前面剪八字刘海，从颧骨高度开始往两边分",
+        "卷度从耳朵下面开始，头顶不要太卷"
+      ],
+      "avoid": "卷度从发根开始的小卷",
+      "visual_edit_spec": {
+        "region": "hair",
+        "target_description": "shoulder-length hair with loose relaxed French waves starting below the ears, long curtain bangs parted in the middle and framing the cheekbones, natural dark brown color, airy volume",
+        "preserve": [
+          "face shape",
+          "eyes",
+          "skin tone",
+          "expression",
+          "background"
+        ]
+      },
+      "evidence": [
+        "o1",
+        "o2",
+        "o7"
+      ],
+      "confidence": 0.65
+    },
+    {
+      "tier": "easy",
+      "name_zh": "层次长发 · 侧分刘海",
+      "params": {
+        "length": "chest",
+        "fringe": "side",
+        "curl": "straight",
+        "color": "keep",
+        "top_volume": "moderate",
+        "side_volume": "controlled",
+        "part": "side"
+      },
+      "maintenance": {
+        "daily_minutes": 5,
+        "trim_weeks": 12,
+        "note": "保留长度，只需偶尔修剪层次"
+      },
+      "requires": [],
+      "barber_script": [
+        "长度保留到胸口，从下巴开始剪出层次",
+        "刘海做侧分，长度到颧骨",
+        "分线换到一侧，头顶自然有高度"
+      ],
+      "avoid": "层次剪得太碎太短",
+      "visual_edit_spec": {
+        "region": "hair",
+        "target_description": "chest-length straight hair with face-framing layers starting at the chin, side-swept fringe reaching the cheekbone, deep side part with natural lift at the roots, natural dark brown color",
+        "preserve": [
+          "face shape",
+          "eyes",
+          "skin tone",
+          "expression",
+          "background"
+        ]
+      },
+      "evidence": [
+        "o3",
+        "o7",
+        "o8"
+      ],
+      "confidence": 0.7
+    }
+  ],
+  "glasses_direction": {
+    "frame_shapes": [
+      "oval",
+      "cat_eye",
+      "round"
+    ],
+    "frame_width": "matched",
+    "frame_weight": "thin",
+    "colors": [
+      {
+        "name": "浅金",
+        "hex": "#C9B28A"
+      },
+      {
+        "name": "透明灰粉",
+        "hex": "#CDB9B9"
+      }
+    ],
+    "material": "mixed",
+    "avoid": [
+      "粗黑方框",
+      "明显宽于颧骨的大框"
+    ],
+    "evidence": [
+      "o1",
+      "o4"
+    ]
+  },
+  "photo_direction": {
+    "best_angle": "微侧 15°，露出下颌曲线",
+    "camera_height": "与眼睛同高",
+    "expression": "放松的自然微笑",
+    "lighting": "白天面向窗户的柔和光线",
+    "framing": "头肩构图，头顶留少量空间",
+    "avoid": [
+      "顶光",
+      "低机位仰拍",
+      "暖黄灯光"
+    ],
+    "evidence": [
+      "o13",
+      "o1"
+    ]
+  },
+  "makeup_direction": {
+    "mode": "makeup",
+    "base_tone": "粉调自然底妆，避开偏黄的色号",
+    "lip": "豆沙粉、玫瑰豆沙等低饱和冷粉",
+    "blush": {
+      "placement": "horizontal",
+      "hex": "#D9A3AA",
+      "note": "横向晕在颧骨下方，视线留在中段"
+    },
+    "brow": "顺着自然弧度，灰棕色，眉尾补长一点",
+    "eye_focus": "浅灰棕眼影加细内眼线，强调眼尾",
+    "grooming": [],
+    "evidence": [
+      "o3",
+      "o5",
+      "o6",
+      "o10"
+    ]
+  },
+  "outfit_direction": {
+    "formulas": [
+      {
+        "title": "柔和通勤",
+        "pieces": [
+          "雾霾蓝系带领真丝衬衫",
+          "灰褐中腰直筒西裤",
+          "玛丽珍平底鞋"
+        ],
+        "why": "低饱和冷色贴近肤色，垂坠面料呼应曲线"
+      },
+      {
+        "title": "温柔约会",
+        "pieces": [
+          "灰粉船领细针织衫",
+          "珍珠白直筒及膝半身裙",
+          "水滴形吊坠项链"
+        ],
+        "why": "方领露出颈部线条，柔和配色不抢脸"
+      },
+      {
+        "title": "正式场合",
+        "pieces": [
+          "深灰蓝柔肩单排扣西装",
+          "珍珠白系带领真丝衬衫",
+          "灰褐直筒西裤"
+        ],
+        "why": "深色外套给出正式感，近脸保留浅色"
+      },
+      {
+        "title": "周末日常",
+        "pieces": [
+          "薰衣草细针织V领开衫",
+          "浅色直筒牛仔裤",
+          "梯形硬挺手提包"
+        ],
+        "why": "柔和色做重点，日常也有精致感"
+      }
+    ],
+    "items": [
+      {
+        "garment_id": "tie_neck_silk_blouse",
+        "name_zh": "系带领真丝衬衫",
+        "color_name": "雾霾蓝",
+        "hex": "#7A8FA6",
+        "why": "光泽柔和，近脸提亮"
+      },
+      {
+        "garment_id": "boat_neck_fine_knit",
+        "name_zh": "船领细针织衫",
+        "color_name": "灰粉",
+        "hex": "#C9A3A6",
+        "why": "方领露出修长颈部"
+      },
+      {
+        "garment_id": "fine_v_neck_cardigan_top",
+        "name_zh": "细针织V领开衫上衣",
+        "color_name": "薰衣草紫",
+        "hex": "#A99BBF",
+        "why": "冷调中明度，好搭配"
+      },
+      {
+        "garment_id": "soft_shoulder_blazer",
+        "name_zh": "柔肩单排扣西装",
+        "color_name": "深灰蓝",
+        "hex": "#3E4A5A",
+        "why": "肩线柔和，正式不生硬"
+      },
+      {
+        "garment_id": "mid_rise_straight_trousers",
+        "name_zh": "中腰直筒西裤",
+        "color_name": "灰褐",
+        "hex": "#8B7E74",
+        "why": "代替黑色的柔和底色"
+      },
+      {
+        "garment_id": "straight_knee_skirt",
+        "name_zh": "直筒及膝半身裙",
+        "color_name": "珍珠白",
+        "hex": "#F2EFEA",
+        "why": "线条柔和，约会通勤都可"
+      },
+      {
+        "garment_id": "belted_shirt_dress",
+        "name_zh": "衬衫式腰带连衣裙",
+        "color_name": "灰粉",
+        "hex": "#C9A3A6",
+        "why": "V形领口与腰线呼应曲线"
+      },
+      {
+        "garment_id": "mary_jane_flats",
+        "name_zh": "玛丽珍平底鞋",
+        "color_name": "灰褐",
+        "hex": "#8B7E74",
+        "why": "舒适又有精致感"
+      },
+      {
+        "garment_id": "teardrop_pendant",
+        "name_zh": "水滴形吊坠项链",
+        "color_name": "珍珠白",
+        "hex": "#F2EFEA",
+        "why": "柔和光泽靠近脸部"
+      },
+      {
+        "garment_id": "structured_trapeze_bag",
+        "name_zh": "梯形硬挺手提包",
+        "color_name": "深灰蓝",
+        "hex": "#3E4A5A",
+        "why": "给柔和整体加一点利落"
+      }
+    ],
+    "occasions": [
+      {
+        "occasion": "commute",
+        "look": "雾霾蓝系带领真丝衬衫 + 灰褐直筒西裤 + 玛丽珍平底鞋，耳边一条细吊坠"
+      },
+      {
+        "occasion": "date",
+        "look": "灰粉衬衫式腰带连衣裙，头发吹出内扣弧度，唇色玫瑰豆沙"
+      },
+      {
+        "occasion": "formal",
+        "look": "深灰蓝柔肩西装套装，内搭珍珠白系带领真丝衬衫"
+      }
+    ],
+    "evidence": [
+      "o10",
+      "o12",
+      "o14"
+    ]
+  },
+  "recommendations": [
+    {
+      "id": "r1",
+      "category": "hairstyle",
+      "action": "剪到锁骨长度，加轻薄空气刘海，发尾吹出内扣弧度",
+      "why": "长直发中分贴脸（o7）让中段更长（o3），头顶贴平（o8）；锁骨长度加刘海把视线留在眼睛，弧形发尾呼应下颌曲线（o1）",
+      "how_to": [
+        "对发型师说：长度剪到锁骨，发尾打薄内扣",
+        "刘海做空气感，长度在眉毛下面一点",
+        "分线从正中移到偏一侧，头顶自然有高度"
+      ],
+      "evidence": [
+        "o1",
+        "o3",
+        "o7",
+        "o8"
+      ],
+      "expected_effect": "脸部中段视觉缩短，头型更有弧度，整体更柔和",
+      "avoid": "厚重齐刘海、头顶贴平",
+      "impact": 5,
+      "effort": 2,
+      "confidence": 0.75,
+      "constraint_check": {
+        "status": "compliant",
+        "note": "只需修剪与吹整"
+      },
+      "visual_edit_spec": {
+        "region": "hair",
+        "target_description": "collarbone-length straight hair with soft inward C-curl ends, light see-through air bangs ending just below the eyebrows, natural dark brown color, gentle volume at the crown, slightly off-center part",
+        "preserve": [
+          "face shape",
+          "eyes",
+          "skin tone",
+          "expression",
+          "background"
+        ]
+      },
+      "cost_band": "medium",
+      "time_to_effect": "next_haircut",
+      "pairs_with": [
+        "r2",
+        "r5"
+      ],
+      "success_check": "侧面看头顶有自然弧度，刘海不贴额头"
+    },
+    {
+      "id": "r2",
+      "category": "makeup",
+      "action": "唇色换成豆沙粉或玫瑰豆沙，腮红横向晕在颧骨下方",
+      "why": "唇色偏粉（o6）、肤色清浅偏冷（o10），低饱和冷粉最协调；横向腮红把视线留在脸部中段（o3）",
+      "how_to": [
+        "唇色从豆沙粉开始试，薄涂后用指腹拍开",
+        "腮红从颧骨下方向耳朵方向横扫",
+        "底妆选粉调色号"
+      ],
+      "evidence": [
+        "o3",
+        "o6",
+        "o10"
+      ],
+      "expected_effect": "气色自然，脸部中段更紧凑",
+      "avoid": "偏橘的唇色与竖向腮红",
+      "impact": 4,
+      "effort": 1,
+      "confidence": 0.7,
+      "constraint_check": {
+        "status": "compliant",
+        "note": "每天 10 分钟内可完成"
+      },
+      "visual_edit_spec": null,
+      "cost_band": "low",
+      "time_to_effect": "today",
+      "pairs_with": [
+        "r1"
+      ],
+      "success_check": "自然光下唇色与脸颊的粉色看起来是同一个色系"
+    },
+    {
+      "id": "r3",
+      "category": "clothing",
+      "action": "靠近脸部的上衣换成雾霾蓝、灰粉的方领或小V领",
+      "why": "芥末黄近脸时肤色发灰（o12）；冷调低饱和色贴合肤色（o10），方领露出修长颈部（o14）",
+      "how_to": [
+        "优先购入：雾霾蓝系带领真丝衬衫、灰粉船领细针织衫",
+        "搜索关键词：雾霾蓝 缎面 衬衫 垂坠",
+        "芥末黄单品留给下装或包"
+      ],
+      "evidence": [
+        "o10",
+        "o12",
+        "o14"
+      ],
+      "expected_effect": "脸色更干净，肩颈线条更舒展",
+      "avoid": "芥末黄、荧光色靠近脸部",
+      "impact": 4,
+      "effort": 2,
+      "confidence": 0.65,
+      "constraint_check": {
+        "status": "compliant",
+        "note": "中等预算可逐步替换"
+      },
+      "visual_edit_spec": {
+        "region": "clothing_top",
+        "target_description": "soft dusty-blue satin blouse with a small square neckline showing the collarbones, fluid drape",
+        "preserve": [
+          "face",
+          "hair",
+          "skin tone",
+          "expression",
+          "background"
+        ]
+      },
+      "cost_band": "medium",
+      "time_to_effect": "weeks",
+      "pairs_with": [
+        "r4"
+      ],
+      "success_check": "穿上后在窗边自拍，眼下阴影比穿芥末黄时更浅"
+    },
+    {
+      "id": "r4",
+      "category": "color_palette",
+      "action": "衣橱底色用灰褐、深灰蓝代替纯黑和芥末黄",
+      "why": "明暗差中等（o11），纯黑与脸部对比过强；灰褐、深灰蓝过渡更柔和",
+      "how_to": [
+        "下一件外套或长裤选灰褐或深灰蓝",
+        "黑色单品远离脸部，用于鞋包"
+      ],
+      "evidence": [
+        "o10",
+        "o11"
+      ],
+      "expected_effect": "整体配色更统一，近脸色更容易搭",
+      "avoid": "大面积纯黑上衣",
+      "impact": 3,
+      "effort": 2,
+      "confidence": 0.6,
+      "constraint_check": {
+        "status": "compliant",
+        "note": "按需替换即可"
+      },
+      "visual_edit_spec": null,
+      "cost_band": "medium",
+      "time_to_effect": "months",
+      "pairs_with": [
+        "r3"
+      ],
+      "success_check": "衣橱里能随手搭出三套不需要黑色的组合"
+    },
+    {
+      "id": "r5",
+      "category": "brows",
+      "action": "眉色修成灰棕，眉尾顺着弧度补长 3–5mm",
+      "why": "眉色比发色浅、眉尾偏短（o5），补长后与偏长的眼型（o4）更协调",
+      "how_to": [
+        "选灰棕眉笔，从眉中向眉尾一根根画",
+        "眉尾终点在鼻翼到眼尾的延长线上"
+      ],
+      "evidence": [
+        "o4",
+        "o5"
+      ],
+      "expected_effect": "眉眼更完整，五官更清晰",
+      "avoid": "过黑或过粗的一字眉",
+      "impact": 3,
+      "effort": 1,
+      "confidence": 0.65,
+      "constraint_check": {
+        "status": "compliant",
+        "note": "日常 2 分钟"
+      },
+      "visual_edit_spec": null,
+      "cost_band": "low",
+      "time_to_effect": "today",
+      "pairs_with": [
+        "r2"
+      ],
+      "success_check": "眉尾与眼尾的末端在同一条斜线上"
+    },
+    {
+      "id": "r6",
+      "category": "accessories",
+      "action": "日常戴珍珠或浅金细耳饰",
+      "why": "柔和光泽靠近脸部，呼应清浅肤色（o10）与柔和的下颌线（o1）",
+      "how_to": [
+        "选直径 6–8mm 的水滴形吊坠项链或细圈耳环",
+        "避免大面积亮金"
+      ],
+      "evidence": [
+        "o1",
+        "o10"
+      ],
+      "expected_effect": "脸部周围多一点光泽与精致感",
+      "avoid": "体积大、棱角硬的金属耳饰",
+      "impact": 2,
+      "effort": 1,
+      "confidence": 0.6,
+      "constraint_check": {
+        "status": "compliant",
+        "note": "低预算"
+      },
+      "visual_edit_spec": null,
+      "cost_band": "low",
+      "time_to_effect": "today",
+      "pairs_with": [],
+      "success_check": "照片里耳饰的光泽与肤色融合，不抢视线"
+    },
+    {
+      "id": "r7",
+      "category": "photo_presentation",
+      "action": "白天面向窗户拍照，镜头与眼睛同高，脸微侧 15°",
+      "why": "顶光在眼下留下阴影（o13）；侧面柔光与微侧角度能露出下颌曲线（o1）",
+      "how_to": [
+        "站在窗前一米，背对房间灯光",
+        "手机举到眼睛高度，下巴微收"
+      ],
+      "evidence": [
+        "o1",
+        "o13"
+      ],
+      "expected_effect": "照片气色更好，轮廓更清楚",
+      "avoid": "顶光与低机位仰拍",
+      "impact": 2,
+      "effort": 1,
+      "confidence": 0.7,
+      "constraint_check": {
+        "status": "compliant",
+        "note": "无需花费"
+      },
+      "visual_edit_spec": null,
+      "cost_band": "free",
+      "time_to_effect": "today",
+      "pairs_with": [],
+      "success_check": "新照片里眼下没有明显阴影"
+    }
+  ],
+  "limitations": [
+    "只有一张正脸照，侧面轮廓与后脑形状没有观察到",
+    "室内顶光可能影响冷暖判断，建议白天窗边复拍",
+    "看不到身形，穿搭只按面部与色彩给方向"
+  ]
+}

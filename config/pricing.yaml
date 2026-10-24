@@ -1,0 +1,14 @@
+# Single-purchase "完整护照" (D27). One price at launch; A/B ¥59 later (PRD F5). Read by api/entitlement.py.
+version: 1
+currency: CNY
+full_passport_price: 39
+free_previews: 0            # D33: photorealistic hair previews are paid only (V2.1); was 1 free "safe" preview
+paid_preview_cap: 12        # previews per paid passport (all kinds; Look Studio hair + hair-colour combinations)
+invite_unlock: true         # INVITE_UNLOCK_CODES (env) unlock a passport without payment
+# What the free view keeps; everything else in these blocks is removed server-side (not hidden by the UI).
+free_view:
+  hair_tiers: [safe, bold, easy]   # D33: all three directions as text are free
+  outfit_formulas: 2
+  outfit_items: 4
+  lip_families: 2
+  measurement_tiers: [free]        # V3A (D34): ~20 core face measurements free; the detailed breakdown is in the full passport

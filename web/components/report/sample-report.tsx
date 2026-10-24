@@ -1,0 +1,45 @@
+"use client";
+
+import Link from "next/link";
+import * as React from "react";
+import { report as copy } from "@/lib/copy/zh";
+import { sampleReportResponse } from "@/lib/fixture/backend";
+import { StaticPassportProvider } from "@/lib/state/passport-store";
+import { cn } from "@/lib/utils";
+import { EntitlementTable, FullReport } from "./full-report";
+
+/** The synthetic sample passport, fully unlocked, rendered by the same report component as a real passport.
+ *  Read-only: no feedback, no previews requested, nothing stored. */
+export function SampleReport({ variant }: { variant: "female" | "male" }) {
+  const data = React.useMemo(() => sampleReportResponse(variant), [variant]);
+  return (
+    <StaticPassportProvider value={{ data }}>
+      <p role="note" className="bg-amber-soft px-4 py-1.5 text-center text-[12px] text-amber">{copy.sampleKicker} · 虚构档案，不代表任何真人</p>
+      <nav aria-label="示例切换" className="mx-auto flex max-w-6xl flex-wrap items-center justify-between gap-3 px-4 pt-4 sm:px-6">
+        <Link href="/" className="text-[13px] text-muted hover:text-ink">← 形象护照</Link>
+        <div className="flex gap-1 rounded-full border border-rule p-0.5 text-[12.5px]">
+          {(["female", "male"] as const).map((k) => (
+            <Link key={k} href={k === "male" ? "/report/sample?v=male" : "/report/sample"} aria-current={k === variant ? "page" : undefined}
+              className={cn("rounded-full px-3 py-1", k === variant ? "bg-ink text-paper" : "text-ink-soft hover:text-ink")}>
+              {copy.sampleVariants[k]}
+            </Link>
+          ))}
+        </div>
+      </nav>
+      <FullReport sample />
+      <section className="mx-auto max-w-6xl px-4 pb-16 sm:px-6 lg:grid lg:grid-cols-[200px_minmax(0,1fr)] lg:gap-12">
+        <div aria-hidden className="hidden lg:block" />
+        <div className="max-w-3xl">
+        <EntitlementTable />
+        <div className="mt-8 flex flex-col items-center gap-2 rounded-[16px] bg-paper-sunk px-5 py-7 text-center">
+          <p className="font-serif text-[18px] font-semibold">{copy.sampleCta}</p>
+          <Link href="/start" data-cta="primary"
+            className="mt-2 flex h-12 w-full max-w-[320px] items-center justify-center rounded-full bg-accent px-8 text-[15px] font-medium text-[var(--ap-on-primary)]">
+            上传一张正脸 · 免费
+          </Link>
+        </div>
+        </div>
+      </section>
+    </StaticPassportProvider>
+  );
+}

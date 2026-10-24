@@ -1,0 +1,2023 @@
+<title>形象护照 V2 产品方案</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@600;700&family=Noto+Sans+SC:wght@400;500;700&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: a fitting-room document. Light "reading" ground for analysis, a dark neutral "stage" wherever a face or a preview is shown, so photos are judged on a color-neutral surround. */
+:root{
+  --bg:#F1F1EE; --surface:#FAFAF8; --ink:#16181A; --ink-2:#464B4F; --muted:#767B7E; --rule:#D8D8D2;
+  --accent:#1F4E5F; --accent-soft:#DDE8EB; --warm:#9A5B1F; --warm-soft:#F2E6D8; --ok:#2E6A49; --bad:#9A3A31;
+  --stage:#141618; --stage-2:#1F2326; --stage-ink:#E9EAE7; --stage-muted:#8E9497;
+  --skin:#CDB6A0; --skin-2:#BFA58D; --hair:#2B2623; --cloth:#34414B;
+  --serif:"Noto Serif SC","Songti SC","STSong",serif;
+  --sans:"Noto Sans SC","PingFang SC","Microsoft YaHei",system-ui,sans-serif;
+  --mono:"IBM Plex Mono",ui-monospace,"SFMono-Regular",Menlo,monospace;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#111314; --surface:#181B1D; --ink:#ECEDEA; --ink-2:#BCC0C0; --muted:#8A9092; --rule:#2B3033;
+  --accent:#86B8C8; --accent-soft:#1C3038; --warm:#D9A06A; --warm-soft:#33261A; --ok:#7CC39B; --bad:#E58C81;
+  --stage:#0A0B0C; --stage-2:#191C1F; --stage-ink:#E9EAE7; --stage-muted:#8E9497; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#111314; --surface:#181B1D; --ink:#ECEDEA; --ink-2:#BCC0C0; --muted:#8A9092; --rule:#2B3033;
+  --accent:#86B8C8; --accent-soft:#1C3038; --warm:#D9A06A; --warm-soft:#33261A; --ok:#7CC39B; --bad:#E58C81;
+  --stage:#0A0B0C; --stage-2:#191C1F; --stage-ink:#E9EAE7; --stage-muted:#8E9497; color-scheme:dark}
+
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font-family:var(--sans);font-size:15.5px;line-height:1.78;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:10;background:var(--bg)}
+.wrap{max-width:1080px;margin:0 auto}
+.prose{max-width:68ch}
+h1,h2,h3,h4{font-family:var(--serif);text-wrap:balance;line-height:1.3;margin:0;font-weight:700}
+h2{font-size:clamp(26px,3.6vw,34px)}
+h3{font-size:21px}
+h4{font-size:16.5px;font-family:var(--sans);font-weight:700}
+p{margin:0}
+a{color:var(--accent)}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.eyebrow{font-family:var(--mono);font-size:11.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted)}
+.num{font-family:var(--mono);font-variant-numeric:tabular-nums}
+.muted{color:var(--muted)}
+.stack{display:flex;flex-direction:column;gap:14px}
+.stack-lg{display:flex;flex-direction:column;gap:28px}
+.grid2{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,420px),1fr));gap:20px}
+.grid3{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,290px),1fr));gap:18px}
+.grid2>*,.grid3>*{min-width:0}
+
+/* nav */
+.topnav{position:sticky;top:env(safe-area-inset-top,0px);z-index:9;background:var(--bg);border-bottom:1px solid var(--rule);margin:0 calc(-1*max(16px,env(safe-area-inset-left,0px)));padding:0 max(16px,env(safe-area-inset-left,0px))}
+.topnav .wrap{display:flex;gap:4px;align-items:center;overflow-x:auto;scrollbar-width:none;padding-block:10px}
+.topnav .brand{font-family:var(--serif);font-weight:700;margin-right:14px;white-space:nowrap}
+.topnav a{white-space:nowrap;text-decoration:none;color:var(--ink-2);font-size:13.5px;padding:4px 10px;border-radius:999px}
+.topnav a:hover{background:var(--accent-soft);color:var(--ink)}
+.topnav a b{font-family:var(--mono);font-weight:500;color:var(--accent);margin-right:5px}
+
+/* cover */
+.cover{padding-block:64px 40px;display:grid;grid-template-columns:minmax(0,1.25fr) minmax(0,1fr);gap:48px;align-items:center}
+@media (max-width:820px){.cover{grid-template-columns:1fr;padding-block:40px 24px;gap:28px}}
+.cover h1{font-size:clamp(34px,5.4vw,56px);letter-spacing:-.01em}
+.cover .lede{font-size:18px;color:var(--ink-2);margin-top:18px;max-width:40ch}
+.meta-row{display:flex;flex-wrap:wrap;gap:8px 20px;margin-top:26px;font-size:13px;color:var(--muted)}
+.meta-row span b{color:var(--ink);font-weight:500}
+
+/* stage (dark photo surround) */
+.stage{background:var(--stage);color:var(--stage-ink);border-radius:14px;padding:18px}
+.stage .eyebrow{color:var(--stage-muted)}
+.trio{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+.trio figure{margin:0;display:flex;flex-direction:column;gap:6px}
+.trio svg{width:100%;height:auto;background:var(--stage-2);border-radius:8px;display:block}
+.trio figcaption{font-size:12px;line-height:1.4;color:var(--stage-muted)}
+.trio figcaption b{display:block;color:var(--stage-ink);font-weight:500;font-size:13px}
+
+/* sections */
+section.part{padding-block:56px;border-top:1px solid var(--rule)}
+.part-head{display:grid;grid-template-columns:72px minmax(0,1fr);gap:8px 20px;margin-bottom:30px;align-items:baseline}
+.part-head .letter{font-family:var(--serif);font-size:52px;line-height:1;color:var(--accent)}
+.part-head p{grid-column:2;color:var(--ink-2);max-width:66ch}
+@media (max-width:560px){.part-head{grid-template-columns:44px minmax(0,1fr)}.part-head .letter{font-size:36px}}
+.sub{display:flex;flex-direction:column;gap:16px;margin-top:40px}
+.sub>h3 .tag{font-family:var(--mono);font-size:12px;color:var(--muted);font-weight:400;margin-right:8px}
+
+/* callouts */
+.thesis{border-left:3px solid var(--accent);padding:4px 0 4px 18px;font-family:var(--serif);font-size:19px;line-height:1.6}
+.note{background:var(--surface);border:1px solid var(--rule);border-radius:10px;padding:14px 16px;font-size:14px;color:var(--ink-2)}
+.note b{color:var(--ink)}
+.warnnote{background:var(--warm-soft);border-radius:10px;padding:14px 16px;font-size:14px}
+.warnnote b{color:var(--warm)}
+
+/* bets list */
+.bets{counter-reset:bet;display:grid;gap:0;border-top:1px solid var(--rule)}
+.bet{counter-increment:bet;display:grid;grid-template-columns:44px minmax(0,1fr);gap:4px 14px;padding:16px 0;border-bottom:1px solid var(--rule)}
+.bet::before{content:counter(bet);font-family:var(--serif);font-size:26px;color:var(--accent);line-height:1.2;grid-row:span 2}
+.bet h4{font-size:16.5px}
+.bet p{color:var(--ink-2);font-size:14.5px}
+
+/* tables */
+.tbl{overflow-x:auto;border:1px solid var(--rule);border-radius:10px;background:var(--surface)}
+table{border-collapse:collapse;width:100%;font-size:13.5px;line-height:1.6}
+th,td{text-align:left;vertical-align:top;padding:10px 12px;border-bottom:1px solid var(--rule)}
+th{font-weight:500;color:var(--muted);font-size:12px;letter-spacing:.04em;background:var(--bg);white-space:nowrap}
+tr:last-child td{border-bottom:0}
+td.k{font-weight:700;white-space:nowrap}
+.tbl.wide table{min-width:820px}
+.pill{display:inline-block;font-size:11.5px;padding:1px 8px;border-radius:999px;border:1px solid var(--rule);white-space:nowrap;line-height:1.7}
+.p-ok{color:var(--ok);border-color:currentColor}
+.p-warn{color:var(--warm);border-color:currentColor}
+.p-bad{color:var(--bad);border-color:currentColor}
+.p-acc{color:var(--accent);border-color:currentColor}
+.dot{display:inline-block;width:8px;height:8px;border-radius:50%;margin-right:6px;vertical-align:1px}
+.d-ok{background:var(--ok)}.d-warn{background:var(--warm)}.d-bad{background:var(--bad)}
+
+/* audit journey strip */
+.journey{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,200px),1fr));gap:12px}
+.jstep{background:var(--surface);border:1px solid var(--rule);border-radius:10px;padding:14px;display:flex;flex-direction:column;gap:8px;font-size:13.5px}
+.jstep h4{font-size:15px}
+.jstep ul{margin:0;padding-left:1.1em;color:var(--ink-2)}
+.jstep .verdict{margin-top:auto;padding-top:8px;border-top:1px dashed var(--rule);font-size:12.5px}
+
+/* feature spec */
+.feat{border:1px solid var(--rule);border-radius:12px;background:var(--surface);overflow:hidden}
+.feat>summary{list-style:none;cursor:pointer;padding:16px 18px;display:grid;grid-template-columns:auto minmax(0,1fr) auto;gap:4px 14px;align-items:baseline}
+.feat>summary::-webkit-details-marker{display:none}
+.feat>summary .fid{font-family:var(--mono);color:var(--accent);font-size:13px}
+.feat>summary h4{font-size:17px;font-family:var(--serif)}
+.feat>summary .one{grid-column:2;color:var(--ink-2);font-size:14px}
+.feat>summary .chev{font-family:var(--mono);color:var(--muted);transition:transform .2s}
+.feat[open]>summary .chev{transform:rotate(90deg)}
+.feat .body{padding:4px 18px 20px;display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,300px),1fr));gap:18px 28px;border-top:1px solid var(--rule)}
+.feat .body>div{min-width:0}
+.feat .body h5{font-size:12px;letter-spacing:.08em;color:var(--muted);font-weight:500;margin:14px 0 6px;font-family:var(--mono);text-transform:uppercase}
+.feat .body ul,.feat .body ol{margin:0;padding-left:1.15em;font-size:14px;color:var(--ink-2)}
+.feat .body li{margin-bottom:3px}
+.feat .body p{font-size:14px;color:var(--ink-2)}
+.feat .full{grid-column:1/-1}
+.prio{font-family:var(--mono);font-size:11px;padding:1px 7px;border-radius:4px;background:var(--accent);color:var(--surface)}
+.prio.p1{background:var(--accent-soft);color:var(--accent)}
+.prio.p2{background:var(--bg);color:var(--muted);border:1px solid var(--rule)}
+
+/* wireframes */
+.screens{display:flex;flex-direction:column;gap:44px}
+.screen{display:grid;grid-template-columns:300px minmax(0,1fr);gap:28px;align-items:start}
+@media (max-width:760px){.screen{grid-template-columns:1fr}.phone{margin:0 auto}}
+.phone{width:100%;max-width:300px;border:1.5px solid var(--ink);border-radius:30px;padding:10px;background:var(--surface)}
+.ph{border-radius:22px;overflow:hidden;background:var(--bg);border:1px solid var(--rule);font-size:11.5px;line-height:1.5;display:flex;flex-direction:column}
+.ph .sb{display:flex;justify-content:space-between;padding:6px 14px 2px;font-family:var(--mono);font-size:9.5px;color:var(--muted)}
+.ph .bar{display:flex;justify-content:space-between;align-items:center;padding:6px 14px 8px;border-bottom:1px solid var(--rule)}
+.ph .bar b{font-family:var(--serif);font-size:13px}
+.ph .in{padding:12px 14px;display:flex;flex-direction:column;gap:9px}
+.ph .h{font-family:var(--serif);font-weight:700;font-size:17px;line-height:1.35}
+.ph .s{color:var(--ink-2)}
+.ph .xs{font-size:10px;color:var(--muted)}
+.ph .btn{background:var(--ink);color:var(--bg);border-radius:8px;text-align:center;padding:8px;font-weight:500}
+.ph .btn2{border:1px solid var(--ink);border-radius:8px;text-align:center;padding:7px;font-weight:500}
+.ph .chips{display:flex;flex-wrap:wrap;gap:5px}
+.ph .chip{border:1px solid var(--rule);border-radius:999px;padding:1px 8px;font-size:10.5px;background:var(--surface)}
+.ph .chip.on{background:var(--accent);color:var(--surface);border-color:var(--accent)}
+.ph .card{background:var(--surface);border:1px solid var(--rule);border-radius:10px;padding:9px 10px;display:flex;flex-direction:column;gap:4px}
+.ph .row{display:flex;gap:8px;align-items:center}
+.ph .row>*{min-width:0}
+.ph .dark{background:var(--stage);color:var(--stage-ink);padding:10px 12px;display:flex;flex-direction:column;gap:8px}
+.ph .dark .xs{color:var(--stage-muted)}
+.ph svg.face{display:block;width:100%;height:auto;border-radius:8px;background:var(--stage-2)}
+.ph .sw{display:flex;gap:3px}
+.ph .sw i{flex:1;height:20px;border-radius:3px;display:block}
+.ph .bigsw{display:grid;grid-template-columns:repeat(4,1fr);gap:4px}
+.ph .bigsw i{aspect-ratio:1;border-radius:4px;display:block}
+.ph .tabs{display:flex;gap:2px;border-bottom:1px solid var(--rule);padding:0 10px;overflow:hidden}
+.ph .tabs span{padding:6px 7px;font-size:10.5px;color:var(--muted);white-space:nowrap}
+.ph .tabs span.on{color:var(--ink);border-bottom:2px solid var(--ink);font-weight:500}
+.ph .meter{height:4px;border-radius:2px;background:var(--rule);position:relative}
+.ph .meter i{position:absolute;inset:0 auto 0 0;background:var(--accent);border-radius:2px;display:block}
+.ph .ann{display:inline-grid;place-items:center;width:15px;height:15px;border-radius:50%;background:var(--warm);color:var(--surface);font-family:var(--mono);font-size:9px;font-weight:500;flex:none}
+.ph .tick{color:var(--ok);font-weight:700}
+.ph .sticky{border-top:1px solid var(--rule);padding:9px 14px;display:flex;gap:6px;background:var(--surface)}
+.ph .sticky>*{flex:1}
+.annot{display:flex;flex-direction:column;gap:12px}
+.annot ol{margin:0;padding:0;list-style:none;display:flex;flex-direction:column;gap:10px;font-size:14px;color:var(--ink-2)}
+.annot ol li{display:grid;grid-template-columns:22px minmax(0,1fr);gap:8px}
+.annot ol li .ann{display:inline-grid;place-items:center;width:20px;height:20px;border-radius:50%;background:var(--warm);color:var(--surface);font-family:var(--mono);font-size:11px;margin-top:3px}
+.annot ol li b{color:var(--ink)}
+
+/* flow diagram */
+.flow{display:flex;flex-wrap:wrap;gap:8px;align-items:stretch}
+.flow .n{flex:1 1 130px;background:var(--surface);border:1px solid var(--rule);border-radius:10px;padding:10px 12px;font-size:13px;position:relative;min-width:0}
+.flow .n b{display:block;font-size:14px}
+.flow .n .t{font-family:var(--mono);font-size:11px;color:var(--accent)}
+.flow .n.key{border-color:var(--accent);box-shadow:inset 0 0 0 1px var(--accent)}
+.flow .arr{align-self:center;color:var(--muted);font-family:var(--mono)}
+@media (max-width:640px){.flow .arr{display:none}}
+
+/* tokens */
+.swatches{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:10px}
+.swatches div{border:1px solid var(--rule);border-radius:10px;overflow:hidden;background:var(--surface);font-size:12.5px}
+.swatches i{display:block;height:54px}
+.swatches span{display:block;padding:7px 9px;line-height:1.45}
+.swatches code{font-family:var(--mono);font-size:11px;color:var(--muted)}
+.typespec{display:grid;gap:0;border-top:1px solid var(--rule)}
+.typespec>div{display:grid;grid-template-columns:150px minmax(0,1fr);gap:12px;padding:12px 0;border-bottom:1px solid var(--rule);align-items:baseline}
+@media (max-width:560px){.typespec>div{grid-template-columns:1fr}}
+.typespec .lbl{font-family:var(--mono);font-size:11.5px;color:var(--muted)}
+
+/* roadmap */
+.phases{display:grid;gap:16px}
+.phase{display:grid;grid-template-columns:200px minmax(0,1fr);gap:20px;background:var(--surface);border:1px solid var(--rule);border-radius:12px;padding:20px}
+@media (max-width:760px){.phase{grid-template-columns:1fr}}
+.phase .ph-left{display:flex;flex-direction:column;gap:6px}
+.phase .ph-left .pn{font-family:var(--serif);font-size:30px;color:var(--accent);line-height:1}
+.phase .ph-left h4{font-family:var(--serif);font-size:18px}
+.phase dl{display:grid;grid-template-columns:110px minmax(0,1fr);gap:8px 14px;margin:0;font-size:14px}
+.phase dt{color:var(--muted);font-size:12.5px;padding-top:2px}
+.phase dd{margin:0;color:var(--ink-2)}
+@media (max-width:560px){.phase dl{grid-template-columns:1fr}.phase dt{padding-top:6px}}
+.gantt{overflow-x:auto;border:1px solid var(--rule);border-radius:10px;background:var(--surface);padding:14px}
+.gantt-in{min-width:700px;display:grid;grid-template-columns:180px repeat(16,1fr);gap:4px 0;font-size:12px;align-items:center}
+.gantt-in .wk{font-family:var(--mono);font-size:10.5px;color:var(--muted);text-align:center}
+.gantt-in .lb{padding-right:10px;color:var(--ink-2)}
+.gantt-in .bx{height:18px;border-radius:4px;background:var(--accent);opacity:.9}
+.gantt-in .bx.l{background:var(--accent-soft);border:1px solid var(--accent)}
+.gantt-in .bx.w{background:var(--warm)}
+
+footer{padding-block:40px 64px;border-top:1px solid var(--rule);color:var(--muted);font-size:13px}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+<style>
+.rev{display:grid;grid-template-columns:auto minmax(0,1fr);gap:4px 14px;background:var(--accent-soft);border-radius:12px;padding:14px 16px;font-size:14px;margin-bottom:8px}
+.rev .eyebrow{color:var(--accent)}
+.rev ul{margin:0;padding-left:1.1em;color:var(--ink-2)}
+.archetypes{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,360px),1fr));gap:20px;align-items:start}
+.archetypes>*{min-width:0}
+.plane{width:100%;height:auto;display:block;background:var(--surface);border:1px solid var(--rule);border-radius:12px}
+.plane text{font-family:var(--sans);fill:var(--ink-2)}
+.plane .ax{stroke:var(--rule)}
+.plane .lbl{fill:var(--ink);font-weight:500}
+.plane .me{fill:var(--warm)}
+.chan{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,250px),1fr));gap:14px}
+.chan>div{background:var(--surface);border:1px solid var(--rule);border-radius:12px;padding:14px 16px;display:flex;flex-direction:column;gap:8px;font-size:14px;color:var(--ink-2);min-width:0}
+.chan h4{color:var(--ink)}
+.chan .fmt{font-family:var(--mono);font-size:11.5px;color:var(--accent)}
+</style>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <symbol id="base" viewBox="0 0 120 150">
+      <path d="M8 150 Q12 112 60 106 Q108 112 112 150Z" fill="var(--cloth)"/>
+      <rect x="49" y="92" width="22" height="22" rx="6" fill="var(--skin-2)"/>
+      <ellipse cx="60" cy="72" rx="27" ry="35" fill="var(--skin)"/>
+      <ellipse cx="33" cy="74" rx="4" ry="7" fill="var(--skin-2)"/>
+      <ellipse cx="87" cy="74" rx="4" ry="7" fill="var(--skin-2)"/>
+      <path d="M47 70 h8 M65 70 h8" stroke="var(--hair)" stroke-width="2" stroke-linecap="round" opacity=".55"/>
+      <path d="M44 63 q6 -3 12 0 M64 63 q6 -3 12 0" stroke="var(--hair)" stroke-width="2.2" fill="none" stroke-linecap="round" opacity=".8"/>
+      <path d="M60 74 v9 q-3 2 0 3" stroke="var(--skin-2)" stroke-width="1.6" fill="none"/>
+      <path d="M53 92 q7 3 14 0" stroke="var(--skin-2)" stroke-width="1.8" fill="none" stroke-linecap="round"/>
+    </symbol>
+    <!-- female base: softer neckline, lip tint slot -->
+    <symbol id="fbase" viewBox="0 0 120 150">
+      <path d="M10 150 Q14 114 60 110 Q106 114 110 150Z" fill="var(--cloth)"/>
+      <path d="M44 112 Q60 126 76 112" fill="var(--skin-2)"/>
+      <rect x="51" y="92" width="18" height="22" rx="6" fill="var(--skin-2)"/>
+      <ellipse cx="60" cy="72" rx="25" ry="33" fill="var(--skin)"/>
+      <path d="M47 70 h8 M65 70 h8" stroke="var(--hair)" stroke-width="2" stroke-linecap="round" opacity=".55"/>
+      <path d="M45 63 q6 -3.5 11 -1 M64 62 q5 -2.5 11 1" stroke="var(--hair)" stroke-width="1.8" fill="none" stroke-linecap="round" opacity=".75"/>
+      <path d="M60 74 v8 q-2.5 2 0 3" stroke="var(--skin-2)" stroke-width="1.4" fill="none"/>
+      <path d="M54 91 q6 3 12 0" stroke="#B7675E" stroke-width="2.4" fill="none" stroke-linecap="round"/>
+    </symbol>
+    <!-- male hair -->
+    <symbol id="h-cur" viewBox="0 0 120 150"><path d="M33 66 Q31 34 50 24 Q60 6 78 14 Q92 22 88 62 Q86 46 80 42 Q64 38 44 44 Q36 50 33 66Z" fill="var(--hair)"/></symbol>
+    <symbol id="h-safe" viewBox="0 0 120 150"><path d="M30 72 Q26 36 60 30 Q95 33 90 72 Q88 58 84 54 Q78 58 70 54 Q62 59 54 55 Q44 60 38 55 Q33 60 30 72Z" fill="var(--hair)"/></symbol>
+    <symbol id="h-bold" viewBox="0 0 120 150"><path d="M29 80 Q24 32 62 27 Q99 30 92 82 Q91 60 86 52 Q70 44 52 50 Q46 46 40 50 Q32 58 29 80Z" fill="var(--hair)"/></symbol>
+    <symbol id="h-easy" viewBox="0 0 120 150"><path d="M33 64 Q32 38 60 35 Q88 38 87 64 Q86 52 80 48 Q60 43 40 48 Q34 52 33 64Z" fill="var(--hair)"/></symbol>
+    <!-- female hair: back layers (draw before fbase) and front layers (after) -->
+    <symbol id="hb-long" viewBox="0 0 120 150"><path d="M28 70 Q24 28 60 25 Q96 28 92 70 L97 134 Q60 142 23 134Z" fill="var(--hair)"/></symbol>
+    <symbol id="hf-mid" viewBox="0 0 120 150"><path d="M34 84 Q30 32 60 29 Q90 32 86 84 Q84 54 62 40 Q58 46 50 50 Q38 58 34 84Z" fill="var(--hair)"/></symbol>
+    <symbol id="hb-bob" viewBox="0 0 120 150"><path d="M28 70 Q25 29 60 27 Q95 29 92 70 L94 108 Q76 114 60 113 Q44 114 26 108Z" fill="var(--hair)"/></symbol>
+    <symbol id="hf-curtain" viewBox="0 0 120 150"><path d="M33 84 Q29 31 60 28 Q91 31 87 84 Q84 58 68 50 Q62 56 60 50 Q58 56 52 50 Q36 58 33 84Z" fill="var(--hair)"/></symbol>
+    <symbol id="hb-wave" viewBox="0 0 120 150"><path d="M27 70 Q22 28 60 25 Q98 28 93 70 Q100 84 94 96 Q101 110 95 124 Q60 134 25 124 Q19 110 26 96 Q20 84 27 70Z" fill="var(--hair)"/></symbol>
+    <symbol id="hf-side" viewBox="0 0 120 150"><path d="M34 84 Q30 31 64 29 Q92 33 86 80 Q84 56 72 46 Q56 42 44 56 Q37 64 34 84Z" fill="var(--hair)"/></symbol>
+    <symbol id="hf-pixie" viewBox="0 0 120 150"><path d="M33 74 Q30 32 60 30 Q90 32 87 74 Q86 58 80 52 Q66 46 56 56 Q46 52 40 56 Q34 62 33 74Z" fill="var(--hair)"/></symbol>
+    <symbol id="g-rect" viewBox="0 0 120 150"><rect x="40" y="63" width="18" height="13" rx="4" fill="none" stroke="var(--ink)" stroke-width="2"/><rect x="62" y="63" width="18" height="13" rx="4" fill="none" stroke="var(--ink)" stroke-width="2"/><path d="M58 68 h4" stroke="var(--ink)" stroke-width="2"/></symbol>
+  </defs>
+</svg>
+
+<nav class="topnav" aria-label="目录"><div class="wrap">
+  <span class="brand">形象护照 V2</span>
+  <a href="#summary"><b>0</b>摘要</a>
+  <a href="#a"><b>A</b>审计与竞品</a>
+  <a href="#b"><b>B</b>产品策略</a>
+  <a href="#c"><b>C</b>V2 PRD</a>
+  <a href="#d"><b>D</b>体验架构与线框</a>
+  <a href="#e"><b>E</b>技术映射</a>
+  <a href="#f"><b>F</b>路线图与评测</a>
+  <a href="#g"><b>G</b>执行计划</a>
+</div></nav>
+
+<main class="wrap">
+
+<header class="cover">
+  <div>
+    <div class="eyebrow">Aesthetic Passport · V2 Product Package · 定稿版 2026-10-22</div>
+    <h1>你的线上<br>形象顾问</h1>
+    <p class="lede">V2 把形象护照从一份“作品集式的分析报告”，重构为面向中文用户、<b>以女性为先、男女都覆盖</b>的线上形象顾问。它先读懂你的脸、色彩和风格，再在你自己的照片上展示发型、妆容和穿搭的可能性，最后帮你把选择落到发型店、化妆台和购物车里。</p>
+    <div class="meta-row">
+      <span>覆盖 <b>A–F 方案 + G 执行计划</b></span>
+      <span>依据 <b>代码仓库 v0.2、线上站点、12 款竞品</b></span>
+      <span>渠道 <b>小红书 · 抖音</b></span>
+      <span>性质 <b>定稿 PRD，可直接开工</b></span>
+    </div>
+  </div>
+  <div class="stage" aria-label="概念：同一个人的三个发型方向">
+    <div class="eyebrow" style="margin-bottom:10px">概念 · 你的形象档案 · 发型方向</div>
+    <div class="trio">
+      <figure><svg viewBox="0 0 120 150" role="img" aria-label="现在：长直发中分"><use href="#hb-long"/><use href="#fbase"/><use href="#hf-mid"/></svg><figcaption><b>现在</b>长直发 · 中分</figcaption></figure>
+      <figure><svg viewBox="0 0 120 150" role="img" aria-label="推荐：锁骨发加八字刘海"><use href="#hb-bob"/><use href="#fbase"/><use href="#hf-curtain"/></svg><figcaption><b>稳妥</b>锁骨发 · 八字刘海</figcaption></figure>
+      <figure><svg viewBox="0 0 120 150" role="img" aria-label="突破：法式波浪侧分"><use href="#hb-wave"/><use href="#fbase"/><use href="#hf-side"/></svg><figcaption><b>突破</b>法式波浪 · 侧分</figcaption></figure>
+    </div>
+    <div style="display:flex;gap:6px;margin-top:12px;align-items:center;flex-wrap:wrap">
+      <span style="font-size:12px;color:var(--stage-muted);margin-right:4px">风格 自然型 · 色彩 柔和夏</span>
+      <i style="display:block;width:18px;height:18px;border-radius:4px;background:#8FA3B8"></i><i style="display:block;width:18px;height:18px;border-radius:4px;background:#C9A3AE"></i><i style="display:block;width:18px;height:18px;border-radius:4px;background:#9AA68E"></i><i style="display:block;width:18px;height:18px;border-radius:4px;background:#E8DFD6"></i><i style="display:block;width:18px;height:18px;border-radius:4px;background:#5E6A7D"></i>
+    </div>
+    <p style="font-size:12px;color:var(--stage-muted);margin-top:10px">示意插画。产品中是用户本人照片的 AI 试看：发型试看的五官核心区保持原图，妆容为确定性着色，不重塑五官。</p>
+  </div>
+</header>
+
+<div class="rev">
+  <span class="eyebrow">定稿</span>
+  <div>
+    <b>本版是 V2 的定稿与开工版本。</b>17 项功能（F1–F17）与三层护照全部保留，改的是顺序、范围细节和交付方式：
+    <ul>
+      <li><b>定位：</b>面向中文用户的 AI 个人形象顾问，女性优先、男性与中性同样支持。一个引擎，五个话题入口（面部美学、脸型与发型、八型风格、个人色彩、穿搭），全部深链到同一本护照。</li>
+      <li><b>上传优先：</b>本地上传为主入口，只要求正脸；保留质检、指南与重拍建议；不做实时相机（列为后续增强）。</li>
+      <li><b>颜值评分：</b>保留为未来功能。去掉“永不打分”的承诺；本期不建模型、不展示任何分数，只放标注“即将上线”的预告入口测兴趣。</li>
+      <li><b>妆容：</b>允许在妆容区域做确定性像素着色（唇色、腮红、色调），带牙齿与眼睛排除蒙版和原图对照；不做生成式五官重塑。</li>
+      <li><b>身形：</b>只用用户自选或填写的信息；穿搭检测只分析衣物、颜色、廓形与构图。</li>
+      <li><b>风格：</b>保留八个小红书标签，区分四层：可观察的面部特征、推断的风格类型、个人审美偏好、想要的目标形象。</li>
+      <li><b>反馈前置：</b>基础反馈进入第一个版本，由规则层即时重排，不重跑视觉模型；完整 F16 留在后续。</li>
+      <li><b>商业：</b>只保留“免费 vs 一次性付费完整护照”；会员、订阅、积分、加购全部延后。</li>
+      <li><b>交付：</b>评测与专家研究不阻塞上线；四条工作流并行；新增 <a href="#g">G 执行计划</a>，配套任务文件与可直接复制的执行指令。</li>
+    </ul>
+  </div>
+</div>
+
+<!-- ============ SUMMARY ============ -->
+<section class="part" id="summary">
+  <div class="part-head"><span class="letter">0</span><h2>执行摘要</h2>
+    <p>如果只读一页，读这一页。下面九个判断是整份方案的骨架，后文逐一展开；怎么开工见 <a href="#g">G</a>。</p></div>
+
+  <div class="stack-lg">
+    <p class="thesis">我们要做的是一位线上形象顾问：先让用户被准确地“看懂”，再让她在自己身上看见几种可能，最后带着一份能直接用的清单去改变。线下顾问一次收费数百到上千元，我们用一张自拍和几分钟交付其中最有价值的七成，并且如实说明剩下三成的不确定。</p>
+
+    <div class="bets">
+      <div class="bet"><h4>复用现有引擎，并行开发，尽早上线</h4><p>V1 的质检、锚点、取色、结构化分析、规则层与蒙版回贴都已可用。V2 不推倒重来：在现有 schema 与 API 上扩展，契约先行，再按四条工作流并行开发。关键路径只用 5–10 组经同意的照片验证一次；40 人评测集、专家盲评与评测看板改为上线后的持续工作，<b>不阻塞交付</b>。隐私、身份保护、AI 标识与数据删除这些保障不放松。</p></div>
+      <div class="bet"><h4>核心产出是“形象档案”，它同时是分享物</h4><p>档案由三项构成：<b>面部美学</b>（脸型、三庭五眼、轮廓与五官量感）、<b>个人色彩</b>（冷暖、深浅、清浊、对比）、<b>风格类型</b>（量感 × 曲直 → 八种风格）。这三项正是小红书上被讨论最多的形象话题，做成一张 3:4 档案卡，就是用户愿意发的“我测了我的风格类型”。</p></div>
+      <div class="bet"><h4>档案之后是四类推荐，每类都能在本人身上看见</h4><p>发型（三个方向试看）、妆容（确定性试色：唇色、腮红、色调，带牙齿与眼睛排除蒙版，可随时对照原图，不做五官重塑）、色彩（数字披布：在下巴下方换颜色对比）、穿搭（按风格、色彩、自选身形给出单品与搭配公式）。可视化是让用户相信的核心。</p></div>
+      <div class="bet"><h4>先做“美学分析”，颜值评分作为未来功能预留</h4><p>面部美学的主体是解释比例、轮廓与量感，以及它们对发型、妆容、穿搭意味着什么。颜值评分保留为潜在的未来功能：本期<b>不建评分模型</b>，不把几何公式包装成已验证的分数，只放一个标注“即将上线”的预告入口测量兴趣。开发用的 10/10 占位分只存在于开发样例里，永远不对外展示。真实评分上线前需要单独验证并新增决定记录。评分工作不得拖慢其他任务。</p></div>
+      <div class="bet"><h4>上传一张正脸起步，30 秒内给出第一个发现</h4><p>本地上传是主入口，只要求正脸；保留上传质检、拍摄指南与重拍建议，本期不做实时相机取景（列为后续增强）。侧脸选填；问卷改为看图选择，并放在第一个结果之后。CV 测量 1 秒内就能出结果，把它变成“揭晓”时刻。全身照只在用穿搭检测时才需要。</p></div>
+      <div class="bet"><h4>穿搭分两层：先“推荐”，再“检测”</h4><p>穿搭推荐是一次性的方案（风格 + 色彩 + 身形 → 单品清单）；穿搭检测是高频工具（拍今天的穿搭 → 颜色、风格一致度、比例线的建议）。前者带来信任，后者带来复访理由（本期包含在付费完整护照内，不做会员）。身形只来自用户自选或填写，不从照片推断体型或体重；穿搭检测只分析衣物颜色、廓形与画面构成。</p></div>
+      <div class="bet"><h4>反馈从第一个版本就在</h4><p>“像我 / 不像我”“我更喜欢另一种风格”、对发型与穿搭的喜欢 / 一般 / 不喜欢、可选原因，以及更新预算、打理时间、场合，都由规则层即时重排或过滤，不重跑视觉模型。系统观察到的特征与用户的偏好分开存储，互不覆盖。</p></div>
+      <div class="bet"><h4>把 V1 的“来源标签”降到第三层</h4><p>测量 / 模型 / 规则 标签对评审者是亮点，对消费者是噪音。V2 改为每个结论旁一个“依据”入口，点开后在用户自己的照片上高亮对应区域。</p></div>
+      <div class="bet"><h4>北极星：带走率；增长引擎：档案卡与揭晓视频</h4><p><b>带走率</b>指完成档案的用户中，保存或分享至少一张决策卡（发型师卡、色卡、穿搭清单）的比例。增长靠两类产出：3:4 档案卡（小红书笔记）和自动生成的 9:16 揭晓视频（抖音），卡片默认用插画头像或色卡艺术，本人肖像可选；全部带 AI 标识与产品署名。</p></div>
+    </div>
+
+    <div class="note"><b>怎么交付：</b>Claude Code 先定共享契约（schema v0.3、API、前端外壳），独立智能体同时开发知识库、组件与分享卡模板。四条工作流：<b>A</b> 核心档案与分享、<b>B</b> 造型与试看、<b>C</b> 高级互动与持久化、<b>D</b> 分发与单次付费。<b>增量 1</b> 免费档案（上传 → 档案 + 披布 + 基础反馈 + 档案卡 + 1 张发型试看 + 话题入口）→ <b>增量 2</b> 造型试看 + 付费完整护照 → <b>增量 3</b> 穿搭检测、详细分析、轻账户 → <b>增量 4</b> 揭晓视频与真实支付。详见 <a href="#f">F</a> 与 <a href="#g">G</a>。</div>
+  </div>
+</section>
+
+<!-- ============ A ============ -->
+<section class="part" id="a">
+  <div class="part-head"><span class="letter">A</span><h2>产品审计与竞品洞察</h2>
+    <p>审阅范围：线上站点 beautytest.byliyz.com（落地页、示例报告、上传向导），仓库 <span class="num">BeautyAI-Assessment-System</span>（schema v0.2、rules 0.2.0、analyzer-0.2、preview-0.2、FastAPI、Next.js 前端、docs 全部文件）。说明：本次未用真人照片在线上跑完整流程（不上传他人人脸是隐私底线），流程体验依据仓库截图与代码复核。</p></div>
+
+  <div class="sub">
+    <h3><span class="tag">A1</span>现状一句话诊断</h3>
+    <p class="thesis">V1 是一件为评审者设计的优秀作品：架构透明、证据可溯、身份保护做成了确定性的图像操作。但它对消费者回答的是“系统怎么得出结论”，而不是“我该选哪个、看起来会怎样、怎么去做”。</p>
+  </div>
+
+  <div class="sub">
+    <h3><span class="tag">A2</span>能力盘点：已可用 · 未验证 · 欠开发</h3>
+    <div class="tbl wide"><table>
+      <thead><tr><th>能力</th><th>状态</th><th>证据</th><th>V2 价值判断</th></tr></thead>
+      <tbody>
+        <tr><td class="k">MediaPipe 质检门禁</td><td><span class="pill p-ok">已可用</span></td><td>7 类合成坏图全部按正确原因拒绝；单张约 30 ms</td><td>极高。上传后 300 ms 内给出具体的重拍建议；实时取景列为后续增强。</td></tr>
+        <tr><td class="k">面部锚点 + 脸型启发式</td><td><span class="pill p-ok">已可用</span></td><td>anchors.py、face_shape.py（MIT 移植），叠图核对过关键点</td><td>高。可在 1 秒内给出“第一个发现”，填补等待期。</td></tr>
+        <tr><td class="k">区域取色（Lab）</td><td><span class="pill p-ok">已可用</span></td><td>color_sample.py，脸颊 / 眉 / 虹膜 / 唇 / 头发中位数</td><td>中。白平衡不可控；需要校准步骤才能升级为结论。</td></tr>
+        <tr><td class="k">DeepSeek 结构化分析</td><td><span class="pill p-warn">未验证</span></td><td>首次通过率、p50 延迟、思考模式 A/B 均“待补”；输出约 6.7k token</td><td>核心资产，但质量与延迟未知。6.7k token 输出意味着等待可能超过 1 分钟。</td></tr>
+        <tr><td class="k">规则层（排序 / 约束 / 门控 / 一致性）</td><td><span class="pill p-ok">已可用</span></td><td>rules.py 528 行，C1–C12，score_breakdown</td><td>被低估的资产：确定性排序意味着<b>改约束可以即时重排，无需再调模型</b>。</td></tr>
+        <tr><td class="k">效果图 + 蒙版回贴</td><td><span class="pill p-warn">未验证</span></td><td>假模型下受保护区域逐像素不变；真实 Qwen 效果、“像本人”率待补；每份上限 3 张</td><td>最大的差异化潜力，也是最大的风险。只做了第 1 条建议。</td></tr>
+        <tr><td class="k">发型款式库</td><td><span class="pill p-ok">已可用</span></td><td>约 25 款，含 mm 参数、刘海 / 顶部高度属性</td><td>高。是“三方向”与理发师卡的结构化底座，需扩充到 60+ 并加入中文常用叫法。</td></tr>
+        <tr><td class="k">眼镜 / 理容 / 拍照建议</td><td><span class="pill p-warn">文字为主</span></td><td>glasses_direction、photo_direction 仅文字与枚举</td><td>眼镜可以做得更具体：用虹膜直径作比例尺估算镜框总宽（mm）。</td></tr>
+        <tr><td class="k">分享 / 导出 / 历史</td><td><span class="pill p-bad">缺失</span></td><td>无分享卡、无账户；照片 24 小时后删除，报告随之失去图片</td><td>报告“过期变残”是隐性体验问题，需要有意设计。</td></tr>
+        <tr><td class="k">反馈与再推荐</td><td><span class="pill p-bad">缺失</span></td><td>报告是一次性静态产物</td><td>V2 关键缺口。</td></tr>
+        <tr><td class="k">评测体系</td><td><span class="pill p-bad">缺失</span></td><td>EVAL.md 有方案；无评测集、无专家标注、/eval 页未建</td><td>上线后持续建设，不阻塞交付；发布前只做一次关键路径验证（I1）。</td></tr>
+      </tbody></table></div>
+  </div>
+
+  <div class="sub">
+    <h3><span class="tag">A3</span>逐环节体验审计</h3>
+    <div class="journey">
+      <div class="jstep"><h4>落地页</h4><ul><li>主标题“一份有依据的形象处方”偏抽象，用户读不出“我会得到什么”。</li><li>主视觉是插画护照卡，没有任何一张“前 / 后”变化。</li><li>“你会拿到什么”在解释来源标签，属于方法论叙事。</li><li>页脚“一个 AI 产品作品”削弱消费者信任。</li></ul><div class="verdict"><span class="dot d-bad"></span>价值没被看见</div></div>
+      <div class="jstep"><h4>上传</h4><ul><li>45° 侧脸必填。独自拍 45° 需要镜子或计时器，是最大的流失点。</li><li>只能上传相册文件，缺少拍摄指南与示例（V2 保留上传、补指南，不做实时相机）。</li><li>未处理国产手机默认美颜与滤镜，它们会改变肤色与脸型。</li><li>逐槽位即时质检与重拍提示做得好。</li></ul><div class="verdict"><span class="dot d-warn"></span>门槛偏高</div></div>
+      <div class="jstep"><h4>目标与约束</h4><ul><li>“想给人的印象”有 12 个抽象词（有分量、松弛……），用户难以对应到具体样子。</li><li>缺少关键输入：发质、愿不愿意留长、每次理发预算、场合。</li><li>约束默认折叠、安全默认值，做得好。</li></ul><div class="verdict"><span class="dot d-warn"></span>问得抽象</div></div>
+      <div class="jstep"><h4>等待</h4><ul><li>六步阶段列表真实可信，但用户在这段时间什么都看不到。</li><li>CV 测量在 1 秒内就绪，却要等模型结束才一起展示。</li><li>完整分析延迟未测；按约 6.7k 输出 token 估计会超过 1 分钟。</li></ul><div class="verdict"><span class="dot d-bad"></span>浪费最好的时刻</div></div>
+      <div class="jstep"><h4>报告</h4><ul><li>10 个区块，答案优先的排序是对的。</li><li>每个值都带来源标签；Top 5 每行都有影响 / 投入 / 把握三个小仪表，信息密度高。</li><li>向用户展示了给图像模型的英文 prompt。</li><li>Top 5 把“拍照角度”排在“眼镜”之前：按分数排，而不是按决策的重要性排。</li></ul><div class="verdict"><span class="dot d-warn"></span>像诊断面板</div></div>
+      <div class="jstep"><h4>效果图</h4><ul><li>只预览第 1 条建议，没有备选可以比较。</li><li>前后滑块与失败降级做得扎实。</li><li>无法表达“我不喜欢这个”，也就无法改进。</li></ul><div class="verdict"><span class="dot d-warn"></span>能看，不能选</div></div>
+      <div class="jstep"><h4>分享 / 回访</h4><ul><li>没有分享卡，没有导出，没有回访。</li><li>24 小时后照片删除，报告失去头像与效果图，链接也没人保存。</li></ul><div class="verdict"><span class="dot d-bad"></span>一次性</div></div>
+    </div>
+    <div class="note"><b>V1 应当保留的东西：</b>以分析而非分数为主体的立场；观察编号 → 推断 → 建议的证据链；规则层确定性排序与约束守卫；发型试看中五官核心像素来自原图的身份保护；理发师话术；24 小时照片删除；无密钥也能跑的假模型。V2 的工作是把这些优势<b>翻译成用户能感知的价值</b>，而不是推倒重来。</div>
+  </div>
+
+  <div class="sub">
+    <h3><span class="tag">A4</span>The Face Report 深度拆解</h3>
+    <div class="grid2">
+      <div class="stack">
+        <h4>它做对了什么</h4>
+        <ul style="margin:0;padding-left:1.1em;color:var(--ink-2);font-size:14.5px">
+          <li><b>获客机器：</b>23 个免费单点工具（脸型、对称度、眼型、瞳距、色彩、发型查找……）加约 40 篇指南文章，组成 SEO 矩阵；首页宣称“30 天 25 万次扫描”。</li>
+          <li><b>零摩擦开始：</b>一张正脸、免注册；免费扫描在浏览器本地运行，“照片不离开设备”。</li>
+          <li><b>清晰的升级路径：</b>先免费测，再一次性付费 $17.49 买完整报告（含 6 张发型试看、12 季型色彩、四周计划、PDF），7 天无理由退款，另售 $9.99 起的 AI 积分包。</li>
+          <li><b>发型卡片结构好：</b>每张试看带“推荐 / 稳妥替代 / 大胆选择”标签、打理时间、修剪周期、分线、层次、取舍说明，以及“喜欢 / 也许 / 不要”按钮。</li>
+          <li><b>行动计划字段完整：</b>类型、频率、首次见效时间、投入、成本区间、置信度、“为什么先做这个”。</li>
+        </ul>
+      </div>
+      <div class="stack">
+        <h4>它的弱点（我们的机会）</h4>
+        <ul style="margin:0;padding-left:1.1em;color:var(--ink-2);font-size:14.5px">
+          <li><b>以分数为核心：</b>0–100 分、百分位、“领先 X% 的扫描”。报告自称“分数不是目标”，却又把 1.23 的比例称为“完美 100/100”。这种矛盾会伤害信任，也有明显的心理风险。</li>
+          <li><b>测量多、决策少：</b>40+ 项测量里，大部分（眼角倾斜、鼻部投影）无法转化为用户能做的事。</li>
+          <li><b>泛化建议：</b>烟酰胺、BHA、维 C 这类护肤建议与测量结果无关；还有“仰睡避免不对称”这类无依据说法。</li>
+          <li><b>重复与填充：</b>不同发型卡共用同一段取舍说明；名人脸对比没有方法；“四周计划”付费后只见到三条和一个锁定卡。</li>
+          <li><b>擦边医美：</b>附加的“Procedure Preview”、指南中的 mewing、下颌角等内容，把用户推向外貌焦虑。</li>
+          <li><b>英文、西方审美与发型库：</b>中文用户、亚洲发质与国内理发店的沟通方式没有被服务。</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <div class="sub">
+    <h3><span class="tag">A5</span>竞品矩阵</h3>
+    <p class="muted" style="font-size:13px">标注 <span class="pill">已核实</span> 的条目本次通过官网或 App Store 页面核对；标注 <span class="pill">公开资料</span> 的条目来自既有行业知识，价格与功能可能已有变化，上线前需复核。</p>
+    <div class="tbl wide"><table>
+      <thead><tr><th>产品</th><th>核心形态</th><th>如何让人开始</th><th>发现感来源</th><th>能否改变真实决定</th><th>商业模式</th><th>可借鉴 / 可超越</th></tr></thead>
+      <tbody>
+        <tr><td class="k">The Face Report<br><span class="pill">已核实</span></td><td>测量型面部报告 + AI 试看</td><td>免费单点工具 + SEO 指南</td><td>分数、百分位、雷达图</td><td>中：发型卡与排名计划较好，其余偏测量</td><td>$17.49 一次性 + 积分包；7 天退款</td><td>借：免费工具矩阵、发型卡字段、喜欢 / 不要按钮。超：分析先于分数、证据可视化、中文理发沟通。</td></tr>
+        <tr><td class="k">Style DNA<br><span class="pill">已核实</span></td><td>自拍色彩分析 + 衣橱 + 购物</td><td>一张自拍，约 35 秒出档案</td><td>季型与个人色板</td><td>高（服装）：拍店内衣服判断是否适合</td><td>订阅（$7.99–19.99/月，年付 $29.99–39.99）；4.3 分 / 6.9K 评分</td><td>借：“购物时拍一下判断”的场景化工具。超：脸部结构与发型。</td></tr>
+        <tr><td class="k">TryHair.ai<br><span class="pill">已核实</span></td><td>网页试发型</td><td>上传正脸，免费脸型分析</td><td>150+ 款式看在自己身上</td><td>中：可下载给理发师看</td><td>按次积分：$1.99 / 5 张，$4.99 / 20 张</td><td>借：按次计费的低门槛。超：推荐理由与参数，不只是图库。</td></tr>
+        <tr><td class="k">国内“AI 发型模拟器”类 App<br><span class="pill">已核实</span></td><td>试发型、染发、胡须、肤色配色</td><td>可用内置示例图直接体验</td><td>换发型的视觉冲击</td><td>低：只有图，没有“为什么”和“怎么剪”</td><td>周订阅 ¥48–58，月 ¥128，年 ¥148–298</td><td>说明国内用户愿为试发型付费，但产品同质化，信任感弱。</td></tr>
+        <tr><td class="k">致美形象设计<br><span class="pill">已核实</span></td><td>量感 / 曲直风格测试、肤色、体型、发型、妆容（三庭五眼）、眼镜</td><td>“测测你的风格”</td><td>风格类型标签</td><td>中：覆盖全，但每项都很浅</td><td>VIP $3.99/月、$9.99/年，单次 $0.99</td><td>证明“全品类形象诊断”在国内已有需求；它没有本人试看和依据，评分数据不足以形成口碑。</td></tr>
+        <tr><td class="k">穿搭助手<br><span class="pill">已核实</span></td><td>电子衣橱、智能搭配、风格 / 体型 / 肤色测试、淘宝跳转</td><td>测试类小工具</td><td>体型与风格测试</td><td>中：搭配方案可直接买</td><td>单次 ¥6；VIP ¥28/月、¥68/年；评分 2.3（23 个）</td><td>差评集中在肤色判断错误（“黄皮被判冷白”）。说明色彩判断必须讲依据、讲不确定。</td></tr>
+        <tr><td class="k">颜大师<br><span class="pill">已核实</span></td><td>颜值打分、明星脸、变装、变美方案、穿搭顾问</td><td>颜值分与明星脸</td><td>分数</td><td>低</td><td>周订阅 ¥68，永久 ¥268；评分 3.0（2 个），有“强制付费”差评</td><td>颜值分获客的典型。我们反向定位：先讲依据、可执行；评分只在验证后作为附加功能。</td></tr>
+        <tr><td class="k">淘宝 / 京东 AI 试衣<br><span class="pill">已核实</span></td><td>全身照或虚拟形象试穿商品</td><td>购物过程中自然进入</td><td>衣服穿在身上</td><td>中：评测称“可用但替代不了试穿”，体型还原弱</td><td>平台免费</td><td>不和平台比试衣；我们负责“买什么”，平台负责“穿上什么样”，通过搜索词与链接衔接。</td></tr>
+        <tr><td class="k">美图秀秀 / 醒图 AI 发型<br><span class="pill">公开资料</span></td><td>修图工具中的 AI 换发型模板</td><td>已有海量装机量</td><td>娱乐化变装</td><td>低：偏好看而不是可执行；默认美颜改变脸型</td><td>会员订阅</td><td>它们是用户心智中的“试发型”基线；我们的差异是不美颜、可执行、讲依据。</td></tr>
+        <tr><td class="k">YouCam / 玩美移动<br><span class="pill">公开资料</span></td><td>AR 美妆、发色、AI 脸型与色彩</td><td>实时 AR 镜头</td><td>实时上妆</td><td>中：深度绑定品牌电商试妆</td><td>订阅 + B 端授权</td><td>借：实时取景反馈的体验水准。</td></tr>
+        <tr><td class="k">Warby Parker 等眼镜试戴<br><span class="pill">公开资料</span></td><td>AR 试戴 + 脸型问卷 + 瞳距测量</td><td>选镜框时自然进入</td><td>戴上就知道</td><td>高：直接导向购买</td><td>卖眼镜</td><td>借：用尺寸而不是形状说话。我们给出“镜框总宽 mm 区间”。</td></tr>
+        <tr><td class="k">线下形象顾问 / 色彩诊断（小红书生态）<br><span class="pill">公开资料</span></td><td>真人布料对比、四季 / 十二季型</td><td>小红书种草</td><td>披布那一刻的直观对比</td><td>高：有色卡与购物清单</td><td>单次数百至上千元</td><td>用户愿为“确定感”付高价。我们以低价提供 70% 的价值，并在不确定时如实说明。</td></tr>
+      </tbody></table></div>
+  </div>
+
+  <div class="sub">
+    <h3><span class="tag">A6</span>看起来厉害 vs 真正有用</h3>
+    <div class="tbl"><table>
+      <thead><tr><th>看起来厉害</th><th>为什么价值有限</th><th>真正有用的替代</th></tr></thead>
+      <tbody>
+        <tr><td>“478 个关键点 · 40+ 项测量”</td><td>数量不等于洞察；多数测量与可做的决定无关</td><td>3 条结构签名，每条在照片上画出依据，并写明“所以你应该……”</td></tr>
+        <tr><td>颜值分 / 百分位 / 黄金比例</td><td>制造焦虑；本身不稳定；与“开处方”冲突</td><td>本期：“与你的目标印象的距离”，只比较“现在”与“你选的方向”。颜值评分作为未来功能单独验证，不用未经验证的几何公式</td></tr>
+        <tr><td>12 季型标签</td><td>手机白平衡下是伪精确</td><td>近脸色 / 基础色 / 慎用色三组色卡，并说明置信度；校准后再给季型倾向</td></tr>
+        <tr><td>单张“改造后”大图</td><td>只能接受或拒绝，无从比较</td><td>3 个方向并排试看 + 偏好反馈 + 再生成</td></tr>
+        <tr><td>雷达图、多维度条形图</td><td>漂亮但读不出行动</td><td>“取舍滑块”：在稳妥与突破、省时与造型感之间拖动，推荐即时重排</td></tr>
+        <tr><td>名人脸相似度</td><td>无方法、易冒犯</td><td>不做</td></tr>
+      </tbody></table></div>
+  </div>
+
+  <div class="sub">
+    <h3><span class="tag">A7</span>五个最有价值的机会</h3>
+    <div class="grid3">
+      <div class="note"><b>① 档案即分享物。</b>脸型、色彩、风格类型是小红书的高频话题；把它们做成一张有依据的档案卡，用户会主动分享。竞品要么只给标签，要么只给分数。</div>
+      <div class="note"><b>② 可信的本人试看。</b>发型试看、确定性妆容试色、数字披布，三者都保证“脸还是我的脸”。国内修图类产品的美颜、瘦脸恰恰破坏了这种可信。</div>
+      <div class="note"><b>③ 证据在照片上。</b>每个结论都能在用户自己的照片上点亮依据，直接回应“黄皮被判冷白”这类最常见的差评。</div>
+      <div class="note"><b>④ 顾问式的完整链路。</b>竞品要么只测不推荐，要么只给图不给理由。我们从“看懂”到“看见”再到“去做”（发型师卡、色卡、购物清单）形成闭环。</div>
+      <div class="note"><b>⑤ 高频的穿搭检测。</b>诊断是一次性的，穿搭是每天的。穿搭检测把一次性报告变成持续使用的顾问，也是付费完整护照的复访理由（会员制延后再评估）。</div>
+    </div>
+  </div>
+</section>
+
+
+<!-- ============ B ============ -->
+<section class="part" id="b">
+  <div class="part-head"><span class="letter">B</span><h2>产品策略</h2>
+    <p>定位：以女性为先、男女都覆盖的线上形象顾问。核心产出是一份有依据的形象档案，以及四类能在本人身上看见的推荐。获客与商业化走小红书和抖音。</p></div>
+
+  <div class="sub" style="margin-top:0">
+    <h3><span class="tag">B1</span>目标用户分层</h3>
+    <div class="tbl wide"><table>
+      <thead><tr><th>人群</th><th>触发时刻</th><th>核心需求</th><th>当前替代方案</th><th>优先级</th></tr></thead>
+      <tbody>
+        <tr><td class="k">形象探索者<br><span class="muted" style="font-weight:400">女性 18–30 岁，小红书重度用户</span></td><td>刷到“风格诊断”“个人色彩”“脸型发型”笔记</td><td>知道自己是什么类型，并且有人告诉她为什么、该怎么穿、怎么剪、怎么化</td><td>线下诊断（数百元起）、测试类 App（浅、常判错）、看博主</td><td><span class="prio">主攻</span></td></tr>
+        <tr><td class="k">形象升级者<br><span class="muted" style="font-weight:400">女性 22–35 岁，职场与生活转折期</span></td><td>新工作、面试、约会、婚礼、换城市</td><td>一份按先后排好、有预算的改变计划</td><td>形象顾问、朋友意见</td><td><span class="prio">主攻</span></td></tr>
+        <tr><td class="k">发型决策者<br><span class="muted" style="font-weight:400">不分性别</span></td><td>“这周要去剪 / 烫 / 染”</td><td>比较几个方向，看见效果，跟发型师说清楚</td><td>截图给发型师、凭感觉</td><td><span class="prio p1">高频场景</span></td></tr>
+        <tr><td class="k">男性形象与理容</td><td>对外形没把握，不好意思问</td><td>具体、不夸张的发型、胡须、眼镜、衣服颜色建议</td><td>几乎没有好产品</td><td><span class="prio p1">完整分支</span></td></tr>
+        <tr><td class="k">发型师 / 化妆师 / 形象顾问</td><td>与客户沟通</td><td>客户自带档案与决策卡，沟通更快</td><td>翻手机图片</td><td><span class="prio p2">后期验证</span></td></tr>
+      </tbody></table></div>
+    <div class="note"><b>为什么女性优先：</b>面部美学、个人色彩、风格诊断与穿搭的主要受众是女性，付费习惯（线下诊断、穿搭会员）已经被教育过；小红书与抖音的相关内容也以女性用户为主。男性分支保留完整能力（理容、胡须、发型、眼镜），因为这个人群几乎没人服务好，是低成本的差异化。所有建议领域仍由用户自选的表达方向决定（D9），系统不推断性别。</div>
+  </div>
+
+  <div class="sub">
+    <h3><span class="tag">B2</span>核心 Jobs to be Done</h3>
+    <div class="grid2">
+      <div class="stack" style="gap:10px">
+        <div class="note"><b>J1 · 看懂自己</b>　当我对自己的样子没把握时，我想知道我的脸型、比例、色彩和风格类型，并且看到依据，这样我能理解为什么有些东西在我身上不好看。</div>
+        <div class="note"><b>J2 · 选定发型</b>　当我准备剪、烫、染时，我想在几个适合我的方向里比较并选定一个，再拿一张卡片给发型师看，这样不容易翻车。</div>
+        <div class="note"><b>J3 · 用对颜色</b>　当我买衣服、口红、染发时，我想知道哪些颜色放在脸旁最好看，这样我能少踩雷。</div>
+        <div class="note"><b>J4 · 找到风格</b>　当我不知道自己适合什么风格时，我想要一套有理由的风格方向和单品清单，这样我能建立自己的衣橱，而不是跟着潮流乱买。</div>
+      </div>
+      <div class="stack" style="gap:10px">
+        <div class="note"><b>J5 · 每天穿对</b>　当我出门前拿不准今天这身搭配时，我想拍一张就知道颜色和风格是否协调、哪里可以调整，这样我更自信。</div>
+        <div class="note"><b>J6 · 化对妆</b>　当我想换口红或眉形时，我想先在自己脸上看看效果，并知道哪种色调适合我，这样不会买了不用。</div>
+        <div class="note"><b>J7 · 为场合准备</b>　当我有面试、约会、婚礼时，我想要一套针对这个场合的完整方案，这样那天不用再纠结。</div>
+        <div class="note"><b>J8 · 验证改变</b>　当我剪完或换完之后，我想知道是不是改对了、下次怎么微调，这样我会越来越有把握。</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="sub">
+    <h3><span class="tag">B3</span>价值主张与差异化</h3>
+    <p class="thesis">形象护照：一张自拍，读懂你的脸、色彩和风格；在你自己身上看见发型、妆容和穿搭的可能；带走一份能直接用的清单。</p>
+    <div class="tbl wide"><table>
+      <thead><tr><th>维度</th><th>The Face Report</th><th>国内测试类 App</th><th>线下形象顾问</th><th>形象护照 V2</th></tr></thead>
+      <tbody>
+        <tr><td class="k">核心产出</td><td>分数与测量</td><td>类型标签</td><td>诊断 + 购物指导</td><td>有依据的档案 + 四类可视化推荐 + 决策卡</td></tr>
+        <tr><td class="k">可信度</td><td>测量多，解释矛盾</td><td>常判错，无依据</td><td>高，依赖顾问水平</td><td>照片上可点亮的依据；不确定时明说并给出改善办法</td></tr>
+        <tr><td class="k">可视化</td><td>AI 发型</td><td>模板换装、美颜</td><td>真人披布、试妆</td><td>本人发型试看、确定性试色、数字披布，脸始终是原图</td></tr>
+        <tr><td class="k">执行</td><td>英文建议</td><td>跳转商品</td><td>陪购</td><td>发型师卡、色卡、单品清单与搜索词、场合方案</td></tr>
+        <tr><td class="k">价格</td><td>$17.49</td><td>¥28–68/月订阅</td><td>数百至上千元/次</td><td>免费档案与档案卡；完整护照一次性付费（见 F4）</td></tr>
+        <tr><td class="k">立场</td><td>打分、医美预览</td><td>颜值分、明星脸</td><td>—</td><td>分析为主体，评分是待验证的未来功能；不医美、不推断体重与敏感属性</td></tr>
+      </tbody></table></div>
+  </div>
+
+  <div class="sub">
+    <h3><span class="tag">B4</span>风格诊断体系：八型标签 + 四层区分</h3>
+    <div class="archetypes">
+      <svg class="plane" viewBox="0 0 420 360" role="img" aria-label="量感与曲直平面上的八种风格">
+        <line class="ax" x1="40" y1="180" x2="400" y2="180" stroke-width="1.5"/>
+        <line class="ax" x1="220" y1="20" x2="220" y2="330" stroke-width="1.5"/>
+        <text x="44" y="198" font-size="12">曲线感</text><text x="352" y="198" font-size="12">直线感</text>
+        <text x="228" y="34" font-size="12">量感大</text><text x="228" y="326" font-size="12">量感小</text>
+        <g font-size="14"><text class="lbl" x="70" y="290">少女型</text><text class="lbl" x="320" y="290">少年型</text>
+        <text class="lbl" x="80" y="160">优雅型</text><text class="lbl" x="196" y="214">古典型</text><text class="lbl" x="318" y="160">自然型</text>
+        <text class="lbl" x="296" y="250">前卫型</text><text class="lbl" x="70" y="70">浪漫型</text><text class="lbl" x="320" y="70">戏剧型</text></g>
+        <circle class="me" cx="300" cy="140" r="7"/><circle cx="300" cy="140" r="16" fill="none" stroke="var(--warm)" stroke-dasharray="3 3"/>
+        <text x="236" y="122" font-size="12" fill="var(--warm)">你：偏自然，靠近戏剧</text>
+      </svg>
+      <div class="stack" style="font-size:14.5px;color:var(--ink-2)">
+        <p>小红书上流行的“风格诊断”就是量感 × 曲直平面上的八种类型。V1 已经输出量感（<span class="num">visual_weight</span> 1–5）和曲直（<span class="num">angular_rounded</span> −2…+2）两个连续维度，规则层按最近原型推导标签，临界时显示“介于 A 与 B 之间”（D2）。这一体系可以直接产品化。</p>
+        <p><b>V2 的改进：</b>① 用平面图展示用户的位置和离其他类型的距离，而不是只给一个标签；② 区分“面部风格”（只看脸）和“整体风格”（加上用户自选的身形骨架和身高后）；③ 每种风格附带具体的面料、廓形、图案、配饰规则，直接连到穿搭推荐；④ 男性表达方向使用对应的词表（例如“少年型”“自然型”“戏剧型”），由用户自选的表达方向决定（D9）。</p>
+        <p><b>四层区分（定稿）：</b>八个标签保持小红书通行叫法：少女型、少年型、优雅型、浪漫型、自然型、古典型、戏剧型、前卫型。产品中把风格信息分成四层，分别存储、分别展示：<br>① <b>可观察的面部特征</b>（CV 测量与模型观察，例如“轮廓线条偏直”）；② <b>推断的风格类型</b>（规则层按最近原型推导的位置与标签）；③ <b>个人审美偏好</b>（用户选的喜欢 / 不喜欢的风格）；④ <b>想要的目标形象</b>（用户选的“想成为的样子”）。推荐以②为底、③④为方向；用户说“不像我”只改变偏好层与展示，不改写①和②。示例图与词表按表达方向（女性化 / 男性化 / 中性）调整，八型本身不变。</p>
+        <p class="muted" style="font-size:13px">风格八型是行业惯例而非科学分类，界面上称为“风格方向”，不称“诊断结果”，并说明它描述的是视觉印象。</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="sub">
+    <h3><span class="tag">B5</span>核心用户旅程</h3>
+    <div class="flow">
+      <div class="n"><span class="t">发现</span><b>刷到档案卡</b>小红书笔记 / 抖音揭晓视频</div><span class="arr">→</span>
+      <div class="n"><span class="t">0:30</span><b>传一张</b>本地上传正脸，即时质检与重拍建议</div><span class="arr">→</span>
+      <div class="n key"><span class="t">0:45</span><b>揭晓</b>测量线 → 脸型与比例</div><span class="arr">→</span>
+      <div class="n key"><span class="t">1:30</span><b>形象档案</b>面部美学 · 色彩 · 风格</div><span class="arr">→</span>
+      <div class="n"><span class="t">2:30</span><b>反馈与补充</b>像我吗 · 喜好 · 身形 · 预算场合</div><span class="arr">→</span>
+      <div class="n key"><span class="t">4:00</span><b>看见可能</b>发型 · 妆容 · 披布 · 穿搭</div><span class="arr">→</span>
+      <div class="n"><span class="t">6:00</span><b>带走</b>发型师卡 · 色卡 · 单品清单</div><span class="arr">→</span>
+      <div class="n"><span class="t">日常</span><b>穿搭检测</b>拍今天的搭配</div><span class="arr">→</span>
+      <div class="n"><span class="t">分享</span><b>档案卡</b>回到小红书 / 抖音</div>
+    </div>
+  </div>
+
+  <div class="sub">
+    <h3><span class="tag">B6</span>产品原则（用于取舍）</h3>
+    <div class="grid3">
+      <div class="note"><b>看懂，然后去做。</b>每个分析结论都要连到至少一个推荐；不能指导选择的测量下沉到第三层或删除。</div>
+      <div class="note"><b>少而有据。</b>每屏一个主结论；每个结论都能在照片上点亮依据。</div>
+      <div class="note"><b>看见才相信。</b>能用图表达的不用字；图必须是本人、不美颜、标明 AI。</div>
+      <div class="note"><b>不确定就说出来。</b>色彩在光线差时降级为方向参考，并给出 20 秒的白纸校准办法。</div>
+      <div class="note"><b>描述特点，不贬低容貌。</b>主路径不排名、不说“标准脸”；未来的评分功能必须经过验证、由用户主动打开、并说明依据；任何时候都不对身材和体重发表意见。</div>
+      <div class="note"><b>用户永远有否决权。</b>任何推荐都可以说“不要”，系统必须听进去并调整。</div>
+    </div>
+  </div>
+
+  <div class="sub">
+    <h3><span class="tag">B7</span>战略功能优先级</h3>
+    <div class="tbl wide"><table>
+      <thead><tr><th>功能</th><th>用户价值</th><th>传播性</th><th>实现成本</th><th>依赖现有能力</th><th>工作流 · 增量</th></tr></thead>
+      <tbody>
+        <tr><td class="k">上传扫描 + 揭晓</td><td>高</td><td>中</td><td>低</td><td>qc.py、anchors.py、现有上传向导</td><td><span class="prio">A · 1</span></td></tr>
+        <tr><td class="k">面部美学分析</td><td>高</td><td>高</td><td>中</td><td>anchors、observations、face_structure</td><td><span class="prio">A · 1</span></td></tr>
+        <tr><td class="k">个人色彩 + 数字披布</td><td>极高</td><td>极高</td><td>中</td><td>color_sample.py、color_profile 三组色族</td><td><span class="prio">A · 1</span></td></tr>
+        <tr><td class="k">风格诊断（八型 · 四层）</td><td>极高</td><td>极高</td><td>低</td><td>style_dimensions、rules 原型</td><td><span class="prio">A · 1</span></td></tr>
+        <tr><td class="k">基础反馈 + 即时重排</td><td>高</td><td>中</td><td>低</td><td>rules.py 纯函数</td><td><span class="prio">A · 1</span></td></tr>
+        <tr><td class="k">形象档案卡（3:4）+ 1 张发型试看</td><td>中高</td><td>极高</td><td>低</td><td>preview.py、新卡片模板</td><td><span class="prio">A · 1</span></td></tr>
+        <tr><td class="k">话题入口 · 分享归因 · 评分预告</td><td>间接</td><td>高</td><td>低</td><td>新</td><td><span class="prio">D · 1</span></td></tr>
+        <tr><td class="k">发型三方向 + 发型师卡</td><td>极高</td><td>高</td><td>中</td><td>preview.py、masks.py、款式库</td><td><span class="prio p1">B · 2</span></td></tr>
+        <tr><td class="k">穿搭推荐</td><td>高</td><td>高</td><td>中</td><td>色彩 + 风格；新增单品库</td><td><span class="prio p1">B · 2</span></td></tr>
+        <tr><td class="k">妆容试色（确定性）</td><td>高</td><td>高</td><td>中</td><td>关键点多边形</td><td><span class="prio p1">B · 2</span></td></tr>
+        <tr><td class="k">眼镜 · 理容 · 计划</td><td>中高</td><td>中</td><td>低</td><td>rules、anchors</td><td><span class="prio p1">B · 2</span></td></tr>
+        <tr><td class="k">单次付费与权益</td><td>商业</td><td>—</td><td>中</td><td>新（PAYMENT_PROVIDER=fake 先行）</td><td><span class="prio p1">D · 2</span></td></tr>
+        <tr><td class="k">穿搭检测</td><td>高（高频）</td><td>中</td><td>中高</td><td>分割、取色、新 prompt</td><td><span class="prio p2">C · 3</span></td></tr>
+        <tr><td class="k">详细分析 · 高级反馈 · 轻账户</td><td>中</td><td>低</td><td>中</td><td>how-we-know、evidence、store</td><td><span class="prio p2">C · 3</span></td></tr>
+        <tr><td class="k">揭晓视频 · 回访 · 真实支付通道</td><td>中</td><td>极高</td><td>中</td><td>新</td><td><span class="prio p2">C/D · 4</span></td></tr>
+        <tr><td class="k">评测集 · 专家盲评 · 评测看板</td><td>间接</td><td>—</td><td>中</td><td>EVAL.md、summarize_runs.py</td><td><span class="prio p2">持续 · 不阻塞</span></td></tr>
+      </tbody></table></div>
+  </div>
+
+  <div class="sub">
+    <h3><span class="tag">B8</span>小红书与抖音：产出物就是内容</h3>
+    <div class="chan">
+      <div><h4>形象档案卡</h4><span class="fmt">小红书 · 3:4 · 1080×1440</span><p>脸型、色彩方向（色卡）、风格方向（平面图位置）、一句话总结。三种视觉可选：<b>插画头像</b>（按用户发型与色卡生成的线描，默认）、<b>色卡艺术版</b>、<b>本人肖像</b>（每次单独勾选）。灰色剪影不再是唯一的隐私选项。卡片底部是产品署名、“AI 生成 · 仅供参考”标识与来源链接。</p></div>
+      <div><h4>揭晓视频</h4><span class="fmt">抖音 · 9:16 · 12–15 秒</span><p>服务端自动合成：自拍 → 测量线 → 风格平面落点 → 数字披布换色 → 三个发型切换。只有用户勾选肖像时才使用本人照片，否则用插画头像版本。增量 4 提供。</p></div>
+      <div><h4>前后对比卡</h4><span class="fmt">两平台 · 3:4 / 9:16</span><p>选定的发型或妆容试看，左下角固定“AI 试看”标识。文案模板避免“变美”“逆袭”这类效果承诺用语。</p></div>
+      <div><h4>话题入口页</h4><span class="fmt">H5 · 免登录 · 深链</span><p>面部美学、脸型与发型、八型风格、个人色彩、穿搭五个入口，对应小红书高搜索量话题。所有入口都走同一次上传和同一个引擎，结果深链到护照中对应的页面。</p></div>
+    </div>
+    <div class="note"><b>内容合规底线：</b>不使用“整容脸”“标准脸”等词；评分预告只写“即将上线”，不出现任何示例分数；不做医美导流；AI 图与分享卡一律标识。这些与平台治理容貌焦虑内容的方向一致，也让账号可以长期运营。</div>
+  </div>
+</section>
+
+<!-- ============ C ============ -->
+<section class="part" id="c">
+  <div class="part-head"><span class="letter">C</span><h2>V2 详细 PRD</h2>
+    <p>17 项功能，按用户旅程排列。每项包含：用户问题、预期结果、体验与交互、功能需求、状态与边界、依赖、验收标准、成功指标。点击标题展开。标题右侧标注所属工作流与增量（例如“A · 1”表示工作流 A、增量 1）。<b>验收标准中的人工评审类指标（盲评、专家一致、多人稳定性）在上线后持续跟踪，不是发布门槛</b>；发布门槛是 G 节各任务的最小验收标准加一次关键路径验证（I1）。</p></div>
+
+  <div class="sub" style="margin-top:0">
+    <h3><span class="tag">C0</span>全局需求</h3>
+    <div class="tbl"><table><tbody>
+      <tr><td class="k">平台</td><td>移动端 H5 优先（375–430 px），桌面端两栏自适应；之后再评估微信小程序。</td></tr>
+      <tr><td class="k">语言</td><td>简体中文界面；发型、色彩用国内常用叫法，括注英文术语（如“纹理碎发 Textured Crop”）。</td></tr>
+      <tr><td class="k">合规</td><td>ICP 等备案由 Yeric 负责；以下是产品设计层面必须实现的部分：人脸属于《个人信息保护法》中的敏感个人信息：上传前单独同意；不满 14 周岁不得使用；AI 试看图按《人工智能生成合成内容标识办法》加显式“AI 试看”标识与隐式元数据标识；面向境内用户时图像编辑调用境内区域（百炼北京），避免数据出境。</td></tr>
+      <tr><td class="k">输入</td><td>本地文件上传是主入口（相册或系统相机拍照后选择，均走 <span class="num">&lt;input type=file&gt;</span>）；只要求正脸。本期不使用 getUserMedia、实时取景或相机 WASM。</td></tr>
+      <tr><td class="k">范围红线</td><td>不给医美 / 皮肤科建议；不推断民族 / 年龄 / 性别认同 / 健康 / 体重或体型；表达方式（presentation）与身形由用户选择或填写。<b>颜值评分</b>：本期不建模型、不展示任何分数（包括占位分），只允许一个标注“即将上线”的预告入口；未来上线需单独验证并新增决定记录（修订不变量 5，见 <a href="#g">G1</a>）。</td></tr>
+      <tr><td class="k">反馈</td><td>任何推荐都可以表达喜欢 / 一般 / 不喜欢；任何档案结论都可以说“不像我”。反馈只改偏好层与排序，不改写模型的 analysis（不变量 1）。</td></tr>
+      <tr><td class="k">性能</td><td>首屏 LCP &lt; 2.5 s（4G）；单张质检 &lt; 300 ms 端到端；快速洞察 p50 &lt; 20 s；完整护照 p50 &lt; 75 s；每张试看 p50 &lt; 25 s。</td></tr>
+      <tr><td class="k">无障碍</td><td>WCAG 2.2 AA；所有前后对比提供按钮切换（不只是拖动）；色卡附色名；置信度不只靠颜色表达。</td></tr>
+    </tbody></table></div>
+  </div>
+
+  <div class="stack" style="margin-top:28px">
+
+  <details class="feat" open>
+    <summary><span class="fid">F1</span><h4>落地页：用结果说话</h4><span class="chev">›</span><span class="one">让第一次来的人 5 秒内看懂“我会得到什么”，并愿意上传一张照片。 <span class="prio">A · 1</span></span></summary>
+    <div class="body">
+      <div><h5>用户问题</h5><p>V1 首页在讲方法（来源标签、规则层），没有一张真实变化；访客不知道结果长什么样、对自己有什么用。</p>
+        <h5>预期结果</h5><p>访客看到真人档案卡与试看，理解“一张自拍 → 看懂自己 → 看见可能 → 带走清单”的价值；点击开始的比例提升。</p></div>
+      <div><h5>体验与交互</h5><ol>
+        <li>首屏：标题“一张自拍，读懂你的脸、色彩和风格”；副标题“看见适合你的发型、妆容和穿搭，带走一份能直接用的清单”；唯一主按钮“上传一张正脸 · 免费”，次按钮“看真实案例”。</li>
+        <li>主按钮下方一行话题快捷入口（面部美学、脸型与发型、八型风格、个人色彩、穿搭）。点击后仍走同一次上传，结果直接打开护照中对应的页面。版式保持极简编辑风：一个主行动，其余都是轻量文字链接。</li>
+        <li>首屏右侧（移动端在标题下）：一组授权真人案例：形象档案卡 + 发型试看 + 数字披布，可左右滑动切换 3 位不同的人（以女性为主，也包含男性与中性表达，覆盖不同发质与肤色深浅）。</li>
+        <li>第二屏：“你会发现什么”：面部美学、个人色彩、风格方向三张档案卡的真实截图。</li>
+        <li>第三屏：“你会看见什么”：发型、妆容、披布、穿搭四类本人试看，以截图而不是文字呈现。</li>
+        <li>第四屏：隐私承诺，用三条可验证的事实（“侧脸照分析完立即删除”“正脸 24 小时删除，可随时一键删除”“不用于训练”）。</li>
+        <li>页尾（功能开关 <span class="num">FEATURE_SCORE_TEASER</span> 打开时）：一张“颜值评分 · 即将上线”的预告卡，按钮“上线时告诉我”只记录兴趣，不展示任何分数或示例分。</li>
+      </ol></div>
+      <div><h5>功能需求</h5><ul>
+        <li>案例数据从 <span class="num">examples/cases/*.json</span> 读取，与真实报告使用同一组件渲染。</li>
+        <li>每个案例必须有书面授权，并标注“授权展示”。</li>
+        <li>移除“一个 AI 产品作品”页脚；作品集说明移至 /about。</li>
+        <li>页面在无 API 密钥时完整可用。</li>
+        <li>话题入口路由 <span class="num">/t/[topic]</span>：只换首屏文案与示例，携带 <span class="num">topic</span> 与 <span class="num">ref</span> 参数进入上传，分析完成后跳到 <span class="num">/p/[id]/[topic]</span>。</li></ul>
+        <h5>状态与边界</h5><ul><li>授权案例不足 3 位时：用 1 位真人 + 插画，并在插画上注明“示意”。</li><li>低速网络：案例图使用渐进式加载，首屏不依赖大图。</li></ul></div>
+      <div><h5>依赖</h5><p>真人案例（I1 关键路径验证时征得 3–5 位授权，不足时用插画）；现有 /sample 报告组件；设计系统组件（G 节 K4）。</p>
+        <h5>验收标准</h5><ul><li>5 位未接触过产品的测试者，看首屏 5 秒后，至少 4 位能说出“会分析我的脸、颜色和风格，并给我看适合的造型”。</li><li>移动端首屏同时可见标题、主按钮和至少一张前后对比。</li></ul>
+        <h5>成功指标</h5><ul><li>落地页 → 开始上传 ≥ 25%（V1 基线待埋点）。</li><li>评分预告点击率作为兴趣信号记录，不设目标。</li><li>“看真实案例”点击后开始率 ≥ 35%。</li></ul></div>
+    </div>
+  </details>
+  <details class="feat">
+    <summary><span class="fid">F2</span><h4>上传一张正脸：快速扫描与重拍建议</h4><span class="chev">›</span><span class="one">把开始门槛从“2 张必填 + 3 步问卷”降到“上传 1 张正脸”，并让第一张照片尽量合格。 <span class="prio">A · 1</span></span></summary>
+    <div class="body">
+      <div><h5>用户问题</h5><p>45° 侧脸独自难拍；相册照片多带美颜、逆光或角度偏；用户在不知道回报之前不愿投入。</p>
+        <h5>预期结果</h5><p>用户 45 秒内上传一张合格正脸，并在 20 秒内看到第一个关于自己的发现。</p></div>
+      <div><h5>体验与交互</h5><ol>
+        <li>同意页（首次）：三行说明照片用途、保留时长与删除方式；单独勾选“同意处理我的人脸照片”和“已满 14 周岁”。</li>
+        <li>上传页：一个大的上传区（手机上点开即是系统的“照片图库 / 拍照”选择），旁边是一张“好照片”示例与四条要点：正对镜头、自然光、露出额头和发际线、关掉美颜。</li>
+        <li>选完照片后 300 ms 内给出质检结果：合格直接进入揭晓；不合格时只显示一条最重要的原因和具体做法（“光线从背后来，换个方向再拍”“脸太小，请裁近一点或靠近一些”），并附“仍然使用这张”（结论降级）与“换一张”。</li>
+        <li>疑似美颜（脸颊纹理过度平滑）：提示“这张可能开了美颜，结果会偏差。可以继续，也可以关掉美颜重拍”。</li>
+        <li>之后直接进入 F4 的揭晓，不先填问卷。只问一个问题：“你想看哪种表达方向的建议？”（女性化 / 男性化 / 中性，三张示意图），可跳过，跳过时给中性建议。</li>
+      </ol></div>
+      <div><h5>功能需求</h5><ul>
+        <li>只用 <span class="num">&lt;input type="file" accept="image/*"&gt;</span>；不调用 getUserMedia，不加载 MediaPipe WASM。前端只做压缩与 EXIF 方向校正（沿用 web/components/analyze/photo-slot.tsx）。</li>
+        <li>服务端质检沿用 <span class="num">POST /api/qc</span> 与 <span class="num">config/qc.yaml</span>，新增 <span class="num">beauty_filter_suspect</span>（脸颊区域 Laplacian 方差下限）与面向用户的中文重拍文案表。</li>
+        <li>只需要 <span class="num">front</span>：pipeline 的 <span class="num">REQUIRED_ROLES</span> 改为 <span class="num">("front",)</span>；<span class="num">profile45</span>、<span class="num">smile</span>、<span class="num">hair</span> 为可选（D14 修订）。</li>
+        <li>非正脸照片在任务结束后删除；正脸、缩略图与试看图保留 24 小时（沿用不变量 7）。</li></ul>
+        <h5>状态与边界</h5><ul><li>多张人脸：提示“只保留你自己”，请用户裁剪后重传。</li><li>戴眼镜：允许；提示“摘掉能让眼镜建议更准”。</li><li>HEIC 等格式：前端转换失败时由服务端转换；仍失败则提示换一张。</li><li>超大图片：前端压缩到长边 2048 px 再上传。</li></ul></div>
+      <div><h5>依赖</h5><p>qc.py、cv.py、现有上传向导（wizard.tsx、photo-slot.tsx）；美颜检测为新增启发式。</p>
+        <h5>验收标准</h5><ul><li>只传正脸即可生成护照（假模型下端到端测试）。</li><li>每一种质检拒绝原因都有对应的中文重拍建议（测试覆盖全部原因码）。</li><li>合成美颜图（双边滤波强度 ≥ 中）检出率 ≥ 80%，正常照片误报 ≤ 10%（合成样本测试）。</li></ul>
+        <h5>成功指标</h5><ul><li>开始 → 获得第一个发现 ≥ 70%。</li><li>重传次数中位数 ≤ 1。</li></ul></div>
+    </div>
+    <p class="muted" style="font-size:13px;margin-top:10px"><b>后续增强（不在本期）：</b>实时相机取景（椭圆引导框、实时提示、自动拍摄），需要 getUserMedia 与前端 MediaPipe WASM，待上传版的转化数据证明值得再做。</p>
+  </details>
+  <details class="feat">
+    <summary><span class="fid">F3</span><h4>渐进式补充：侧脸、发质、身形与“想要的感觉”</h4><span class="chev">›</span><span class="one">在用户看到价值之后，再用图片而不是抽象词收集让结果更准的信息。 <span class="prio">A · 1</span></span></summary>
+    <div class="body">
+      <div><h5>用户问题</h5><p>“松弛”“有分量”这类词用户无法对应到具体样子；又缺少发质、留长意愿等对发型推荐至关重要的信息。</p>
+        <h5>预期结果</h5><p>补充信息的完成率高，且每项都能在结果中看到它的作用（“因为你说不想每天吹头，省心方向用了免吹剪法”）。</p></div>
+      <div><h5>体验与交互</h5><ol>
+        <li>快速洞察页底部出现“解锁完整护照”卡，列出补充项和各自带来的变化，每项都可单独完成。</li>
+        <li><b>侧脸（选填）</b>：上传一张约 45° 的侧脸照，附示例图与“用计时自拍或请朋友帮拍”的提示；说明“用于判断下颌线和后脑轮廓，让发型更准”。</li>
+        <li><b>发质</b>：4 张发丝特写图选择（细软 / 中等 / 粗硬 / 自然卷），加一个“发量”三档滑块。</li>
+        <li><b>想要的感觉</b>：以 3 组 A/B 图片对选择（例如“利落 vs 柔和”“成熟 vs 年轻感”“低调 vs 有辨识度”），每组可选“都行”；后台映射为 V1 的 <span class="num">desired_impression</span> 枚举。</li>
+        <li><b>身形（可选）</b>：看图选择骨架类型（直线型 / 曲线型 / 自然型，各配插画与特征说明）或直接填写，再填身高；说明“只用于穿搭推荐，不会分析你的身材照片”。</li>
+        <li><b>风格偏好与目标</b>：从八型示例图（按表达方向切换）中选喜欢 / 不喜欢的风格，以及“想成为的样子”。与系统推断的风格分开存储（F8 四层）。</li>
+        <li><b>穿搭现状</b>：从风格图卡中选出“平时最常穿的三套”，用于判断现状与目标的距离。</li>
+        <li><b>现实条件</b>：每天打理时间（0 / 5 / 10 / 20 分钟）、理发预算（每次）、能接受烫 / 染、愿不愿意留长 2 个月、主要场合。全部有默认值。</li>
+      </ol></div>
+      <div><h5>功能需求</h5><ul>
+        <li>user_context（schema v0.3）新增：<span class="num">hair{texture, density, grow_out_ok}</span>、<span class="num">haircut_budget</span>、<span class="num">occasions[]</span>、<span class="num">body{frame, height_cm}</span>（仅用户输入）、<span class="num">style_preferences{liked[], disliked[]}</span>、<span class="num">target_style</span>、<span class="num">current_style_picks[]</span>。</li>
+        <li>A/B 图片对使用插画或授权案例，且覆盖三种表达方向。</li>
+        <li>只有新照片或影响模型输入的字段变化时才触发完整分析（F4）；偏好、预算、场合、身形的变化只触发规则层重排。已有结果不消失。</li></ul>
+        <h5>状态与边界</h5><ul><li>用户跳过全部补充：完整护照仍可生成，置信度和“依据不足”提示随之变化。</li><li>侧脸质检失败：不阻塞，提示可稍后补。</li></ul></div>
+      <div><h5>依赖</h5><p>passport.schema user_context 扩展（schema v0.3）；analyzer prompt 需描述新字段。</p>
+        <h5>验收标准</h5><ul><li>每个补充项在报告中至少有一处可见引用。</li><li>完成全部补充的中位时长 ≤ 90 秒。</li></ul>
+        <h5>成功指标</h5><ul><li>快速洞察 → 完整护照 ≥ 45%。</li><li>侧脸提供率 ≥ 50%（V1 为强制，需对比质量差异）。</li></ul></div>
+    </div>
+  </details>
+  <details class="feat">
+    <summary><span class="fid">F4</span><h4>分析进度：等待时就开始给发现</h4><span class="chev">›</span><span class="one">把等待变成揭晓过程：CV 结果即时出现，模型结果分段到达。 <span class="prio">A · 1</span></span></summary>
+    <div class="body">
+      <div><h5>用户问题</h5><p>V1 在完整分析结束前只显示阶段列表；而 CV 测量 1 秒内就绪。完整分析可能超过 1 分钟，用户易流失。</p>
+        <h5>预期结果</h5><p>用户在 3 秒内看到第一个与自己相关的内容，在 20 秒内看到结构签名，整段等待都有新信息出现。</p></div>
+      <div><h5>体验与交互</h5><ol>
+        <li>第 0–3 秒：用户照片出现在深色舞台上，关键点轮廓线淡入（只画轮廓与比例线，不画 478 个点）。</li>
+        <li>第 3–8 秒：测量结果逐条“盖章”出现，例如“面部长宽比 1.42 · 偏修长”“上中下庭 0.31 / 0.34 / 0.35”。</li>
+        <li>第 8–20 秒：快速模型返回 3 条结构签名与一句话总结，替换为可阅读的“初见”卡。</li>
+        <li>完整分析在后台继续：顶部细进度条与当前阶段文字；期间用户可以继续补充 F3 信息。</li>
+        <li>完成后推送页内提示“你的形象档案已准备好”，试看图逐张出现。</li>
+      </ol></div>
+      <div><h5>功能需求</h5><ul>
+        <li>沿用现有轮询 <span class="num">GET /api/passport/{id}</span>，响应新增 <span class="num">partial</span> 快照：<span class="num">anchors</span>、<span class="num">quick</span>、<span class="num">analysis</span>、<span class="num">previews</span> 各自就绪即返回。轮询间隔 1 s 起、逐步放宽到 3 s。SSE 列为后续优化，不在本期范围。</li>
+        <li>快速分析为一次独立的轻量模型调用（输出 ≤ 1k token，仅含 <span class="num">observations</span> 子集与 <span class="num">feature_signature</span>），属于独立请求，仍满足“每次请求一个生产模型”。</li>
+        <li>刷新页面后从轮询快照恢复。</li></ul>
+        <h5>状态与边界</h5><ul><li>快速分析失败：仍显示 CV 测量与“完整分析进行中”。</li><li>完整分析校验两次失败：保留快速结果，提示“完整护照生成失败，可免费重试一次”。</li><li>超时 &gt; 3 分钟：可留下邮箱或保存链接，完成后再看。</li></ul></div>
+      <div><h5>依赖</h5><p>pipeline.py 拆成两段；api/jobs.py 写入分段快照；前端沿用现有轮询（web/lib/api.ts）。</p>
+        <h5>验收标准</h5><ul><li>首个个性化内容出现 p50 ≤ 3 s。</li><li>等待期内没有超过 10 秒无新内容出现的空白段。</li></ul>
+        <h5>成功指标</h5><ul><li>等待期流失率 ≤ 10%。</li><li>“初见”页的 CSAT（一题：“这说的像你吗？”）≥ 4.0/5。</li></ul></div>
+    </div>
+  </details>
+  <details class="feat">
+    <summary><span class="fid">F5</span><h4>形象档案（第一层）：脸 · 色彩 · 风格</h4><span class="chev">›</span><span class="one">一屏讲清你是什么样、先做哪件事、去哪里看可能性；同时是分享卡的原型。 <span class="prio">A · 1</span></span></summary>
+    <div class="body">
+      <div><h5>用户问题</h5><p>V1 的头卡不错，但 10 个区块平铺；用户不知道看完之后最该做什么，也没有一个值得分享的“结果”。</p>
+        <h5>预期结果</h5><p>用户在一屏内得到三张档案（面部美学、个人色彩、风格方向）、一件“先做这个”，以及四类推荐的入口；超过一成的用户分享档案卡。</p></div>
+      <div><h5>体验与交互</h5><ol>
+        <li><b>封面</b>：本人照片在深色舞台上 + 一句话总结（例如“柔和的中等量感，适合低对比、带一点曲线的造型”）。</li>
+        <li><b>三张档案卡</b>横向排列：面部（脸型 + 3 条结构签名）、色彩（色彩方向 + 6 个近脸色）、风格（平面图上的位置 + 风格方向名）。每张可点进对应的第二层页面。</li>
+        <li><b>先做这一件</b>：排序第一的建议，附投入（时间 / 费用）与“看看效果”。</li>
+        <li><b>为你推荐</b>：发型、妆容、穿搭、配饰四个入口，各带一张缩略试看。</li>
+        <li><b>像我吗？</b>每张档案卡下方“像我 / 不太像”；选“不太像”可选原因（例如“我觉得更偏优雅”），进入 F16 基础反馈。</li>
+        <li>顶部“分享档案卡”：生成 3:4 卡片，视觉可选插画头像、色卡艺术或本人肖像（F17）。</li>
+        <li>付费内容（完整推荐）以“解锁完整护照”卡出现在推荐入口处；免费内容本身完整可用，不打码（见 <a href="#f">F4</a>）。</li>
+      </ol></div>
+      <div><h5>功能需求</h5><ul>
+        <li>新增 <span class="num">analysis.feature_signature[3]</span>：title（≤12 字）、observation_ids、region、styling_implication。</li>
+        <li>照片高亮多边形由规则层从 CV 关键点生成，模型不给坐标。</li>
+        <li>照片 24 小时后删除：封面切换为插画头像 + 档案文字，注明“照片已按承诺删除”。</li></ul>
+        <h5>状态与边界</h5><ul><li>只有快速结果时：色彩与风格卡显示“完整分析中”骨架，面部卡先出。</li><li>overall_confidence &lt; 0.4：顶部提示“照片条件有限，以下结论偏保守”，并给出最有效的一条补拍建议。</li></ul></div>
+      <div><h5>依赖</h5><p>header.tsx、evidence.tsx 改造；schema v0.3；rules 区域映射。</p>
+        <h5>验收标准</h5><ul><li>375 px 宽度下，封面、三张档案卡和“先做这一件”在两屏以内。</li><li>5 位测试者中至少 4 位能复述自己的风格方向和一个适合的颜色。</li></ul>
+        <h5>成功指标</h5><ul><li>档案 → 进入任一推荐 ≥ 75%；档案卡分享率 ≥ 10%。</li></ul></div>
+    </div>
+  </details>
+  <details class="feat">
+    <summary><span class="fid">F6</span><h4>面部美学分析</h4><span class="chev">›</span><span class="one">解释脸型、比例、轮廓与五官量感，以及它们对发型、妆容、配饰的意义。本期只做分析，颜值评分为预留的未来功能。 <span class="prio">A · 1</span></span></summary>
+    <div class="body">
+      <div><h5>用户问题</h5><p>用户想知道“我的脸是什么样的、为什么有些发型和妆容不适合我”。竞品要么给一堆测量和分数（The Face Report、颜大师），要么只给一个脸型标签。</p>
+        <h5>预期结果</h5><p>用户看懂 4–6 条关于自己面部的关键特点，每条都在照片上有依据，并知道它影响哪些选择。</p></div>
+      <div><h5>体验与交互</h5><ol>
+        <li><b>比例图</b>：三庭（上 / 中 / 下庭占比）与五眼（眼宽与眼距关系）画在用户照片上，数字用等宽体；旁边只写一句解读，例如“中庭略长，适合用刘海或横向眉形把视线拉回中部”。</li>
+        <li><b>轮廓</b>：脸型候选与概率（临界时显示“介于 A 与 B 之间”），额、颧、下颌三处宽度对比条。</li>
+        <li><b>五官量感</b>：五官整体偏大或偏小、线条偏柔或偏利，与风格诊断联动。</li>
+        <li><b>你的特点</b>：3 条结构签名，用中性词描述，例如“下颌线清晰”“眉眼间距较近”“唇形饱满”。</li>
+        <li><b>所以</b>：每条特点下列出它影响的推荐（发型 / 妆容 / 眼镜 / 领口），点击直接跳转。</li>
+        <li><b>颜值评分 · 即将上线</b>（开关控制）：页面底部一张预告卡，写“我们在验证一种讲依据的评分方式”，按钮“上线时告诉我”。只记录兴趣事件，不显示任何分数、示例分或几何“得分”。</li>
+      </ol></div>
+      <div><h5>功能需求</h5><ul>
+        <li>三庭五眼由 CV 测量（anchors.py 已有中下庭比、眼距比；补充上庭与眼宽），写入 <span class="num">anchors</span>，模型只做解读。</li>
+        <li>不显示“标准值”或“理想比例”；如需参照，只显示“常见范围”的灰色带，并注明“范围不代表好坏”。</li>
+        <li>扩展 <span class="num">safety_terms</span>：模型输出中继续拦截“完美”“标准脸”“缺陷”“颜值”“打分”“评分”等词。预告卡是前端固定文案，不经过模型，因此不冲突。</li>
+        <li>开发用的 10/10 占位分只允许出现在 <span class="num">web/lib/fixtures</span> 的开发样例中；生产构建不得渲染任何分数（自动化测试校验）。不得把三庭、对称度等几何公式包装成分数。</li></ul>
+        <h5>状态与边界</h5><ul><li>刘海遮住额头：上庭标注“被刘海遮挡，未测量”。</li><li>头部偏转超过阈值：五眼不显示，只给轮廓结论。</li><li>无侧脸：不出现下颌角、侧面轮廓相关结论。</li></ul></div>
+      <div><h5>依赖</h5><p>anchors.py、face_shape.py、observations；how-we-know.tsx 中的维度条可复用。</p>
+        <h5>验收标准</h5><ul><li>安全词检查 0 命中；生产构建中不出现任何分数（测试）。</li><li>I1 小样本中同一人两张照片三庭比例差 ≤ 0.02。</li><li>（上线后跟踪）形象顾问认为解读合理且有用 ≥ 75%。</li></ul>
+        <h5>成功指标</h5><ul><li>美学页 → 点击“所以”跳转推荐 ≥ 40%；“这说的像你吗”≥ 4.0/5。</li></ul></div>
+    </div>
+  </details>
+  <details class="feat">
+    <summary><span class="fid">F7</span><h4>个人色彩与数字披布</h4><span class="chev">›</span><span class="one">告诉用户哪些颜色放在脸旁边、哪些做衣橱底色、买东西时怎么用。 <span class="prio">A · 1</span></span></summary>
+    <div class="body">
+      <div><h5>用户问题</h5><p>V1 的四轴刻度与色族名对普通用户太抽象；冷暖置信度常被封顶在 0.45，结论模糊却没给出改善方法。</p>
+        <h5>预期结果</h5><p>用户拿到三组色卡并理解“近脸 / 衣橱 / 慎用”的用法；需要时可做 20 秒的白纸校准提升置信度。</p></div>
+      <div><h5>体验与交互</h5><ol>
+        <li><b>近脸色</b>（上衣、围巾、镜框）6–8 色；<b>衣橱底色</b>（外套、裤装）4–6 色；<b>慎用色</b> 3–4 色。每色有中文名。</li>
+        <li><b>数字披布</b>：在用户照片下巴下方叠加一块纯色“布”，两色并排或逐个切换（例如“雾蓝 vs 正红”），重现线下色彩诊断中最直观的时刻。纯确定性叠加，不调用生成模型，可在浏览器端实时切换。</li>
+        <li><b>发色方向</b>：2–3 个适合的染发色调（例如“冷棕”“蜜茶棕”），可用发型试看能力预览。</li>
+        <li><b>口红色族</b>：与 F11 妆容试色联动。</li>
+        <li><b>你的对比度</b>：用一条从“发色到肤色”的明度条解释为什么适合中高对比的搭配，并给出 3 个搭配公式（例如“藏青上衣 + 浅灰裤”）。</li>
+        <li><b>购物模式</b>：每个颜色给出电商搜索词（“雾霾蓝 衬衫”）；之后可加入“上传衣服照片，判断在不在你的色卡里”。</li>
+        <li><b>提升准确度</b>：拿一张白纸放在脸旁拍一张，系统据此校正白平衡；校准后才可能显示季型倾向。</li>
+      </ol></div>
+      <div><h5>功能需求</h5><ul>
+        <li>复用现有 <span class="num">analysis.color_profile</span> 的三组色族：favor → 近脸、neutral → 衣橱底色、avoid → 慎用；v0.3 只新增 <span class="num">combos[]</span>、<span class="num">hair_color_directions[]</span>、<span class="num">lip_families[]</span>。</li>
+        <li>白纸校准（增量 3）：检测白纸区域，计算 von Kries 校正系数，应用到区域取色后重算 C12，并记录 <span class="num">calibrated: true</span>。</li>
+        <li>季型门控沿用 rules；未校准时最多显示“方向参考”。</li>
+        <li>披布形状来自 <span class="num">GET /api/passport/{id}/geometry</span> 的下颌与颈部多边形，颜色来自色卡；前端 Canvas 叠加，可逆、可对照原图。</li></ul>
+        <h5>状态与边界</h5><ul><li>测量可靠性低：只显示近脸色中最稳妥的中性色，并提示校准。</li><li>染发用户：发色取样标注“当前发色”，不当作天生发色。</li></ul></div>
+      <div><h5>依赖</h5><p>color_sample.py；新增 calibration.py；schema v0.3。</p>
+        <h5>验收标准</h5><ul><li>同一人在两种光线下，校准后近脸色重合 ≥ 4/6。</li><li>评测中顾问认为近脸色“合理” ≥ 75%。</li></ul>
+        <h5>成功指标</h5><ul><li>色彩页停留 ≥ 40 s；色卡保存率 ≥ 20%；校准完成率 ≥ 25%。</li></ul></div>
+    </div>
+  </details>
+  <details class="feat">
+    <summary><span class="fid">F8</span><h4>风格诊断：八型 · 四层</h4><span class="chev">›</span><span class="one">把量感与曲直维度产品化为八种“风格方向”，并把“我看起来像什么”和“我喜欢、我想成为什么”分开。 <span class="prio">A · 1</span></span></summary>
+    <div class="body">
+      <div><h5>用户问题</h5><p>“我是什么风格”是小红书上最受欢迎的形象话题之一，但现有工具多为问卷测试，结果像星座；而且把“适合”与“喜欢”混在一起，用户不认同时无处表达。</p>
+        <h5>预期结果</h5><p>用户看到自己在量感 × 曲直平面上的位置、主风格与相邻风格；能说出“我更喜欢另一种”，推荐随之调整，但系统对她面部特征的观察不被覆盖。</p></div>
+      <div><h5>四层（定稿）</h5><ol>
+        <li><b>可观察的面部特征</b>：CV 测量与模型观察（例如“轮廓线条偏直”“五官量感中等”），带观察编号，可在照片上高亮。</li>
+        <li><b>推断的风格类型</b>：规则层按最近原型推导的位置与八型标签（少女、少年、优雅、浪漫、自然、古典、戏剧、前卫），临界时显示“介于 A 与 B 之间”。</li>
+        <li><b>个人审美偏好</b>：用户选的喜欢 / 不喜欢的风格（F3、F16）。</li>
+        <li><b>想要的目标形象</b>：用户选的“想成为的样子”。</li>
+      </ol><p class="muted" style="font-size:13px">推荐以第 2 层为底，向第 3、4 层倾斜；页面上四层分开显示，用语不同（“你的特征”“看起来像”“你喜欢”“你想去”）。</p></div>
+      <div><h5>体验与交互</h5><ol>
+        <li><b>平面图</b>：八种风格分布，用户位置是一个点和一个不确定性圆圈；若用户有偏好或目标，用空心点标出，并画一条“过渡箭头”。</li>
+        <li><b>为什么在这里</b>：两条依据，例如“五官量感中等偏大（o3、o7）”“轮廓线条偏直（o2）”。</li>
+        <li><b>你的风格规则</b>：面料、廓形、图案大小、配饰尺寸、领口形状，各一行。</li>
+        <li><b>“像我 / 不太像”与“我更喜欢另一种风格”</b>：选择后立刻重排穿搭与发型推荐，并显示一行“已按你喜欢的优雅方向调整”。</li>
+        <li><b>过渡方案</b>：从“看起来像”走向“想去的”，保留什么、加入什么。</li>
+        <li>示例图、词表与规则按用户自选的表达方向切换（女性化 / 男性化 / 中性）；八型本身不变。</li>
+      </ol></div>
+      <div><h5>功能需求</h5><ul>
+        <li>复用 <span class="num">style_dimensions</span> 与 <span class="num">rules.style_label</span> 的最近原型；原型坐标仍在 <span class="num">config/rules.yaml</span>，八型规则表与按表达方向的示例放 <span class="num">config/styles.yaml</span>（智能体 K1 编写）。</li>
+        <li>原型键名对齐八个中文标签（现有 sweet / boyish / elegant / romantic / natural / classic / dramatic / modern → 前卫型）。</li>
+        <li>新增 <span class="num">derived.style_profile</span>：<span class="num">face_only</span>、<span class="num">overall</span>（加入自选身形后）坐标、<span class="num">primary</span> / <span class="num">secondary</span>、<span class="num">between</span>、<span class="num">preference_overlay{liked, disliked, target}</span>、<span class="num">rules_zh</span>。</li>
+        <li>偏好与目标存于 <span class="num">user_context</span> 与 <span class="num">preference_events</span>，不写入 analysis。</li></ul>
+        <h5>状态与边界</h5><ul><li>维度置信度低：只显示大区域（例如“直线感、中等量感”），不给具体类型。</li><li>用户偏好与推断相距很远：不争辩，只说明“看起来像”的依据，并给过渡方案。</li></ul></div>
+      <div><h5>依赖</h5><p>rules.py 风格推导（D2）；styles.yaml（K1）；StylePlane 组件（K4）；F3 偏好与身形。</p>
+        <h5>验收标准</h5><ul><li>八个标签在三种表达方向下都能渲染，并有各自的示例与规则。</li><li>“我更喜欢另一种”只改变 preference_overlay 与排序，analysis 与 face_only 坐标不变（测试）。</li><li>（上线后跟踪）形象顾问对主风格的认同 ≥ 70%；同一人两组照片主风格一致或互为前二 ≥ 80%。</li></ul>
+        <h5>成功指标</h5><ul><li>风格页 → 穿搭推荐 ≥ 50%；“不太像”比例 &lt; 20%。</li></ul></div>
+    </div>
+  </details>
+  <details class="feat">
+    <summary><span class="fid">F9</span><h4>发型顾问：三方向试看、比较与发型师卡</h4><span class="chev">›</span><span class="one">回答“什么适合我、看起来什么样、怎么剪出来”。V2 的核心功能。 <span class="prio p1">B · 2（1 张试看在增量 1）</span></span></summary>
+    <div class="body">
+      <div class="full"><h5>用户问题</h5><p>V1 只预览第一条建议，用户无法比较；文字参数（“顶部 5–6cm”）难以想象；话术藏在长卡片里；用户无法表达“我不喜欢这个”。</p></div>
+      <div><h5>预期结果</h5><p>用户在 2 分钟内比较 3 个有明显差异的方向，选定 1 个并保存发型师卡；不满意时 1 次反馈后能得到更贴近的新方向。</p>
+        <h5>三个方向的定义</h5><ul>
+          <li><b>稳妥</b>：在现有长度内调整，剪一次就能实现，风险最低。</li>
+          <li><b>突破</b>：变化最明显，可能需要留长、烫或改分线；说明需要多久。</li>
+          <li><b>省心</b>：每天打理 ≤ 3 分钟、修剪周期最长。</li>
+        </ul><p>三者必须在长度、轮廓或刘海中至少两项上不同（规则层校验），避免三张“差不多”的图。</p></div>
+      <div><h5>体验与交互</h5><ol>
+        <li>顶部：深色舞台上的大图，默认显示“稳妥”；下方三个缩略图切换方向，加一个“现在”。</li>
+        <li>大图支持按住看原图、左右拖动对比；提供“正面 / 45°”切换（有侧脸时）。</li>
+        <li>大图下：方向名（中文常用叫法 + 英文术语）、一句“为什么适合你”（引用签名）、参数条（长度、顶部高度、两侧、刘海、分线、纹理），打理成本（每天几分钟、几周修剪一次、每次约多少钱）。</li>
+        <li>反馈按钮：“喜欢”“一般”“不喜欢”。选“不要”时出现原因标签：太短 / 太长 / 太普通 / 太夸张 / 打理太麻烦 / 不适合我的工作。</li>
+        <li>“再给我一个方向”：根据反馈生成第 4 个方向（每份护照最多再生成 3 次；增量 3）。</li>
+        <li>免费版：只生成“稳妥”方向 1 张试看；付费完整护照：三方向、比较、发型师卡与再生成。</li>
+        <li>“比较”模式：任选两张并排，参数差异高亮。</li>
+        <li>“就选它”：生成发型师卡（F9.1）。</li>
+      </ol></div>
+      <div><h5>功能需求</h5><ul>
+        <li>模型输出 <span class="num">hair_options[3]</span>（取代 <span class="num">named_styles</span>），每项含 tier、参数、打理、需不需要烫染、发型师话术、visual_edit_spec、evidence、confidence。</li>
+        <li>规则层：约束过滤（不接受烫染则突破方向不得依赖烫染）、差异度校验、款式库匹配（mm 参数）。</li>
+        <li>三张试看并行生成；每张独立失败、独立重试。</li>
+        <li>反馈写入 <span class="num">preference_events</span>；“再给我一个”是一次新的模型请求，输入包括已看过的方向与反馈原因。</li>
+        <li>每张试看图左下角显示“AI 试看”标识，并写入隐式元数据。</li>
+        <li>女性常用参数：长度（下巴 / 锁骨 / 肩下 / 胸前）、刘海（空气 / 八字 / 齐 / 无）、卷度（直 / C 卷 / 法式波浪 / 羊毛卷）、发色方向；男性沿用 V1 参数（两侧、顶部、刘海、分线）。</li></ul></div>
+      <div><h5>F9.1 发型师卡</h5><ul>
+        <li>一张竖版卡片：试看图（可选择隐藏脸部，只留发型区域）、款式名、三段话术（“两侧……”“顶部……”“刘海……”）、mm 参数表、“请不要”清单、参考款式编号。</li>
+        <li>操作：保存图片、复制文字、生成只读链接（链接不含照片，除非用户勾选）。</li>
+        <li>话术用发型店口语，例如“长度剪到锁骨下一指，前面做八字刘海，最短到颧骨，发尾不要打太薄”。</li></ul>
+        <h5>状态与边界</h5><ul><li>某张试看失败：显示参数插画 + “重试”，不影响其他两张。</li><li>身份检查未通过（E4）：不展示该图，自动重生一次，仍失败则降级为插画。</li><li>长发、刘海遮挡面颊的方向：使用“软保护”回贴（见 E4），否则会被截断。</li><li>用户当前是光头或极短发：突破方向标注“需要留长约 X 个月”。</li></ul></div>
+      <div><h5>依赖</h5><p>preview.py、masks.py、providers/image；config/hairstyles.json 扩充到 60+ 款并加入中文名与亚洲发质适配（K3）；schema v0.3 的 <span class="num">previews[]</span>。</p>
+        <h5>验收标准</h5><ul><li>三方向在长度、轮廓、刘海中至少两项不同（规则层测试）。</li><li>假模型下三张试看并行生成、各自失败各自重试；五官核心区逐像素不变（测试）。</li><li>I1 小样本中长发与刘海方向无截断。</li><li>（上线后跟踪）“像本人”≥ 90%；发型师认为可直接照着剪 ≥ 80%。</li></ul>
+        <h5>成功指标</h5><ul><li>护照中保存发型师卡比例（带走率）≥ 40%。</li><li>“不要”之后再生成的方向被标为“喜欢”的比例 ≥ 50%。</li></ul></div>
+    </div>
+  </details>
+  <details class="feat">
+    <summary><span class="fid">F10</span><h4>穿搭推荐</h4><span class="chev">›</span><span class="one">把风格、色彩与身形转化成单品清单、搭配公式和场合方案，并能落到购物搜索。 <span class="prio p1">B · 2</span></span></summary>
+    <div class="body">
+      <div><h5>用户问题</h5><p>知道了“我是自然型、柔和夏”，用户仍不知道明天该买什么、怎么搭。现有穿搭 App 多为模板推荐或商品流，和“我”的特点没有联系。</p>
+        <h5>预期结果</h5><p>用户得到 8–12 件核心单品、3–5 个搭配公式和 3 个场合方案，每件都说明“为什么适合你”，并能一键复制搜索词去淘宝、小红书。</p></div>
+      <div><h5>体验与交互</h5><ol>
+        <li><b>你的穿搭公式</b>：3–5 条，例如“低饱和蓝灰上衣 + 米色直筒裤 + 细金属配饰”，每条配插画平铺图与色块。</li>
+        <li><b>核心单品</b>：按上装 / 下装 / 外套 / 鞋包 / 配饰分组；每件显示颜色、廓形、面料、领口，以及一行理由（引用风格规则或面部特点，例如“V 领拉长颈部线条，平衡圆润的下颌”）。</li>
+        <li><b>场合方案</b>：通勤、约会、正式场合三个标签，各一套完整搭配。</li>
+        <li><b>购物</b>：每件单品给出 2–3 个搜索词（“雾蓝色 真丝衬衫 宽松”），复制即可；以后若接入电商链接，明确标注合作。</li>
+        <li><b>领口试看</b>：对近脸的上衣颜色与领口，可在本人照片上做披布或领口换色对比（F7 能力复用）。</li>
+        <li>每件单品与公式可“喜欢 / 一般 / 不喜欢”（F16 基础反馈，即时重排）；单品另可标“已有”，进入简单衣橱，为穿搭检测（F12）提供上下文。</li>
+      </ol></div>
+      <div><h5>功能需求</h5><ul>
+        <li>单品本体库 <span class="num">config/garments.yaml</span>（智能体 K2）：品类、廓形、面料、领口、适合风格、适合身形骨架、表达方向，约 150 条起步。</li>
+        <li>模型输出 <span class="num">outfit_direction</span>：formulas[]、items[]（引用单品库 id）、occasions[]、evidence；规则层校验单品与风格、色彩、约束的一致性（例如“慎用色”不得出现在近脸单品中）。</li>
+        <li>身形只来自用户自选或填写的骨架类型与身高，不从照片推断体型或体重。</li>
+        <li>搜索词由规则模板生成，保证可复制、无品牌偏向。</li></ul>
+        <h5>状态与边界</h5><ul><li>用户未提供身形：按面部风格推荐，并标注“加入身形后更准”。</li><li>着装要求为制服：只给配饰、发型与妆容方向。</li><li>预算低：优先给“改变搭配而非购买”的公式。</li></ul></div>
+      <div><h5>依赖</h5><p>F7 色彩、F8 风格、F3 身形；新增单品库与 prompt 段落；clothing_top 蒙版（已有）。</p>
+        <h5>验收标准</h5><ul><li>单品与用户色彩、风格规则冲突率为 0（规则层校验）。</li><li>形象顾问盲评“可以照着买” ≥ 70%；交换测试（M11）中用户能认出“这不是我的” ≥ 70%。</li></ul>
+        <h5>成功指标</h5><ul><li>复制搜索词或保存清单 ≥ 25%；标记“想要”的单品中位数 ≥ 3。</li></ul></div>
+    </div>
+  </details>
+  <details class="feat">
+    <summary><span class="fid">F11</span><h4>妆容方向与确定性试色</h4><span class="chev">›</span><span class="one">唇色、腮红、色调在本人脸上试看：允许受控地改动妆容区域的像素，不做生成式五官重塑。 <span class="prio p1">B · 2</span></span></summary>
+    <div class="body">
+      <div><h5>用户问题</h5><p>女性用户最常问“我适合什么口红色号、什么腮红”。生成式模型重画面部会改变五官；只看色块又想象不出上脸效果。</p>
+        <h5>预期结果</h5><p>用户在自己脸上切换 6–8 个唇色与 3 个腮红位置，随时对照原图，看到真实的色彩关系，并拿到色调方向与搜索词。</p></div>
+      <div><h5>体验与交互</h5><ol>
+        <li>妆容方向卡：底妆色调方向（只谈色调，不涉及皮肤状况）、唇色族、腮红位置与颜色、眉形与眉色、眼妆重点。理由引用面部特点与色彩档案。</li>
+        <li>试色：横向色板，点一下唇色立即变化；按住或点“原图”切回原图（可逆对照）；同色族“日常 / 约会 / 正式”三档浓度。</li>
+        <li>腮红：三种位置（横向、斜向、苹果肌），羽化边缘。</li>
+        <li>眉形：用描线叠加展示建议的眉峰位置与长度，不改动原眉毛像素。</li>
+        <li>男性表达方向：替换为眉形修整、胡须长度、唇部护理色调等理容建议。</li>
+      </ol></div>
+      <div><h5>功能需求（定稿）</h5><ul>
+        <li><b>确定性唇色</b>：唇外轮廓减内轮廓得到唇部区域；在 Lab 空间按浓度调整 a*、b* 与少量 L*，保留原有明暗纹理。</li>
+        <li><b>羽化腮红</b>：脸颊多边形内的径向渐变，边缘高斯羽化；混合模式保留皮肤纹理。</li>
+        <li><b>排除蒙版</b>：牙齿（内唇区域）、眼睛（含眼白与虹膜）以及其他非目标区域永不着色。</li>
+        <li><b>可逆</b>：原图始终保留在内存中，任何时刻可一键回到原图；不覆盖存储中的原图。</li>
+        <li>实现为前端 TypeScript Canvas 模块 <span class="num">web/lib/tint/</span>（智能体 K5），多边形来自 <span class="num">GET /api/passport/{id}/geometry</span>；不调用生成模型，结果可复现、可逐像素检验。</li>
+        <li>决定记录：确定性着色允许进入妆容区域；生成式编辑仍不得改动五官（修订 D4 / D17，见 G1）。</li>
+        <li>色号库只存色值与色族，不绑定品牌。</li></ul>
+        <h5>状态与边界</h5><ul><li>嘴唇被遮挡或张口大笑：不提供唇色试看。</li><li>已化浓妆的照片：提示“试色基于当前妆面，素颜照更准”。</li><li>照片过期（24 小时）：试色入口改为色板展示。</li></ul></div>
+      <div><h5>依赖</h5><p>FaceLandmarker 唇部、眼部与脸颊关键点（anchors 导出多边形）；色彩档案；K5 着色模块。</p>
+        <h5>验收标准</h5><ul><li>排除蒙版之外、目标区域之外的像素差为 0（单元测试）；牙齿与眼睛像素不变（测试）。</li><li>原图对照切换 &lt; 50 ms；着色边缘无明显锯齿（I1 人工检查）。</li><li>（上线后跟踪）化妆师认为推荐唇色族合理 ≥ 75%。</li></ul>
+        <h5>成功指标</h5><ul><li>试色使用率 ≥ 50%（女性化表达用户）；色号搜索词复制 ≥ 20%。</li></ul></div>
+    </div>
+  </details>
+  <details class="feat">
+    <summary><span class="fid">F12</span><h4>穿搭检测</h4><span class="chev">›</span><span class="one">拍一张今天的穿搭，得到颜色、风格一致度与比例上的具体调整建议。 <span class="prio p2">C · 3</span></span></summary>
+    <div class="body">
+      <div><h5>用户问题</h5><p>诊断是一次性的，穿什么是每天的问题。用户出门前需要一个懂她的“第二意见”。</p>
+        <h5>预期结果</h5><p>用户 15 秒内得到 1 个最值得的调整（例如“把黑色围巾换成你色卡里的雾蓝，脸会更亮”）和 2 个可选调整，并能保存为“今日穿搭”。</p></div>
+      <div><h5>体验与交互</h5><ol>
+        <li>上传一张全身照（相册或系统相机拍后选择）；示例图提示“头到脚都在画面里”。</li>
+        <li>结果：服装区域分割后的色块条（实际颜色 vs 你的色卡）、风格一致度（与你的风格方向的距离，用“很贴合 / 部分贴合 / 换个方向”三档文字，不打分）、比例线（腰线、上下身分割位置）。</li>
+        <li>一个“最值得的调整”，最多两个“也可以试试”，每个都说明理由。</li>
+        <li>场合选择（通勤 / 约会 / 正式）会改变建议。</li>
+        <li>“今日穿搭”记录形成日历，可回看（需轻账户）。</li>
+      </ol></div>
+      <div><h5>功能需求</h5><ul>
+        <li>独立 schema <span class="num">outfit_check.schema.json</span> 与独立 prompt；一次检测是一次独立请求（满足“一个生产模型”）。</li>
+        <li>CV：人体分割取服装区域；可分析衣物颜色、廓形、上下身分割与画面构成；不计算、不输出任何体型或体重相关量。</li>
+        <li>建议只针对衣物、配饰、颜色与比例线；安全词检查扩展到“显胖”“显瘦”“遮肉”等身材评价词，命中即重试。</li>
+        <li>照片处理完立即删除，只保存色块与文字结果。</li></ul>
+        <h5>状态与边界</h5><ul><li>镜子反光或多人：提示重拍。</li><li>尚未完成形象档案：只做颜色协调建议，并引导完成档案。</li></ul></div>
+      <div><h5>依赖</h5><p>selfie_multiclass 分割（衣物类）；色彩与风格档案；付费完整护照权益（合理使用限额，见 F4）。</p>
+        <h5>验收标准</h5><ul><li>服装主色提取与人工标注色差 ΔE ≤ 10 的比例 ≥ 80%。</li><li>身材评价词 0 命中。</li></ul>
+        <h5>成功指标</h5><ul><li>完成档案的用户 7 日内使用穿搭检测 ≥ 25%；周使用 ≥ 2 次的用户占比 ≥ 10%。</li></ul></div>
+    </div>
+  </details>
+  <details class="feat">
+    <summary><span class="fid">F13</span><h4>眼镜、理容与妆容：用尺寸和场景说话</h4><span class="chev">›</span><span class="one">给出镜框总宽的 mm 区间、可试戴的形状，以及按表达方向区分的理容 / 妆容建议。 <span class="prio p1">B · 2</span></span></summary>
+    <div class="body">
+      <div><h5>用户问题</h5><p>“方圆框、中等粗细”在店里难以执行；男性理容建议常被敷衍。</p>
+        <h5>预期结果</h5><p>用户能拿着“镜框总宽 136–142 mm、鼻梁 18–20 mm、镜腿 145 mm”这样的参数去挑镜框，并看到 2–3 种形状戴在自己脸上的样子。</p></div>
+      <div><h5>体验与交互</h5><ol>
+        <li>尺寸卡：总宽、镜片宽、鼻梁区间，标注“估算，误差约 ±4 mm”；附“如何对照你现在的眼镜（镜腿内侧数字）”的说明图。</li>
+        <li>形状试戴：2–3 种形状的 AI 试看，与发型选择联动（例如突破发型配细金属框）。</li>
+        <li>理容 / 妆容：按用户选择的表达方向显示：胡须长度与颈线、眉形修整范围、底妆色调方向（不涉及皮肤问题）。</li>
+        <li>场景切换：工作 / 日常 / 社交，三个标签切换对应的组合建议。</li>
+      </ol></div>
+      <div><h5>功能需求</h5><ul>
+        <li>比例尺：以虹膜水平直径（人群均值约 11.7 mm）换算像素到毫米，规则层计算镜框尺寸区间，写入 <span class="num">derived.glasses_size</span>（CV + 规则，不由模型给）。</li>
+        <li>阈值与换算常数放入 <span class="num">config/rules.yaml</span>。</li></ul>
+        <h5>状态与边界</h5><ul><li>虹膜被眼镜反光遮挡：不给 mm，只给“与颧骨同宽”。</li><li>用户不接受换眼镜：模块折叠为“如果哪天想换”。</li></ul></div>
+      <div><h5>依赖</h5><p>anchors.py；masks.py 的 glasses 蒙版；preview。</p>
+        <h5>验收标准</h5><ul><li>10 位戴镜测试者，估算总宽与其舒适镜框实际总宽误差 ≤ 5 mm 的比例 ≥ 70%。</li></ul>
+        <h5>成功指标</h5><ul><li>眼镜卡保存率 ≥ 15%（戴镜用户中）。</li></ul></div>
+    </div>
+  </details>
+  <details class="feat">
+    <summary><span class="fid">F14</span><h4>个人改进计划</h4><span class="chev">›</span><span class="one">把零散建议组织成“先做什么、花多少、怎么验证”的计划。 <span class="prio p1">B · 2</span></span></summary>
+    <div class="body">
+      <div><h5>用户问题</h5><p>V1 的 Top 5 是五条并列建议，混合了不同类别和决策重量，用户不知道先后与组合关系。</p>
+        <h5>预期结果</h5><p>用户得到三段计划：本周可做（免费或低成本）、下次理发时、值得投入的一次性改变；每项可勾选完成。</p></div>
+      <div><h5>体验与交互</h5><ol>
+        <li>分三栏：“今天就能做”（拍照角度、发泥用法）、“下次理发”（选定方向与发型师卡）、“值得投资”（眼镜、核心上衣颜色）。</li>
+        <li>每项显示：预计花费区间、所需时间、多久能看到效果、与哪一项搭配效果更好。</li>
+        <li>“怎么判断改对了”：每项给一个可观察的检验，例如“侧面照中头顶高度不再高于眉到下巴距离的 1/3”。</li>
+        <li>勾选完成；全部“下次理发”项完成后，邀请上传剪后照片（F12）。</li>
+      </ol></div>
+      <div><h5>功能需求</h5><ul>
+        <li>计划由规则层从排序后的建议生成：按 <span class="num">effort</span> 和新字段 <span class="num">cost_band</span>、<span class="num">time_to_effect</span> 分组；<span class="num">pairs_with</span> 由模型给出、规则层校验引用存在。</li>
+        <li>勾选状态存于本地，有账户时同步。</li></ul>
+        <h5>状态与边界</h5><ul><li>某栏为空：不显示空栏。</li><li>所有建议都需确认约束：计划顶部提示“这些需要你先确认是否可接受”。</li></ul></div>
+      <div><h5>依赖</h5><p>rules.py 排序；recommendations 新增字段。</p>
+        <h5>验收标准</h5><ul><li>任何计划项都可追溯到一条建议和至少一条观察。</li></ul>
+        <h5>成功指标</h5><ul><li>至少勾选一项的比例 ≥ 30%；7 日内回来查看计划 ≥ 15%。</li></ul></div>
+    </div>
+  </details>
+  <details class="feat">
+    <summary><span class="fid">F15</span><h4>详细分析（第三层）：证据在照片上</h4><span class="chev">›</span><span class="one">给想深究的人看测量、推理链与局限，同时保留 V1 的可追溯性。 <span class="prio p2">C · 3</span></span></summary>
+    <div class="body">
+      <div><h5>用户问题</h5><p>V1 把来源标签和分数拆解放在主路径上，普通用户感到像诊断面板；而好奇的用户又需要看得见的证据。</p>
+        <h5>预期结果</h5><p>主路径干净；“详细分析”里每条观察都能在照片上高亮，测量与模型判断并排，冲突如实说明。</p></div>
+      <div><h5>体验与交互</h5><ol>
+        <li>标注照片：可切换图层（比例线 / 脸型轮廓 / 取色点），点击观察条目时对应区域高亮。</li>
+        <li>结构：脸型候选与概率条、测量启发式结论并排；不一致时说明“测量更像椭圆，整体印象更像长方，我们按以下理由采用后者”。</li>
+        <li>风格维度：五个连续维度的双极条，附一句话解释。</li>
+        <li>依据与局限：照片条件、置信度说明、我们不做什么。</li>
+        <li>“这是怎么做出来的”：保留测量 / 模型 / 规则三层说明，作为方法页。</li>
+      </ol></div>
+      <div><h5>功能需求</h5><ul><li>复用 how-we-know.tsx、evidence.tsx；观察条目新增 <span class="num">region</span>（枚举）供高亮。</li><li>所有英文 prompt 与 score_breakdown 移入方法页的折叠区。</li></ul>
+        <h5>状态与边界</h5><ul><li>照片已过期：标注图层改为通用示意轮廓，并注明。</li></ul></div>
+      <div><h5>依赖</h5><p>schema observations.region；rules 区域映射。</p>
+        <h5>验收标准</h5><ul><li>每条观察都能高亮或明确标注“整体印象，无单一区域”。</li></ul>
+        <h5>成功指标</h5><ul><li>进入详细分析的用户占比 15–30%（过高说明第一层没讲清）。</li></ul></div>
+    </div>
+  </details>
+  <details class="feat">
+    <summary><span class="fid">F16</span><h4>反馈、偏好与即时重排</h4><span class="chev">›</span><span class="one">基础反馈进入第一个版本：用户说“不像我”“不喜欢”“预算变了”，推荐立即调整，无需重跑视觉模型。 <span class="prio">A 基础 · 1　C 高级 · 3</span></span></summary>
+    <div class="body">
+      <div><h5>用户问题</h5><p>报告一旦生成就固定；用户不认同某个结论、不喜欢某个方向或改变主意（“其实可以烫”），只能重新上传。</p>
+        <h5>预期结果</h5><p>反馈后 1 秒内看到调整后的推荐，并有一行字说明变化；只有确实需要新内容时才调用模型。</p></div>
+      <div><h5>基础反馈（工作流 A，增量 1）</h5><ol>
+        <li>档案卡与风格页：“像我 / 不太像”，可选原因。</li>
+        <li>风格页：“我更喜欢另一种风格”（选一个八型）。</li>
+        <li>发型方向与穿搭单品：喜欢 / 一般 / 不喜欢；“不喜欢”展开可选原因标签（太短 / 太长 / 太普通 / 太夸张 / 打理太麻烦 / 不适合我的工作 / 颜色不喜欢 / 不适合我的场合）。</li>
+        <li>“调整”面板：预算、每天打理时间、能否烫染、场合、风格目标。</li>
+        <li>调整后即时重排或过滤，并用一行字说明：“因为你接受烫发，发型方向换成了纹理烫”。</li>
+      </ol></div>
+      <div><h5>高级（工作流 C，增量 3）</h5><ol>
+        <li>“再给我一个方向”：根据反馈生成新的发型或穿搭方向（新的模型请求，付费权益）。</li>
+        <li>调整历史与撤销到上一版本。</li>
+        <li>收藏到“我的选择”，有轻账户后跨设备同步。</li>
+        <li>偏好跨护照复用（下次扫描时预填）。</li>
+      </ol></div>
+      <div><h5>功能需求</h5><ul>
+        <li><span class="num">POST /api/passport/{id}/feedback</span>：写入 <span class="num">preference_events</span>（target_type、target_id、reaction、reason_tags、ts），幂等，不触发模型。</li>
+        <li><span class="num">POST /api/passport/{id}/rerank</span>：合并 user_context 变化与偏好事件，只重跑 <span class="num">rules.derive</span>，返回新的 derived（含 <span class="num">feedback_applied</span> 与 <span class="num">derived_version</span>）。analysis 不变（不变量 1），也不算“重试”（不变量 6）。</li>
+        <li>rules 新增 <span class="num">apply_feedback()</span>：不喜欢的目标降权或过滤；偏好风格影响穿搭与发型的排序权重；权重放 <span class="num">config/rules.yaml</span>。</li>
+        <li>观察到的特征（analysis、anchors）与偏好（user_context、preference_events）分开存储，展示也分开。</li>
+        <li>候选不足时（例如所有方向都需烫发而用户不接受）提示“需要生成新方向”；增量 1 只提示，增量 3 才真正发起新请求。</li></ul>
+        <h5>状态与边界</h5><ul><li>未付费用户也能使用基础反馈；被付费内容遮住的推荐同样参与重排。</li></ul></div>
+      <div><h5>依赖</h5><p>rules.py 已是纯函数，可直接复用；FeedbackChips 组件（K4）。</p>
+        <h5>验收标准</h5><ul><li>重排 p95 &lt; 500 ms；同一输入重排结果完全一致（测试）。</li><li>反馈后 analysis 字节级不变（测试）。</li></ul>
+        <h5>成功指标</h5><ul><li>反馈使用率 ≥ 20%；反馈后带走率不低于未反馈用户。</li></ul></div>
+    </div>
+  </details>
+  <details class="feat">
+    <summary><span class="fid">F17</span><h4>分享、导出、回访与数据控制</h4><span class="chev">›</span><span class="one">有设计感、带 AI 标识与产品署名的分享卡；剪后回访；用户看得见的删除按钮。 <span class="prio">A 档案卡 · 1　C 其余 · 3–4</span></span></summary>
+    <div class="body">
+      <div><h5>用户问题</h5><p>没有分享与保存手段；24 小时后报告失去照片；剪完之后没有理由再回来；只给灰色剪影的分享卡不好看，没人愿意发。</p>
+        <h5>预期结果</h5><p>用户愿意把档案卡、发型师卡分享出去；剪后两周内有一部分人回来对比。</p></div>
+      <div><h5>体验与交互</h5><ol>
+        <li><b>3:4 编辑风档案卡</b>（增量 1）：精致排版、用户本人的色卡、风格平面落点、一句话总结。视觉三选一：<b>插画头像</b>（按用户发型参数与色卡生成的线描，默认）、<b>色卡艺术版</b>、<b>本人肖像</b>（每次单独勾选）。</li>
+        <li><b>发型师卡、前后对比卡</b>（增量 2）：试看图可选择遮挡五官、只留发型区域。</li>
+        <li><b>9:16 揭晓视频</b>（增量 4）：同一套视觉，抖音格式。</li>
+        <li>所有卡片固定：左下“AI 生成”标识、产品署名、带 <span class="num">ref</span> 的短链或二维码。</li>
+        <li><b>保存护照</b>（增量 3）：手机号登录（先用假短信通道）获得永久链接；未保存则 7 天后链接失效（JSON 也删除）。</li>
+        <li><b>剪后回访</b>（增量 4）：两周后提醒（经同意）；上传剪后照片，与选定方向并排，给出“下次微调”。</li>
+        <li><b>数据控制</b>（增量 1）：报告页底部固定“删除我的照片与报告”，删除后显示确认页与删除时间。</li>
+      </ol></div>
+      <div><h5>功能需求</h5><ul>
+        <li>卡片在前端用 HTML 模板渲染为 PNG（html-to-image），模板放 <span class="num">web/components/cards/</span>（智能体 K6），不需要服务端浏览器。</li>
+        <li>插画头像由参数生成（发型轮廓、发色、色卡），不从照片描摹五官。</li>
+        <li><span class="num">POST /api/passport/{id}/share</span> 生成只读 <span class="num">share_token</span>；分享页默认不含照片。</li>
+        <li><span class="num">DELETE /api/passport/{id}</span> 立即删除照片、试看图与 JSON。回访照片同样适用 24 小时删除规则。</li>
+        <li>PNG 写入隐式元数据（AI 生成标识），满足生成内容标识要求。</li></ul>
+        <h5>状态与边界</h5><ul><li>照片已过期：肖像选项置灰，其余两种可用。</li><li>未登录用户的回访：通过保存的链接进入。</li></ul></div>
+      <div><h5>依赖</h5><p>retention.py 扩展；K6 卡片模板；轻账户（C3）。</p>
+        <h5>验收标准</h5><ul><li>插画头像与色卡艺术版上不出现任何照片像素（测试）。</li><li>三种卡片都带 AI 标识与产品署名（快照测试）。</li><li>删除操作后 1 分钟内存储中不可再访问。</li></ul>
+        <h5>成功指标</h5><ul><li>分享率 ≥ 10%；分享带来的新访客开始率 ≥ 30%；剪后回访 ≥ 15%。</li></ul></div>
+    </div>
+  </details>
+
+  </div>
+</section>
+
+<!-- ============ D ============ -->
+<section class="part" id="d">
+  <div class="part-head"><span class="letter">D</span><h2>体验架构与设计概念</h2>
+    <p>信息架构、主流程、十二个关键屏幕的线框，以及视觉方向。线框以女性用户为主要示例；人像为示意插画，正式产品中是用户本人照片。橙色编号对应右侧说明。</p></div>
+
+  <div class="sub" style="margin-top:0">
+    <h3><span class="tag">D1</span>信息架构：三层护照</h3>
+    <div class="grid3">
+      <div class="note"><b>第一层 · 形象档案</b><br>封面照片与一句话；三张档案卡（面部美学、个人色彩、风格方向）；先做这一件；四类推荐入口；分享档案卡。<br><span class="muted">目标：30 秒内获得“这说的是我”。</span></div>
+      <div class="note"><b>第二层 · 为你推荐</b><br>发型（三方向、比较、发型师卡）· 妆容（方向与试色）· 色彩应用（披布、发色、搭配）· 穿搭（公式、单品、场合）· 配饰与眼镜 · 计划。另有高频工具“穿搭检测”。<br><span class="muted">目标：做出并带走一个决定。</span></div>
+      <div class="note"><b>第三层 · 详细分析</b><br>标注照片与图层、三庭五眼与轮廓测量、风格维度、色彩取样、依据与局限、方法说明（测量 / 模型 / 规则）。<br><span class="muted">目标：让好奇的人信服，让怀疑的人看到边界。</span></div>
+    </div>
+    <div class="tbl"><table>
+      <thead><tr><th>V1 区块</th><th>V2 去向</th></tr></thead>
+      <tbody>
+        <tr><td>① 护照头卡</td><td>第一层封面与三张档案卡</td></tr>
+        <tr><td>② 推荐造型（单张）</td><td>第二层·发型三方向，并扩展到妆容试色与披布</td></tr>
+        <tr><td>③ Top 5</td><td>第一层“先做这一件” + 第二层计划</td></tr>
+        <tr><td>④ 优势 / 拖后腿</td><td>面部美学页的“你的特点”与各推荐的“为什么”</td></tr>
+        <tr><td>⑤–⑧ 发型 / 色彩 / 眼镜 / 拍照</td><td>第二层各页；拍照建议并入计划</td></tr>
+        <tr><td>⑨ 视觉档案 · ⑩ 局限</td><td>第三层详细分析</td></tr>
+        <tr><td>新增</td><td>风格诊断、穿搭推荐、妆容、穿搭检测、档案卡</td></tr>
+      </tbody></table></div>
+  </div>
+
+  <div class="sub">
+    <h3><span class="tag">D2</span>主流程与状态</h3>
+    <div class="flow">
+      <div class="n"><span class="t">/ · /t/[topic]</span><b>落地页 · 话题入口</b>上传一张开始 · 看案例</div><span class="arr">→</span>
+      <div class="n"><span class="t">/start</span><b>上传</b>同意 → 选照片 → 质检与重拍建议</div><span class="arr">→</span>
+      <div class="n key"><span class="t">/p/[id]</span><b>揭晓</b>测量 → 初见</div><span class="arr">→</span>
+      <div class="n key"><span class="t">/p/[id]</span><b>形象档案</b>脸 · 色彩 · 风格</div><span class="arr">→</span>
+      <div class="n"><span class="t">/p/[id]/more</span><b>反馈与补充</b>像我吗 · 喜好 · 身形 · 预算</div><span class="arr">→</span>
+      <div class="n key"><span class="t">/p/[id]/…</span><b>推荐</b>发型 · 妆容 · 色彩 · 穿搭</div><span class="arr">→</span>
+      <div class="n"><span class="t">/p/[id]/plan</span><b>计划与卡片</b>带走</div><span class="arr">→</span>
+      <div class="n"><span class="t">/check</span><b>穿搭检测</b>日常使用（增量 3）</div>
+    </div>
+    <p class="muted" style="font-size:13.5px">路由：<span class="num">/p/[id]</span> 档案，子页 <span class="num">face · color · style · hair · outfit · makeup · glasses · plan · detail · more · share</span>；话题入口完成后直接落到对应子页。付费内容在子页内以“解锁完整护照”卡出现（<span class="num">/p/[id]/unlock</span>）。护照状态机：<span class="num">scanning → quick_ready → (enriching) → full_ready → previews_partial → previews_ready</span>；分支：<span class="num">qc_failed</span>、<span class="num">analysis_failed（保留快速结果）</span>、<span class="num">media_expired（照片已删除，档案保留）</span>、<span class="num">deleted</span>。底部导航：档案 · 推荐 · 穿搭检测 · 我的。</p>
+  </div>
+
+  <div class="sub">
+    <h3><span class="tag">D3</span>关键屏幕线框</h3>
+    <div class="screens">
+
+      <!-- 1 landing -->
+      <div class="screen">
+        <div class="phone"><div class="ph">
+          <div class="sb"><span>9:41</span><span>形象护照</span></div>
+          <div class="bar"><b>形象护照</b><span class="xs">案例 · 我的</span></div>
+          <div class="in">
+            <div class="row"><span class="ann">1</span><div class="h">一张自拍，读懂你的脸、色彩和风格</div></div>
+            <div class="s">看见适合你的发型、妆容和穿搭，带走一份能直接用的清单。</div>
+          </div>
+          <div class="dark">
+            <div class="row"><span class="ann">2</span><span class="xs">授权案例 · 1/3　左右滑动</span></div>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px">
+              <svg class="face" viewBox="0 0 120 150"><use href="#hb-long"/><use href="#fbase"/><use href="#hf-mid"/><path d="M10 150 Q14 114 60 110 Q106 114 110 150Z" fill="#8FA3B8"/></svg>
+              <div style="display:flex;flex-direction:column;gap:5px;font-size:10.5px">
+                <span class="xs">面部</span><b>鹅蛋脸 · 中庭略长</b>
+                <span class="xs">色彩</span><b>柔和 · 冷调 · 中低对比</b>
+                <span class="xs">风格</span><b>优雅型，靠近古典</b>
+                <div class="sw"><i style="background:#8FA3B8"></i><i style="background:#C9A3AE"></i><i style="background:#9AA68E"></i><i style="background:#5E6A7D"></i></div>
+              </div>
+            </div>
+          </div>
+          <div class="in">
+            <div class="row"><span class="ann">3</span><div class="btn" style="flex:1">上传一张正脸 · 免费</div></div>
+            <div class="btn2">看 3 个真实案例</div>
+            <div class="xs" style="text-align:center">不美颜 · 照片 24 小时删除，可随时一键删除</div>
+            <div class="row"><span class="ann">5</span><span class="xs">话题：面部美学 · 脸型发型 · 八型风格 · 个人色彩 · 穿搭</span></div>
+            <div class="row"><span class="ann">4</span><span class="s" style="font-weight:500">你会看见</span></div>
+            <div class="chips"><span class="chip">发型试看</span><span class="chip">口红试色</span><span class="chip">数字披布</span><span class="chip">穿搭清单</span></div>
+          </div>
+        </div></div>
+        <div class="annot"><h4 style="font-family:var(--serif);font-size:19px">1 · 落地页</h4>
+          <ol>
+            <li><span class="ann">1</span><span><b>结果式标题。</b>讲用户得到什么，不讲用了什么 AI。A/B 备选：“你的线上形象顾问”“找到真正适合你的样子”。</span></li>
+            <li><span class="ann">2</span><span><b>案例就是档案卡本身。</b>访客第一眼看到的是她将拿到的东西，和小红书上看到的笔记是同一张卡，形成认知闭环。</span></li>
+            <li><span class="ann">3</span><span><b>单一主行动</b>，隐私承诺紧贴按钮。</span></li>
+            <li><span class="ann">4</span><span><b>四种“看见”</b>是区别于测试类 App 的关键卖点。</span></li>
+            <li><span class="ann">5</span><span><b>话题快捷入口</b>只是文字链接，不和主按钮抢注意力；每个入口都深链到同一本护照的对应页面。页尾可放“颜值评分 · 即将上线”预告卡（开关控制）。</span></li>
+          </ol>
+          <div class="note">从小红书笔记进入时，落地页首屏直接显示该笔记对应的话题（例如“测风格方向”），按来源参数切换文案。</div>
+        </div>
+      </div>
+
+      <!-- 2 upload -->
+      <div class="screen">
+        <div class="phone"><div class="ph">
+          <div class="sb"><span>9:41</span><span>上传</span></div>
+          <div class="bar"><b>上传一张正脸</b><span class="xs">1 / 1 必填</span></div>
+          <div class="in">
+            <div class="row"><span class="ann">1</span><span class="xs">点这里从相册选择，或用系统相机拍一张</span></div>
+            <div class="card" style="border-style:dashed;align-items:center;text-align:center;padding:18px 10px"><b style="font-size:28px;line-height:1">＋</b><b>选择照片</b><span class="xs">JPG · PNG · HEIC</span></div>
+            <div class="row" style="gap:8px;align-items:flex-start"><span class="ann">2</span>
+              <svg class="face" viewBox="0 0 120 150" style="width:32%;flex:none"><use href="#hb-long"/><use href="#fbase"/><use href="#hf-mid"/></svg>
+              <div style="display:flex;flex-direction:column;gap:3px;min-width:0"><b style="font-size:11.5px">好照片长这样</b><span class="xs">正对镜头 · 自然光</span><span class="xs">露出额头和发际线</span><span class="xs">关掉美颜和滤镜</span></div>
+            </div>
+            <div class="card" style="border-color:var(--warm)"><div class="row"><span class="ann">3</span><b style="font-size:12px">光线从背后来</b></div><span class="xs">脸部偏暗，颜色判断会不准。换到面向窗户的位置再拍一张。</span>
+              <div class="row" style="gap:6px"><span class="chip on">换一张</span><span class="chip">仍然使用</span></div></div>
+            <span class="xs">侧脸、微笑、发型照都可以稍后补充</span>
+            <div class="row"><span class="ann">4</span><b>只问一个问题</b></div>
+            <div class="chips"><span class="chip on">女性化</span><span class="chip">男性化</span><span class="chip">中性</span><span class="chip">跳过</span></div>
+          </div>
+        </div></div>
+        <div class="annot"><h4 style="font-family:var(--serif);font-size:19px">2 · 上传与开始</h4>
+          <ol>
+            <li><span class="ann">1</span><span><b>上传是唯一入口。</b>手机上点开就是系统的“照片图库 / 拍照”选择，不需要网页相机权限，也不加载实时检测模型。</span></li>
+            <li><span class="ann">2</span><span><b>示例图 + 四条要点</b>放在上传前，女性用户特别提示露出额头（长发遮挡会影响三庭和脸型）。</span></li>
+            <li><span class="ann">3</span><span><b>质检 300 ms 内返回</b>，只说一条最重要的原因和具体做法；用户可以坚持使用，结论相应降级。美颜检测是中国市场的必要环节。</span></li>
+            <li><span class="ann">4</span><span><b>问卷后置。</b>只问表达方向（决定推荐领域与词表）；其余在看到档案后再问。</span></li>
+          </ol>
+          <div class="note">同意页（首次上传前）：三行说明照片用途、保留时长与删除方式，单独勾选“同意处理我的人脸照片”与“已满 14 周岁”。实时相机取景列为后续增强。</div>
+        </div>
+      </div>
+
+      
+      <!-- 3 progress -->
+      <div class="screen">
+        <div class="phone"><div class="ph">
+          <div class="sb"><span>9:42</span><span>正在分析</span></div>
+          <div class="dark">
+            <div style="position:relative">
+              <svg class="face" viewBox="0 0 120 150"><use href="#hb-long"/><use href="#fbase"/><use href="#hf-mid"/>
+                <g stroke="#86B8C8" stroke-width=".8" fill="none"><path d="M26 42 H94 M26 64 H94 M26 84 H94 M26 105 H94" stroke-dasharray="2 2"/><path d="M35 72 L85 72"/></g>
+                <g fill="#86B8C8"><circle cx="35" cy="72" r="1.6"/><circle cx="85" cy="72" r="1.6"/><circle cx="60" cy="42" r="1.6"/><circle cx="60" cy="105" r="1.6"/></g>
+              </svg>
+              <span class="ann" style="position:absolute;top:8px;left:8px">1</span>
+            </div>
+            <div class="row"><span class="ann">2</span><span class="xs">测量 · 已完成</span></div>
+            <div class="card" style="background:var(--stage-2);border-color:var(--stage-2);color:var(--stage-ink)"><span class="num" style="font-size:11px">三庭 0.32 / 0.35 / 0.33 · 中庭略长</span><span class="num" style="font-size:11px">长宽比 1.33 · 鹅蛋脸附近</span><span class="num" style="font-size:11px">肤色取样 · 偏冷 · 中浅</span></div>
+          </div>
+          <div class="in">
+            <div class="row"><span class="ann">3</span><b>初见</b><span class="xs">· 16 秒</span></div>
+            <div class="h" style="font-size:15px">柔和的中等量感，适合低对比、带一点曲线的造型</div>
+            <div class="chips"><span class="chip">轮廓柔和</span><span class="chip">中庭略长</span><span class="chip">低对比</span></div>
+            <div class="row"><span class="ann">4</span><span class="xs">正在生成你的形象档案与发型试看 · 约 40 秒</span></div>
+            <div class="meter"><i style="width:62%"></i></div>
+            <div class="card"><b>趁等待，选一下你的身形？</b><span class="xs">让穿搭推荐更准 · 20 秒 · 只看图选择</span></div>
+          </div>
+        </div></div>
+        <div class="annot"><h4 style="font-family:var(--serif);font-size:19px">3 · 揭晓式进度</h4>
+          <ol>
+            <li><span class="ann">1</span><span><b>三庭线与宽度线淡入</b>，克制，不做“科技扫描”动画。这也是揭晓视频的第一段素材。</span></li>
+            <li><span class="ann">2</span><span><b>CV 数字逐条落定</b>（&lt;3 秒）。</span></li>
+            <li><span class="ann">3</span><span><b>快速结果</b>约 20 秒内到达，替换为可读的“初见”。</span></li>
+            <li><span class="ann">4</span><span><b>等待即补充。</b>身形、侧脸、喜好放在等待期内完成。</span></li>
+          </ol>
+        </div>
+      </div>
+
+      <!-- 4 archive -->
+      <div class="screen">
+        <div class="phone"><div class="ph">
+          <div class="sb"><span>9:43</span><span>形象档案</span></div>
+          <div class="bar"><b>形象档案</b><span class="xs">调整 · 分享档案卡</span></div>
+          <div class="dark">
+            <div class="row" style="align-items:flex-start;gap:10px">
+              <div style="position:relative;width:40%;flex:none"><svg class="face" viewBox="0 0 120 150"><use href="#hb-long"/><use href="#fbase"/><use href="#hf-mid"/></svg><span class="ann" style="position:absolute;top:6px;left:6px">1</span></div>
+              <div style="display:flex;flex-direction:column;gap:5px;min-width:0">
+                <span class="xs">No. AP-2026-0518</span>
+                <b style="font-family:var(--serif);font-size:13.5px;line-height:1.4">柔和的中等量感，适合低对比、带一点曲线的造型</b>
+              </div>
+            </div>
+          </div>
+          <div class="in">
+            <div class="row"><span class="ann">2</span><b>你的档案</b></div>
+            <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:5px">
+              <div class="card" style="padding:7px"><span class="xs">面部</span><b style="font-size:11px">鹅蛋脸</b><span class="xs">中庭略长</span></div>
+              <div class="card" style="padding:7px"><span class="xs">色彩</span><b style="font-size:11px">柔和冷调</b><div class="sw"><i style="background:#8FA3B8;height:10px"></i><i style="background:#C9A3AE;height:10px"></i><i style="background:#9AA68E;height:10px"></i></div></div>
+              <div class="card" style="padding:7px"><span class="xs">风格</span><b style="font-size:11px">优雅型</b><span class="xs">靠近古典</span></div>
+            </div>
+            <div class="row" style="gap:5px"><span class="xs">这像你吗？</span><span class="chip">像我</span><span class="chip">不太像</span></div>
+            <div class="row"><span class="ann">3</span><b>先做这一件</b></div>
+            <div class="card"><b>近脸换成雾蓝、灰粉，少穿纯黑</b><span class="xs">¥0 · 今天就能做 · 立刻见效</span><span class="s" style="color:var(--accent);font-weight:500">披布对比 →</span></div>
+            <div class="row"><span class="ann">4</span><b>为你推荐</b></div>
+            <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:4px;text-align:center" class="xs">
+              <div><svg class="face" viewBox="0 0 120 150"><use href="#hb-bob"/><use href="#fbase"/><use href="#hf-curtain"/></svg>发型</div>
+              <div><svg class="face" viewBox="0 0 120 150"><use href="#hb-long"/><use href="#fbase"/><use href="#hf-mid"/><path d="M53 91 q7 4 14 0" stroke="#A8495A" stroke-width="3.2" fill="none" stroke-linecap="round"/></svg>妆容</div>
+              <div><svg class="face" viewBox="0 0 120 150"><use href="#hb-long"/><use href="#fbase"/><use href="#hf-mid"/><path d="M10 150 Q14 114 60 110 Q106 114 110 150Z" fill="#8FA3B8"/></svg>色彩</div>
+              <div style="display:flex;flex-direction:column;align-items:center"><svg class="face" viewBox="0 0 120 150"><rect x="34" y="22" width="52" height="54" rx="8" fill="#8FA3B8"/><rect x="40" y="80" width="18" height="56" rx="4" fill="#E8DFD6"/><rect x="62" y="80" width="18" height="56" rx="4" fill="#E8DFD6"/></svg>穿搭</div>
+            </div>
+          </div>
+          <div class="tabs"><span class="on">档案</span><span>推荐</span><span>穿搭检测</span><span>我的</span></div>
+        </div></div>
+        <div class="annot"><h4 style="font-family:var(--serif);font-size:19px">4 · 形象档案（第一层）</h4>
+          <ol>
+            <li><span class="ann">1</span><span><b>本人照片在深色舞台上</b>，一句话总结用中性、具体的语言。</span></li>
+            <li><span class="ann">2</span><span><b>三张档案卡</b>就是分享卡的三个模块，点进去是对应的第二层页面。下方“像我 / 不太像”是第一个版本就有的基础反馈。</span></li>
+            <li><span class="ann">3</span><span><b>先做这一件</b>优先选零成本、立刻见效的改变，给用户第一次小成功。</span></li>
+            <li><span class="ann">4</span><span><b>四类推荐都带本人缩略试看</b>，制造“想点进去看看”的好奇。</span></li>
+          </ol>
+          <div class="note">去掉的东西：每个值旁的来源标签、五点置信度、score_breakdown，这些移到第三层。</div>
+        </div>
+      </div>
+
+      <!-- 5 face aesthetics -->
+      <div class="screen">
+        <div class="phone"><div class="ph">
+          <div class="sb"><span>9:44</span><span>面部美学</span></div>
+          <div class="bar"><b>面部美学</b><span class="xs">详细分析</span></div>
+          <div class="dark">
+            <div class="row" style="gap:5px"><span class="ann">1</span><span class="chip on" style="font-size:9.5px">三庭五眼</span><span class="chip" style="font-size:9.5px;background:var(--stage-2);color:#E9EAE7;border-color:#3a3f43">轮廓</span><span class="chip" style="font-size:9.5px;background:var(--stage-2);color:#E9EAE7;border-color:#3a3f43">五官量感</span></div>
+            <svg class="face" viewBox="0 0 120 150"><use href="#hb-long"/><use href="#fbase"/><use href="#hf-mid"/>
+              <g stroke="#D9A06A" stroke-width="1" fill="none"><path d="M24 42 H96 M24 64 H96 M24 84 H96 M24 105 H96"/><path d="M35 70 v6 M47 70 v6 M55 70 v6 M65 70 v6 M73 70 v6 M85 70 v6" stroke-width=".8"/></g>
+              <g font-size="6" fill="#E9EAE7" font-family="monospace"><text x="98" y="55">32%</text><text x="98" y="76">35%</text><text x="98" y="96">33%</text></g>
+            </svg>
+          </div>
+          <div class="in">
+            <div class="row"><span class="ann">2</span><b>你的特点</b></div>
+            <div class="card"><b>中庭略长</b><span class="xs">中庭占 35%，常见范围 31–35%（范围不代表好坏）</span><span class="xs" style="color:var(--accent)">所以 → 八字刘海、横向眉形、腮红横向晕染</span></div>
+            <div class="card"><b>轮廓柔和、下颌圆润</b><span class="xs">下颌宽 / 颧宽 0.86 · 无明显棱角</span><span class="xs" style="color:var(--accent)">所以 → 曲线领口、发尾内扣、细框眼镜</span></div>
+            <div class="row"><span class="ann">3</span><b>脸型</b></div>
+            <div class="card">
+              <div class="row" style="justify-content:space-between"><span>鹅蛋脸</span><span class="num xs">55%</span></div><div class="meter"><i style="width:55%"></i></div>
+              <div class="row" style="justify-content:space-between"><span>长脸</span><span class="num xs">25%</span></div><div class="meter"><i style="width:25%"></i></div>
+            </div>
+            <div class="row"><span class="ann">4</span><b style="font-size:12px">即将上线</b></div>
+            <div class="card" style="border-style:dashed"><b>颜值评分</b><span class="xs">我们在验证一种讲依据的评分方式</span><span class="xs" style="color:var(--accent)">上线时告诉我 →</span></div>
+          </div>
+        </div></div>
+        <div class="annot"><h4 style="font-family:var(--serif);font-size:19px">5 · 面部美学分析</h4>
+          <ol>
+            <li><span class="ann">1</span><span><b>图层切换</b>：三庭五眼、轮廓、五官量感。每层只画一类信息。</span></li>
+            <li><span class="ann">2</span><span><b>特点 → 所以</b>：每个特点都连到具体推荐。即使将来上线评分，分析也始终是这一页的主体。</span></li>
+            <li><span class="ann">3</span><span><b>脸型以概率呈现</b>，临界时说“介于 A 与 B 之间”。</span></li>
+            <li><span class="ann">4</span><span><b>评分预告</b>（开关控制）：只写“即将上线”，点击只记录兴趣；不显示任何分数、示例分或占位分。</span></li>
+          </ol>
+          <div class="note">“常见范围”使用灰色带而不是“标准值”，并始终注明范围不代表好坏。</div>
+        </div>
+      </div>
+
+      <!-- 6 color drape -->
+      <div class="screen">
+        <div class="phone"><div class="ph">
+          <div class="sb"><span>9:45</span><span>个人色彩</span></div>
+          <div class="bar"><b>个人色彩</b><span class="xs">提升准确度</span></div>
+          <div class="dark">
+            <div class="row"><span class="ann">1</span><span class="xs">数字披布 · 点色块切换</span></div>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px">
+              <div style="text-align:center"><svg class="face" viewBox="0 0 120 150"><use href="#hb-long"/><use href="#fbase"/><use href="#hf-mid"/><path d="M10 150 Q14 114 60 110 Q106 114 110 150Z" fill="#8FA3B8"/></svg><span class="xs">雾蓝 · 推荐</span></div>
+              <div style="text-align:center"><svg class="face" viewBox="0 0 120 150"><use href="#hb-long"/><use href="#fbase"/><use href="#hf-mid"/><path d="M10 150 Q14 114 60 110 Q106 114 110 150Z" fill="#D9822B"/></svg><span class="xs">亮橘 · 慎用</span></div>
+            </div>
+          </div>
+          <div class="in">
+            <div class="row"><span class="ann">2</span><b>柔和 · 冷调 · 中低对比</b></div>
+            <span class="xs">置信度中等：室内暖光。用白纸校准 20 秒可提升。</span>
+            <span class="xs">放在脸旁</span>
+            <div class="bigsw"><i style="background:#8FA3B8"></i><i style="background:#C9A3AE"></i><i style="background:#9AA68E"></i><i style="background:#B7A7C6"></i></div>
+            <span class="xs">衣橱底色</span>
+            <div class="sw"><i style="background:#5E6A7D"></i><i style="background:#8A8F96"></i><i style="background:#E8DFD6"></i><i style="background:#6E6258"></i></div>
+            <span class="xs">慎用</span>
+            <div class="sw"><i style="background:#D9822B"></i><i style="background:#111111"></i><i style="background:#E5D23A"></i></div>
+            <div class="row"><span class="ann">3</span><span class="xs">发色方向：冷棕 · 灰调奶茶　口红色族：豆沙 · 玫瑰</span></div>
+            <div class="row"><span class="ann">4</span><span class="xs" style="color:var(--accent)">搭配公式 3 条 · 复制搜索词</span></div>
+          </div>
+        </div></div>
+        <div class="annot"><h4 style="font-family:var(--serif);font-size:19px">6 · 个人色彩与数字披布</h4>
+          <ol>
+            <li><span class="ann">1</span><span><b>数字披布</b>重现线下色彩诊断最直观的时刻：同一张脸，下巴下方换一块颜色。确定性叠加，实时切换，不调用生成模型。</span></li>
+            <li><span class="ann">2</span><span><b>结论附置信度与改善办法。</b>直接回应“黄皮被判冷白”这类最常见的差评。</span></li>
+            <li><span class="ann">3</span><span><b>色彩延伸到发色与口红</b>，连接到发型试看和妆容试色。</span></li>
+            <li><span class="ann">4</span><span><b>购物出口</b>：搭配公式与搜索词。</span></li>
+          </ol>
+          <div class="note">季型（如“柔和夏”）只在校准后、且通过规则门控时显示，措辞始终是“色彩方向参考”。</div>
+        </div>
+      </div>
+
+      <!-- 7 style -->
+      <div class="screen">
+        <div class="phone"><div class="ph">
+          <div class="sb"><span>9:46</span><span>风格方向</span></div>
+          <div class="bar"><b>风格方向</b><span class="xs">我觉得不像</span></div>
+          <div class="in">
+            <div class="row"><span class="ann">1</span><b>优雅型，靠近古典</b></div>
+            <svg viewBox="0 0 240 170" style="width:100%;height:auto;background:var(--surface);border:1px solid var(--rule);border-radius:8px">
+              <line x1="10" y1="85" x2="230" y2="85" stroke="var(--rule)"/><line x1="120" y1="8" x2="120" y2="162" stroke="var(--rule)"/>
+              <g font-size="9" fill="var(--ink-2)"><text x="12" y="80">曲</text><text x="220" y="80">直</text><text x="124" y="16">量感大</text><text x="124" y="160">量感小</text></g>
+              <g font-size="10" fill="var(--ink)"><text x="22" y="140">少女</text><text x="186" y="140">少年</text><text x="30" y="72">优雅</text><text x="106" y="104">古典</text><text x="184" y="72">自然</text><text x="166" y="120">前卫</text><text x="22" y="30">浪漫</text><text x="184" y="30">戏剧</text></g>
+              <circle cx="78" cy="88" r="5" fill="var(--warm)"/><circle cx="78" cy="88" r="13" fill="none" stroke="var(--warm)" stroke-dasharray="2 2"/>
+            </svg>
+            <div class="row"><span class="ann">2</span><b>为什么在这里</b></div>
+            <span class="xs">五官量感中等（o3、o7）· 轮廓线条偏柔（o2、o5）</span>
+            <div class="row"><span class="ann">3</span><b>你的风格规则</b></div>
+            <div class="card" style="gap:2px"><span class="xs">面料　柔软有垂感，避免硬挺</span><span class="xs">廓形　轻收腰、曲线领口</span><span class="xs">图案　小到中等、柔和边缘</span><span class="xs">配饰　细链、小耳环、珍珠</span></div>
+            <div class="row" style="gap:5px;flex-wrap:wrap"><span class="ann">4</span><span class="chip">像我</span><span class="chip">不太像</span><span class="chip">我更喜欢另一种</span><span class="chip">想更利落？过渡方案</span></div>
+          </div>
+        </div></div>
+        <div class="annot"><h4 style="font-family:var(--serif);font-size:19px">7 · 风格诊断</h4>
+          <ol>
+            <li><span class="ann">1</span><span><b>位置而不是标签。</b>点和不确定圆圈让用户看到自己离其他类型多远。</span></li>
+            <li><span class="ann">2</span><span><b>依据引用观察编号</b>，点开在照片上高亮。</span></li>
+            <li><span class="ann">3</span><span><b>风格规则</b>是连到穿搭推荐的桥梁。</span></li>
+            <li><span class="ann">4</span><span><b>四层分开</b>：“你的特征”（观察）、“看起来像”（推断）、“你喜欢”（偏好）、“你想去”（目标）。反馈只改后两层并即时重排；过渡方案尊重用户想成为的样子。</span></li>
+          </ol>
+        </div>
+      </div>
+
+      <!-- 8 hair -->
+      <div class="screen">
+        <div class="phone"><div class="ph">
+          <div class="sb"><span>9:47</span><span>发型</span></div>
+          <div class="dark">
+            <div style="position:relative">
+              <svg class="face" viewBox="0 0 120 150"><use href="#hb-bob"/><use href="#fbase"/><use href="#hf-curtain"/></svg>
+              <span class="ann" style="position:absolute;top:8px;left:8px">1</span>
+              <span style="position:absolute;bottom:8px;left:8px;font-size:9px;background:rgba(0,0,0,.55);color:#E9EAE7;padding:1px 6px;border-radius:3px">AI 试看</span>
+              <span style="position:absolute;bottom:8px;right:8px;font-size:9px;color:#E9EAE7">按住看原图</span>
+            </div>
+            <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:4px">
+              <div style="text-align:center"><svg class="face" viewBox="0 0 120 150" style="opacity:.6"><use href="#hb-long"/><use href="#fbase"/><use href="#hf-mid"/></svg><span class="xs">现在</span></div>
+              <div style="text-align:center;outline:1.5px solid #E9EAE7;border-radius:8px"><svg class="face" viewBox="0 0 120 150"><use href="#hb-bob"/><use href="#fbase"/><use href="#hf-curtain"/></svg><span style="font-size:10px">稳妥</span></div>
+              <div style="text-align:center"><svg class="face" viewBox="0 0 120 150"><use href="#hb-wave"/><use href="#fbase"/><use href="#hf-side"/></svg><span class="xs">突破</span></div>
+              <div style="text-align:center"><svg class="face" viewBox="0 0 120 150"><use href="#fbase"/><use href="#hf-pixie"/></svg><span class="xs">省心</span></div>
+            </div>
+          </div>
+          <div class="in">
+            <div class="row"><span class="ann">2</span><div><b style="font-family:var(--serif);font-size:14px">锁骨发 · 八字刘海</b> <span class="xs">Collarbone Cut</span></div></div>
+            <div class="s">八字刘海把视线拉回中部，平衡略长的中庭；发尾内扣呼应柔和的轮廓。</div>
+            <div class="row"><span class="ann">3</span><span class="xs" style="flex:1">长度 锁骨下 2cm · 刘海 到颧骨 · 发尾 内扣 · 发色 冷棕可选</span></div>
+            <div class="row" style="justify-content:space-between"><span class="xs">每天 8 分钟</span><span class="xs">8 周修一次</span><span class="xs">¥120–300</span></div>
+            <div class="row"><span class="ann">4</span><div class="chips"><span class="chip on">喜欢</span><span class="chip">一般</span><span class="chip">不喜欢…</span><span class="chip">比较</span></div></div>
+          </div>
+          <div class="sticky"><div class="btn2">再给我一个</div><div class="btn">就选它 · 发型师卡</div></div>
+        </div></div>
+        <div class="annot"><h4 style="font-family:var(--serif);font-size:19px">8 · 发型三方向</h4>
+          <ol>
+            <li><span class="ann">1</span><span><b>大图在深色舞台上</b>，按住看原图；左下角固定“AI 试看”。长发与刘海必须使用“软保护”回贴（E4），否则会在脸颊处被截断。</span></li>
+            <li><span class="ann">2</span><span><b>理由引用用户自己的特点</b>（中庭略长、轮廓柔和），而不是“适合鹅蛋脸”这类通用句。</span></li>
+            <li><span class="ann">3</span><span><b>女性参数</b>：长度、刘海、卷度、发色；男性参数沿用 V1。打理成本用三个数字表达。</span></li>
+            <li><span class="ann">4</span><span><b>反馈即输入</b>，“不喜欢…”展开原因标签，规则层即时重排。免费版只有“稳妥”1 张试看，其余两个方向在付费完整护照中解锁。</span></li>
+          </ol>
+          <div class="note">发型师卡（F9.1）：试看图（默认遮脸）、款式名、三句发型店口语、长度与层次参数、“请不要”清单，可保存、复制或发链接。</div>
+        </div>
+      </div>
+
+      <!-- 9 outfit rec -->
+      <div class="screen">
+        <div class="phone"><div class="ph">
+          <div class="sb"><span>9:48</span><span>穿搭</span></div>
+          <div class="bar"><b>穿搭推荐</b><span class="xs">通勤 · 约会 · 正式</span></div>
+          <div class="in">
+            <div class="row"><span class="ann">1</span><b>你的穿搭公式</b></div>
+            <div class="card">
+              <div class="row" style="gap:6px">
+                <svg viewBox="0 0 90 60" style="width:44%;height:auto;flex:none;background:var(--bg);border-radius:6px"><path d="M14 10 L28 6 Q33 12 38 6 L52 10 L48 22 L44 20 L44 52 L22 52 L22 20 L18 22Z" fill="#8FA3B8"/><rect x="56" y="10" width="11" height="44" rx="2" fill="#E8DFD6"/><rect x="69" y="10" width="11" height="44" rx="2" fill="#E8DFD6"/><circle cx="40" cy="4" r="0" /></svg>
+                <div style="display:flex;flex-direction:column;gap:2px;min-width:0"><b style="font-size:11.5px">雾蓝垂感衬衫 + 米色直筒裤 + 细金链</b><span class="xs">柔和低对比，符合优雅型的柔软面料规则</span></div>
+              </div>
+            </div>
+            <div class="row"><span class="ann">2</span><b>核心单品</b><span class="xs">· 10 件</span></div>
+            <div class="card"><div class="row" style="justify-content:space-between"><b>V 领真丝感衬衫</b><span class="xs">雾蓝</span></div><span class="xs">V 领拉长颈部线条，配合略长的中庭更平衡</span>
+              <div class="row" style="justify-content:space-between"><span class="xs" style="color:var(--accent)">复制搜索词</span><span class="xs">已有 · <b>想要</b> · 不要</span></div></div>
+            <div class="card"><div class="row" style="justify-content:space-between"><b>收腰针织开衫</b><span class="xs">灰粉</span></div><span class="xs">轻收腰符合曲线骨架（自选）</span></div>
+            <div class="row"><span class="ann">3</span><b>领口试看</b></div>
+            <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:4px">
+              <svg class="face" viewBox="0 0 120 150"><use href="#hb-long"/><use href="#fbase"/><use href="#hf-mid"/><path d="M10 150 Q14 114 60 110 Q106 114 110 150Z" fill="#8FA3B8"/><path d="M48 112 L60 130 L72 112" fill="var(--skin-2)"/></svg>
+              <svg class="face" viewBox="0 0 120 150"><use href="#hb-long"/><use href="#fbase"/><use href="#hf-mid"/><path d="M10 150 Q14 114 60 110 Q106 114 110 150Z" fill="#C9A3AE"/></svg>
+              <svg class="face" viewBox="0 0 120 150"><use href="#hb-long"/><use href="#fbase"/><use href="#hf-mid"/><path d="M10 150 Q14 108 60 104 Q106 108 110 150Z" fill="#5E6A7D"/></svg>
+            </div>
+            <div class="row"><span class="ann">4</span><span class="xs">身形：曲线型（自选）· 身高 162 cm · 不分析身材照片</span></div>
+          </div>
+        </div></div>
+        <div class="annot"><h4 style="font-family:var(--serif);font-size:19px">9 · 穿搭推荐</h4>
+          <ol>
+            <li><span class="ann">1</span><span><b>公式优先于单品</b>：一条公式能生成很多套搭配，比推荐十件衣服更有用。</span></li>
+            <li><span class="ann">2</span><span><b>每件单品都有“为什么适合你”</b>，并可标记“已有 / 想要 / 不要”，建立轻量衣橱。</span></li>
+            <li><span class="ann">3</span><span><b>领口与颜色在本人照片上试看</b>（复用披布与 clothing_top 蒙版）。</span></li>
+            <li><span class="ann">4</span><span><b>身形来源透明</b>：只来自用户自选，页面写明不分析身材照片。</span></li>
+          </ol>
+        </div>
+      </div>
+
+      <!-- 10 outfit check -->
+      <div class="screen">
+        <div class="phone"><div class="ph">
+          <div class="sb"><span>8:12</span><span>穿搭检测</span></div>
+          <div class="dark">
+            <div class="row" style="align-items:flex-start;gap:10px">
+              <div style="position:relative;width:38%;flex:none">
+                <svg class="face" viewBox="0 0 80 160"><circle cx="40" cy="20" r="11" fill="var(--skin)"/><path d="M27 18 Q28 6 40 6 Q53 6 53 18 L54 40 Q40 44 26 40Z" fill="var(--hair)"/><circle cx="40" cy="21" r="9.5" fill="var(--skin)"/><path d="M24 36 Q40 30 56 36 L58 84 L22 84Z" fill="#E8DFD6"/><path d="M30 34 Q40 44 50 34 L50 40 Q40 48 30 40Z" fill="#111"/><path d="M22 84 L58 84 L56 150 L44 150 L40 100 L36 150 L24 150Z" fill="#5E6A7D"/></svg>
+                <span class="ann" style="position:absolute;top:4px;left:4px">1</span>
+              </div>
+              <div style="display:flex;flex-direction:column;gap:6px;min-width:0">
+                <span class="xs">场合 · 通勤</span>
+                <span class="xs">你的颜色</span><div class="sw"><i style="background:#E8DFD6;height:12px"></i><i style="background:#111;height:12px;outline:1.5px solid #D9A06A"></i><i style="background:#5E6A7D;height:12px"></i></div>
+                <span class="xs">风格贴合</span><b style="font-size:11.5px">部分贴合</b>
+              </div>
+            </div>
+          </div>
+          <div class="in">
+            <div class="row"><span class="ann">2</span><b>最值得的调整</b></div>
+            <div class="card" style="border-color:var(--accent)"><b>把黑色围巾换成雾蓝或灰粉</b><span class="xs">纯黑在你的慎用色里，贴近脸会显得对比过强；其余两件都在你的色卡内。</span></div>
+            <div class="row"><span class="ann">3</span><b>也可以试试</b></div>
+            <div class="card"><span>上衣前片轻塞进裤腰</span><span class="xs">让上下身分割线上移，整体比例更清楚</span></div>
+            <div class="card"><span>换细链耳饰</span><span class="xs">更接近你的优雅型配饰规则</span></div>
+            <div class="row"><span class="ann">4</span><div class="chips"><span class="chip on">存为今日穿搭</span><span class="chip">换个场合</span></div></div>
+          </div>
+        </div></div>
+        <div class="annot"><h4 style="font-family:var(--serif);font-size:19px">10 · 穿搭检测</h4>
+          <ol>
+            <li><span class="ann">1</span><span><b>服装颜色与你的色卡比对</b>，不合适的那块用琥珀色描边。</span></li>
+            <li><span class="ann">2</span><span><b>只给一个“最值得”的调整</b>，并说明理由。</span></li>
+            <li><span class="ann">3</span><span><b>比例建议只谈衣物</b>（塞衣角、腰线位置），绝不评价身材。</span></li>
+            <li><span class="ann">4</span><span><b>今日穿搭日历</b>是复访的核心（付费完整护照权益，需轻账户）。</span></li>
+          </ol>
+          <div class="note">“风格贴合”用三档文字（很贴合 / 部分贴合 / 换个方向），不出现分数。</div>
+        </div>
+      </div>
+
+      <!-- 11 plan -->
+      <div class="screen">
+        <div class="phone"><div class="ph">
+          <div class="sb"><span>9:50</span><span>计划</span></div>
+          <div class="bar"><b>我的计划</b><span class="xs">2 / 7 已完成</span></div>
+          <div class="in">
+            <div class="row"><span class="ann">1</span><b>今天就能做</b><span class="xs">· 免费</span></div>
+            <div class="card"><div class="row"><span class="tick">☑</span><span style="flex:1">近脸少穿纯黑，先用现有的灰、米色替代</span></div><span class="xs">0 元 · 当天见效</span></div>
+            <div class="card"><div class="row"><span>☐</span><span style="flex:1">腮红改为横向晕染</span></div><span class="xs">每天 1 分钟 · 搭配：八字刘海</span></div>
+            <div class="row"><span class="ann">2</span><b>下次去发型店</b><span class="xs">· ¥120–300</span></div>
+            <div class="card" style="border-color:var(--accent)"><div class="row"><span>☐</span><span style="flex:1"><b>锁骨发 · 八字刘海</b></span><span class="xs" style="color:var(--accent)">发型师卡 →</span></div>
+              <span class="xs"><span class="ann" style="width:13px;height:13px;font-size:8px">3</span> 怎么判断剪对了：刘海最短处在颧骨高度，正面看不到耳朵</span></div>
+            <div class="row"><span class="ann">4</span><b>值得投资</b><span class="xs">· ¥400–900</span></div>
+            <div class="card"><div class="row"><span>☐</span><span style="flex:1">雾蓝 V 领衬衫 + 灰粉针织开衫</span></div><span class="xs">一次投入 · 覆盖 6 套搭配</span></div>
+            <div class="card" style="background:var(--accent-soft);border-color:var(--accent-soft)"><b>剪完了？拍一张对比</b><span class="xs">两周后提醒我 · 看看是否剪对、下次怎么微调</span></div>
+          </div>
+        </div></div>
+        <div class="annot"><h4 style="font-family:var(--serif);font-size:19px">11 · 个人改进计划</h4>
+          <ol>
+            <li><span class="ann">1</span><span><b>按“何时能做”分组</b>：今天、下次去发型店、值得投资。</span></li>
+            <li><span class="ann">2</span><span><b>一个决定一张卡</b>，直接连到发型师卡、色卡、单品清单。</span></li>
+            <li><span class="ann">3</span><span><b>可观察的检验标准</b>，让用户自己判断改得对不对。</span></li>
+            <li><span class="ann">4</span><span><b>组合关系</b>写在卡片上（“覆盖 6 套搭配”“搭配八字刘海”）。</span></li>
+          </ol>
+        </div>
+      </div>
+
+      <!-- 12 share card -->
+      <div class="screen">
+        <div class="phone"><div class="ph">
+          <div class="sb"><span>9:51</span><span>分享</span></div>
+          <div class="in">
+            <div class="row"><span class="ann">1</span><b>形象档案卡 · 3:4</b></div>
+            <div class="card" style="border-color:var(--ink);gap:8px;aspect-ratio:3/4;max-width:100%;justify-content:space-between">
+              <div class="row" style="justify-content:space-between"><b style="font-family:var(--serif)">我的形象档案</b><span class="xs">形象护照</span></div>
+              <div class="row" style="gap:8px;align-items:flex-start">
+                <svg viewBox="0 0 120 150" style="width:42%;flex:none;border-radius:8px;background:#E8DFD6"><circle cx="60" cy="70" r="52" fill="#C9A3AE" opacity=".35"/><use href="#hb-long"/><path d="M10 150 Q14 114 60 110 Q106 114 110 150Z" fill="#8FA3B8"/><ellipse cx="60" cy="72" rx="25" ry="33" fill="#F3E6DC" stroke="#5E6A7D" stroke-width="1.2"/><path d="M50 68 q4 -3 8 0 M62 68 q4 -3 8 0" stroke="#5E6A7D" stroke-width="1.2" fill="none"/><path d="M54 90 q6 3 12 0" stroke="#A8495A" stroke-width="1.6" fill="none" stroke-linecap="round"/><use href="#hf-mid"/></svg>
+                <div style="display:flex;flex-direction:column;gap:4px;min-width:0"><span class="xs">面部</span><b style="font-size:11px">鹅蛋脸 · 中庭略长</b><span class="xs">色彩</span><b style="font-size:11px">柔和 · 冷调</b><span class="xs">风格</span><b style="font-size:11px">优雅型 · 靠近古典</b></div>
+              </div>
+              <div class="sw"><i style="background:#8FA3B8"></i><i style="background:#C9A3AE"></i><i style="background:#9AA68E"></i><i style="background:#B7A7C6"></i><i style="background:#5E6A7D"></i><i style="background:#E8DFD6"></i></div>
+              <span class="xs">AI 生成 · 仅供参考 · 形象护照　扫码测测你的 →</span>
+            </div>
+            <div class="row"><span class="ann">2</span><div class="chips"><span class="chip on">插画头像</span><span class="chip">色卡艺术</span><span class="chip">本人肖像</span></div></div>
+            <div class="row"><span class="ann">3</span><div class="chips"><span class="chip">保存图片</span><span class="chip">发小红书</span><span class="chip">生成抖音视频</span></div></div>
+          </div>
+        </div></div>
+        <div class="annot"><h4 style="font-family:var(--serif);font-size:19px">12 · 档案卡与分享</h4>
+          <ol>
+            <li><span class="ann">1</span><span><b>3:4 竖版</b>，与小红书笔记首图比例一致；信息为三项档案与色卡，不含任何评分。</span></li>
+            <li><span class="ann">2</span><span><b>三种视觉</b>：插画头像（按用户发型与色卡生成，默认）、色卡艺术、本人肖像（每次单独勾选）。灰色剪影不再是唯一的隐私选项。</span></li>
+            <li><span class="ann">3</span><span><b>保存与发布</b>：小红书走“保存图片 + 打开 App”；抖音揭晓视频在增量 4 提供。卡片在前端渲染为 PNG。</span></li>
+          </ol>
+          <div class="note">卡片底部的“测测你的”带来源参数，打开时落地页显示同款话题，便于归因。</div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+  <div class="sub">
+    <h3><span class="tag">D4</span>视觉方向：试衣间，而不是诊断室</h3>
+    <div class="prose stack">
+      <p>V1 的“纸质护照”风格（暖米白、衬线标题、发丝线）安静可信，但页面像一份文件，照片只是附件。V2 保留护照的品牌隐喻和克制的语气，把<b>用户的照片变成主角</b>：凡是显示人像与试看图的地方，都放在深色中性的“舞台”上；阅读与分析内容放在冷调的浅色底上。深色舞台还有一个功能性理由：中性深灰包围下，肤色与发色的判断不受暖底色干扰，这也是线下色彩诊断使用灰色披布的原因。</p>
+    </div>
+    <div class="swatches">
+      <div><i style="background:#F1F1EE"></i><span>阅读底 · 雾白<br><code>#F1F1EE</code></span></div>
+      <div><i style="background:#16181A"></i><span>墨 · 正文<br><code>#16181A</code></span></div>
+      <div><i style="background:#141618"></i><span>舞台 · 人像区<br><code>#141618</code></span></div>
+      <div><i style="background:#1F4E5F"></i><span>护照墨青 · 主色<br><code>#1F4E5F</code></span></div>
+      <div><i style="background:#9A5B1F"></i><span>标注琥珀 · 证据高亮<br><code>#9A5B1F</code></span></div>
+      <div><i style="background:#D8D8D2"></i><span>界线灰<br><code>#D8D8D2</code></span></div>
+    </div>
+    <div class="typespec">
+      <div><span class="lbl">展示 · 思源宋体 700</span><span style="font-family:var(--serif);font-size:26px;font-weight:700">剪之前，先看见</span></div>
+      <div><span class="lbl">正文 · 思源黑体 400/500</span><span>两侧留厚、顶部压低，横向更饱满，平衡修长的脸型。行高 1.75，段宽 ≤ 34 个汉字。</span></div>
+      <div><span class="lbl">数据 · IBM Plex Mono</span><span class="num">长宽比 1.42 · 顶 50–60 mm · 侧 15–20 mm</span></div>
+    </div>
+    <div class="tbl"><table>
+      <thead><tr><th>设计要素</th><th>规范</th></tr></thead>
+      <tbody>
+        <tr><td class="k">影像</td><td>只用用户本人或授权真人；示例以女性为主，同时出现男性与中性表达、不同发质与肤色深浅；不用图库模特、不用美颜；所有 AI 图左下角固定“AI 试看”；对比统一 4:5 头肩构图。</td></tr>
+        <tr><td class="k">设计系统</td><td>一套 tokens（颜色、字体、字号、间距、圆角、阴影、动效）放 <span class="num">web/styles/tokens.css</span>，页面与分享卡共用；基础组件 CompareSlider、Palette / Drape、StylePlane、FeedbackChips、ArchiveCard 模板（智能体 K4、K6）。高级感来自留白、编辑式排版和本人影像，而不是装饰。</td></tr>
+        <tr><td class="k">分享物</td><td>3:4 档案卡与 9:16 视频沿用同一套字体与色板；用户的色卡是卡片上的主色，品牌只在署名处出现；插画头像用细线描与色卡填色，和页面插画同一画风。</td></tr>
+        <tr><td class="k">证据标注</td><td>琥珀色细线（1–1.5 px）在照片上描轮廓或比例线；一次只亮一类；数字用等宽体。</td></tr>
+        <tr><td class="k">信息密度</td><td>第一层：每屏一个主结论；第二层：卡片 + 参数条；第三层：允许表格与图层。</td></tr>
+        <tr><td class="k">交互元素</td><td>按住看原图、拖动对比、横滑方向、喜欢 / 不要、即时重排提示条、勾选计划。所有对比都有按钮替代手势。</td></tr>
+        <tr><td class="k">动效</td><td>只有一个编排时刻：测量线淡入与数字落定（≤ 1.2 s）。其余为 150 ms 状态过渡；遵守减少动态效果设置。</td></tr>
+        <tr><td class="k">响应式</td><td>375 px 单栏；≥ 768 px 人像固定左栏、内容右栏滚动；≥ 1200 px 三方向并排比较。</td></tr>
+        <tr><td class="k">语气</td><td>描述特点，不评价好坏（“下颌线清晰”而非“下颌好看”）；建议用动词开头；不确定时直接说明。</td></tr>
+        <tr><td class="k">禁止</td><td>未经验证的分数与任何占位分、排名、百分位、“标准脸”“完美比例”、身材评价、粉色渐变、闪光、表情符号、“AI 魔法”式文案、医美词汇。</td></tr>
+      </tbody></table></div>
+  </div>
+</section>
+
+<!-- ============ E ============ -->
+<section class="part" id="e">
+  <div class="part-head"><span class="letter">E</span><h2>技术与实现映射</h2>
+    <p>原则：保留 V1 的骨架和八条不变量（不变量 5 按 G1 修订），在其上增加“两段式管线、多方向试看、确定性可视化（披布、试色）、风格与穿搭知识库、反馈与即时重排、单次付费权益、穿搭检测”。没有一项需要推翻现有模块，也不引入第二套数据模型：所有新增都是对现有 JSON schema、FastAPI 接口与生成的 TypeScript 类型的兼容扩展。</p></div>
+
+  <div class="sub" style="margin-top:0">
+    <h3><span class="tag">E1</span>现有模块复用表</h3>
+    <div class="tbl wide"><table>
+      <thead><tr><th>模块</th><th>V2 用法</th><th>改动量</th><th>说明</th></tr></thead>
+      <tbody>
+        <tr><td class="k num">qc.py · cv.py</td><td>服务端最终门禁 + 美颜检测</td><td><span class="pill p-ok">小</span></td><td>新增 beauty_filter_suspect 与中文重拍文案；只要求 front。本期不做前端实时取景。</td></tr>
+        <tr><td class="k num">anchors.py · face_shape.py</td><td>揭晓动画数据、签名高亮区域、眼镜尺寸</td><td><span class="pill p-ok">小</span></td><td>新增三庭、五眼、虹膜直径像素值；唇外 / 内轮廓、眼、颊、下颌与颈部多边形导出给 /geometry。</td></tr>
+        <tr><td class="k num">color_sample.py</td><td>色卡依据 + 白纸校准</td><td><span class="pill p-warn">中</span></td><td>新增 calibration.py（白纸检测 + von Kries 校正）。</td></tr>
+        <tr><td class="k num">analyzer.py · prompts</td><td>拆为 quick 与 full 两个 prompt</td><td><span class="pill p-warn">中</span></td><td>analyzer-quick-0.1（≤1k token）、analyzer-0.3（hair_options、feature_signature、计划字段）。</td></tr>
+        <tr><td class="k num">rules.py · rules.yaml</td><td>排序、约束、门控、差异度校验、计划分组、眼镜尺寸、即时重排</td><td><span class="pill p-warn">中</span></td><td>纯函数特性是 F11 的基础；需把用户约束作为参数传入而非只从 passport 读取。</td></tr>
+        <tr><td class="k num">preview.py · masks.py</td><td>三方向并行试看、眼镜试戴、领口换色</td><td><span class="pill p-warn">中</span></td><td>批量任务、软保护回贴、身份检查、AI 标识。</td></tr>
+        <tr><td class="k num">providers/image/qwen.py</td><td>继续作为主力；配置可切换 qwen-image-2.0 系列</td><td><span class="pill p-ok">小</span></td><td>增加境内区域 endpoint 配置。</td></tr>
+        <tr><td class="k num">hairstyles.json</td><td>三方向的结构化候选池</td><td><span class="pill p-warn">中</span></td><td>扩充至 60+ 款；增加中文常用名、发质适配、打理分钟、修剪周期、价格区间、tier 倾向。</td></tr>
+        <tr><td class="k num">api/（FastAPI）</td><td>新增 partial 快照、enrich、feedback、rerank、previews 批量、geometry、share、删除、checkout、events</td><td><span class="pill p-warn">中</span></td><td>SQLite 先够用（新增 preference_events、events、payments 表与 passports.paid / share_token 列）；有账户后再评估迁移。</td></tr>
+        <tr><td class="k num">web/components/report · web/app</td><td>新路由 /p/[id] 与 face / color / style / hair / outfit / makeup / plan / detail 子页；/t/[topic] 话题入口</td><td><span class="pill p-bad">大</span></td><td>recommended-look 滑块泛化为 Compare 组件；evidence 改为照片高亮抽屉；how-we-know 进入第三层。</td></tr>
+        <tr><td class="k num">新增 web/lib/tint/（TypeScript）</td><td>数字披布、唇色、腮红、色调</td><td><span class="pill p-warn">中</span></td><td>纯确定性 Canvas 处理，基于 /geometry 多边形；牙齿与眼睛排除蒙版；原图可逆对照。不需要服务端版本（分享卡在前端渲染）。</td></tr>
+        <tr><td class="k num">新增 config/styles.yaml · garments.yaml</td><td>风格规则表、单品本体库</td><td><span class="pill p-warn">中</span></td><td>八种风格的面料 / 廓形 / 图案 / 配饰规则（分表达方向）；约 150 条单品起步。需要形象顾问参与编写与审核。</td></tr>
+        <tr><td class="k num">新增 outfit_check（管线 + schema + prompt）</td><td>穿搭检测</td><td><span class="pill p-bad">大</span></td><td>人体分割取服装区域与主色 → 独立分析请求 → 规则层与色卡比对 → 安全词检查（含身材评价词）。</td></tr>
+        <tr><td class="k num">新增 cards（前端渲染）</td><td>3:4 档案卡、发型师卡、9:16 揭晓视频</td><td><span class="pill p-warn">中</span></td><td>改为前端 web/components/cards/：HTML 模板经 html-to-image 导出 PNG，不需要服务端浏览器；9:16 视频在增量 4 用 ffmpeg 合成。</td></tr>
+        <tr><td class="k num">providers/fake · examples</td><td>继续保证无密钥可运行</td><td><span class="pill p-ok">小</span></td><td>新增 v0.3 样例（一位女性、一位男性的虚构用户）与 3 个授权案例样例；新增 <span class="num">PAYMENT_PROVIDER=fake</span>。</td></tr>
+        <tr><td class="k num">新增 entitlement · checkout</td><td>单次付费与权益</td><td><span class="pill p-warn">中</span></td><td>权益在服务端判断，放在 API 响应的 <span class="num">entitlement</span> 字段，不写入 passport 内容；未付费时服务端裁剪付费字段。真实微信支付 / 支付宝适配器在有商户凭证后接入。</td></tr>
+        <tr><td class="k num">新增 events（最小埋点）</td><td>漏斗与评分预告兴趣</td><td><span class="pill p-ok">小</span></td><td>只记事件名、护照 id 的哈希、ref、时间；不记任何照片派生数据（不变量 7）。</td></tr>
+      </tbody></table></div>
+  </div>
+
+  <div class="sub">
+    <h3><span class="tag">E2</span>数据结构演进：Schema v0.3</h3>
+    <div class="tbl wide"><table>
+      <thead><tr><th>字段</th><th>层</th><th>内容</th><th>渲染位置</th></tr></thead>
+      <tbody>
+        <tr><td class="k num">schema_version "0.3" · prompt analyzer-0.3</td><td>契约</td><td>只要求 front；其余照片可选</td><td>全局</td></tr>
+        <tr><td class="k num">user_context.hair{texture, density, grow_out_ok} · haircut_budget · occasions[] · current_style_picks[]</td><td>用户</td><td>F3 收集，全部有默认值</td><td>推荐输入</td></tr>
+        <tr><td class="k num">user_context.body{frame, height_cm}</td><td>用户</td><td>只来自用户输入；frame 枚举 straight | wave | natural | null</td><td>穿搭</td></tr>
+        <tr><td class="k num">user_context.style_preferences{liked[], disliked[]} · target_style</td><td>用户</td><td>八型键名；与推断风格分开</td><td>风格四层、排序</td></tr>
+        <tr><td class="k num">anchors.thirds · eye_fifths · iris_px</td><td>CV</td><td>三庭占比、五眼关系、虹膜比例尺</td><td>面部美学、眼镜尺寸</td></tr>
+        <tr><td class="k num">analysis.feature_signature[3]</td><td>模型</td><td>title、observation_ids、region 枚举、styling_implication</td><td>封面签名</td></tr>
+        <tr><td class="k num">analysis.observations[].region</td><td>模型</td><td>枚举：jaw、forehead、cheekbone、brow、eye、lip、hairline、crown、overall…</td><td>照片高亮</td></tr>
+        <tr><td class="k num">analysis.hair_options[3]</td><td>模型</td><td>tier（safe / bold / easy）、name_zh、params（女性：length、fringe、curl、color；男性沿用 V1）、maintenance、requires、barber_script[3]、avoid、visual_edit_spec、evidence、confidence</td><td>发型三方向、发型师卡</td></tr>
+        <tr><td class="k num">analysis.color_profile（沿用 favor / neutral / avoid）+ combos[] · hair_color_directions[] · lip_families[]</td><td>模型</td><td>三组色族直接映射为近脸 / 衣橱底色 / 慎用</td><td>色彩页、妆容</td></tr>
+        <tr><td class="k num">analysis.makeup_direction</td><td>模型</td><td>底妆色调方向、唇色族、腮红位置与色、眉形与眉色、眼妆重点（男性为理容）</td><td>妆容页</td></tr>
+        <tr><td class="k num">analysis.outfit_direction</td><td>模型</td><td>formulas[]、items[]（引用 garments.yaml id）、occasions[]、evidence</td><td>穿搭推荐</td></tr>
+        <tr><td class="k num">recommendations[].cost_band / time_to_effect / pairs_with / success_check</td><td>模型</td><td>枚举与短文本</td><td>计划</td></tr>
+        <tr><td class="k num">derived.style_profile</td><td>规则</td><td>face_only 与 overall 坐标、primary / secondary、between、preference_overlay{liked, disliked, target}、rules_zh</td><td>风格四层</td></tr>
+        <tr><td class="k num">derived.hair_option_checks · glasses_size · plan</td><td>规则</td><td>差异度与约束结果、mm 区间、三段计划</td><td>各页</td></tr>
+        <tr><td class="k num">derived.feedback_applied · derived_version</td><td>规则</td><td>本次重排用到的反馈与版本号；analysis 不变</td><td>调整提示、撤销</td></tr>
+        <tr><td class="k num">previews[]（取代单个 preview）</td><td>图像</td><td>沿用现有字段（rec_id、status、image_model、before_ref、after_ref、identity_check、prompt_used），新增 target_id、kind（hair | glasses | neckline）、ai_label</td><td>试看</td></tr>
+        <tr><td class="k num">API 响应 entitlement（不进 passport）</td><td>服务端</td><td>paid、unlock_scope、share_token；未付费时服务端裁剪付费字段</td><td>付费墙</td></tr>
+        <tr><td class="k num">preference_events · events · payments（独立表）</td><td>用户 / 服务端</td><td>反馈事件；最小漏斗事件；支付记录</td><td>重排、分析、权益</td></tr>
+        <tr><td class="k num">outfit_check.schema.json（独立，增量 3）</td><td>CV + 模型 + 规则</td><td>服装主色、色卡比对、风格贴合三档、最值得的调整、备选调整</td><td>穿搭检测</td></tr>
+      </tbody></table></div>
+    <div class="note">按 CLAUDE.md 不变量 2：schema_version → 0.3，prompt → analyzer-0.3，更新 examples 与测试，新增 DECISIONS 条目 D19–D27（清单见 <a href="#g">G1</a>）。TypeScript 类型继续由 <span class="num">make types</span> 从 schema 生成，前后端只有这一份模型。</div>
+  </div>
+
+  <div class="sub">
+    <h3><span class="tag">E3</span>新增与改动的 API</h3>
+    <div class="tbl wide"><table>
+      <thead><tr><th>接口</th><th>作用</th><th>要点</th></tr></thead>
+      <tbody>
+        <tr><td class="k num">POST /api/passport（沿用）</td><td>上传并开始</td><td>只需 front；profile45 等可选；携带 presentation、topic、ref</td></tr>
+        <tr><td class="k num">GET /api/passport/{id}（沿用）</td><td>轮询</td><td>新增 partial 快照与 entitlement；SSE 延后</td></tr>
+        <tr><td class="k num">POST /api/passport/{id}/enrich</td><td>补充照片与偏好</td><td>新照片或影响模型输入的字段变化才重跑模型；其余只重排</td></tr>
+        <tr><td class="k num">POST /api/passport/{id}/feedback</td><td>写入偏好事件</td><td>幂等；不触发模型</td></tr>
+        <tr><td class="k num">POST /api/passport/{id}/rerank</td><td>即时重排</td><td>只跑 rules，返回新 derived 版本；p95 &lt; 500 ms</td></tr>
+        <tr><td class="k num">POST /api/passport/{id}/previews</td><td>批量试看</td><td>body：target_ids、kind；并发 3；免费 1 张、付费上限可配置</td></tr>
+        <tr><td class="k num">GET /api/passport/{id}/geometry</td><td>披布与试色多边形</td><td>唇外 / 内轮廓、眼、颊、下颌、颈部（相对坐标）；照片过期后 404</td></tr>
+        <tr><td class="k num">POST /api/passport/{id}/share</td><td>只读分享链接</td><td>生成 share_token；默认不含照片</td></tr>
+        <tr><td class="k num">DELETE /api/passport/{id}</td><td>用户删除</td><td>照片、试看图、JSON 全部删除，返回删除时间</td></tr>
+        <tr><td class="k num">POST /api/checkout · POST /api/payments/webhook</td><td>单次付费</td><td>PAYMENT_PROVIDER=fake 先行；真实通道需商户凭证（停下询问）</td></tr>
+        <tr><td class="k num">POST /api/events</td><td>最小埋点</td><td>事件白名单（含 score_teaser_click）；不含照片派生数据</td></tr>
+        <tr><td class="k num">POST /api/passport/{id}/more-options</td><td>根据反馈生成新方向</td><td>增量 3；新的模型请求；付费权益；上限 3 次</td></tr>
+        <tr><td class="k num">POST /api/outfit-check</td><td>穿搭检测</td><td>增量 3；全身照 + 场合 + 护照 id；照片处理完即删</td></tr>
+        <tr><td class="k num">POST /api/passport/{id}/checkin</td><td>剪后回访</td><td>增量 4；与选定方向对比，生成微调建议</td></tr>
+      </tbody></table></div>
+  </div>
+
+  <div class="sub">
+    <h3><span class="tag">E4</span>分析与生图流程的变化</h3>
+    <div class="flow">
+      <div class="n"><span class="t">0–1 s</span><b>QC + 锚点 + 取色</b>CV，本地</div><span class="arr">→</span>
+      <div class="n"><span class="t">~15 s</span><b>快速分析</b>≤1k token，签名与一句话</div><span class="arr">→</span>
+      <div class="n"><span class="t">~45–75 s</span><b>完整分析</b>analyzer-0.3，校验 + 一次修复</div><span class="arr">→</span>
+      <div class="n"><span class="t">&lt;100 ms</span><b>规则</b>排序、三方向校验、计划、尺寸</div><span class="arr">→</span>
+      <div class="n key"><span class="t">并行 ~25 s</span><b>三方向试看</b>回贴 + 身份检查 + AI 标识</div>
+    </div>
+    <div class="grid2">
+      <div class="stack">
+        <h4>软保护回贴（解决长发与刘海被截断）</h4>
+        <p style="font-size:14.5px;color:var(--ink-2)">V1 的受保护区域是“眉线以下的整张脸”，这对短发很安全，但齐肩发、侧刘海、八字刘海需要头发盖住脸颊或额角，会被回贴硬生生截断。V2 把保护分两级：<b>核心区</b>（眼、鼻、口及其外扩 6 px）永远使用原图像素；<b>边缘区</b>（脸颊外缘、额角、下颌外缘）允许结果中被识别为头发的像素覆盖，其余仍用原图。随后做身份检查。</p>
+        <p style="font-size:14.5px;color:var(--ink-2)"><b>回贴方法比较与选择：</b>① 现有蒙版 + 羽化（基线，最可控）；② 在边界带做 Lab 均值 / 方差颜色迁移，消除结果与原图的肤色、光照差；③ 泊松 / <span class="num">cv2.seamlessClone</span>，边界最平滑，但会把结果色调渗进原图、涂抹发丝细节，也更慢。<b>默认采用 ① + ② + 软保护</b>；③ 作为配置开关 <span class="num">composite_mode: feather | seamless</span>（qc.yaml）保留，只在 I1 小样本中明显更好时才打开。需修订 D17（见 G1）。</p>
+      </div>
+      <div class="stack">
+        <h4>确定性可视化：披布与妆容</h4>
+        <p style="font-size:14.5px;color:var(--ink-2)">色彩和妆容的可视化不需要生成模型。披布是在下颌以下叠加一块由关键点生成形状的纯色区域；唇色是唇外轮廓减内轮廓的区域内、Lab 空间里按浓度着色并保留纹理；腮红是羽化的径向渐变；牙齿与眼睛永远在排除蒙版内。原图始终保留，可一键对照。它们在浏览器实时运行、零成本、可复现，不改变五官形状。决定（定稿）：确定性着色允许进入妆容区域，生成式编辑仍不得改动五官（修订 D4 / D17）。</p>
+      </div>
+      <div class="stack">
+        <h4>身份检查与质量门</h4>
+        <p style="font-size:14.5px;color:var(--ink-2)">每张试看在展示前计算前后人脸特征相似度和发型区域变化量：相似度低于阈值或发型几乎没变，都视为失败并自动重生一次。注意许可：InsightFace 预训练模型仅限非商用，商用需选择许可清晰的模型或获得授权，在 I1 时定案；之前沿用“核心区逐像素不变 + 发型区域变化量”作为门槛。阈值放入 <span class="num">config/qc.yaml</span>。</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="sub">
+    <h3><span class="tag">E5</span>关键技术风险</h3>
+    <div class="tbl wide"><table>
+      <thead><tr><th>风险</th><th>可能性</th><th>影响</th><th>缓解</th></tr></thead>
+      <tbody>
+        <tr><td class="k">真实试看质量不够“像、真、能剪出来”</td><td>中高</td><td>极高</td><td>I1 关键路径验证先测；对比 qwen-image-edit-plus / qwen-image-2.0 / Gemini 图像编辑；固定 seed；头部裁切；必要时改为“款式库参考图 + 本人局部”混合呈现。</td></tr>
+        <tr><td class="k">长发、刘海、卷发试看失真（以女性为主后风险上升）</td><td>高</td><td>极高</td><td>软保护回贴在 B1 完成；I1 小样本以女性长发、刘海、卷发为主；失败时降级为款式参考图。</td></tr>
+        <tr><td class="k">穿搭检测出现身材评价</td><td>中</td><td>极高</td><td>prompt 硬规则 + 安全词检查（显胖、显瘦、遮肉等）命中即重试；不计算任何体型量；人工抽检。</td></tr>
+        <tr><td class="k">风格诊断被认为“像星座”</td><td>中</td><td>高</td><td>展示位置与依据而非只给标签；允许“我觉得不像”；风格规则由形象顾问审核。</td></tr>
+        <tr><td class="k">完整分析延迟 &gt; 90 s</td><td>中</td><td>高</td><td>两段式管线；partial 轮询先给结果；评估思考模式关闭；精简输出（去掉第三层才用的长文本）。</td></tr>
+        <tr><td class="k">三方向“看起来都差不多”</td><td>中</td><td>高</td><td>规则层差异度校验；款式库提供结构化差异；不合格则要求模型重写该方向（计入同一请求的修复重试）。</td></tr>
+        <tr><td class="k">美颜、滤镜与光线污染结论</td><td>高</td><td>中高</td><td>美颜检测、引导拍摄、白纸校准、置信度封顶并告知用户。</td></tr>
+        <tr><td class="k">合规：敏感个人信息、生成内容标识、数据出境</td><td>中</td><td>极高</td><td>单独同意、未成年人拦截、AI 显式与隐式标识、境内区域；上线前做一次合规评审；视规模评估算法备案要求。</td></tr>
+        <tr><td class="k">成本被滥用（免费试看）</td><td>中</td><td>中</td><td>每设备 / IP 限额；免费 1–3 张；邀请码；生成前质检门禁。</td></tr>
+        <tr><td class="k">评分预告被误解为已有评分</td><td>低</td><td>中</td><td>只写“即将上线”，不出现数字；开关默认关闭；生产构建禁止渲染分数（测试）。</td></tr>
+        <tr><td class="k">并行开发互相覆盖</td><td>中</td><td>高</td><td>共享契约（schema、API、集成文件、核心管线）只由 Claude Code 修改；智能体只改自己拥有的文件（G3）；智能体基于固定的样例数据开发。</td></tr>
+        <tr><td class="k">输出跨次不稳定</td><td>中</td><td>中高</td><td>评测 M1–M4；提示词缓存；同一护照内只用一次完整分析，重排不再调用模型。</td></tr>
+      </tbody></table></div>
+  </div>
+
+  <div class="sub">
+    <h3><span class="tag">E6</span>工程实施顺序</h3>
+    <ol style="margin:0;padding-left:1.3em;color:var(--ink-2);font-size:14.5px;display:flex;flex-direction:column;gap:6px">
+      <li><b>契约（Claude Code，T00–T01）</b>：不变量与决定记录修订；schema v0.3、样例、生成类型。同时智能体开始知识库、组件、着色模块与卡片模板（K1–K7）。</li>
+      <li><b>核心（Claude Code，T02–T05）</b>：只需正脸的管线与 analyzer-0.3、rules v0.3（风格四层、反馈重排、计划、眼镜尺寸）、API v0.3、前端外壳与状态。</li>
+      <li><b>增量 1</b>：工作流 A 与 D1 → 部署。</li>
+      <li><b>增量 2</b>：工作流 B 与 D2 → 部署。</li>
+      <li><b>增量 3、4</b>：工作流 C、揭晓视频与真实支付。详见 <a href="#g">G</a>。</li>
+    </ol>
+  </div>
+</section>
+
+<!-- ============ F ============ -->
+<section class="part" id="f">
+  <div class="part-head"><span class="letter">F</span><h2>路线图与评测框架</h2>
+    <p>顺序：契约先行，然后四条工作流并行，按四个可部署的增量上线。第一个增量就是能在小红书上被分享的免费档案；评测与专家研究在上线后持续进行，不阻塞任何增量。</p></div>
+
+  <div class="phases">
+    <div class="phase">
+      <div class="ph-left"><span class="pn">1</span><h4>免费档案</h4><span class="muted" style="font-size:13px">工作流 A + D1 · 约 3 周</span></div>
+      <dl>
+        <dt>用户问题</dt><dd>“我是什么样的、适合什么颜色和风格？给我一个看得见的发现。”</dd>
+        <dt>关键内容</dt><dd>F1 落地页与话题入口、F2 上传、F3 渐进补充（偏好、身形、预算场合）、F4 揭晓、F5 形象档案、F6 面部美学（含评分预告，开关默认关）、F7 色彩与数字披布、F8 风格八型四层、F16 基础反馈、F17 档案卡与删除、F9 的 1 张“稳妥”发型试看。</dd>
+        <dt>依赖</dt><dd>T00–T05 契约与核心；K1、K4、K5、K6、K7。</dd>
+        <dt>发布门槛</dt><dd>假模型下全链路测试通过；I1：5–10 组经同意的照片用真实模型跑通一次（首次通过、延迟、试看无截断）；安全词 0 命中；删除可用。</dd>
+        <dt>上线方式</dt><dd>部署到现有站点，面向 300–500 位小红书种子用户；观察档案卡分享率与反馈率。</dd>
+      </dl>
+    </div>
+    <div class="phase">
+      <div class="ph-left"><span class="pn">2</span><h4>造型试看 + 付费完整护照</h4><span class="muted" style="font-size:13px">工作流 B + D2 · 约 2–3 周</span></div>
+      <dl>
+        <dt>用户问题</dt><dd>“看起来会怎样、该去做什么？”</dd>
+        <dt>关键内容</dt><dd>F9 发型三方向与发型师卡、F10 穿搭推荐、F11 妆容试色、F13 眼镜与理容、F14 计划；单次付费、付费墙入口与权益（先用假支付）。</dd>
+        <dt>依赖</dt><dd>增量 1；K2、K3；软保护回贴。</dd>
+        <dt>发布门槛</dt><dd>各任务最小验收通过；付费字段在未付费时由服务端裁剪（测试）；试看在 I1 样本上无截断。</dd>
+        <dt>上线方式</dt><dd>真实支付通道就绪前，付费墙可用邀请码解锁；就绪后切换。</dd>
+      </dl>
+    </div>
+    <div class="phase">
+      <div class="ph-left"><span class="pn">3</span><h4>高级互动与持久化</h4><span class="muted" style="font-size:13px">工作流 C · 约 3 周</span></div>
+      <dl>
+        <dt>用户问题</dt><dd>“我想每天穿对、想深究依据、想保存并改变主意。”</dd>
+        <dt>关键内容</dt><dd>F12 穿搭检测、F15 详细分析、F16 高级（再生成、历史、撤销、收藏）、轻账户（手机号，先用假短信）、白纸校准。</dd>
+        <dt>依赖</dt><dd>增量 2。</dd>
+        <dt>发布门槛</dt><dd>穿搭检测身材评价词 0 命中；照片处理后即删（测试）。</dd>
+      </dl>
+    </div>
+    <div class="phase">
+      <div class="ph-left"><span class="pn">4</span><h4>传播与真实支付</h4><span class="muted" style="font-size:13px">工作流 C / D · 持续</span></div>
+      <dl>
+        <dt>关键内容</dt><dd>9:16 揭晓视频、剪后回访、发型师分享链接；微信支付 / 支付宝适配器（需商户凭证）；之后再评估会员与小程序。</dd>
+        <dt>依赖</dt><dd>部署与商户凭证由 Yeric 提供。</dd>
+      </dl>
+    </div>
+  </div>
+
+  
+<div class="sub">
+    <h3><span class="tag">F1</span>里程碑（1 名工程师 + Claude Code + 并行智能体估算）</h3>
+    <div class="gantt"><div class="gantt-in" style="grid-template-columns:180px repeat(12,1fr)">
+      <span></span><span class="wk">W1</span><span class="wk">W2</span><span class="wk">W3</span><span class="wk">W4</span><span class="wk">W5</span><span class="wk">W6</span><span class="wk">W7</span><span class="wk">W8</span><span class="wk">W9</span><span class="wk">W10</span><span class="wk">W11</span><span class="wk">W12</span>
+      <span class="lb">T00–T05 契约与核心（Claude Code）</span><span class="bx" style="grid-column:span 2"></span><span style="grid-column:span 10"></span>
+      <span class="lb">K1–K7 知识库 · 组件 · 卡片（智能体）</span><span class="bx w" style="grid-column:span 2"></span><span style="grid-column:span 10"></span>
+      <span class="lb">工作流 A + D1</span><span style="grid-column:span 1"></span><span class="bx" style="grid-column:span 2"></span><span style="grid-column:span 9"></span>
+      <span class="lb">增量 1 部署 · 种子用户</span><span style="grid-column:span 2"></span><span class="bx l" style="grid-column:span 1"></span><span style="grid-column:span 9"></span>
+      <span class="lb">工作流 B + D2</span><span style="grid-column:span 3"></span><span class="bx" style="grid-column:span 3"></span><span style="grid-column:span 6"></span>
+      <span class="lb">增量 2 部署</span><span style="grid-column:span 5"></span><span class="bx l" style="grid-column:span 1"></span><span style="grid-column:span 6"></span>
+      <span class="lb">工作流 C</span><span style="grid-column:span 6"></span><span class="bx" style="grid-column:span 3"></span><span style="grid-column:span 3"></span>
+      <span class="lb">增量 3 部署</span><span style="grid-column:span 8"></span><span class="bx l" style="grid-column:span 1"></span><span style="grid-column:span 3"></span>
+      <span class="lb">增量 4 视频 · 真实支付</span><span style="grid-column:span 9"></span><span class="bx l" style="grid-column:span 3"></span>
+      <span class="lb">评测与专家研究（持续，不阻塞）</span><span style="grid-column:span 3"></span><span class="bx w" style="grid-column:span 9"></span>
+</div></div>
+    <p class="muted" style="font-size:13px">墨青：开发；琥珀：智能体并行任务与持续评测；浅色：部署与上线。周数是估算，增量以“验收通过即部署”为准，不等日历。</p>
+  </div>
+
+  <div class="sub">
+    <h3><span class="tag">F2</span>为什么是这个顺序</h3>
+    <div class="grid2">
+      <div class="note"><b>契约先行，然后并行。</b>schema v0.3、API 与前端外壳先由 Claude Code 定下来，智能体同时基于固定样例开发知识库、组件与模板；契约稳定后各工作流互不阻塞。质量风险用一次关键路径验证（I1）兜底：试看质量不够时，三方向降级为“参考款式图 + 本人局部”，不推迟上线。</div>
+      <div class="note"><b>免费档案先上线。</b>形象档案是信任的来源，也是小红书上最容易被分享的东西；它几乎全部复用现有引擎，成本最低。造型试看与付费在增量 2 跟上；穿搭检测等高频工具需要档案作为上下文，放在增量 3。</div>
+    </div>
+  </div>
+
+  <div class="sub">
+    <h3><span class="tag">F3</span>评测框架（上线后持续，不阻塞交付）</h3>
+    <div class="note"><b>发布门槛只有两类：</b>G 节各任务的最小验收标准（多数是自动化测试），以及发布前一次关键路径验证 I1（5–10 组经同意的照片，用真实模型跑完上传 → 档案 → 试看 → 分享）。下表 M1–M14 是上线后用经同意的真实数据持续跟踪的质量指标，用来改进，不用来卡上线。</div>
+    <div class="tbl wide"><table>
+      <thead><tr><th>#</th><th>维度</th><th>指标</th><th>方法</th><th>目标</th></tr></thead>
+      <tbody>
+        <tr><td class="num">M1–M4</td><td>稳定性</td><td>跨照片 / 重复运行的维度差、首推类别重合、标签一致</td><td>沿用 EVAL.md</td><td>双极维度差 ≤ 0.5；Jaccard ≥ 0.6</td></tr>
+        <tr><td class="num">M5</td><td>建议质量</td><td>具体性、有依据、个人相关、可执行、合规（D1–D5）</td><td>离线评审模型 + 人工校准</td><td>D1、D2 ≥ 4；D5 = 5</td></tr>
+        <tr><td class="num">M7</td><td>试看</td><td>像本人、真实感、与描述一致、可剪出来</td><td>3 人盲评（含 1 位发型师），每图 4 项 1–5 分；长发、刘海、卷发单独报告</td><td>像本人 ≥ 90%；其余 ≥ 4.0</td></tr>
+        <tr><td class="num">M8</td><td>工程</td><td>首次通过率、p50 / p90、单份成本</td><td>calls.jsonl 汇总</td><td>≥ 90%；p50 &lt; 75 s；&lt; ¥2 / 份</td></tr>
+        <tr><td class="num">M9</td><td>专家一致</td><td>首推发型方向与专家首选是否同一族</td><td>2 位发型师 + 1 位顾问独立给出首选</td><td>≥ 70%</td></tr>
+        <tr><td class="num">M10</td><td>三方向差异</td><td>标注员能否说出三张的区别</td><td>盲评</td><td>≥ 90%</td></tr>
+        <tr><td class="num">M11</td><td>个人相关</td><td>把 A 的建议给 B 看，B 能否认出“这不是我的”</td><td>交换测试（检测泛化建议）</td><td>识别率 ≥ 70%</td></tr>
+        <tr><td class="num">M13</td><td>色彩与风格</td><td>色彩方向、风格方向与形象顾问判断一致；两种光线下近脸色重合</td><td>顾问盲评 + 双光线照片</td><td>一致 ≥ 70%；重合 ≥ 4/6</td></tr>
+        <tr><td class="num">M14</td><td>安全语言</td><td>容貌评判、身材评价、医美词</td><td>安全词检查 + 人工抽检 50 份</td><td>0 命中</td></tr>
+        <tr><td class="num">M12</td><td>真实结果</td><td>剪后满意度、“剪出来和试看像吗”</td><td>剪后回访问卷 + 照片</td><td>满意 ≥ 4/5；相似 ≥ 3.5/5</td></tr>
+      </tbody></table></div>
+    <div class="grid2">
+      <div class="stack">
+        <h4>产品漏斗与北极星</h4>
+        <div class="tbl"><table><tbody>
+          <tr><td class="k">北极星</td><td>带走率：完成护照中保存或分享 ≥ 1 张决策卡的比例（目标 ≥ 40%）</td></tr>
+          <tr><td class="k">激活</td><td>落地页 → 开始 ≥ 25%；开始 → 快速洞察 ≥ 70%</td></tr>
+          <tr><td class="k">深入</td><td>快速 → 完整 ≥ 45%；查看 ≥ 2 个方向 ≥ 80%</td></tr>
+          <tr><td class="k">信任</td><td>“这说的像你吗” ≥ 4.0/5；“不要”率 &lt; 40%</td></tr>
+          <tr><td class="k">留存</td><td>剪后回访 ≥ 15%；30 日再次使用 ≥ 10%</td></tr>
+          <tr><td class="k">护栏</td><td>删除请求率、投诉、身份检查失败率、单份成本</td></tr>
+        </tbody></table></div>
+      </div>
+      <div class="stack">
+        <h4>用户测试计划</h4>
+        <ul style="margin:0;padding-left:1.1em;color:var(--ink-2);font-size:14.5px">
+          <li><b>发布前（一次）：</b>I1 关键路径验证，5–10 组经同意的照片，以女性长发与刘海为主。</li>
+          <li><b>增量 1 后：</b>6 人有主持测试（4 位女性、2 位男性；任务：从小红书卡片进入到保存档案卡与一张决策卡），记录卡点与 5 秒理解测试。</li>
+          <li><b>增量 2 后：</b>12 人“改变日记”研究：选定发型或穿搭方向 → 真去剪或去买 → 拍照 → 两周后访谈；这是验证“改变了真实决定”的唯一可靠方法。同时请 20 位种子用户测试档案卡在小红书上的发布意愿。</li>
+          <li><b>增量 3 后：</b>SUS 问卷 + 8 人可用性测试，重点测三层报告的导航与重排理解。</li>
+          <li><b>持续：</b>40 人评测集逐步积累（女性约六成），发型师、化妆师、形象顾问抽样盲评。</li>
+          <li><b>增量 4：</b>落地页标题与价格点 A/B 测试；笔记与视频来源的转化归因。</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <div class="sub">
+    <h3><span class="tag">F4</span>商业：免费 vs 一次性付费完整护照</h3>
+    <div class="tbl wide"><table>
+      <thead><tr><th>层级</th><th>内容</th><th>价格</th><th>说明</th></tr></thead>
+      <tbody>
+        <tr><td class="k">免费</td><td>上传扫描、形象档案（面部 / 色彩方向 / 风格方向）、数字披布、档案卡、1 张“稳妥”发型试看、基础反馈与重排、删除</td><td>¥0</td><td>档案卡是传播物，必须免费且完整，不打码</td></tr>
+        <tr><td class="k">完整护照（一次性）</td><td>三方向发型试看、比较、发型师卡与再生成；全部穿搭公式、单品与场合方案；完整妆容方向与试色；眼镜尺寸；改进计划；增量 3 起含穿搭检测（合理使用限额）与剪后回访</td><td>沿用 ¥39 / ¥59 / ¥69 假设，上线时先用单一价格</td><td>线下形象诊断数百元起；The Face Report $17.49；国内测试类 App 口碑差</td></tr>
+        <tr><td class="k">延后</td><td>会员、订阅、积分账本、试看加购、导购佣金</td><td>—</td><td>有付费与复访数据后再评估</td></tr>
+      </tbody></table></div>
+    <div class="grid2">
+      <div class="stack">
+        <h4>最小权益规则</h4>
+        <ul style="margin:0;padding-left:1.1em;color:var(--ink-2);font-size:14.5px">
+          <li>权益绑定到护照（<span class="num">passports.paid</span>），在服务端判断；API 响应带 <span class="num">entitlement</span>，未付费时服务端裁剪付费字段，前端不靠隐藏来“锁”。</li>
+          <li>支付成功由 webhook 写入 <span class="num">payments</span> 表并置 paid；幂等。</li>
+          <li><span class="num">PAYMENT_PROVIDER=fake</span> 先行，开发与测试无需凭证；真实通道（微信支付 / 支付宝 H5）在拿到商户凭证后接入。</li>
+          <li>轻账户上线前，用护照链接找回权益；上线后绑定手机号。</li>
+          <li>7 天内未使用付费试看可退款（人工处理即可）。</li>
+        </ul>
+      </div>
+      <div class="stack">
+        <h4>付费墙入口（只在这些地方出现）</h4>
+        <ul style="margin:0;padding-left:1.1em;color:var(--ink-2);font-size:14.5px">
+          <li>发型页：“稳妥”试看之后的“突破”“省心”两个方向。</li>
+          <li>穿搭页：第 3 条公式之后；场合方案。</li>
+          <li>妆容页：完整色板与浓度档。</li>
+          <li>档案页“为你推荐”区底部的一张“解锁完整护照”卡。</li>
+          <li>不在上传、揭晓、档案卡与分享路径上设任何付费拦截。</li>
+        </ul>
+      </div>
+    </div>
+    <p class="muted" style="font-size:13.5px">单位成本：完整分析约 $0.012–0.024，每张发型试看约 $0.03；披布与试色是本地计算，成本为零；一次穿搭检测估计约 $0.01。完整护照含 6 张试看约 ¥1.5，毛利充足。主要成本会是小红书 / 抖音的内容与投放，因此档案卡的自然分享率是决定商业模型的关键指标。</p>
+  
+</div>
+
+  <div class="sub">
+    <h3><span class="tag">F5</span>决定记录与剩余问题</h3>
+    <div class="tbl"><table>
+      <thead><tr><th>已确认（2026-10-22，Yeric）</th><th>对方案的影响</th></tr></thead>
+      <tbody>
+        <tr><td>形象顾问核心不只做发型：面部美学、色彩、风格与穿搭</td><td>17 项功能与三层护照保留；一个引擎、五个话题入口</td></tr>
+        <tr><td>男女都覆盖，更注重女性</td><td>示例、默认选项、妆容与穿搭按女性设计；男性理容与中性表达保留</td></tr>
+        <tr><td>只要求正脸；本地上传优先，不做实时相机</td><td>F2、线框 2、D2 流程、E1 已改；实时取景列为后续增强</td></tr>
+        <tr><td>颜值评分保留为未来功能；本期只做预告</td><td>去掉“永不打分”的承诺；不建模型、不展示分数；修订不变量 5 与 D6</td></tr>
+        <tr><td>妆容可在妆容区域做确定性像素着色</td><td>F11 定稿；排除蒙版与原图对照；修订 D4 / D17</td></tr>
+        <tr><td>身形只来自用户自选或填写</td><td>F3、F10、F12 已按此写；穿搭检测只分析衣物与构图</td></tr>
+        <tr><td>保留八个小红书风格标签，区分四层</td><td>B4、F8、线框 7 已改</td></tr>
+        <tr><td>基础反馈前置到第一个版本</td><td>F16 拆为基础（A · 1）与高级（C · 3）</td></tr>
+        <tr><td>分享卡要有设计感，不能只有灰色剪影</td><td>插画头像 / 色卡艺术 / 本人肖像三选一，均带 AI 标识与署名</td></tr>
+        <tr><td>只保留免费 vs 一次性付费</td><td>会员、订阅、积分、加购延后（F4）</td></tr>
+        <tr><td>评测不阻塞交付；四条工作流并行</td><td>路线图改为四个增量；新增 G 执行计划</td></tr>
+        <tr><td>中国大陆运营，备案由 Yeric 负责；推广走小红书、抖音</td><td>保留单独同意、AI 显式与隐式标识、境内模型区域、未成年拦截</td></tr>
+      </tbody></table></div>
+    <div class="bets">
+      <div class="bet"><h4>上线用哪一个价格？</h4><p>建议先用 ¥39 单一价格，拿到转化数据后再 A/B ¥59。不阻塞开发：价格在配置里。</p></div>
+      <div class="bet"><h4>支付通道的商户主体与凭证</h4><p>开发全程用假支付；接真实微信支付 / 支付宝需要你提供商户号与密钥（按 CLAUDE.md，届时 Claude Code 会停下来一次性询问所需的环境变量名）。增量 2 可先用邀请码解锁。</p></div>
+      <div class="bet"><h4>评分预告什么时候打开？</h4><p>建议增量 1 部署时保持关闭，增量 2 与付费一起打开，便于看兴趣与付费的关系。只是一个开关。</p></div>
+    </div>
+  </div>
+</section>
+
+
+<!-- ============ G ============ -->
+<section class="part" id="g">
+  <div class="part-head"><span class="letter">G</span><h2>执行计划</h2>
+    <p>把本方案交给 Claude Code 与其他编码智能体直接开工所需的全部约定：要改的不变量与决定记录、四条工作流、文件所有权、任务索引和开工顺序。每个任务的完整说明（目标、复用、文件、输入输出、负责人、最小验收）在仓库 <span class="num">docs/v2/V2_TASKS.md</span>；可直接复制的执行指令在 <span class="num">docs/v2/V2_AGENT_PROMPTS.md</span>。</p></div>
+
+  <div class="sub" style="margin-top:0">
+    <h3><span class="tag">G1</span>不变量与决定记录的修订（任务 T00，第一件事）</h3>
+    <div class="tbl wide"><table>
+      <thead><tr><th>位置</th><th>现在</th><th>改为</th></tr></thead>
+      <tbody>
+        <tr><td class="k">CLAUDE.md 开头</td><td>以 docs/MVP_BRIEF.md 为准</td><td>V2 工作以本 PRD（docs/v2/）与 V2_TASKS.md 为准；MVP_BRIEF 保留为 V1 历史</td></tr>
+        <tr><td class="k">CLAUDE.md 不变量 1</td><td>三层来源</td><td>不变，补一句：用户反馈与偏好只进入 user_context 与 preference_events，只影响 derived</td></tr>
+        <tr><td class="k">CLAUDE.md 不变量 5</td><td>No attractiveness score</td><td>生产环境不展示任何颜值分数，直到新的决定记录批准经过验证的评分功能；允许标注“即将上线”的预告与开发样例中的占位分。其余红线不变，并补充“不推断体型”；presentation 与身形由用户选择或填写</td></tr>
+        <tr><td class="k">CLAUDE.md 不变量 7</td><td>非正脸照片任务结束即删</td><td>不变，补充：穿搭检测照片处理完即删；/geometry 多边形随正脸 24 小时过期</td></tr>
+        <tr><td class="k">D4 效果图只做局部蒙版编辑</td><td>脸部像素永远来自原图</td><td>由 D22 修订：生成式编辑仍只在发型 / 眼镜 / 领口蒙版内；确定性着色可进入妆容区域</td></tr>
+        <tr><td class="k">D6 不做颜值打分</td><td>永不打分</td><td>由 D24 修订：本期只做预告，不建模型、不展示分数</td></tr>
+        <tr><td class="k">D14 照片角色</td><td>正脸 + 45° 侧脸必填</td><td>由 D20 修订：只需正脸；侧脸、微笑、发型照选填</td></tr>
+        <tr><td class="k">D17 图像编辑与回贴</td><td>眉线以下整脸硬回贴</td><td>由 D22 修订：核心区硬保护 + 边缘区软保护 + 边界颜色迁移；seamless 为配置开关</td></tr>
+        <tr><td class="k">D2 风格八型</td><td>按 presentation 换名（时尚型、阳光型、儒雅型…）</td><td>由 D25 修订：八个小红书标签对所有表达方向统一（modern → 前卫型）；只换示例与规则</td></tr>
+      </tbody></table></div>
+    <div class="tbl wide" style="margin-top:12px"><table>
+      <thead><tr><th>新决定</th><th>内容</th></tr></thead>
+      <tbody>
+        <tr><td class="k num">D19</td><td>V2 交付方式：契约先行，四条工作流并行，四个可部署增量；评测与专家研究不阻塞上线（V2 范围内取代 D13 的流程）。</td></tr>
+        <tr><td class="k num">D20</td><td>输入：本地上传优先，只需正脸；本期不做实时相机。</td></tr>
+        <tr><td class="k num">D21</td><td>两段式分析：快速分析与完整分析是两次独立请求（同一生产模型）；结果以 partial 快照经轮询返回，SSE 延后。</td></tr>
+        <tr><td class="k num">D22</td><td>像素政策：生成式编辑只在发型、眼镜、领口区域，软保护回贴 + 颜色迁移；确定性唇色、腮红、色调可进入妆容区域，牙齿与眼睛永远排除，原图可逆对照。</td></tr>
+        <tr><td class="k num">D23</td><td>分享卡：前端模板渲染 PNG；插画头像由参数生成、不描摹照片；所有卡片带显式 AI 标识、隐式元数据与产品署名。</td></tr>
+        <tr><td class="k num">D24</td><td>颜值评分：只做“即将上线”预告（开关默认关），只记录兴趣；生产构建禁止渲染任何分数。</td></tr>
+        <tr><td class="k num">D25</td><td>风格：八个小红书标签统一；四层（可观察特征 / 推断风格 / 个人偏好 / 目标形象）分开存储、分开展示。</td></tr>
+        <tr><td class="k num">D26</td><td>反馈：偏好与观察分离；反馈只经规则层重排，不重跑视觉模型，不算重试；身形只来自用户输入。</td></tr>
+        <tr><td class="k num">D27</td><td>商业：免费 vs 一次性付费完整护照；权益在服务端判断并裁剪响应，不写入 passport；PAYMENT_PROVIDER=fake 先行。</td></tr>
+      </tbody></table></div>
+  </div>
+
+  <div class="sub">
+    <h3><span class="tag">G2</span>四条工作流</h3>
+    <div class="tbl wide"><table>
+      <thead><tr><th>工作流</th><th>功能</th><th>任务</th><th>首次可用</th></tr></thead>
+      <tbody>
+        <tr><td class="k">共享基础</td><td>决定记录、schema v0.3、管线、规则、API、前端外壳</td><td>T00–T05（Claude Code）；K1–K7（智能体，立即并行）</td><td>第 1–2 周</td></tr>
+        <tr><td class="k">A 核心档案与分享</td><td>F1–F8、F16 基础、F17 档案卡与删除</td><td>A1–A10，加 B1（1 张免费试看）</td><td>增量 1</td></tr>
+        <tr><td class="k">B 造型与试看</td><td>F9、F10、F11、F13、F14</td><td>B1–B5</td><td>增量 2（B1 在增量 1）</td></tr>
+        <tr><td class="k">C 高级互动与持久化</td><td>F12、F15、F16 高级、F17 其余</td><td>C1–C4</td><td>增量 3–4</td></tr>
+        <tr><td class="k">D 分发与单次付费</td><td>话题入口、分享归因、评分预告、单次付费</td><td>D1–D3</td><td>增量 1–4</td></tr>
+        <tr><td class="k">发布</td><td>关键路径验证与部署</td><td>I1（每个增量执行一次）</td><td>每个增量</td></tr>
+      </tbody></table></div>
+  </div>
+
+  <div class="sub">
+    <h3><span class="tag">G3</span>文件所有权（避免并行冲突）</h3>
+    <div class="grid2">
+      <div class="note"><b>只由 Claude Code 修改（共享契约与集成）</b><br>
+        <span class="num">CLAUDE.md · docs/DECISIONS.md · docs/SCHEMA.md · schema/*.json · examples/* · web/lib/fixtures/* · web/lib/passport.ts（生成）· web/lib/api.ts · web/lib/state/** · web/lib/adapters/** · web/app/layout.tsx · web/app/p/[id]/layout.tsx · web/app/globals.css · web/package.json · src/aesthetic_passport/{pipeline,analyzer,assemble,schema_io,rules,anchors,qc,preview,masks}.py · src/aesthetic_passport/api/** · providers/** · prompts/* · config/{rules,qc,models}.yaml · THIRD_PARTY.md · .github/**</span></div>
+      <div class="note"><b>由独立智能体拥有（各自目录，互不重叠）</b><br>
+        K1 <span class="num">config/styles.yaml</span> · K2 <span class="num">config/garments.yaml</span> · K3 <span class="num">config/hairstyles.json</span> · K4 <span class="num">web/components/ds/** · web/app/dev/**</span> · K5 <span class="num">web/lib/tint/**</span> · K6 <span class="num">web/components/cards/**</span> · K7 <span class="num">web/lib/copy/**</span>；页面任务各自拥有 <span class="num">web/app/p/[id]/&lt;子页&gt;/**</span> 与 <span class="num">web/components/&lt;功能&gt;/**</span>。每个智能体的测试放在自己目录或 <span class="num">tests/test_&lt;任务&gt;_*.py</span>。需要改共享文件时，在 PR 描述里写明，由 Claude Code 合入。</div>
+    </div>
+    <p class="muted" style="font-size:13.5px">分支：Claude Code 建立集成分支 <span class="num">v2</span>；每个任务一个分支（例如 <span class="num">v2/k5-tint</span>），PR 合入 <span class="num">v2</span>，CI 绿即可合并。增量发布时把 <span class="num">v2</span> 合入 <span class="num">main</span> 并部署（部署前征得 Yeric 同意）。组件类任务只接收普通 props，不直接导入 passport 类型；从 passport 到 props 的映射由 Claude Code 写在 <span class="num">web/lib/adapters/</span>。</p>
+  </div>
+
+  <div class="sub">
+    <h3><span class="tag">G4</span>任务索引</h3>
+    <div class="tbl wide"><table>
+      <thead><tr><th>ID</th><th>任务</th><th>负责人</th><th>依赖</th><th>何时开始</th><th>增量</th></tr></thead>
+      <tbody>
+        <tr><td class="k num">T00</td><td>不变量与决定记录修订（G1）</td><td>Claude Code</td><td>—</td><td>立即</td><td>基础</td></tr>
+        <tr><td class="k num">T01</td><td>Schema v0.3、样例、生成类型、契约测试</td><td>Claude Code</td><td>T00</td><td>立即</td><td>基础</td></tr>
+        <tr><td class="k num">T02</td><td>只需正脸的两段式管线、CV 新测量、几何导出、美颜检测、analyzer-0.3</td><td>Claude Code</td><td>T01</td><td>T01 后</td><td>基础</td></tr>
+        <tr><td class="k num">T03</td><td>规则 v0.3：风格四层、反馈重排、发型校验、眼镜尺寸、计划、穿搭一致性</td><td>Claude Code</td><td>T01</td><td>与 T02 并行</td><td>基础</td></tr>
+        <tr><td class="k num">T04</td><td>API v0.3：partial、enrich、feedback、rerank、previews、geometry、share、delete、events</td><td>Claude Code</td><td>T02、T03</td><td>T02/T03 后</td><td>基础</td></tr>
+        <tr><td class="k num">T05</td><td>前端外壳：路由、状态、API 客户端、适配器、vitest、功能开关</td><td>Claude Code</td><td>T01</td><td>与 T02 并行</td><td>基础</td></tr>
+        <tr><td class="k num">K1</td><td>八型风格规则库 styles.yaml（三种表达方向）</td><td>智能体</td><td>—</td><td>立即</td><td>1</td></tr>
+        <tr><td class="k num">K2</td><td>单品本体库 garments.yaml（约 150 条）</td><td>智能体</td><td>—</td><td>立即</td><td>2</td></tr>
+        <tr><td class="k num">K3</td><td>发型库扩充到 60+（中文名、女性参数、打理与价格）</td><td>智能体</td><td>—</td><td>立即</td><td>2</td></tr>
+        <tr><td class="k num">K4</td><td>设计系统与通用组件（StylePlane、FeedbackChips、Compare…）</td><td>智能体</td><td>—</td><td>立即</td><td>1</td></tr>
+        <tr><td class="k num">K5</td><td>确定性着色模块 tint（披布、唇色、腮红、色调）</td><td>智能体</td><td>—</td><td>立即</td><td>1</td></tr>
+        <tr><td class="k num">K6</td><td>分享卡模板与插画头像、PNG 导出与 AI 标识</td><td>智能体</td><td>—</td><td>立即</td><td>1</td></tr>
+        <tr><td class="k num">K7</td><td>中文文案库：同意、重拍、话题、反馈原因、付费墙、预告</td><td>智能体</td><td>—</td><td>立即</td><td>1</td></tr>
+        <tr><td class="k num">A1</td><td>落地页（F1）</td><td>智能体</td><td>T05、K4、K7</td><td>T05 后</td><td>1</td></tr>
+        <tr><td class="k num">A2</td><td>上传与同意（F2）</td><td>Claude Code</td><td>T04、T05、K7</td><td>T04 后</td><td>1</td></tr>
+        <tr><td class="k num">A3</td><td>揭晓式进度（F4）</td><td>Claude Code</td><td>T04、T05、K4</td><td>T04 后</td><td>1</td></tr>
+        <tr><td class="k num">A4</td><td>形象档案第一层（F5）</td><td>Claude Code</td><td>A3、K4、K6</td><td>A3 后</td><td>1</td></tr>
+        <tr><td class="k num">A5</td><td>面部美学页 + 评分预告（F6）</td><td>智能体</td><td>T05、K4</td><td>T05 后</td><td>1</td></tr>
+        <tr><td class="k num">A6</td><td>色彩页 + 数字披布（F7）</td><td>智能体</td><td>T05、K4、K5</td><td>T05 后</td><td>1</td></tr>
+        <tr><td class="k num">A7</td><td>风格页四层（F8）</td><td>智能体</td><td>T05、K1、K4</td><td>T05 后</td><td>1</td></tr>
+        <tr><td class="k num">A8</td><td>渐进补充表单（F3）</td><td>智能体</td><td>T05、K4、K7</td><td>T05 后</td><td>1</td></tr>
+        <tr><td class="k num">A9</td><td>基础反馈与调整面板（F16 基础）</td><td>Claude Code</td><td>T04、K4</td><td>T04 后</td><td>1</td></tr>
+        <tr><td class="k num">A10</td><td>档案卡分享页与删除（F17 增量 1）</td><td>智能体</td><td>T05、K6</td><td>T05 后</td><td>1</td></tr>
+        <tr><td class="k num">B1</td><td>发型试看引擎：多目标、软保护、颜色迁移、身份门、AI 标识</td><td>Claude Code</td><td>T02</td><td>T02 后</td><td>1（1 张）/ 2</td></tr>
+        <tr><td class="k num">B2</td><td>发型页三方向、比较、发型师卡（F9）</td><td>智能体</td><td>B1、K3、K4、K6</td><td>增量 1 后</td><td>2</td></tr>
+        <tr><td class="k num">B3</td><td>穿搭推荐页与领口试看（F10）</td><td>智能体</td><td>T03、K2、K5</td><td>增量 1 后</td><td>2</td></tr>
+        <tr><td class="k num">B4</td><td>妆容方向与试色页（F11）</td><td>智能体</td><td>K5、T04</td><td>增量 1 后</td><td>2</td></tr>
+        <tr><td class="k num">B5</td><td>眼镜、理容与改进计划（F13、F14）</td><td>智能体 + Claude Code（眼镜试戴）</td><td>T03、B1</td><td>增量 1 后</td><td>2</td></tr>
+        <tr><td class="k num">D1</td><td>话题入口、ref 归因、最小埋点、评分预告开关</td><td>智能体 + Claude Code（events）</td><td>T04、T05、K7</td><td>T05 后</td><td>1</td></tr>
+        <tr><td class="k num">D2</td><td>单次付费与权益（假支付）、付费墙入口、邀请码解锁</td><td>Claude Code</td><td>T04</td><td>增量 1 后</td><td>2</td></tr>
+        <tr><td class="k num">C1</td><td>穿搭检测（F12）</td><td>Claude Code（管线）+ 智能体（页面）</td><td>增量 2</td><td>增量 2 后</td><td>3</td></tr>
+        <tr><td class="k num">C2</td><td>详细分析第三层（F15）</td><td>智能体</td><td>增量 1</td><td>增量 1 后即可</td><td>3</td></tr>
+        <tr><td class="k num">C3</td><td>高级反馈与轻账户（F16 高级、保存护照）</td><td>Claude Code</td><td>增量 2</td><td>增量 2 后</td><td>3</td></tr>
+        <tr><td class="k num">C4</td><td>白纸校准、剪后回访、9:16 揭晓视频</td><td>Claude Code + 智能体（视频模板）</td><td>C3、K6</td><td>增量 3 后</td><td>3–4</td></tr>
+        <tr><td class="k num">D3</td><td>真实支付适配（微信支付 / 支付宝 H5）</td><td>Claude Code</td><td>D2、商户凭证</td><td>凭证到位后</td><td>4</td></tr>
+        <tr><td class="k num">I1</td><td>关键路径验证与部署</td><td>Claude Code + Yeric</td><td>该增量全部任务</td><td>每个增量末</td><td>每个</td></tr>
+      </tbody></table></div>
+  </div>
+
+  <div class="sub">
+    <h3><span class="tag">G5</span>立即构建顺序</h3>
+    <div class="flow">
+      <div class="n key"><span class="t">第 1 天</span><b>T00 → T01</b>Claude Code：决定记录与 schema v0.3</div><span class="arr">→</span>
+      <div class="n"><span class="t">同时</span><b>K1–K7</b>七个智能体立即开工</div><span class="arr">→</span>
+      <div class="n"><span class="t">第 2–6 天</span><b>T02 ∥ T03 ∥ T05 → T04</b>再接 B1</div><span class="arr">→</span>
+      <div class="n"><span class="t">第 2 周起</span><b>A1–A10 · D1</b>页面智能体与集成并行</div><span class="arr">→</span>
+      <div class="n key"><span class="t">约第 3 周</span><b>增量 1 部署</b>免费档案 + 1 张试看</div><span class="arr">→</span>
+      <div class="n"><span class="t">之后</span><b>增量 2 → 3 → 4</b>造型与付费 → 检测与账户 → 视频与真实支付</div>
+    </div>
+    <ol style="margin:0;padding-left:1.3em;color:var(--ink-2);font-size:14.5px;display:flex;flex-direction:column;gap:6px">
+      <li><b>Claude Code 的第一个任务：</b>T00（半天），紧接 T01。T01 合入后，所有智能体切换到生成的 v0.3 类型与样例。</li>
+      <li><b>立即并行：</b>K1–K7 不依赖任何代码改动，现在就能开始；组件类（K4、K5、K6）按 V2_TASKS.md 中定义的 props 接口开发。</li>
+      <li><b>第一个可部署增量（增量 1）：</b>上传正脸 → 揭晓 → 形象档案（面部 / 色彩 + 披布 / 风格八型四层）→ 基础反馈即时重排 → 1 张“稳妥”发型试看 → 3:4 档案卡分享 → 删除；五个话题入口；评分预告开关默认关。发布门槛：CI 全绿 + I1。</li>
+      <li><b>增量 2：</b>发型三方向与发型师卡、穿搭推荐、妆容试色、眼镜与计划，单次付费（假支付 + 邀请码）。</li>
+      <li><b>增量 3：</b>穿搭检测、详细分析、高级反馈与轻账户、白纸校准。<b>增量 4：</b>揭晓视频、剪后回访、真实支付通道。</li>
+    </ol>
+    <div class="note"><b>只在这些情况下停下来问 Yeric：</b>缺少凭证（先用假实现完成其余一切，再一次性列出需要的环境变量名）、I1 需要的 5–10 组经同意的照片、预计单次超过 $5 的模型调用、部署、以及任何会违反修订后不变量的改动。任务之间不设审批关卡。</div>
+  </div>
+</section>
+
+<footer>
+  <div class="stack" style="gap:8px">
+    <p>形象护照 V2 产品方案 · 定稿 2026-10-22 · 开工版本。本文件只定义产品与工程任务，未改动应用代码；任务说明见仓库 docs/v2/V2_TASKS.md，执行指令见 docs/v2/V2_AGENT_PROMPTS.md。</p>
+    <p>资料来源：仓库 docs/MVP_BRIEF.md、DECISIONS.md、SCHEMA.md、EVAL.md、ITERATION_LOG.md、schema/、src/、web/ 与 docs/screenshots；线上站点 beautytest.byliyz.com；
+      <a href="https://thefacereport.com/" target="_blank" rel="noopener">The Face Report 首页</a>、<a href="https://thefacereport.com/pricing" target="_blank" rel="noopener">定价页</a>、<a href="https://thefacereport.com/sample-report" target="_blank" rel="noopener">示例报告</a>；
+      <a href="https://apps.apple.com/us/app/-/id1358319821" target="_blank" rel="noopener">Style DNA（App Store）</a>；
+      <a href="https://www.capterra.com/p/10048505/TryHair-ai/" target="_blank" rel="noopener">TryHair.ai（Capterra）</a>；
+      <a href="https://apps.apple.com/cn/app/ai%E5%8F%91%E5%9E%8B%E6%A8%A1%E6%8B%9F%E5%99%A8-%E5%89%AA%E5%8F%91%E6%9F%93%E5%8F%91%E9%80%A0%E5%9E%8B/id6749222720" target="_blank" rel="noopener">AI 发型模拟器</a>；<a href="https://apps.apple.com/us/app/%E8%87%B4%E7%BE%8E%E5%BD%A2%E8%B1%A1%E8%AE%BE%E8%AE%A1/id6474275836" target="_blank" rel="noopener">致美形象设计</a>；<a href="https://apps.apple.com/cn/app/%E7%A9%BF%E6%90%AD%E5%8A%A9%E6%89%8B-%E4%B8%93%E4%B8%9Aai%E6%9C%8D%E8%A3%85%E6%90%AD%E9%85%8D-%E5%BD%A2%E8%B1%A1%E8%AE%BE%E8%AE%A1%E6%B5%8B%E8%AF%95%E5%B7%A5%E5%85%B7/id6444821213" target="_blank" rel="noopener">穿搭助手</a>；<a href="https://apps.apple.com/us/app/%E9%A2%9C%E5%A4%A7%E5%B8%88-%E9%AB%98%E9%A2%9C%E5%80%BC%E8%84%B8%E5%9E%8B%E5%88%86%E6%9E%90/id6480517335" target="_blank" rel="noopener">颜大师</a>；<a href="https://www.36kr.com/p/3810475457110278" target="_blank" rel="noopener">36氪：淘宝与京东 AI 试衣评测</a>。
+      标注“公开资料”的竞品信息未在本次逐项核实。</p>
+  </div>
+</footer>
+</main>

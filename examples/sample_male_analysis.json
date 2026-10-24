@@ -1,0 +1,1157 @@
+{
+  "observations": [
+    {
+      "id": "o1",
+      "category": "structure",
+      "region": "overall",
+      "text": "正面照中脸部纵向长度明显大于横向宽度",
+      "photo_ids": [
+        "front"
+      ],
+      "polarity": "neutral"
+    },
+    {
+      "id": "o2",
+      "category": "structure",
+      "region": "jaw",
+      "text": "下颌角轮廓清晰，线条偏直",
+      "photo_ids": [
+        "front",
+        "profile45"
+      ],
+      "polarity": "strength"
+    },
+    {
+      "id": "o3",
+      "category": "hair",
+      "region": "hair",
+      "text": "两侧头发推得很短，几乎贴近头皮",
+      "photo_ids": [
+        "front",
+        "profile45"
+      ],
+      "polarity": "issue"
+    },
+    {
+      "id": "o4",
+      "category": "hair",
+      "region": "crown",
+      "text": "顶部头发向上吹高约 5cm，形成明显高度",
+      "photo_ids": [
+        "front",
+        "profile45"
+      ],
+      "polarity": "issue"
+    },
+    {
+      "id": "o5",
+      "category": "hair",
+      "region": "hairline",
+      "text": "额头完全露出，没有刘海",
+      "photo_ids": [
+        "front",
+        "smile"
+      ],
+      "polarity": "neutral"
+    },
+    {
+      "id": "o6",
+      "category": "feature",
+      "region": "brow",
+      "text": "眉形平直，眉尾偏短且较稀疏",
+      "photo_ids": [
+        "front",
+        "smile"
+      ],
+      "polarity": "neutral"
+    },
+    {
+      "id": "o7",
+      "category": "feature",
+      "region": "eye",
+      "text": "眼型细长，眼距适中",
+      "photo_ids": [
+        "front"
+      ],
+      "polarity": "neutral"
+    },
+    {
+      "id": "o8",
+      "category": "glasses",
+      "region": "eye",
+      "text": "佩戴细金属圆框眼镜，镜框总宽明显窄于颧骨宽度",
+      "photo_ids": [
+        "front",
+        "smile"
+      ],
+      "polarity": "issue"
+    },
+    {
+      "id": "o9",
+      "category": "grooming",
+      "region": "chin",
+      "text": "下巴和唇上有长短不一的零散胡茬",
+      "photo_ids": [
+        "front",
+        "profile45"
+      ],
+      "polarity": "issue"
+    },
+    {
+      "id": "o10",
+      "category": "clothing",
+      "region": "neck",
+      "text": "上衣为浅灰色圆领 T 恤，明度与肤色接近",
+      "photo_ids": [
+        "front"
+      ],
+      "polarity": "issue"
+    },
+    {
+      "id": "o11",
+      "category": "color",
+      "region": "hair",
+      "text": "自然黑发与肤色之间明暗对比明显",
+      "photo_ids": [
+        "front",
+        "smile"
+      ],
+      "polarity": "strength"
+    },
+    {
+      "id": "o12",
+      "category": "color",
+      "region": "skin",
+      "text": "三张照片肤色都略偏黄，但室内暖光可能放大了这一倾向",
+      "photo_ids": [
+        "front",
+        "smile",
+        "profile45"
+      ],
+      "polarity": "neutral"
+    },
+    {
+      "id": "o13",
+      "category": "feature",
+      "region": "lip",
+      "text": "笑时嘴角上扬且左右对称，表情自然",
+      "photo_ids": [
+        "smile"
+      ],
+      "polarity": "strength"
+    },
+    {
+      "id": "o14",
+      "category": "photo",
+      "region": "overall",
+      "text": "正面照机位低于眼睛，略带仰拍，下颌区域被拉长",
+      "photo_ids": [
+        "front"
+      ],
+      "polarity": "issue"
+    },
+    {
+      "id": "o15",
+      "category": "structure",
+      "region": "overall",
+      "text": "侧面看额头到下巴轮廓整体平直，鼻梁中等高度",
+      "photo_ids": [
+        "profile45"
+      ],
+      "polarity": "neutral"
+    }
+  ],
+  "feature_signature": [
+    {
+      "title": "利落的下颌线",
+      "observation_ids": [
+        "o2",
+        "o15"
+      ],
+      "region": "jaw",
+      "styling_implication": "两侧保留厚度、领口有结构，突出下颌线"
+    },
+    {
+      "title": "纵向偏长的脸型",
+      "observation_ids": [
+        "o1"
+      ],
+      "region": "overall",
+      "styling_implication": "压低顶部、加横向重点，平衡长宽比"
+    },
+    {
+      "title": "黑发与肤色对比明显",
+      "observation_ids": [
+        "o11",
+        "o12"
+      ],
+      "region": "hair",
+      "styling_implication": "近脸用中深色，呼应对比"
+    }
+  ],
+  "profile_summary": {
+    "one_liner": "线条利落的长脸型，下颌是最大的优势；把视觉重心从纵向移到横向",
+    "best_direction": "压低顶部、加厚两侧，靠近脸部换中深色有结构的领口",
+    "evidence": [
+      "o1",
+      "o2",
+      "o4"
+    ]
+  },
+  "face_structure": {
+    "shape_candidates": [
+      {
+        "label": "rectangle",
+        "probability": 0.5
+      },
+      {
+        "label": "oblong",
+        "probability": 0.38
+      },
+      {
+        "label": "oval",
+        "probability": 0.12
+      }
+    ],
+    "jawline": {
+      "definition": "defined",
+      "shape": "angular"
+    },
+    "cheekbones": "moderate",
+    "evidence": [
+      "o1",
+      "o2",
+      "o15"
+    ]
+  },
+  "feature_characteristics": [
+    {
+      "feature": "eyes",
+      "descriptors": [
+        "细长",
+        "眼距适中"
+      ],
+      "evidence": [
+        "o7"
+      ]
+    },
+    {
+      "feature": "brows",
+      "descriptors": [
+        "平直",
+        "眉尾偏短",
+        "偏稀疏"
+      ],
+      "evidence": [
+        "o6"
+      ]
+    },
+    {
+      "feature": "chin",
+      "descriptors": [
+        "轮廓清晰",
+        "线条偏直"
+      ],
+      "evidence": [
+        "o2"
+      ]
+    },
+    {
+      "feature": "forehead",
+      "descriptors": [
+        "完全露出",
+        "纵向占比明显"
+      ],
+      "evidence": [
+        "o1",
+        "o5"
+      ]
+    }
+  ],
+  "current_styling": {
+    "hair": {
+      "length": "short",
+      "volume_distribution": "top_heavy",
+      "part": "none",
+      "texture": "straight",
+      "fringe": "none"
+    },
+    "glasses": {
+      "frame_shape": "round",
+      "frame_weight": "thin"
+    },
+    "facial_hair": "stubble",
+    "makeup_level": "not_applicable",
+    "visible_clothing_colors": [
+      "浅灰"
+    ]
+  },
+  "color_profile": {
+    "temperature": "neutral_warm",
+    "temperature_confidence": 0.45,
+    "depth": "medium",
+    "depth_confidence": 0.6,
+    "contrast": "medium_high",
+    "contrast_confidence": 0.65,
+    "chroma": "medium",
+    "chroma_confidence": 0.55,
+    "favor_families": [
+      {
+        "name": "藏青",
+        "hex_examples": [
+          "#1F2A44",
+          "#2E3B55"
+        ],
+        "reason": "呼应黑发的明暗对比，又不至于过于冷硬"
+      },
+      {
+        "name": "橄榄绿",
+        "hex_examples": [
+          "#556B2F"
+        ],
+        "reason": "中性偏暖的中深色，与肤色协调"
+      },
+      {
+        "name": "米白",
+        "hex_examples": [
+          "#F5F0E6"
+        ],
+        "reason": "比纯白柔和，适合靠近脸部"
+      },
+      {
+        "name": "深棕",
+        "hex_examples": [
+          "#5C4033"
+        ],
+        "reason": "适合针织与配饰，增加层次"
+      }
+    ],
+    "neutral_families": [
+      {
+        "name": "炭灰",
+        "hex_examples": [
+          "#3A3A3C"
+        ],
+        "reason": "比浅灰深，与肤色拉开明度差"
+      },
+      {
+        "name": "驼色",
+        "hex_examples": [
+          "#B08B5B"
+        ],
+        "reason": "中性偏暖，适合外套与配饰"
+      }
+    ],
+    "caution_families": [
+      {
+        "name": "浅灰",
+        "hex_examples": [
+          "#C8C8C8"
+        ],
+        "reason": "与肤色明度接近，面部缺乏层次"
+      },
+      {
+        "name": "荧光色",
+        "hex_examples": [
+          "#39FF14"
+        ],
+        "reason": "饱和度过高，压过面部"
+      }
+    ],
+    "seasonal_leaning": {
+      "primary": "autumn",
+      "secondary": "winter",
+      "note": "暖调偏深、对比偏高；需自然光复拍确认"
+    },
+    "lighting_caveat": "三张照片均为室内暖光，冷暖判断仅供参考，建议白天窗边复拍确认",
+    "evidence": [
+      "o10",
+      "o11",
+      "o12"
+    ],
+    "combos": [
+      {
+        "name": "藏青配米白",
+        "hexes": [
+          "#1F2A44",
+          "#F5F0E6"
+        ],
+        "use": "工作日衬衫与外套"
+      },
+      {
+        "name": "橄榄配深棕",
+        "hexes": [
+          "#556B2F",
+          "#5C4033"
+        ],
+        "use": "周末针织与夹克"
+      },
+      {
+        "name": "炭灰配驼色",
+        "hexes": [
+          "#3A3A3C",
+          "#B08B5B"
+        ],
+        "use": "秋冬外套与长裤"
+      }
+    ],
+    "hair_color_directions": [
+      {
+        "name": "自然黑",
+        "hex": "#1C1A19",
+        "requires_dye": false,
+        "note": "保持现有发色最稳妥"
+      }
+    ],
+    "lip_families": [
+      {
+        "name": "润色无色",
+        "hex": "#B98B82",
+        "finish": "sheer",
+        "note": "润唇膏即可"
+      },
+      {
+        "name": "自然唇色",
+        "hex": "#A8746C",
+        "finish": "satin",
+        "note": "有色润唇改善干燥"
+      },
+      {
+        "name": "豆沙棕",
+        "hex": "#9A6A60",
+        "finish": "matte",
+        "note": "拍照时提一点气色"
+      }
+    ]
+  },
+  "style_dimensions": {
+    "visual_weight": {
+      "value": 3.4,
+      "confidence": 0.65,
+      "evidence": [
+        "o1",
+        "o2",
+        "o11"
+      ]
+    },
+    "angular_rounded": {
+      "value": -1.0,
+      "confidence": 0.65,
+      "evidence": [
+        "o2",
+        "o6",
+        "o15"
+      ]
+    },
+    "compact_elongated": {
+      "value": 0.9,
+      "confidence": 0.7,
+      "evidence": [
+        "o1"
+      ]
+    },
+    "soft_sharp": {
+      "value": 0.8,
+      "confidence": 0.6,
+      "evidence": [
+        "o2",
+        "o7"
+      ]
+    },
+    "youthful_mature": {
+      "value": 0.4,
+      "confidence": 0.5,
+      "evidence": [
+        "o1",
+        "o2"
+      ]
+    }
+  },
+  "works": [
+    {
+      "text": "下颌线条清晰，是面部结构中最突出的优势",
+      "evidence": [
+        "o2"
+      ]
+    },
+    {
+      "text": "黑发与肤色对比明显，适合中高对比的配色",
+      "evidence": [
+        "o11"
+      ]
+    },
+    {
+      "text": "笑容自然对称，适合作为头像表情",
+      "evidence": [
+        "o13"
+      ]
+    }
+  ],
+  "doesnt_work": [
+    {
+      "text": "两侧贴头皮加顶部吹高，进一步拉长了本就偏长的脸部比例",
+      "evidence": [
+        "o1",
+        "o3",
+        "o4"
+      ],
+      "severity": "high"
+    },
+    {
+      "text": "细圆框窄于颧骨，与偏直的面部线条不呼应",
+      "evidence": [
+        "o8",
+        "o2"
+      ],
+      "severity": "medium"
+    },
+    {
+      "text": "零散胡茬让清晰的下颌轮廓显得杂乱",
+      "evidence": [
+        "o9",
+        "o2"
+      ],
+      "severity": "medium"
+    },
+    {
+      "text": "浅灰圆领与肤色明度接近，面部缺乏层次",
+      "evidence": [
+        "o10"
+      ],
+      "severity": "low"
+    },
+    {
+      "text": "仰拍机位拉长了下颌，放大了脸部纵向比例",
+      "evidence": [
+        "o14"
+      ],
+      "severity": "low"
+    }
+  ],
+  "hair_direction": {
+    "keep": [
+      "自然黑发色",
+      "清晰的鬓角线"
+    ],
+    "change": [
+      "两侧由推剪改为剪刀修 1.5–2cm",
+      "顶部压低至 5–6cm 碎纹理",
+      "加轻薄碎刘海遮住额头上三分之一"
+    ],
+    "avoid": [
+      "顶部吹高的背头或飞机头",
+      "两侧 0 号推剪",
+      "厚重齐刘海"
+    ],
+    "length": "short",
+    "top_volume": "low",
+    "side_volume": "controlled",
+    "part": "none",
+    "fringe": "light",
+    "texture_approach": "哑光发泥向前抓出碎纹理",
+    "evidence": [
+      "o1",
+      "o3",
+      "o4",
+      "o5"
+    ]
+  },
+  "hair_options": [
+    {
+      "tier": "safe",
+      "name_zh": "纹理短碎发",
+      "params": {
+        "length": "short",
+        "fringe": "light",
+        "curl": "straight",
+        "color": "keep",
+        "top_volume": "low",
+        "side_volume": "controlled",
+        "part": "none"
+      },
+      "maintenance": {
+        "daily_minutes": 5,
+        "trim_weeks": 4,
+        "note": "哑光发泥向前抓即可"
+      },
+      "requires": [],
+      "barber_script": [
+        "两侧不要推，用剪刀剪到 1.5–2cm",
+        "顶部留 5–6cm，打薄做碎纹理",
+        "前面留少量碎发自然下垂"
+      ],
+      "avoid": "顶部往上吹高",
+      "visual_edit_spec": {
+        "region": "hair",
+        "target_description": "short men's haircut: sides scissor-cut to about 2 cm (not faded to skin), top about 5-6 cm with matte textured layers kept low with no upward volume, light forward-swept textured fringe covering the upper third of the forehead, natural black hair color",
+        "preserve": [
+          "face shape",
+          "eyes",
+          "skin tone",
+          "expression",
+          "glasses",
+          "background"
+        ]
+      },
+      "evidence": [
+        "o1",
+        "o3",
+        "o4"
+      ],
+      "confidence": 0.75
+    },
+    {
+      "tier": "bold",
+      "name_zh": "韩系逗号刘海",
+      "params": {
+        "length": "ear",
+        "fringe": "curtain",
+        "curl": "c_curl",
+        "color": "keep",
+        "top_volume": "moderate",
+        "side_volume": "full",
+        "part": "center"
+      },
+      "maintenance": {
+        "daily_minutes": 12,
+        "trim_weeks": 6,
+        "note": "需要吹风定型刘海弧度"
+      },
+      "requires": [
+        "grow_out"
+      ],
+      "barber_script": [
+        "整体留长到耳朵上下，两侧不要剪短",
+        "刘海中分，剪到眉毛下方做逗号弧度",
+        "发尾打薄，吹的时候向内收"
+      ],
+      "avoid": "两侧推短",
+      "visual_edit_spec": {
+        "region": "hair",
+        "target_description": "men's ear-length Korean comma hair: center-parted curtain fringe curving inward like a comma at the eyebrows, full sides covering the tops of the ears, soft inward-curled ends, natural black hair",
+        "preserve": [
+          "face shape",
+          "eyes",
+          "skin tone",
+          "expression",
+          "glasses",
+          "background"
+        ]
+      },
+      "evidence": [
+        "o1",
+        "o3",
+        "o5"
+      ],
+      "confidence": 0.6
+    },
+    {
+      "tier": "easy",
+      "name_zh": "短寸平头",
+      "params": {
+        "length": "very_short",
+        "fringe": "none",
+        "curl": "straight",
+        "color": "keep",
+        "top_volume": "low",
+        "side_volume": "controlled",
+        "part": "none"
+      },
+      "maintenance": {
+        "daily_minutes": 1,
+        "trim_weeks": 3,
+        "note": "几乎不需要打理"
+      },
+      "requires": [],
+      "barber_script": [
+        "顶部剪到 1.5–2cm，修成平整的方圆形",
+        "两侧剪到 1cm 左右，不要露头皮",
+        "鬓角与后颈修干净"
+      ],
+      "avoid": "两侧 0 号推剪",
+      "visual_edit_spec": {
+        "region": "hair",
+        "target_description": "men's very short crew cut: top about 1.5-2 cm with a soft flat top, sides about 1 cm scissor-blended without skin fade, clean neckline, natural black hair",
+        "preserve": [
+          "face shape",
+          "eyes",
+          "skin tone",
+          "expression",
+          "glasses",
+          "background"
+        ]
+      },
+      "evidence": [
+        "o1",
+        "o2",
+        "o3"
+      ],
+      "confidence": 0.6
+    }
+  ],
+  "glasses_direction": {
+    "frame_shapes": [
+      "browline",
+      "rectangular",
+      "square"
+    ],
+    "frame_width": "matched",
+    "frame_weight": "medium",
+    "colors": [
+      {
+        "name": "玳瑁棕",
+        "hex": "#6B4226"
+      },
+      {
+        "name": "哑光黑",
+        "hex": "#1E1E1E"
+      }
+    ],
+    "material": "mixed",
+    "avoid": [
+      "细圆框",
+      "明显窄于颧骨的小镜框"
+    ],
+    "evidence": [
+      "o2",
+      "o8"
+    ]
+  },
+  "photo_direction": {
+    "best_angle": "微侧 15–20°，露出下颌线",
+    "camera_height": "与眼睛同高或略高 5–10cm",
+    "expression": "自然微笑，嘴角上扬",
+    "lighting": "面向窗户的白天自然光",
+    "framing": "头肩构图，头顶留少量空间",
+    "avoid": [
+      "低机位仰拍",
+      "顶光或背光",
+      "广角近距离自拍"
+    ],
+    "evidence": [
+      "o13",
+      "o14"
+    ]
+  },
+  "makeup_direction": {
+    "mode": "grooming",
+    "base_tone": "控油保湿，不需要底妆",
+    "lip": "无色或淡色润唇膏",
+    "blush": {
+      "placement": "horizontal",
+      "hex": "#C9928A",
+      "note": "不需要腮红"
+    },
+    "brow": "修掉杂毛，眉尾用眉粉补齐",
+    "eye_focus": "保持清爽，不需要眼妆",
+    "grooming": [
+      "胡茬每 2–3 天统一修短或剃净",
+      "眉尾杂毛每周修一次",
+      "鼻毛与耳后定期清理",
+      "出门前用哑光发泥定型"
+    ],
+    "evidence": [
+      "o6",
+      "o9"
+    ]
+  },
+  "outfit_direction": {
+    "formulas": [
+      {
+        "title": "商务休闲",
+        "pieces": [
+          "藏青牛津纺衬衫",
+          "卡其直筒西裤",
+          "极简麂皮乐福鞋"
+        ],
+        "why": "中深色近脸呼应发色对比，正装感足够"
+      },
+      {
+        "title": "周末松弛",
+        "pieces": [
+          "橄榄绿长袖珠地Polo衫",
+          "深棕直筒裤",
+          "白色板鞋"
+        ],
+        "why": "有领口结构又不拘束"
+      },
+      {
+        "title": "秋冬通勤",
+        "pieces": [
+          "驼色双排扣风衣",
+          "炭灰细罗纹高领毛衣",
+          "直筒西裤"
+        ],
+        "why": "长外套加横向领口，平衡纵向比例"
+      }
+    ],
+    "items": [
+      {
+        "garment_id": "button_down_oxford_shirt",
+        "name_zh": "纽扣领牛津纺衬衫",
+        "color_name": "藏青",
+        "hex": "#1F2A44",
+        "why": "有领型结构，近脸增加横向线条"
+      },
+      {
+        "garment_id": "long_sleeve_pique_polo",
+        "name_zh": "长袖珠地Polo衫",
+        "color_name": "橄榄绿",
+        "hex": "#556B2F",
+        "why": "休闲但有领口"
+      },
+      {
+        "garment_id": "fine_rib_turtleneck",
+        "name_zh": "细罗纹高领毛衣",
+        "color_name": "炭灰",
+        "hex": "#3A3A3C",
+        "why": "比浅灰深，脸部更有层次"
+      },
+      {
+        "garment_id": "two_button_notch_blazer",
+        "name_zh": "驳领两粒扣西装",
+        "color_name": "藏青",
+        "hex": "#2E3B55",
+        "why": "正装感不僵硬"
+      },
+      {
+        "garment_id": "double_breasted_trench",
+        "name_zh": "双排扣风衣",
+        "color_name": "驼色",
+        "hex": "#B08B5B",
+        "why": "中性偏暖的外套底色"
+      },
+      {
+        "garment_id": "mid_rise_straight_trousers",
+        "name_zh": "中腰直筒西裤",
+        "color_name": "卡其",
+        "hex": "#A68B64",
+        "why": "商务休闲的基础下装"
+      },
+      {
+        "garment_id": "minimal_suede_loafers",
+        "name_zh": "极简极简麂皮乐福鞋",
+        "color_name": "深棕",
+        "hex": "#5C4033",
+        "why": "比运动鞋更正式"
+      },
+      {
+        "garment_id": "metal_link_watch",
+        "name_zh": "金属表链腕表",
+        "color_name": "深棕",
+        "hex": "#5C4033",
+        "why": "呼应鞋与皮带"
+      }
+    ],
+    "occasions": [
+      {
+        "occasion": "commute",
+        "look": "藏青牛津纺衬衫 + 卡其直筒西裤 + 极简麂皮乐福鞋"
+      },
+      {
+        "occasion": "formal",
+        "look": "藏青驳领两粒扣西装 + 米白衬衫，领口扣到第二颗"
+      },
+      {
+        "occasion": "casual",
+        "look": "橄榄绿长袖珠地Polo衫 + 深棕直筒裤"
+      }
+    ],
+    "evidence": [
+      "o10",
+      "o11",
+      "o1"
+    ]
+  },
+  "recommendations": [
+    {
+      "id": "r1",
+      "category": "hairstyle",
+      "action": "两侧改为剪刀修至 1.5–2cm，顶部 5–6cm 做碎纹理并压低高度，加轻薄碎刘海",
+      "why": "脸长明显大于脸宽（o1），当前两侧贴头皮、顶部吹高（o3、o4）进一步拉长纵向；增加两侧厚度、降低顶部高度能平衡长宽比，同时保留下颌优势",
+      "how_to": [
+        "对理发师说：两侧不要推，用剪刀剪到 1.5–2cm，鬓角保留",
+        "顶部留 5–6cm，打薄做碎纹理，不要往上吹高",
+        "前额留少量碎发自然下垂，遮住额头上三分之一",
+        "日常用哑光发泥，吹干时向前抓而不是向上"
+      ],
+      "evidence": [
+        "o1",
+        "o3",
+        "o4",
+        "o5"
+      ],
+      "expected_effect": "脸部纵向比例视觉缩短，整体更平衡、干净利落",
+      "avoid": "顶部高耸的背头或飞机头、两侧 0 号推剪",
+      "impact": 5,
+      "effort": 2,
+      "confidence": 0.75,
+      "constraint_check": {
+        "status": "compliant",
+        "note": "只需剪发，符合商务休闲着装"
+      },
+      "visual_edit_spec": {
+        "region": "hair",
+        "target_description": "short men's haircut: sides scissor-cut to about 2 cm (not faded to skin), top about 5-6 cm with matte textured layers kept low with no upward volume, light forward-swept textured fringe covering the upper third of the forehead, natural black hair color",
+        "preserve": [
+          "face shape",
+          "eyes",
+          "skin tone",
+          "expression",
+          "glasses",
+          "background"
+        ]
+      },
+      "cost_band": "medium",
+      "time_to_effect": "next_haircut",
+      "pairs_with": [
+        "r3"
+      ],
+      "success_check": "侧面看两侧不再露头皮，头顶不再高耸"
+    },
+    {
+      "id": "r2",
+      "category": "glasses",
+      "action": "换成镜框总宽接近颧骨、中等粗细的方圆框或眉线框",
+      "why": "当前细圆框窄于颧骨（o8），与偏直的面部线条（o2）不呼应；宽度接近颧骨的略带圆角的方框能在横向上平衡长脸",
+      "how_to": [
+        "试戴时让镜框总宽与颧骨同宽，或略宽 2–3mm",
+        "搜索关键词：方圆框 眉线框 板材 镜片高度 38–42mm",
+        "颜色优先深棕玳瑁或黑色，呼应发色"
+      ],
+      "evidence": [
+        "o8",
+        "o2",
+        "o1"
+      ],
+      "expected_effect": "面部中段获得横向重点，纵向感减弱，气质更稳重",
+      "avoid": "过小的细圆框、窄长的矩形框",
+      "impact": 4,
+      "effort": 3,
+      "confidence": 0.65,
+      "constraint_check": {
+        "status": "compliant",
+        "note": "中等预算可实现"
+      },
+      "visual_edit_spec": {
+        "region": "glasses",
+        "target_description": "medium-thick dark tortoiseshell acetate soft-square eyeglass frames, total frame width equal to cheekbone width, lens height about 40 mm",
+        "preserve": [
+          "eyes",
+          "face shape",
+          "skin tone",
+          "hair",
+          "expression",
+          "background"
+        ]
+      },
+      "cost_band": "medium",
+      "time_to_effect": "weeks",
+      "pairs_with": [
+        "r1"
+      ],
+      "success_check": "镜框外缘与颧骨外缘基本对齐"
+    },
+    {
+      "id": "r3",
+      "category": "facial_hair",
+      "action": "胡茬每 2–3 天统一修至 0.5–1mm 或完全剃净，并修清脖颈线",
+      "why": "零散胡茬（o9）让下颌轮廓显得杂乱，削弱了清晰下颌线（o2）这一优势",
+      "how_to": [
+        "用带 0.5–1mm 限位梳的修剪器统一修短",
+        "脖颈线定在喉结上方约一指宽，以下全部剃净"
+      ],
+      "evidence": [
+        "o9",
+        "o2"
+      ],
+      "expected_effect": "下颌线更利落，整体更干净",
+      "avoid": "长短不一的自然生长状态",
+      "impact": 3,
+      "effort": 1,
+      "confidence": 0.7,
+      "constraint_check": {
+        "status": "compliant",
+        "note": "每天 10 分钟内可完成"
+      },
+      "visual_edit_spec": {
+        "region": "facial_hair",
+        "target_description": "clean-shaven lower face with a crisp, even neckline, no stubble",
+        "preserve": [
+          "jawline",
+          "face shape",
+          "skin tone",
+          "lips",
+          "expression",
+          "background"
+        ]
+      },
+      "cost_band": "low",
+      "time_to_effect": "today",
+      "pairs_with": [
+        "r1"
+      ],
+      "success_check": "下颌线在照片里清晰连续"
+    },
+    {
+      "id": "r4",
+      "category": "clothing",
+      "action": "靠近脸部的上衣换成藏青、橄榄绿、深棕等中深色，并选有结构的领口",
+      "why": "浅灰圆领与肤色明度接近（o10），而发色与肤色对比明显（o11）；中深色与有结构的领口能呼应对比，并在长脸下方增加横向线条",
+      "how_to": [
+        "优先购入：藏青牛津纺衬衫、橄榄绿 Polo、深棕针织开衫",
+        "避免深 V 领，会进一步拉长脸部纵向",
+        "工作日以藏青加米白的组合为主"
+      ],
+      "evidence": [
+        "o10",
+        "o11",
+        "o1"
+      ],
+      "expected_effect": "面部更有层次，正装感更强",
+      "avoid": "浅灰圆领 T 恤、深 V 领",
+      "impact": 3,
+      "effort": 2,
+      "confidence": 0.6,
+      "constraint_check": {
+        "status": "compliant",
+        "note": "符合商务休闲着装"
+      },
+      "visual_edit_spec": {
+        "region": "clothing_top",
+        "target_description": "navy blue oxford button-down shirt with a structured spread collar, top button open",
+        "preserve": [
+          "face",
+          "hair",
+          "skin tone",
+          "expression",
+          "background",
+          "lighting"
+        ]
+      },
+      "cost_band": "medium",
+      "time_to_effect": "weeks",
+      "pairs_with": [
+        "r5"
+      ],
+      "success_check": "穿上后脸部比穿浅灰时更有层次"
+    },
+    {
+      "id": "r5",
+      "category": "color_palette",
+      "action": "以藏青、米白、橄榄绿、深棕建立基础色盘，减少浅灰和荧光色靠近脸部",
+      "why": "中高对比（o11）适合明暗分明的组合；冷暖倾向偏暖但受光线影响（o12），先用中性偏暖的安全色",
+      "how_to": [
+        "衣橱里靠近脸部的单品，七成以上落在这四个色族",
+        "白天窗边复拍一次照片，再确认冷暖倾向"
+      ],
+      "evidence": [
+        "o11",
+        "o12",
+        "o10"
+      ],
+      "expected_effect": "购物决策更快，整体风格更统一",
+      "avoid": "浅灰、荧光色、大面积高饱和色",
+      "impact": 3,
+      "effort": 2,
+      "confidence": 0.5,
+      "constraint_check": {
+        "status": "compliant",
+        "note": "可逐步替换，不需一次性投入"
+      },
+      "visual_edit_spec": null,
+      "cost_band": "free",
+      "time_to_effect": "today",
+      "pairs_with": [],
+      "success_check": "新照片里下颌不再被拉长"
+    },
+    {
+      "id": "r6",
+      "category": "photo_presentation",
+      "action": "头像改用平视或略高于眼睛的机位，面向窗户自然光，使用笑脸版本",
+      "why": "仰拍拉长了下颌（o14），而自然笑容是明显优势（o13）",
+      "how_to": [
+        "手机与眼睛同高，或略高 5–10cm",
+        "面向窗户站立，避免头顶灯直射",
+        "用 2 倍焦段拍摄，避免广角畸变"
+      ],
+      "evidence": [
+        "o14",
+        "o13"
+      ],
+      "expected_effect": "头像比例更自然，亲和力更强",
+      "avoid": "低机位仰拍、顶光、超广角自拍",
+      "impact": 3,
+      "effort": 1,
+      "confidence": 0.8,
+      "constraint_check": {
+        "status": "compliant",
+        "note": "零成本"
+      },
+      "visual_edit_spec": null,
+      "cost_band": "low",
+      "time_to_effect": "today",
+      "pairs_with": [],
+      "success_check": "按建议做一周后对比照片"
+    },
+    {
+      "id": "r7",
+      "category": "brows",
+      "action": "修掉眉间和眉下杂毛，保留平直眉形，眉尾用灰棕眉笔轻补 3–5mm",
+      "why": "眉形平直、眉尾偏短偏稀（o6），与细长眼型（o7）相比略显短促",
+      "how_to": [
+        "只修眉间和眉毛下缘的杂毛，不动眉形上缘",
+        "眉尾用灰棕色眉笔顺着毛流轻扫，延长 3–5mm"
+      ],
+      "evidence": [
+        "o6",
+        "o7"
+      ],
+      "expected_effect": "眉眼更完整，精神感更强",
+      "avoid": "修成细挑眉、颜色过黑",
+      "impact": 2,
+      "effort": 2,
+      "confidence": 0.55,
+      "constraint_check": {
+        "status": "compliant",
+        "note": "每天 1 分钟"
+      },
+      "visual_edit_spec": null,
+      "cost_band": "low",
+      "time_to_effect": "today",
+      "pairs_with": [],
+      "success_check": "按建议做一周后对比照片"
+    },
+    {
+      "id": "r8",
+      "category": "hairstyle",
+      "action": "顶部做轻度纹理烫，增加蓬松度和层次",
+      "why": "发质偏直顺（o4），纹理烫可以让顶部低高度也有层次",
+      "how_to": [
+        "向发型师要求：顶部轻度纹理烫，不要做高度"
+      ],
+      "evidence": [
+        "o4"
+      ],
+      "expected_effect": "日常打理更省时，层次更自然",
+      "avoid": "大卷或高度过高的烫发",
+      "impact": 3,
+      "effort": 3,
+      "confidence": 0.5,
+      "constraint_check": {
+        "status": "requires_consent",
+        "note": "需确认是否接受烫发"
+      },
+      "visual_edit_spec": null,
+      "cost_band": "low",
+      "time_to_effect": "today",
+      "pairs_with": [],
+      "success_check": "按建议做一周后对比照片"
+    }
+  ],
+  "limitations": [
+    "三张照片均为室内暖光，冷暖判断置信度有限",
+    "额头上缘被发际线以上的头发遮挡程度不明，发际线形状判断受限",
+    "只有左侧 45° 照片，右侧轮廓未见"
+  ]
+}

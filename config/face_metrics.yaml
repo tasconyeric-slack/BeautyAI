@@ -1,0 +1,1279 @@
+# Face measurement registry (V3A, D34). Read by src/aesthetic_passport/face_metrics/ → passport.measurement_profile.
+#
+# Each metric is OUR OWN definition on MediaPipe FaceLandmarker landmarks (478 points). Ids follow the candidate
+# catalog in docs/v3a/facial_metric_catalog_v1.csv; the catalog is a research pool, not a claim that a metric exists in
+# any other product. Labels whose formula is not public stay in `research_candidates` and are never computed.
+#
+# Rules of the registry (tests/test_face_metrics.py enforces them):
+#   - values are relative (ratios, fractions, angles); never millimetres, never a score, never clamped;
+#   - a value outside `valid_range` means the landmarks are not trustworthy → value null, reason out_of_range;
+#   - every overlay point name exists in POINTS / helper points (face_metrics/points.py);
+#   - `tier: free` metrics stay in the free view; `full` ones are trimmed server-side (D27/D33).
+#
+# Fields: id · key · name_zh · group · pillar · view (front|side) · unit · decimals · tier · class (A|B)
+#   compute (function in face_metrics/compute.py) · needs (hairline|iris|mouth_closed|eyes_open|color)
+#   pose (low|medium|high sensitivity to head turn) · max_confidence · valid_range · definition_zh
+#   overlay: segments [[from, to, measure|reference]], angles [[arm, vertex, arm]], points [..], outline (face oval)
+
+version: "face-metrics-0.2"
+method: "mediapipe_face_landmarker_478"
+
+# Display units. `percent` values are stored as fractions (0.34) and shown ×100.
+units:
+  ratio: {suffix: "", zh: "比值"}
+  fraction: {suffix: "%", zh: "占比", percent: true}
+  deg: {suffix: "°", zh: "角度"}
+  pct_face: {suffix: "%", zh: "脸宽的百分比", percent: true}
+  lab_l: {suffix: "", zh: "L*"}
+  lab_b: {suffix: "", zh: "b*"}
+  delta_e: {suffix: "", zh: "ΔE"}
+  lab_a: {suffix: "", zh: "a*"}
+  lab_c: {suffix: "", zh: "C*"}
+  px: {suffix: " px", zh: "像素"}
+
+groups:
+  - {key: overall, name_zh: 整体轮廓}
+  - {key: proportions, name_zh: 三庭五眼}
+  - {key: eyes, name_zh: 眼}
+  - {key: brows, name_zh: 眉}
+  - {key: nose, name_zh: 鼻}
+  - {key: lips, name_zh: 口唇}
+  - {key: jaw, name_zh: 下颌与下巴}
+  - {key: symmetry, name_zh: 左右对称}
+  - {key: skin, name_zh: 皮相与拍摄}
+  - {key: hair, name_zh: 发型轮廓}
+  - {key: profile, name_zh: 侧脸轮廓}
+  - {key: smile, name_zh: 微笑表情}
+
+# Four public-facing domains. A metric belongs to exactly one for display; none of them is a score.
+pillars:
+  - key: harmony
+    name_zh: 比例与和谐
+    about_zh: 各区域在纵向、横向上的分配，以及左右是否一致。比例描述的是“你的结构”，不存在必须达到的标准值。
+  - key: architecture
+    name_zh: 头脸架构
+    about_zh: 额、颧、下颌三处宽度与下巴的轮廓走向，决定发型外轮廓和领口该往哪里补、往哪里收。
+  - key: expression
+    name_zh: 五官线条
+    about_zh: 眼角、眉形、唇形与鼻部的角度和比例，影响柔和或利落的观感，是妆容和眉形建议的依据。不涉及性别判断。
+  - key: skin
+    name_zh: 皮相与拍摄
+    about_zh: 当前照片里的肤色明度、冷暖倾向与左右光线。受光线与相机影响，只作参考；不判断皮肤健康。
+
+# Confidence = min(pose level, max_confidence, data level). Pose level from |yaw| and |pitch| × sensitivity factor.
+confidence:
+  yaw_high_below: 6
+  yaw_medium_below: 12
+  pitch_high_below: 10
+  pitch_medium_below: 20
+  sensitivity_factor: {low: 1.0, medium: 1.5, high: 2.0}
+  unknown_pose: medium          # no transformation matrix → at most medium
+
+# Expression / capture gates.
+gates:
+  mouth_open_ratio: 0.08        # inner-lip gap ÷ mouth width above this → lip metrics not measured
+  eyes_closed_ratio: 0.12       # lid gap ÷ eye width below this (either eye) → eye-opening metrics not measured
+  symmetry_max_yaw: 12          # |yaw| above this → symmetry metrics not measured (a turned head looks asymmetric)
+  cheek_disc_frac: 0.09         # cheek sample disc radius × cheekbone width (left / right light balance)
+  min_cheek_pixels: 150
+
+missing_reasons_zh:
+  upper_third_occluded: 额头被刘海或头发遮住，上庭不测量（不会用其他两段凑成 100%）。
+  hairline_not_found: 没有找到清晰的发际线，涉及上庭的项目不测量。
+  no_iris: 这张照片没有可用的虹膜定位，涉及瞳孔与虹膜的项目不测量。
+  mouth_open: 照片中嘴唇是张开的，唇部比例不测量。闭唇、放松时重拍可补上。
+  eyes_closed: 照片中眼睛接近闭合，眼部开合相关项目不测量。
+  pose_off_axis: 头部转动较大，左右对称类项目不测量（转头本身就会让两侧看起来不一样）。
+  out_of_range: 计算结果超出可信范围，可能是关键点定位偏差，本项不显示数字。
+  color_unavailable: 肤色取样不足（遮挡或光线问题），本项不测量。
+  needs_side_photo: 需要一张接近 90° 的侧脸照（只露出一侧脸、鼻尖在轮廓线上）。不会用正脸推算侧脸数值。
+  side_photo_rejected: 上传的侧脸照没有通过质检（角度、分辨率或遮挡），侧脸项目不测量。可以按提示重拍后补充。
+  side_not_true_profile: 这张侧脸照更接近 45° 半侧面（能看到另一侧脸颊），不是 90° 侧脸，侧脸项目不测量。
+  resolution_too_low: 这一项涉及的结构在照片上只有很少的像素，误差会过大，本项不测。请上传原图或更近的照片。
+  landmarks_unclear: 侧面轮廓上找不到清晰的鼻、唇、下巴转折（可能被头发、手或衣领挡住，或背景与皮肤颜色太接近）。
+  lips_unclear: 侧面轮廓上分不清上下唇，唇部相关的侧脸项目不测量。
+  needs_smile_photo: 需要一张正面微笑照（与中性正脸同样角度），微笑项目只在微笑照上测量。
+  smile_photo_rejected: 微笑照没有通过质检，微笑项目不测量。
+  hair_unavailable: 没有检测到足够的头发区域（或被裁掉了），发型轮廓项目不测量。
+  no_face: 正脸照未能测量。
+
+metrics:
+  # --- 整体轮廓 · 头脸架构 -----------------------------------------------------------------------------
+  - id: M001
+    key: face_length_width
+    name_zh: 面长宽比
+    group: overall
+    pillar: architecture
+    view: front
+    unit: ratio
+    decimals: 2
+    tier: free
+    class: A
+    compute: face_length_width
+    pose: medium
+    max_confidence: high
+    valid_range: [0.8, 2.2]
+    definition_zh: 额顶标志点到下巴的长度 ÷ 颧骨处脸宽。额顶标志点不是发际线，所以这是“标志点面长”。
+    overlay:
+      segments: [[forehead_top, chin, measure], [cheek_l, cheek_r, measure]]
+  - id: M005
+    key: forehead_cheek
+    name_zh: 额宽 / 颧宽
+    group: overall
+    pillar: architecture
+    view: front
+    unit: ratio
+    decimals: 2
+    tier: free
+    class: A
+    compute: forehead_cheek
+    pose: medium
+    max_confidence: high
+    valid_range: [0.4, 1.4]
+    definition_zh: 太阳穴高度的额部宽度 ÷ 颧骨处脸宽。
+    overlay:
+      segments: [[forehead_l, forehead_r, measure], [cheek_l, cheek_r, reference]]
+      outline: true
+  - id: M006
+    key: jaw_cheek
+    name_zh: 下颌宽 / 颧宽
+    group: overall
+    pillar: architecture
+    view: front
+    unit: ratio
+    decimals: 2
+    tier: free
+    class: A
+    aliases: [M007]
+    compute: jaw_cheek
+    pose: medium
+    max_confidence: high
+    valid_range: [0.4, 1.4]
+    definition_zh: 两侧下颌转角处的宽度 ÷ 颧骨处脸宽。
+    overlay:
+      segments: [[jaw_l, jaw_r, measure], [cheek_l, cheek_r, reference]]
+      outline: true
+  - id: M012
+    key: outline_fill
+    name_zh: 轮廓饱满度
+    group: overall
+    pillar: architecture
+    view: front
+    unit: fraction
+    decimals: 0
+    tier: full
+    class: A
+    compute: outline_fill
+    pose: medium
+    max_confidence: medium
+    valid_range: [0.6, 0.95]
+    definition_zh: 脸部外轮廓（正面投影）面积 ÷ 它的外接矩形面积。越高，轮廓越接近方圆；越低，越接近椭圆或倒三角。
+    overlay:
+      segments: [[bbox_tl, bbox_tr, reference], [bbox_tr, bbox_br, reference], [bbox_br, bbox_bl, reference], [bbox_bl, bbox_tl, reference]]
+      outline: true
+
+  # --- 三庭五眼 · 比例与和谐 -----------------------------------------------------------------------------
+  - id: M017
+    key: upper_third
+    name_zh: 上庭占比
+    group: proportions
+    pillar: harmony
+    view: front
+    unit: fraction
+    decimals: 0
+    tier: free
+    class: B
+    compute: upper_third
+    needs: [hairline]
+    pose: medium
+    max_confidence: medium
+    valid_range: [0.15, 0.5]
+    definition_zh: 发际线到眉间 ÷ 发际线到下巴（纵向）。发际线来自头发分割，被刘海遮住时不测量。
+    overlay:
+      segments: [[th_hair_l, th_hair_r, measure], [th_glab_l, th_glab_r, measure], [th_sub_l, th_sub_r, reference], [th_chin_l, th_chin_r, reference]]
+  - id: M018
+    key: middle_third
+    name_zh: 中庭占比
+    group: proportions
+    pillar: harmony
+    view: front
+    unit: fraction
+    decimals: 0
+    tier: free
+    class: A
+    compute: middle_third
+    needs: [hairline]
+    pose: medium
+    max_confidence: high
+    valid_range: [0.2, 0.5]
+    definition_zh: 眉间到鼻底 ÷ 发际线到下巴（纵向）。没有发际线时不测量，改看“中庭 / 下庭”。
+    overlay:
+      segments: [[th_hair_l, th_hair_r, reference], [th_glab_l, th_glab_r, measure], [th_sub_l, th_sub_r, measure], [th_chin_l, th_chin_r, reference]]
+  - id: M019
+    key: lower_third
+    name_zh: 下庭占比
+    group: proportions
+    pillar: harmony
+    view: front
+    unit: fraction
+    decimals: 0
+    tier: free
+    class: A
+    compute: lower_third
+    needs: [hairline]
+    pose: medium
+    max_confidence: high
+    valid_range: [0.2, 0.5]
+    definition_zh: 鼻底到下巴 ÷ 发际线到下巴（纵向）。
+    overlay:
+      segments: [[th_hair_l, th_hair_r, reference], [th_glab_l, th_glab_r, reference], [th_sub_l, th_sub_r, measure], [th_chin_l, th_chin_r, measure]]
+  - id: M025
+    key: middle_lower
+    name_zh: 中庭 / 下庭
+    group: proportions
+    pillar: harmony
+    view: front
+    unit: ratio
+    decimals: 2
+    tier: free
+    class: A
+    compute: middle_lower
+    pose: medium
+    max_confidence: high
+    valid_range: [0.55, 1.8]
+    definition_zh: 眉间到鼻底 ÷ 鼻底到下巴（纵向）。不需要发际线，刘海遮挡时也能测。
+    overlay:
+      segments: [[th_glab_l, th_glab_r, measure], [th_sub_l, th_sub_r, measure], [th_chin_l, th_chin_r, measure]]
+  - id: M024
+    key: upper_middle
+    name_zh: 上庭 / 中庭
+    group: proportions
+    pillar: harmony
+    view: front
+    unit: ratio
+    decimals: 2
+    tier: full
+    class: B
+    compute: upper_middle
+    needs: [hairline]
+    pose: medium
+    max_confidence: medium
+    valid_range: [0.5, 1.8]
+    definition_zh: 发际线到眉间 ÷ 眉间到鼻底（纵向）。
+    overlay:
+      segments: [[th_hair_l, th_hair_r, measure], [th_glab_l, th_glab_r, measure], [th_sub_l, th_sub_r, measure]]
+  - id: M083
+    key: philtrum_lower
+    name_zh: 人中 / 下庭
+    group: proportions
+    pillar: harmony
+    view: front
+    unit: fraction
+    decimals: 0
+    tier: full
+    class: A
+    compute: philtrum_lower
+    pose: medium
+    max_confidence: high
+    valid_range: [0.12, 0.45]
+    definition_zh: 鼻底到上唇缘中点 ÷ 鼻底到下巴（纵向）。
+    overlay:
+      segments: [[subnasale, lip_top, measure], [subnasale, chin, reference]]
+      points: [subnasale, lip_top, chin]
+  - id: M021
+    key: chin_lower
+    name_zh: 下巴高度 / 下庭
+    group: proportions
+    pillar: harmony
+    view: front
+    unit: fraction
+    decimals: 0
+    tier: full
+    class: A
+    aliases: [M089, M102]
+    compute: chin_lower
+    pose: medium
+    max_confidence: high
+    valid_range: [0.25, 0.75]
+    definition_zh: 下唇下缘到下巴底 ÷ 鼻底到下巴底（纵向）。
+    overlay:
+      segments: [[lip_bottom, chin, measure], [subnasale, chin, reference]]
+      points: [subnasale, lip_bottom, chin]
+  - id: M030
+    key: fifths_spread
+    name_zh: 五眼均匀度
+    group: proportions
+    pillar: harmony
+    view: front
+    unit: fraction
+    decimals: 0
+    tier: full
+    class: A
+    compute: fifths_spread
+    pose: high
+    max_confidence: high
+    valid_range: [0.0, 0.8]
+    definition_zh: 眼睛高度处五段宽度的离散程度（变异系数）。数值越小五段越接近；不以相等为目标。
+    overlay:
+      segments: [[f0_t, f0_b, measure], [f1_t, f1_b, measure], [f2_t, f2_b, measure], [f3_t, f3_b, measure], [f4_t, f4_b, measure], [f5_t, f5_b, measure], [f0_m, f5_m, reference]]
+
+  # --- 眼 ------------------------------------------------------------------------------------------------
+  - id: M033
+    key: intercanthal_eye
+    name_zh: 眼距 / 眼宽
+    group: eyes
+    pillar: harmony
+    view: front
+    unit: ratio
+    decimals: 2
+    tier: free
+    eyewear: true
+    class: A
+    aliases: [M029]
+    compute: intercanthal_eye
+    pose: medium
+    max_confidence: high
+    valid_range: [0.5, 1.8]
+    definition_zh: 两内眼角间距 ÷ 双眼平均眼宽。1.00 表示两眼之间正好“一只眼”的宽度。
+    overlay:
+      segments: [[eye_l_inner, eye_r_inner, measure], [eye_l_outer, eye_l_inner, reference], [eye_r_inner, eye_r_outer, reference]]
+  - id: M034
+    key: intercanthal_face
+    name_zh: 眼距 / 颧宽
+    group: eyes
+    pillar: harmony
+    view: front
+    unit: ratio
+    decimals: 2
+    tier: full
+    eyewear: true
+    class: A
+    compute: intercanthal_face
+    pose: medium
+    max_confidence: high
+    valid_range: [0.15, 0.45]
+    definition_zh: 两内眼角间距 ÷ 颧骨处脸宽。
+    overlay:
+      segments: [[eye_l_inner, eye_r_inner, measure], [cheek_l, cheek_r, reference]]
+  - id: M035
+    key: interpupil_face
+    name_zh: 瞳距 / 颧宽
+    group: eyes
+    pillar: harmony
+    view: front
+    unit: ratio
+    decimals: 2
+    tier: full
+    eyewear: true
+    class: A
+    compute: interpupil_face
+    needs: [iris]
+    pose: medium
+    max_confidence: high
+    valid_range: [0.3, 0.7]
+    definition_zh: 两虹膜中心间距 ÷ 颧骨处脸宽。受视线方向影响，平视镜头时最准。
+    overlay:
+      segments: [[iris_l, iris_r, measure], [cheek_l, cheek_r, reference]]
+      points: [iris_l, iris_r]
+  - id: M037
+    key: eye_width_iris
+    name_zh: 眼宽 / 虹膜直径
+    group: eyes
+    pillar: expression
+    view: front
+    unit: ratio
+    decimals: 2
+    tier: full
+    eyewear: true
+    class: A
+    aliases: [M038]
+    compute: eye_width_iris
+    needs: [iris]
+    pose: low
+    max_confidence: high
+    valid_range: [1.5, 4.0]
+    definition_zh: 眼宽相当于几个虹膜直径（两眼平均，另列左右）。虹膜直径在成人之间差异较小，适合作相对尺子。
+    overlay:
+      segments: [[eye_l_outer, eye_l_inner, measure], [eye_r_inner, eye_r_outer, measure], [iris_l_a, iris_l_b, reference], [iris_r_a, iris_r_b, reference]]
+  - id: M041
+    key: eye_aspect
+    name_zh: 眼睛纵横比
+    group: eyes
+    pillar: expression
+    view: front
+    unit: ratio
+    decimals: 2
+    tier: free
+    eyewear: true
+    class: A
+    aliases: [M039, M040]
+    compute: eye_aspect
+    needs: [eyes_open]
+    pose: low
+    max_confidence: high
+    valid_range: [0.12, 0.6]
+    definition_zh: 上下眼睑中点距离 ÷ 眼宽（两眼平均，另列左右）。越大眼型越圆，越小越细长；受表情和笑容影响。
+    overlay:
+      segments: [[eye_l_top, eye_l_bottom, measure], [eye_r_top, eye_r_bottom, measure], [eye_l_outer, eye_l_inner, reference], [eye_r_inner, eye_r_outer, reference]]
+  - id: M044
+    key: canthal_tilt
+    name_zh: 外眼角倾斜
+    group: eyes
+    pillar: expression
+    view: front
+    unit: deg
+    decimals: 0
+    tier: free
+    eyewear: true
+    class: A
+    aliases: [M042, M043]
+    compute: canthal_tilt
+    pose: low
+    max_confidence: high
+    valid_range: [-20, 25]
+    definition_zh: 内眼角到外眼角的连线与水平线的夹角（已扣除头部倾斜，两眼平均）。正值 = 外眼角更高。
+    overlay:
+      segments: [[eye_l_inner, eye_l_outer, measure], [eye_r_inner, eye_r_outer, measure]]
+      angles: [[eye_l_outer, eye_l_inner, eye_l_hz], [eye_r_outer, eye_r_inner, eye_r_hz]]
+
+  # --- 眉 (网格估计，未做毛发分割 → 最高中等置信度) ----------------------------------------------------------
+  - id: M051
+    key: brow_length_face
+    name_zh: 眉长 / 颧宽
+    group: brows
+    pillar: expression
+    view: front
+    unit: ratio
+    decimals: 2
+    tier: full
+    eyewear: true
+    class: B
+    compute: brow_length_face
+    pose: medium
+    max_confidence: medium
+    valid_range: [0.2, 0.6]
+    definition_zh: 眉头到眉尾的长度 ÷ 颧骨处脸宽（两眉平均）。眉形按面部网格估计，修过或画过的眉尾会有偏差。
+    overlay:
+      segments: [[brow_l_head, brow_l_tail, measure], [brow_r_head, brow_r_tail, measure], [cheek_l, cheek_r, reference]]
+  - id: M054
+    key: brow_tilt
+    name_zh: 眉毛倾斜
+    group: brows
+    pillar: expression
+    view: front
+    unit: deg
+    decimals: 0
+    tier: free
+    eyewear: true
+    class: B
+    aliases: [M052, M053]
+    compute: brow_tilt
+    pose: low
+    max_confidence: medium
+    valid_range: [-25, 30]
+    definition_zh: 眉头到眉尾连线与水平线的夹角（已扣除头部倾斜，两眉平均）。正值 = 眉尾更高（上扬），负值 = 眉尾下垂。
+    overlay:
+      segments: [[brow_l_head, brow_l_tail, measure], [brow_r_head, brow_r_tail, measure]]
+      angles: [[brow_l_tail, brow_l_head, brow_l_hz], [brow_r_tail, brow_r_head, brow_r_hz]]
+  - id: M055
+    key: brow_eye_gap
+    name_zh: 眉眼距离
+    group: brows
+    pillar: expression
+    view: front
+    unit: ratio
+    decimals: 2
+    tier: free
+    eyewear: true
+    class: B
+    compute: brow_eye_gap
+    pose: medium
+    max_confidence: medium
+    valid_range: [0.1, 1.2]
+    definition_zh: 眉毛下缘到上眼睑的纵向距离 ÷ 眼宽（两侧平均）。越小眉眼越近、轮廓越深；越大越舒展。
+    overlay:
+      segments: [[brow_l_low, eye_l_top, measure], [brow_r_low, eye_r_top, measure]]
+      points: [brow_l_low, eye_l_top, brow_r_low, eye_r_top]
+  - id: M056
+    key: brow_head_gap
+    name_zh: 眉头间距 / 眼距
+    group: brows
+    pillar: expression
+    view: front
+    unit: ratio
+    decimals: 2
+    tier: full
+    eyewear: true
+    class: B
+    compute: brow_head_gap
+    pose: medium
+    max_confidence: medium
+    valid_range: [0.6, 2.0]
+    definition_zh: 两眉头之间的距离 ÷ 两内眼角间距。
+    overlay:
+      segments: [[brow_l_head, brow_r_head, measure], [eye_l_inner, eye_r_inner, reference]]
+  - id: M057
+    key: brow_peak_position
+    name_zh: 眉峰位置
+    group: brows
+    pillar: expression
+    view: front
+    unit: fraction
+    decimals: 0
+    tier: full
+    eyewear: true
+    class: B
+    compute: brow_peak_position
+    pose: low
+    max_confidence: medium
+    valid_range: [0.2, 0.95]
+    definition_zh: 眉峰（眉毛最高点）落在眉头→眉尾全长的百分之几处（两眉平均）。
+    overlay:
+      segments: [[brow_l_head, brow_l_tail, reference], [brow_r_head, brow_r_tail, reference]]
+      points: [brow_l_peak, brow_r_peak]
+
+  # --- 鼻 ------------------------------------------------------------------------------------------------
+  - id: M062
+    key: alar_face
+    name_zh: 鼻翼宽 / 颧宽
+    group: nose
+    pillar: harmony
+    view: front
+    unit: ratio
+    decimals: 2
+    tier: free
+    class: A
+    compute: alar_face
+    pose: medium
+    max_confidence: high
+    valid_range: [0.15, 0.4]
+    definition_zh: 两侧鼻翼外缘距离 ÷ 颧骨处脸宽。
+    overlay:
+      segments: [[alar_l, alar_r, measure], [cheek_l, cheek_r, reference]]
+  - id: M072
+    key: nose_length_width
+    name_zh: 鼻长 / 鼻宽
+    group: nose
+    pillar: expression
+    view: front
+    unit: ratio
+    decimals: 2
+    tier: full
+    class: A
+    compute: nose_length_width
+    pose: medium
+    max_confidence: high
+    valid_range: [0.9, 2.6]
+    definition_zh: 鼻根（两眼之间）到鼻底的纵向长度 ÷ 鼻翼宽。抬头低头会改变鼻长，平视最准。
+    overlay:
+      segments: [[nasion, subnasale, measure], [alar_l, alar_r, measure]]
+  - id: M073
+    key: nasal_axis_tilt
+    name_zh: 鼻梁中轴倾斜
+    group: nose
+    pillar: harmony
+    view: front
+    unit: deg
+    decimals: 1
+    tier: full
+    class: A
+    compute: nasal_axis_tilt
+    pose: high
+    max_confidence: medium
+    valid_range: [0, 15]
+    definition_zh: 鼻根到鼻底连线与竖直方向的夹角（已扣除头部倾斜，不分方向）。转头会放大这一数值。
+    overlay:
+      segments: [[nasion, subnasale, measure], [nasion, nasion_vert, reference]]
+
+  # --- 口唇 ----------------------------------------------------------------------------------------------
+  - id: M076
+    key: mouth_face
+    name_zh: 嘴宽 / 颧宽
+    group: lips
+    pillar: harmony
+    view: front
+    unit: ratio
+    decimals: 2
+    tier: free
+    class: A
+    compute: mouth_face
+    pose: medium
+    max_confidence: high
+    valid_range: [0.25, 0.6]
+    definition_zh: 两侧嘴角距离 ÷ 颧骨处脸宽。放松、不笑时最准。
+    overlay:
+      segments: [[mouth_l, mouth_r, measure], [cheek_l, cheek_r, reference]]
+  - id: M080
+    key: lip_ratio
+    name_zh: 上唇 / 下唇厚度
+    group: lips
+    pillar: expression
+    view: front
+    unit: ratio
+    decimals: 2
+    tier: free
+    class: B
+    compute: lip_ratio
+    needs: [mouth_closed]
+    pose: low
+    max_confidence: high
+    valid_range: [0.3, 1.6]
+    definition_zh: 上唇红唇中央高度 ÷ 下唇红唇中央高度。
+    overlay:
+      segments: [[lip_top, lip_upper_inner, measure], [lip_lower_inner, lip_bottom, measure]]
+      points: [lip_top, lip_upper_inner, lip_lower_inner, lip_bottom]
+  - id: M078
+    key: lip_fullness
+    name_zh: 唇部厚度 / 嘴宽
+    group: lips
+    pillar: expression
+    view: front
+    unit: ratio
+    decimals: 2
+    tier: full
+    class: B
+    aliases: [M079]
+    compute: lip_fullness
+    needs: [mouth_closed]
+    pose: low
+    max_confidence: high
+    valid_range: [0.1, 0.6]
+    definition_zh: 上下红唇中央高度之和 ÷ 嘴宽。越大唇部越饱满。
+    overlay:
+      segments: [[lip_top, lip_upper_inner, measure], [lip_lower_inner, lip_bottom, measure], [mouth_l, mouth_r, reference]]
+  - id: M081
+    key: cupid_bow
+    name_zh: 唇峰起伏
+    group: lips
+    pillar: expression
+    view: front
+    unit: fraction
+    decimals: 0
+    tier: full
+    class: B
+    compute: cupid_bow
+    needs: [mouth_closed]
+    pose: low
+    max_confidence: medium
+    valid_range: [-0.3, 0.8]
+    definition_zh: 唇峰（上唇两个最高点）比上唇中央凹点高出多少，占上唇高度的百分比。网格估计，唇线清晰时更准。
+    overlay:
+      segments: [[bow_l, lip_top, measure], [lip_top, bow_r, measure]]
+      points: [bow_l, lip_top, bow_r]
+  - id: M085
+    key: mouth_corner_tilt
+    name_zh: 嘴角连线倾斜
+    group: lips
+    pillar: harmony
+    view: front
+    unit: deg
+    decimals: 1
+    tier: full
+    class: A
+    compute: mouth_corner_tilt
+    pose: medium
+    max_confidence: high
+    valid_range: [0, 15]
+    definition_zh: 两侧嘴角连线与水平线的夹角（已扣除头部倾斜，不分方向）。表情会改变它。
+    overlay:
+      segments: [[mouth_l, mouth_r, measure], [mouth_l, mouth_hz, reference]]
+
+  # --- 下颌与下巴 · 头脸架构 --------------------------------------------------------------------------------
+  - id: M098
+    key: chin_angle
+    name_zh: 下巴收拢角
+    group: jaw
+    pillar: architecture
+    view: front
+    unit: deg
+    decimals: 0
+    tier: free
+    class: B
+    compute: chin_angle
+    pose: medium
+    max_confidence: medium
+    valid_range: [80, 170]
+    definition_zh: 以下巴底为顶点、连到两侧下颌转角的夹角（正面投影）。角越小下脸越收拢（偏 V），越大越宽平（偏 U）。
+    overlay:
+      segments: [[chin, jaw_l, measure], [chin, jaw_r, measure]]
+      angles: [[jaw_l, chin, jaw_r]]
+      outline: true
+  - id: M090
+    key: jaw_corner_angle
+    name_zh: 下颌转角
+    group: jaw
+    pillar: architecture
+    view: front
+    unit: deg
+    decimals: 0
+    tier: full
+    class: B
+    compute: jaw_corner_angle
+    pose: medium
+    max_confidence: medium
+    valid_range: [100, 175]
+    definition_zh: 下颌转角处，向上（面颊轮廓）与向下（下颌线）两段轮廓的夹角，两侧平均。只是正面投影，不是骨骼角度。
+    overlay:
+      segments: [[ramus_l, jaw_l, measure], [jaw_l, chin, measure], [ramus_r, jaw_r, measure], [jaw_r, chin, measure]]
+      angles: [[ramus_l, jaw_l, chin], [ramus_r, jaw_r, chin]]
+  - id: M093
+    key: chin_width_jaw
+    name_zh: 下巴宽 / 下颌宽
+    group: jaw
+    pillar: architecture
+    view: front
+    unit: ratio
+    decimals: 2
+    tier: full
+    class: B
+    compute: chin_width_jaw
+    pose: medium
+    max_confidence: medium
+    valid_range: [0.2, 0.8]
+    definition_zh: 下巴两侧轮廓点间距 ÷ 两侧下颌转角间距。下巴的边界本身有主观性，作相对参考。
+    overlay:
+      segments: [[chin_l, chin_r, measure], [jaw_l, jaw_r, reference]]
+      outline: true
+
+  # --- 左右对称 · 比例与和谐 -----------------------------------------------------------------------------
+  - id: M114
+    key: landmark_symmetry
+    name_zh: 整体对称偏差
+    group: symmetry
+    pillar: harmony
+    view: front
+    unit: pct_face
+    decimals: 1
+    tier: free
+    class: A
+    compute: landmark_symmetry
+    pose: high
+    max_confidence: high
+    valid_range: [0, 0.12]
+    definition_zh: 把 220 对左右对应的面部网格点沿中轴镜像后的平均偏差，以颧宽为 100%。人脸都有不对称，这个数只说明“有多少”，不表示好坏。
+    overlay:
+      segments: [[midline_top, midline_bottom, measure], [eye_l_outer, eye_r_outer, reference], [mouth_l, mouth_r, reference], [jaw_l, jaw_r, reference]]
+  - id: M103
+    key: eye_width_asym
+    name_zh: 两眼宽度差
+    group: symmetry
+    pillar: harmony
+    view: front
+    unit: fraction
+    decimals: 0
+    tier: full
+    eyewear: true
+    class: A
+    compute: eye_width_asym
+    pose: high
+    max_confidence: high
+    valid_range: [0, 0.4]
+    definition_zh: 两眼眼宽之差 ÷ 平均眼宽。
+    overlay:
+      segments: [[eye_l_outer, eye_l_inner, measure], [eye_r_inner, eye_r_outer, measure]]
+  - id: M104
+    key: eye_height_asym
+    name_zh: 两眼开合差
+    group: symmetry
+    pillar: harmony
+    view: front
+    unit: fraction
+    decimals: 0
+    tier: full
+    eyewear: true
+    class: A
+    compute: eye_height_asym
+    needs: [eyes_open]
+    pose: medium
+    max_confidence: high
+    valid_range: [0, 0.6]
+    definition_zh: 两眼上下眼睑距离之差 ÷ 平均值。眨眼、单侧用力会放大它。
+    overlay:
+      segments: [[eye_l_top, eye_l_bottom, measure], [eye_r_top, eye_r_bottom, measure]]
+  - id: M105
+    key: outer_canthus_height
+    name_zh: 外眼角高度差
+    group: symmetry
+    pillar: harmony
+    view: front
+    unit: fraction
+    decimals: 0
+    tier: full
+    eyewear: true
+    class: A
+    compute: outer_canthus_height
+    pose: medium
+    max_confidence: high
+    valid_range: [0, 0.5]
+    definition_zh: 两外眼角的纵向高度差 ÷ 平均眼宽（已扣除头部倾斜）。
+    overlay:
+      segments: [[eye_l_outer, eye_r_outer, measure], [eye_l_outer, roll_hz, reference]]
+  - id: M107
+    key: brow_height_asym
+    name_zh: 两眉高度差
+    group: symmetry
+    pillar: harmony
+    view: front
+    unit: fraction
+    decimals: 0
+    tier: full
+    eyewear: true
+    class: B
+    compute: brow_height_asym
+    pose: medium
+    max_confidence: medium
+    valid_range: [0, 0.8]
+    definition_zh: 两侧眉眼距离之差 ÷ 平均眉眼距离。挑眉等表情会放大它。
+    overlay:
+      segments: [[brow_l_low, eye_l_top, measure], [brow_r_low, eye_r_top, measure]]
+  - id: M110
+    key: nose_tip_offset
+    name_zh: 鼻尖偏离中轴
+    group: symmetry
+    pillar: harmony
+    view: front
+    unit: pct_face
+    decimals: 1
+    tier: full
+    class: A
+    compute: nose_tip_offset
+    pose: high
+    max_confidence: medium
+    valid_range: [0, 0.12]
+    definition_zh: 鼻尖到面部对称轴的水平距离，以颧宽为 100%。轻微转头就会产生偏离，所以最高只给中等置信度。
+    overlay:
+      segments: [[midline_top, midline_bottom, reference], [nose_tip, nose_tip_axis, measure]]
+      points: [nose_tip]
+
+  # --- 皮相与拍摄 (照片条件，不判断皮肤健康) ------------------------------------------------------------------
+  - id: M137
+    key: skin_lightness
+    name_zh: 肤色明度
+    group: skin
+    pillar: skin
+    view: front
+    unit: lab_l
+    decimals: 0
+    tier: full
+    class: B
+    compute: skin_lightness
+    needs: [color]
+    pose: low
+    max_confidence: medium
+    valid_range: [5, 100]
+    definition_zh: 两颊肤色取样的 CIE Lab 明度 L*（0–100）。手机白平衡未校准，只是本张照片的相对观察。
+    overlay:
+      points: [cheek_sample_l, cheek_sample_r]
+  - id: M139
+    key: skin_warmth
+    name_zh: 肤色黄蓝倾向
+    group: skin
+    pillar: skin
+    view: front
+    unit: lab_b
+    decimals: 0
+    tier: free
+    class: B
+    compute: skin_warmth
+    needs: [color]
+    pose: low
+    max_confidence: medium
+    valid_range: [-20, 50]
+    definition_zh: 两颊肤色取样的 Lab b*（越大越偏黄、越暖）。冷暖结论另由色彩页综合判断。
+    overlay:
+      points: [cheek_sample_l, cheek_sample_r]
+  - id: M141
+    key: cheek_color_diff
+    name_zh: 左右颊色差
+    group: skin
+    pillar: skin
+    view: front
+    unit: delta_e
+    decimals: 1
+    tier: full
+    class: B
+    compute: cheek_color_diff
+    needs: [color]
+    pose: low
+    max_confidence: medium
+    valid_range: [0, 40]
+    definition_zh: 左右两颊取样颜色的 ΔE（CIE76）。通常反映侧光或阴影，而不是皮肤本身。
+    overlay:
+      points: [cheek_sample_l, cheek_sample_r]
+      segments: [[cheek_sample_l, cheek_sample_r, reference]]
+  - id: M148
+    key: light_balance
+    name_zh: 左右光线差
+    group: skin
+    pillar: skin
+    view: front
+    unit: lab_l
+    decimals: 1
+    tier: free
+    class: A
+    compute: light_balance
+    needs: [color]
+    pose: low
+    max_confidence: high
+    valid_range: [0, 60]
+    definition_zh: 左右两颊明度 L* 之差。差值大说明一侧受光更多，会影响肤色、轮廓和对称的判断。
+    overlay:
+      points: [cheek_sample_l, cheek_sample_r]
+      segments: [[cheek_sample_l, cheek_sample_r, measure]]
+  - id: M013
+    key: head_roll
+    name_zh: 头部倾斜
+    group: skin
+    pillar: skin
+    view: front
+    unit: deg
+    decimals: 1
+    tier: free
+    class: A
+    compute: head_roll
+    pose: low
+    max_confidence: high
+    valid_range: [0, 45]
+    definition_zh: 两眼连线与水平线的夹角。所有角度类测量都已扣除它；数值大时建议正对镜头重拍。
+    overlay:
+      segments: [[eye_l_center, eye_r_center, measure], [eye_l_center, roll_hz_center, reference]]
+  - id: M088
+    key: mouth_opening
+    name_zh: 嘴唇张开程度
+    group: skin
+    pillar: skin
+    view: front
+    unit: ratio
+    decimals: 2
+    tier: full
+    class: A
+    compute: mouth_opening
+    pose: low
+    max_confidence: high
+    valid_range: [0, 0.8]
+    definition_zh: 上下唇内缘距离 ÷ 嘴宽。超过 0.08 视为张嘴，唇部比例不测量。
+    overlay:
+      segments: [[lip_upper_inner, lip_lower_inner, measure], [mouth_l, mouth_r, reference]]
+
+  # ============================================================================================================
+  # V3B (D35) — additional front definitions. Same rules: our own formulas on MediaPipe landmarks, relative values.
+  # `eyewear: true` = eye / brow landmarks a glasses frame can disturb: measured on the glasses-free photo when one
+  # was supplied, otherwise on the front photo with confidence capped at low and an eyewear note.
+  # ============================================================================================================
+  # --- 整体轮廓 ---
+  - {id: M002, key: face_width_iris, name_zh: 面宽 / 虹膜直径, group: overall, pillar: architecture, view: front, unit: ratio, decimals: 1, tier: full, class: A, compute: face_width_iris, needs: [iris], pose: medium, max_confidence: medium, valid_range: [8, 22],
+     definition_zh: 颧骨处脸宽 ÷ 平均虹膜直径。成人虹膜大小相对稳定，可作为不依赖拍摄距离的尺度参照（仍不是毫米）。,
+     overlay: {segments: [[cheek_l, cheek_r, measure], [iris_l_a, iris_l_b, measure], [iris_r_a, iris_r_b, measure]]}}
+  - {id: M003, key: temple_cheek, name_zh: 颞宽 / 颧宽, group: overall, pillar: architecture, view: front, unit: ratio, decimals: 2, tier: free, class: B, compute: temple_cheek, pose: medium, max_confidence: medium, valid_range: [0.8, 1.15],
+     definition_zh: 太阳穴外缘（耳屏前）宽度 ÷ 颧骨处脸宽。数值越接近 1，上半脸外轮廓越饱满。,
+     overlay: {segments: [[temple_l, temple_r, measure], [cheek_l, cheek_r, reference]], outline: true}}
+  - {id: M011, key: mouth_level_width, name_zh: 口角高度脸宽 / 颧宽, group: overall, pillar: architecture, view: front, unit: ratio, decimals: 2, tier: full, class: A, compute: mouth_level_width, pose: medium, max_confidence: high, valid_range: [0.6, 1.1],
+     definition_zh: 嘴角高度处的脸部外轮廓宽度 ÷ 颧宽，描述面颊下半段的收窄程度。,
+     overlay: {segments: [[face_mouth_l, face_mouth_r, measure], [cheek_l, cheek_r, reference]], outline: true}}
+  - {id: M169, key: feature_concentration, name_zh: 五官集中度, group: overall, pillar: harmony, view: front, unit: fraction, decimals: 0, tier: full, class: A, compute: feature_concentration, pose: medium, max_confidence: medium, valid_range: [0.2, 0.75],
+     definition_zh: 眉、眼、鼻、嘴关键点的外接矩形面积 ÷ 脸部外轮廓面积。越高，五官在脸上占的面积越大、越“舒展”。,
+     overlay: {points: [brow_l_tail, brow_r_tail, brow_l_head, brow_r_head, eye_l_outer, eye_r_outer, alar_l, alar_r, mouth_l, mouth_r, lip_bottom], outline: true}}
+  - {id: M170, key: feature_center, name_zh: 五官重心高度, group: overall, pillar: harmony, view: front, unit: fraction, decimals: 0, tier: full, class: B, compute: feature_center, pose: high, max_confidence: medium, valid_range: [0.35, 0.75],
+     definition_zh: 五官关键点的平均高度在“额顶标志点→下巴”之间的位置（0 = 额顶，100% = 下巴）。,
+     overlay: {segments: [[forehead_top, chin, reference]], points: [brow_l_tail, brow_r_tail, eye_l_outer, eye_r_outer, alar_l, alar_r, mouth_l, mouth_r, lip_bottom]}}
+  # --- 三庭五眼 ---
+  - {id: M022, key: upper_lip_segment, name_zh: 上唇段 / 下庭, group: proportions, pillar: harmony, view: front, unit: fraction, decimals: 0, tier: free, class: A, compute: upper_lip_segment, needs: [mouth_closed], pose: medium, max_confidence: high, valid_range: [0.18, 0.5],
+     definition_zh: 鼻底到口裂中点 ÷ 鼻底到下巴（纵向）。常见描述是“约三分之一”。,
+     overlay: {segments: [[subnasale, stomion, measure], [stomion, chin, reference]]}}
+  - {id: M026, key: eye_mouth_vertical, name_zh: 眼—口纵距 / 面长, group: proportions, pillar: harmony, view: front, unit: fraction, decimals: 0, tier: full, class: B, compute: eye_mouth_vertical, pose: high, max_confidence: medium, valid_range: [0.25, 0.55],
+     definition_zh: 两眼中心连线到口裂中点的纵向距离 ÷ 额顶标志点到下巴。,
+     overlay: {segments: [[eye_mid, stomion, measure], [forehead_top, chin, reference], [eye_l_center, eye_r_center, reference]]}}
+  - {id: M027, key: outer_fifths_diff, name_zh: 左右外侧五等分差, group: proportions, pillar: harmony, view: front, unit: fraction, decimals: 0, tier: full, class: A, compute: outer_fifths_diff, pose: high, max_confidence: medium, valid_range: [0, 0.8],
+     definition_zh: 最左与最右两段五等分（太阳穴到外眼角）宽度之差 ÷ 平均段宽。转头会放大这一项。,
+     overlay: {segments: [[f0_m, f1_m, measure], [f4_m, f5_m, measure], [f1_m, f4_m, reference]]}}
+  - {id: M028, key: eye_fifth, name_zh: 眼宽 / 五等分均宽, group: proportions, pillar: harmony, view: front, unit: ratio, decimals: 2, tier: full, class: A, compute: eye_fifth, pose: medium, max_confidence: medium, valid_range: [0.6, 1.4],
+     definition_zh: 平均眼裂宽度 ÷ 五等分（太阳穴到太阳穴）的平均段宽。1 表示眼宽正好是一“眼”。,
+     overlay: {segments: [[f1_m, f2_m, measure], [f3_m, f4_m, measure], [f0_m, f5_m, reference]]}}
+  - {id: M031, key: eye_subnasale, name_zh: 眼—鼻底纵距 / 面长, group: proportions, pillar: harmony, view: front, unit: fraction, decimals: 0, tier: full, class: A, compute: eye_subnasale, pose: high, max_confidence: medium, valid_range: [0.12, 0.35],
+     definition_zh: 两眼中心连线到鼻底的纵向距离 ÷ 额顶标志点到下巴，描述面中部的紧凑程度。,
+     overlay: {segments: [[eye_mid, subnasale, measure], [forehead_top, chin, reference]]}}
+  - {id: M032, key: lower_face_length, name_zh: 鼻底—下巴 / 面长, group: proportions, pillar: harmony, view: front, unit: fraction, decimals: 0, tier: free, class: A, compute: lower_face_length, pose: medium, max_confidence: high, valid_range: [0.22, 0.5],
+     definition_zh: 鼻底到下巴 ÷ 额顶标志点到下巴。不依赖发际线，刘海遮挡时也能测。,
+     overlay: {segments: [[subnasale, chin, measure], [forehead_top, chin, reference]]}}
+  # --- 眼 ---
+  - {id: M036, key: outer_canthal_face, name_zh: 外眦距 / 面宽, group: eyes, pillar: expression, view: front, unit: ratio, decimals: 2, tier: free, class: A, compute: outer_canthal_face, eyewear: true, pose: medium, max_confidence: high, valid_range: [0.55, 0.95],
+     definition_zh: 两侧外眼角之间的距离 ÷ 颧宽。,
+     overlay: {segments: [[eye_l_outer, eye_r_outer, measure], [cheek_l, cheek_r, reference]]}}
+  - {id: M045, key: eye_roundness, name_zh: 眼裂圆度, group: eyes, pillar: expression, view: front, unit: ratio, decimals: 2, tier: full, class: B, compute: eye_roundness, needs: [eyes_open], eyewear: true, pose: medium, max_confidence: medium, valid_range: [0.08, 0.5],
+     definition_zh: 眼裂轮廓面积 ÷ 眼宽²。越高越圆，越低越细长。,
+     overlay: {segments: [[eye_l_inner, eye_l_outer, measure], [eye_r_inner, eye_r_outer, measure], [eye_l_top, eye_l_bottom, reference], [eye_r_top, eye_r_bottom, reference]]}}
+  - {id: M048, key: iris_exposure, name_zh: 虹膜可见比例, group: eyes, pillar: expression, view: front, unit: fraction, decimals: 0, tier: full, class: B, compute: iris_exposure, needs: [iris, eyes_open], eyewear: true, pose: medium, max_confidence: medium, valid_range: [0.3, 1.0],
+     definition_zh: 拟合虹膜圆落在上下眼睑之间的比例。受视线方向影响。,
+     overlay: {segments: [[iris_l_a, iris_l_b, reference], [iris_r_a, iris_r_b, reference], [eye_l_top, eye_l_bottom, measure], [eye_r_top, eye_r_bottom, measure]], points: [iris_l, iris_r]}}
+  - {id: M049, key: pupil_vertical, name_zh: 瞳孔相对眼角线高度, group: eyes, pillar: expression, view: front, unit: pct_face, decimals: 0, tier: full, class: A, compute: pupil_vertical, needs: [iris], eyewear: true, pose: high, max_confidence: medium, valid_range: [-0.3, 0.3],
+     definition_zh: 虹膜中心到“内眼角—外眼角”连线的垂距 ÷ 眼宽（向上为正）。视线方向会影响它。,
+     overlay: {segments: [[eye_l_inner, eye_l_outer, reference], [eye_r_inner, eye_r_outer, reference]], points: [iris_l, iris_r]}}
+  - {id: M050, key: lower_scleral, name_zh: 虹膜下方留白, group: eyes, pillar: expression, view: front, unit: fraction, decimals: 0, tier: full, class: B, compute: lower_scleral, needs: [iris, eyes_open], eyewear: true, pose: high, max_confidence: low, valid_range: [-0.6, 0.5],
+     definition_zh: 下眼睑到虹膜下缘的距离 ÷ 虹膜直径（负值 = 下睑盖住虹膜下缘）。视线与表情影响很大，只作观察。,
+     overlay: {points: [iris_l, iris_r, eye_l_bottom, eye_r_bottom], segments: [[iris_l_a, iris_l_b, reference], [iris_r_a, iris_r_b, reference]]}}
+  - {id: BA04, key: inner_canthal_angle, name_zh: 内眦角, group: eyes, pillar: expression, view: front, unit: deg, decimals: 0, tier: full, class: B, compute: inner_canthal_angle, needs: [eyes_open], eyewear: true, pose: medium, max_confidence: medium, valid_range: [25, 120],
+     definition_zh: 内眼角处上睑与下睑起始段的夹角。越小越尖，越大越圆钝。,
+     overlay: {angles: [[eye_l_up_in, eye_l_inner, eye_l_lo_in], [eye_r_up_in, eye_r_inner, eye_r_lo_in]], segments: [[eye_l_inner, eye_l_up_in, measure], [eye_l_inner, eye_l_lo_in, measure], [eye_r_inner, eye_r_up_in, measure], [eye_r_inner, eye_r_lo_in, measure]]}}
+  - {id: BA05, key: outer_canthal_angle, name_zh: 外眦角, group: eyes, pillar: expression, view: front, unit: deg, decimals: 0, tier: full, class: B, compute: outer_canthal_angle, needs: [eyes_open], eyewear: true, pose: medium, max_confidence: medium, valid_range: [25, 130],
+     definition_zh: 外眼角处上睑与下睑末段的夹角。,
+     overlay: {angles: [[eye_l_up_out, eye_l_outer, eye_l_lo_out], [eye_r_up_out, eye_r_outer, eye_r_lo_out]], segments: [[eye_l_outer, eye_l_up_out, measure], [eye_l_outer, eye_l_lo_out, measure], [eye_r_outer, eye_r_up_out, measure], [eye_r_outer, eye_r_lo_out, measure]]}}
+  - {id: BA06, key: lid_apex, name_zh: 上睑最高点位置, group: eyes, pillar: expression, view: front, unit: fraction, decimals: 0, tier: full, class: B, compute: lid_apex, needs: [eyes_open], eyewear: true, pose: medium, max_confidence: medium, valid_range: [0.15, 0.85],
+     definition_zh: 上眼睑最高点在“内眼角(0)→外眼角(100%)”上的位置。偏小 = 弧顶靠内，偏大 = 弧顶靠外。,
+     overlay: {segments: [[eye_l_inner, eye_l_outer, reference], [eye_r_inner, eye_r_outer, reference]], points: [eye_l_apex, eye_r_apex]}}
+  # --- 眉 ---
+  - {id: M058, key: brow_arch, name_zh: 眉弧高度, group: brows, pillar: expression, view: front, unit: fraction, decimals: 0, tier: free, class: B, compute: brow_arch, eyewear: true, pose: medium, max_confidence: medium, valid_range: [-0.1, 0.35],
+     definition_zh: 眉峰高出“眉头—眉尾”连线的距离 ÷ 眉长。越高弧度越明显，接近 0 为平直眉。,
+     overlay: {segments: [[brow_l_head, brow_l_tail, reference], [brow_r_head, brow_r_tail, reference], [brow_l_peak, brow_l_arch_foot, measure], [brow_r_peak, brow_r_arch_foot, measure]]}}
+  - {id: M060, key: brow_tail_diff, name_zh: 眉尾高度差, group: symmetry, pillar: harmony, view: front, unit: fraction, decimals: 0, tier: full, class: B, compute: brow_tail_diff, eyewear: true, pose: high, max_confidence: medium, valid_range: [0, 0.6],
+     definition_zh: 左右眉尾高度之差 ÷ 平均眼宽。,
+     overlay: {segments: [[brow_l_tail, brow_r_tail, measure], [eye_l_center, eye_r_center, reference]]}}
+  - {id: M061, key: brow_eye_length, name_zh: 眉长 / 眼宽, group: brows, pillar: expression, view: front, unit: ratio, decimals: 2, tier: full, class: B, compute: brow_eye_length, eyewear: true, pose: medium, max_confidence: medium, valid_range: [1.0, 2.6],
+     definition_zh: 眉头到眉尾的长度 ÷ 同侧眼裂宽度。,
+     overlay: {segments: [[brow_l_head, brow_l_tail, measure], [brow_r_head, brow_r_tail, measure], [eye_l_inner, eye_l_outer, reference], [eye_r_inner, eye_r_outer, reference]]}}
+  - {id: BA08, key: brow_head_align, name_zh: 眉头与内眼角对位, group: brows, pillar: expression, view: front, unit: fraction, decimals: 0, tier: full, class: B, compute: brow_head_align, eyewear: true, pose: medium, max_confidence: medium, valid_range: [-0.6, 0.6],
+     definition_zh: 眉头相对内眼角的横向位置 ÷ 眼宽（正 = 眉头更靠近中线，负 = 眉头在内眼角外侧）。,
+     overlay: {segments: [[brow_l_head, eye_l_inner, measure], [brow_r_head, eye_r_inner, measure]], points: [brow_l_head, brow_r_head, eye_l_inner, eye_r_inner]}}
+  - {id: BA09, key: brow_tail_extension, name_zh: 眉尾外延, group: brows, pillar: expression, view: front, unit: fraction, decimals: 0, tier: full, class: B, compute: brow_tail_extension, eyewear: true, pose: medium, max_confidence: medium, valid_range: [-0.5, 0.9],
+     definition_zh: 眉尾超出外眼角的横向距离 ÷ 眼宽（负 = 眉尾短于外眼角）。,
+     overlay: {segments: [[brow_l_tail, eye_l_outer, measure], [brow_r_tail, eye_r_outer, measure]]}}
+  # --- 鼻 ---
+  - {id: M063, key: alar_intercanthal, name_zh: 鼻翼宽 / 内眦距, group: nose, pillar: expression, view: front, unit: ratio, decimals: 2, tier: free, class: A, compute: alar_intercanthal, pose: medium, max_confidence: high, valid_range: [0.6, 1.6],
+     definition_zh: 两侧鼻翼最宽处距离 ÷ 两内眼角距离。,
+     overlay: {segments: [[alar_l, alar_r, measure], [eye_l_inner, eye_r_inner, measure]]}}
+  - {id: M064, key: nose_face_length, name_zh: 鼻长 / 面长, group: nose, pillar: expression, view: front, unit: fraction, decimals: 0, tier: full, class: B, compute: nose_face_length, pose: high, max_confidence: medium, valid_range: [0.18, 0.45],
+     definition_zh: 鼻根到鼻底的纵向距离 ÷ 额顶标志点到下巴。抬头低头会改变它。,
+     overlay: {segments: [[nasion, subnasale, measure], [forehead_top, chin, reference]]}}
+  - {id: M065, key: nose_tip_position, name_zh: 鼻尖纵向位置, group: nose, pillar: expression, view: front, unit: fraction, decimals: 0, tier: full, class: B, compute: nose_tip_position, pose: high, max_confidence: low, valid_range: [0.6, 1.1],
+     definition_zh: 鼻根到鼻尖 ÷ 鼻根到鼻底（纵向）。正脸照里它主要随鼻尖朝向和抬头角度变化，只作观察。,
+     overlay: {segments: [[nasion, nose_tip, measure], [nasion, subnasale, reference]]}}
+  # --- 口唇 ---
+  - {id: M077, key: mouth_alar, name_zh: 嘴宽 / 鼻翼宽, group: lips, pillar: expression, view: front, unit: ratio, decimals: 2, tier: free, class: A, compute: mouth_alar, pose: medium, max_confidence: high, valid_range: [1.0, 2.4],
+     definition_zh: 两嘴角距离 ÷ 鼻翼宽。,
+     overlay: {segments: [[mouth_l, mouth_r, measure], [alar_l, alar_r, measure]]}}
+  - {id: BA17, key: upper_vermilion, name_zh: 上唇红高 / 嘴宽, group: lips, pillar: expression, view: front, unit: fraction, decimals: 0, tier: full, class: B, compute: upper_vermilion, needs: [mouth_closed], pose: medium, max_confidence: medium, valid_range: [0.04, 0.3],
+     definition_zh: 上唇中央红唇高度 ÷ 嘴宽。,
+     overlay: {segments: [[lip_top, lip_upper_inner, measure], [mouth_l, mouth_r, reference]]}}
+  - {id: M079, key: lower_vermilion, name_zh: 下唇红高 / 嘴宽, group: lips, pillar: expression, view: front, unit: fraction, decimals: 0, tier: full, class: B, compute: lower_vermilion, needs: [mouth_closed], pose: medium, max_confidence: medium, valid_range: [0.05, 0.35],
+     definition_zh: 下唇中央红唇高度 ÷ 嘴宽。,
+     overlay: {segments: [[lip_lower_inner, lip_bottom, measure], [mouth_l, mouth_r, reference]]}}
+  - {id: M082, key: bow_peak_distance, name_zh: 唇峰间距 / 嘴宽, group: lips, pillar: expression, view: front, unit: fraction, decimals: 0, tier: full, class: B, compute: bow_peak_distance, pose: medium, max_confidence: medium, valid_range: [0.12, 0.6],
+     definition_zh: 左右唇峰之间的距离 ÷ 嘴宽。,
+     overlay: {segments: [[bow_l, bow_r, measure], [mouth_l, mouth_r, reference]]}}
+  - {id: M086, key: lip_midline_offset, name_zh: 唇中线偏移, group: symmetry, pillar: harmony, view: front, unit: pct_face, decimals: 1, tier: full, class: A, compute: lip_midline_offset, pose: high, max_confidence: medium, valid_range: [0, 0.12],
+     definition_zh: 上唇中点到面部对称轴的横向距离 ÷ 颧宽。,
+     overlay: {segments: [[lip_top, lip_top_axis, measure], [midline_top, midline_bottom, reference]]}}
+  - {id: BA10, key: mouth_ipd, name_zh: 嘴宽 / 瞳距, group: lips, pillar: expression, view: front, unit: ratio, decimals: 2, tier: full, class: B, compute: mouth_ipd, needs: [iris], pose: medium, max_confidence: medium, valid_range: [0.6, 1.5],
+     definition_zh: 两嘴角距离 ÷ 两瞳孔（虹膜中心）距离。,
+     overlay: {segments: [[mouth_l, mouth_r, measure], [iris_l, iris_r, measure]]}}
+  # --- 下颌与下巴 ---
+  - {id: M091, key: jaw_line_slope, name_zh: 下颌缘倾角, group: jaw, pillar: architecture, view: front, unit: deg, decimals: 0, tier: free, class: A, compute: jaw_line_slope, pose: medium, max_confidence: medium, valid_range: [5, 75],
+     definition_zh: 下颌角到下巴连线与水平线的夹角（左右平均）。越大下颌线越陡、下脸越收。,
+     overlay: {angles: [[jaw_l_hz, jaw_l, chin], [jaw_r_hz, jaw_r, chin]], segments: [[jaw_l, chin, measure], [jaw_r, chin, measure], [jaw_l, jaw_l_hz, reference], [jaw_r, jaw_r_hz, reference]]}}
+  - {id: M094, key: chin_tip_angle, name_zh: 下巴尖角, group: jaw, pillar: architecture, view: front, unit: deg, decimals: 0, tier: full, class: B, compute: chin_tip_angle, pose: medium, max_confidence: medium, valid_range: [90, 178],
+     definition_zh: 下巴最低点处，两侧下巴轮廓近端点形成的夹角。越小下巴越尖，越大越平圆。,
+     overlay: {angles: [[chin_l2, chin, chin_r2]], segments: [[chin_l2, chin, measure], [chin_r2, chin, measure]]}}
+  - {id: M095, key: cheek_contour_angle, name_zh: 面颊轮廓转折角, group: jaw, pillar: architecture, view: front, unit: deg, decimals: 0, tier: full, class: B, compute: cheek_contour_angle, pose: medium, max_confidence: medium, valid_range: [120, 180],
+     definition_zh: 颧点—下颌支—下颌角三点在下颌支处的夹角。越接近 180° 面颊越平直。,
+     overlay: {angles: [[cheek_l, ramus_l, jaw_l], [cheek_r, ramus_r, jaw_r]], segments: [[cheek_l, ramus_l, measure], [ramus_l, jaw_l, measure], [cheek_r, ramus_r, measure], [ramus_r, jaw_r, measure]]}}
+  - {id: M096, key: zygomatic_turn, name_zh: 颧部轮廓转折角, group: overall, pillar: architecture, view: front, unit: deg, decimals: 0, tier: full, class: B, compute: zygomatic_turn, pose: medium, max_confidence: medium, valid_range: [120, 180],
+     definition_zh: 太阳穴—颧点—下颌支三点在颧点处的夹角。越小颧部外轮廓越“转折”。,
+     overlay: {angles: [[temple_l, cheek_l, ramus_l], [temple_r, cheek_r, ramus_r]], segments: [[temple_l, cheek_l, measure], [cheek_l, ramus_l, measure], [temple_r, cheek_r, measure], [cheek_r, ramus_r, measure]]}}
+  # --- 左右对称 ---
+  - {id: M106, key: inner_canthus_height, name_zh: 内眦高度差, group: symmetry, pillar: harmony, view: front, unit: fraction, decimals: 0, tier: full, class: A, compute: inner_canthus_height, eyewear: true, pose: high, max_confidence: medium, valid_range: [0, 0.4],
+     definition_zh: 左右内眼角的高度差 ÷ 平均眼宽（已扣除头部倾斜）。,
+     overlay: {segments: [[eye_l_inner, eye_r_inner, measure]]}}
+  - {id: M108, key: brow_arch_asym, name_zh: 眉弧左右差, group: symmetry, pillar: harmony, view: front, unit: fraction, decimals: 0, tier: full, class: B, compute: brow_arch_asym, eyewear: true, pose: high, max_confidence: medium, valid_range: [0, 0.3],
+     definition_zh: 左右“眉弧高度”之差。,
+     overlay: {segments: [[brow_l_head, brow_l_tail, reference], [brow_r_head, brow_r_tail, reference], [brow_l_peak, brow_l_arch_foot, measure], [brow_r_peak, brow_r_arch_foot, measure]]}}
+  - {id: M113, key: contour_symmetry, name_zh: 脸部轮廓对称指数, group: symmetry, pillar: harmony, view: front, unit: pct_face, decimals: 1, tier: free, class: A, compute: contour_symmetry, pose: high, max_confidence: medium, valid_range: [0, 0.2],
+     definition_zh: 脸部外轮廓左右对应点镜像后的平均偏差 ÷ 颧宽。越小越对称。,
+     overlay: {segments: [[midline_top, midline_bottom, reference]], outline: true}}
+  - {id: BA11, key: jaw_asym, name_zh: 下颌左右宽差, group: symmetry, pillar: harmony, view: front, unit: pct_face, decimals: 1, tier: full, class: A, compute: jaw_asym, pose: high, max_confidence: medium, valid_range: [0, 0.2],
+     definition_zh: 左右下颌角到对称轴的距离之差 ÷ 颧宽。,
+     overlay: {segments: [[jaw_l, jaw_l_axis, measure], [jaw_r, jaw_r_axis, measure], [midline_top, midline_bottom, reference]]}}
+  - {id: BA12, key: cheek_asym, name_zh: 颧部左右宽差, group: symmetry, pillar: harmony, view: front, unit: pct_face, decimals: 1, tier: full, class: A, compute: cheek_asym, pose: high, max_confidence: medium, valid_range: [0, 0.2],
+     definition_zh: 左右颧点到对称轴的距离之差 ÷ 颧宽。,
+     overlay: {segments: [[cheek_l, cheek_l_axis, measure], [cheek_r, cheek_r_axis, measure], [midline_top, midline_bottom, reference]]}}
+  - {id: BA13, key: chin_offset, name_zh: 下巴中线偏移, group: symmetry, pillar: harmony, view: front, unit: pct_face, decimals: 1, tier: full, class: A, compute: chin_offset, pose: high, max_confidence: medium, valid_range: [0, 0.15],
+     definition_zh: 下巴最低点到面部对称轴的横向距离 ÷ 颧宽。,
+     overlay: {segments: [[chin, chin_axis, measure], [midline_top, midline_bottom, reference]]}}
+  # --- 皮相与拍摄 · 色彩对比 ---
+  - {id: M138, key: skin_redness, name_zh: 肤色红绿倾向, group: skin, pillar: skin, view: front, unit: lab_a, decimals: 0, tier: full, class: B, compute: skin_redness, needs: [color], pose: low, max_confidence: medium, valid_range: [-10, 40],
+     definition_zh: 肤色取样的 Lab a*（越大越偏红）。只是本张照片的颜色观察，不判断皮肤状态。,
+     overlay: {points: [cheek_sample_l, cheek_sample_r]}}
+  - {id: BA16, key: skin_chroma, name_zh: 肤色饱和度, group: skin, pillar: skin, view: front, unit: lab_c, decimals: 0, tier: full, class: B, compute: skin_chroma, needs: [color], pose: low, max_confidence: medium, valid_range: [0, 60],
+     definition_zh: 肤色取样的 Lab 彩度 C*（越高颜色越浓）。配色时用来判断适合清透还是浓郁的颜色。,
+     overlay: {points: [cheek_sample_l, cheek_sample_r]}}
+  - {id: M156, key: hair_lightness, name_zh: 发色明度, group: skin, pillar: skin, view: front, unit: lab_l, decimals: 0, tier: full, class: B, compute: hair_lightness, needs: [color], pose: low, max_confidence: medium, valid_range: [0, 100],
+     definition_zh: 头发取样的 Lab 明度 L*（0 黑 → 100 白）。,
+     overlay: {}}
+  - {id: M157, key: brow_hair_contrast, name_zh: 眉发明度差, group: skin, pillar: skin, view: front, unit: lab_l, decimals: 0, tier: full, class: B, compute: brow_hair_contrast, needs: [color], pose: low, max_confidence: medium, valid_range: [0, 80],
+     definition_zh: 眉毛与头发取样的明度差。差值小说明眉色与发色统一。,
+     overlay: {points: [brow_l_peak, brow_r_peak]}}
+  - {id: M158, key: skin_hair_contrast, name_zh: 肤发明度对比, group: skin, pillar: skin, view: front, unit: lab_l, decimals: 0, tier: free, class: B, compute: skin_hair_contrast, needs: [color], pose: low, max_confidence: medium, valid_range: [-40, 95],
+     definition_zh: 肤色明度减去发色明度。对比越大，整体越适合清晰、对比强的配色。,
+     overlay: {points: [cheek_sample_l, cheek_sample_r]}}
+  - {id: BA14, key: lip_skin_contrast, name_zh: 唇色与肤色色差, group: skin, pillar: skin, view: front, unit: delta_e, decimals: 0, tier: full, class: B, compute: lip_skin_contrast, needs: [color], pose: low, max_confidence: medium, valid_range: [0, 70],
+     definition_zh: 唇部与面颊取样颜色的 ΔE（CIE76）。差值小的人，裸色唇妆会显得“没涂”。,
+     overlay: {points: [cheek_sample_l, cheek_sample_r, lip_top, lip_bottom]}}
+  - {id: M149, key: skin_texture, name_zh: 皮肤纹理保留度, group: skin, pillar: skin, view: front, unit: ratio, decimals: 1, tier: full, class: B, compute: skin_texture, pose: low, max_confidence: medium, valid_range: [0, 30],
+     definition_zh: 两颊局部梯度的中位数。接近 0 往往说明开了美颜或强力磨皮，此时肤色与质感判断会更保守。,
+     overlay: {points: [cheek_sample_l, cheek_sample_r]}}
+  - {id: M150, key: feature_edge_width, name_zh: 五官边缘清晰度, group: skin, pillar: skin, view: front, unit: px, decimals: 1, tier: full, class: B, compute: feature_edge_width, pose: low, max_confidence: high, valid_range: [0.5, 20],
+     definition_zh: 眼、眉、唇最锐利边缘的宽度（像素，越小越清晰）。超过约 5 像素会影响细节测量。,
+     overlay: {points: [eye_l_outer, eye_r_outer, mouth_l, mouth_r]}}
+  # --- 发量与发型轮廓（描述当前发型，不是建议）---
+  - {id: M153, key: hair_coverage, name_zh: 发量视觉覆盖, group: hair, pillar: architecture, view: front, unit: ratio, decimals: 2, tier: full, class: B, compute: hair_coverage, needs: [hair], pose: low, max_confidence: medium, valid_range: [0.02, 6],
+     definition_zh: 照片中头发区域面积 ÷ 脸部轮廓面积。取决于当前发型和取景，只描述这张照片。,
+     overlay: {outline: true}}
+  - {id: M154, key: hair_silhouette_aspect, name_zh: 头型外廓宽高比, group: hair, pillar: architecture, view: front, unit: ratio, decimals: 2, tier: full, class: B, compute: hair_silhouette_aspect, needs: [hair], pose: low, max_confidence: medium, valid_range: [0.4, 1.6],
+     definition_zh: 头发 + 脸部外廓的宽 ÷ 高。描述当前发型带来的整体外轮廓。,
+     overlay: {outline: true}}
+  - {id: M155, key: hair_side_volume, name_zh: 两侧发量宽度, group: hair, pillar: architecture, view: front, unit: ratio, decimals: 2, tier: free, class: B, compute: hair_side_volume, needs: [hair], pose: medium, max_confidence: medium, valid_range: [0.8, 2.2],
+     definition_zh: 太阳穴高度处头发 + 脸的总宽 ÷ 颧宽。越大两侧越蓬松。,
+     overlay: {segments: [[temple_l, temple_r, reference]], outline: true}}
+
+  # ============================================================================================================
+  # 侧脸（需要一张真实的 ~90° 侧脸照；45° 照不算）。V3B (D35)：轮廓来自人像分割的前缘，在“眉间—颏前点”面部平面坐标
+  # 里找极值点；所有数值都是内角或长度比，不受抬头 / 低头的平面内旋转影响。没有深度、没有毫米。
+  # `min_arm_px`：参与计算的最短线段（原图像素）低于它 → 分辨率不足，本项不测。
+  # ============================================================================================================
+  - {id: M117, key: nasolabial_angle, name_zh: 鼻唇角, group: profile, pillar: architecture, view: side, unit: deg, decimals: 0, tier: free, class: B, compute: nasolabial_angle, pose: high, max_confidence: medium, valid_range: [60, 150], min_arm_px: 12,
+     definition_zh: 鼻小柱方向（鼻底→鼻小柱）与上唇方向（鼻底→上唇最突点）在鼻底处的夹角。,
+     overlay: {angles: [[p_columella, p_subnasale, p_labrale_sup]], segments: [[p_subnasale, p_columella, measure], [p_subnasale, p_labrale_sup, measure]], points: [p_pronasale], silhouette: true}}
+  - {id: M118, key: nasofrontal_angle, name_zh: 鼻额角, group: profile, pillar: architecture, view: side, unit: deg, decimals: 0, tier: full, class: B, compute: nasofrontal_angle, pose: high, max_confidence: medium, valid_range: [100, 175], min_arm_px: 20,
+     definition_zh: 眉间—鼻根连线与鼻背线在鼻根处的夹角。,
+     overlay: {angles: [[p_glabella, p_nasion, p_dorsum_tip]], segments: [[p_glabella, p_nasion, measure], [p_dorsum_top, p_dorsum_tip, measure]], silhouette: true}}
+  - {id: M119, key: dorsum_convexity, name_zh: 鼻背凸度, group: profile, pillar: architecture, view: side, unit: pct_face, decimals: 1, tier: full, class: B, compute: dorsum_convexity, pose: high, max_confidence: medium, valid_range: [-0.15, 0.2], min_arm_px: 30,
+     definition_zh: 鼻背轮廓偏离“鼻根—鼻尖”连线最远的距离 ÷ 该连线长度（正 = 驼峰样凸起，负 = 凹）。,
+     overlay: {segments: [[p_nasion, p_pronasale, reference], [p_dorsum_peak, p_dorsum_peak_foot, measure]], silhouette: true}}
+  - {id: M121, key: nasal_projection, name_zh: 鼻尖突出度, group: profile, pillar: architecture, view: side, unit: ratio, decimals: 2, tier: full, class: B, compute: nasal_projection, pose: high, max_confidence: medium, valid_range: [0.1, 0.9], min_arm_px: 25,
+     definition_zh: 鼻尖到“鼻根—鼻底”连线的垂距 ÷ 鼻根到鼻底的长度。,
+     overlay: {segments: [[p_nasion, p_subnasale, reference], [p_pronasale, p_foot_prn_ns, measure]], silhouette: true}}
+  - {id: M124, key: s_line_upper, name_zh: 上唇相对鼻底—颏线, group: profile, pillar: architecture, view: side, unit: pct_face, decimals: 1, tier: full, class: B, compute: s_line_upper, pose: high, max_confidence: medium, valid_range: [-0.2, 0.35], min_arm_px: 25,
+     definition_zh: 上唇最突点到“鼻底—颏前点”连线的有符号距离 ÷ 该连线长度（正 = 在线前方）。,
+     overlay: {segments: [[p_sline_a, p_sline_b, reference], [p_labrale_sup, p_foot_ls_s, measure]], points: [p_subnasale, p_pogonion], silhouette: true}}
+  - {id: M125, key: e_line_upper, name_zh: E 线 · 上唇, group: profile, pillar: architecture, view: side, unit: pct_face, decimals: 1, tier: free, class: B, compute: e_line_upper, pose: high, max_confidence: medium, valid_range: [-0.25, 0.2], min_arm_px: 30,
+     definition_zh: 上唇最突点到“鼻尖—颏前点”连线（E 线）的有符号距离 ÷ E 线长度（负 = 在线后方）。,
+     overlay: {segments: [[p_eline_a, p_eline_b, reference], [p_labrale_sup, p_foot_ls_e, measure]], points: [p_pronasale, p_pogonion], silhouette: true}}
+  - {id: M126, key: e_line_lower, name_zh: E 线 · 下唇, group: profile, pillar: architecture, view: side, unit: pct_face, decimals: 1, tier: free, class: B, compute: e_line_lower, pose: high, max_confidence: medium, valid_range: [-0.25, 0.2], min_arm_px: 30,
+     definition_zh: 下唇最突点到 E 线的有符号距离 ÷ E 线长度（负 = 在线后方）。,
+     overlay: {segments: [[p_eline_a, p_eline_b, reference], [p_labrale_inf, p_foot_li_e, measure]], points: [p_pronasale, p_pogonion], silhouette: true}}
+  - {id: M127, key: mentolabial_angle, name_zh: 颏唇角, group: profile, pillar: architecture, view: side, unit: deg, decimals: 0, tier: full, class: B, compute: mentolabial_angle, pose: high, max_confidence: medium, valid_range: [70, 175], min_arm_px: 12,
+     definition_zh: 下唇最突点—颏唇沟—颏前点三点在颏唇沟处的夹角。,
+     overlay: {angles: [[p_labrale_inf, p_sulcus, p_pogonion]], segments: [[p_sulcus, p_labrale_inf, measure], [p_sulcus, p_pogonion, measure]], silhouette: true}}
+  - {id: M128, key: chin_projection, name_zh: 颏部前突, group: profile, pillar: architecture, view: side, unit: pct_face, decimals: 1, tier: full, class: B, compute: chin_projection, pose: high, max_confidence: medium, valid_range: [-0.4, 0.25], min_arm_px: 40,
+     definition_zh: 颏前点到“鼻根—鼻底”延长线的有符号距离 ÷ 鼻根到颏下点（正 = 在线前方）。,
+     overlay: {segments: [[p_nasion, p_ns_bottom, reference], [p_pogonion, p_foot_pog_ns, measure]], silhouette: true}}
+  - {id: M131, key: facial_convexity, name_zh: 面部侧轮廓凸度, group: profile, pillar: architecture, view: side, unit: deg, decimals: 0, tier: free, class: B, compute: facial_convexity, pose: high, max_confidence: medium, valid_range: [140, 190], min_arm_px: 30,
+     definition_zh: 眉间—鼻底—颏前点在鼻底处的夹角（180° = 三点一线；越小侧面越凸）。,
+     overlay: {angles: [[p_glabella, p_subnasale, p_pogonion]], segments: [[p_glabella, p_subnasale, measure], [p_subnasale, p_pogonion, measure]], silhouette: true}}
+  - {id: BA01, key: nasomental_angle, name_zh: 鼻颏角, group: profile, pillar: architecture, view: side, unit: deg, decimals: 0, tier: full, class: B, compute: nasomental_angle, pose: high, max_confidence: medium, valid_range: [100, 160], min_arm_px: 30,
+     definition_zh: 鼻背线与“鼻尖—颏前点”连线在鼻尖处的夹角。,
+     overlay: {angles: [[p_dorsum_top, p_pronasale, p_pogonion]], segments: [[p_dorsum_top, p_pronasale, measure], [p_pronasale, p_pogonion, measure]], silhouette: true}}
+  - {id: BA02, key: nasofacial_angle, name_zh: 鼻面角, group: profile, pillar: architecture, view: side, unit: deg, decimals: 0, tier: full, class: B, compute: nasofacial_angle, pose: high, max_confidence: medium, valid_range: [15, 55], min_arm_px: 25,
+     definition_zh: 鼻背线与面部平面（眉间—颏前点）的夹角，描述鼻子从脸上“伸出”的角度。,
+     overlay: {segments: [[p_dorsum_top, p_dorsum_tip, measure], [p_fp_top, p_fp_bottom, reference]], silhouette: true}}
+  - {id: BA03, key: lower_face_profile, name_zh: 侧面上唇段 / 下面部, group: profile, pillar: harmony, view: side, unit: fraction, decimals: 0, tier: full, class: B, compute: lower_face_profile, pose: high, max_confidence: medium, valid_range: [0.15, 0.5], min_arm_px: 12,
+     definition_zh: 沿面部平面方向，鼻底→口裂 ÷ 鼻底→颏下点。,
+     overlay: {segments: [[p_subnasale, p_stomion, measure], [p_subnasale, p_gnathion, reference]], silhouette: true}}
+
+  # ============================================================================================================
+  # 微笑（需要微笑照，并以中性正脸为基准；微笑几何从不进入中性比例）
+  # ============================================================================================================
+  - {id: BA20, key: smile_width, name_zh: 微笑展开幅度, group: smile, pillar: expression, view: smile, unit: ratio, decimals: 2, tier: free, class: B, compute: smile_width, pose: medium, max_confidence: medium, valid_range: [0.8, 1.7],
+     definition_zh: 微笑时的嘴宽/颧宽 ÷ 中性表情的嘴宽/颧宽。,
+     overlay: {segments: [[mouth_l, mouth_r, measure], [cheek_l, cheek_r, reference]]}}
+  - {id: BA21, key: smile_corner_lift, name_zh: 微笑嘴角上扬角, group: smile, pillar: expression, view: smile, unit: deg, decimals: 0, tier: full, class: B, compute: smile_corner_lift, pose: medium, max_confidence: medium, valid_range: [-30, 45],
+     definition_zh: 口裂中点到两侧嘴角的连线与水平线的夹角（向上为正，左右平均）。,
+     overlay: {segments: [[stomion, mouth_l, measure], [stomion, mouth_r, measure], [mouth_l, mouth_hz, reference]]}}
+  - {id: BA22, key: smile_symmetry, name_zh: 微笑左右高度差, group: smile, pillar: expression, view: smile, unit: fraction, decimals: 0, tier: full, class: B, compute: smile_symmetry, pose: high, max_confidence: medium, valid_range: [0, 0.3],
+     definition_zh: 微笑时左右嘴角高度差 ÷ 嘴宽（已扣除头部倾斜）。,
+     overlay: {segments: [[mouth_l, mouth_r, measure], [mouth_l, mouth_hz, reference]]}}
+  - {id: BA23, key: smile_eye_narrowing, name_zh: 笑眼程度, group: smile, pillar: expression, view: smile, unit: ratio, decimals: 2, tier: full, class: B, compute: smile_eye_narrowing, pose: medium, max_confidence: medium, valid_range: [0.2, 1.4],
+     definition_zh: 微笑时的眼睛开合度 ÷ 中性表情的开合度。越低笑起来眼睛越弯。,
+     overlay: {segments: [[eye_l_top, eye_l_bottom, measure], [eye_r_top, eye_r_bottom, measure]]}}
+
+# Public labels with no published formula. They are NOT computed and NOT shown until a grounded definition exists
+# (a new DECISIONS entry). Kept here so nobody "fills them in" by guessing.
+research_candidates:
+  - {id: M008, name_zh: 下颌额角, note: 名称可能指额颌角或正面下颌角；锚点与公式未公开。}
+  - {id: M074, name_zh: 同侧鼻翼角, note: 锚点及几何定义未公开。}
+  - {id: M116, name_zh: IAA 与 JFA 偏差, note: 缩写未释义，不按猜测实现。}
+
+# Every row of the 176-candidate research pool (docs/v3a/facial_metric_catalog_v1.csv) has exactly one status:
+#   computed   — a metric above uses this id (listed automatically, not repeated here)
+#   covered    — numerically the same information as an implemented metric (`by`), so not computed twice
+#   deferred   — computable in principle but needs a model / segmentation / view we do not have yet
+#   qualitative — a description, not a number; stays text-only (or in the model's analysis)
+#   excluded   — out of scope (skin-health-adjacent observations; invariant 5)
+#   meta       — about the analysis itself (coverage, stability, advice mapping), not a facial measurement
+# tests/test_face_metrics.py checks that all 176 ids are classified exactly once.
+catalog_status:
+  M004: {status: covered, by: M003, note: 颞宽与颧宽之比已覆盖。}
+  M008: {status: deferred, note: 公开名称但公式未公开（见 research_candidates）。}
+  M009: {status: covered, by: M003, note: 颧颞宽相对差 = 1 − 颞宽/颧宽。}
+  M010: {status: covered, by: M006, note: 颧颌宽相对差 = 1 − 下颌宽/颧宽。}
+  M014: {status: deferred, note: 轮廓曲率统计需要更密的轮廓分割，468 点网格的下颌点过稀。}
+  M015: {status: covered, by: M005, note: 额、颧、下颌宽度由 M005 / M006 / M003 共同描述。}
+  M016: {status: qualitative, note: 正面 2D 无法测额部饱满（深度信息）。}
+  M020: {status: covered, by: M064, note: 鼻根至鼻底 ÷ 面长与鼻长 / 面长同一定义。}
+  M023: {status: covered, by: M022, note: 口裂至颏底 = 1 − 上唇段占比。}
+  M046: {status: covered, by: M055, note: 上睑到眉下缘距离已由眉眼距离描述。}
+  M047: {status: deferred, note: 双眼皮褶线需要高分辨率眼周分割。}
+  M059: {status: deferred, note: 眉毛密度需要毛发级分割。}
+  M066: {status: deferred, note: 鼻小柱可见段需要鼻孔分割。}
+  M067: {status: deferred, note: 鼻孔面积需要鼻孔分割。}
+  M068: {status: deferred, note: 鼻翼面积需要鼻翼分割。}
+  M069: {status: deferred, note: 鼻根宽度在正面没有可见边界，关键点为模型推测，不可靠。}
+  M070: {status: covered, by: M110, note: 鼻部中线偏移由鼻尖偏移描述。}
+  M071: {status: deferred, note: 鼻尖小叶宽度在网格上没有稳定边界。}
+  M074: {status: deferred, note: 公开名称但公式未公开（见 research_candidates）。}
+  M075: {status: deferred, note: 需要鼻翼形状分割。}
+  M084: {status: qualitative, note: 人中凹沟靠明暗，不是几何量。}
+  M087: {status: deferred, note: 红唇面积需要唇部分割。}
+  M092: {status: covered, by: M093, note: 收敛指数 = 1 − 颏宽/颌宽。}
+  M097: {status: deferred, note: 下颌线清晰度受光线主导，需光照归一化后再做。}
+  M099: {status: qualitative, note: 软组织丰满感需要深度信息。}
+  M100: {status: qualitative, note: 视觉描述。}
+  M101: {status: qualitative, note: 视觉描述，依赖明暗。}
+  M109: {status: deferred, note: 需要鼻翼形状分割。}
+  M111: {status: covered, by: M085, note: 口角高度差 ÷ 嘴宽 = 嘴角连线倾角的正切。}
+  M112: {status: deferred, note: 需要唇红区域分割。}
+  M115: {status: covered, by: M110, note: 由鼻尖偏移 M110 与唇中线偏移 M086 分别描述。}
+  M116: {status: deferred, note: 缩写未释义（见 research_candidates）。}
+  M120: {status: covered, by: M117, note: 只有轮廓线时，鼻小柱倾角与鼻唇角共用同一条鼻小柱线；不重复。}
+  M122: {status: deferred, note: 额部轮廓常被头发遮挡；待加入遮挡判定后再开放。}
+  M123: {status: deferred, note: 眉弓投影需要额部参考线，同上。}
+  M129: {status: deferred, note: 颏颈角需要可见的颈前缘，衣领与头发常遮挡；待加入遮挡判定后再开放。}
+  M130: {status: deferred, note: 需要法兰克福平面（耳屏 / 眶下点），侧脸轮廓上不可见。}
+  M132: {status: covered, by: M131, note: 鼻底相对眉间—颏连线的位置与侧面凸度角等价。}
+  M133: {status: covered, by: M125, note: 上下唇前突差 = E 线上唇 − E 线下唇。}
+  M134: {status: qualitative, note: 投影曲线本身就是侧脸轮廓图层。}
+  M135: {status: qualitative, note: 需要多个截面的深度。}
+  M136: {status: deferred, note: 颧部最突点不在侧面轮廓线上。}
+  M140: {status: excluded, note: 肤色均匀度接近皮肤状态判断，不做（不变量 5）。}
+  M142: {status: excluded, note: 色沉属皮肤状态，不做。}
+  M143: {status: excluded, note: 泛红属皮肤状态，不做。}
+  M144: {status: excluded, note: 毛孔属皮肤状态，不做。}
+  M145: {status: excluded, note: 细纹涉及年龄推断，不做。}
+  M146: {status: excluded, note: 油光属皮肤状态，不做。}
+  M147: {status: covered, by: M149, note: 纹理能量由皮肤纹理保留度描述（只用于美颜判断）。}
+  M151: {status: covered, by: M017, note: 发际线中心高度即上庭。}
+  M152: {status: deferred, note: 额角发际形状需要更细的发际分割。}
+  M159: {status: qualitative, note: 胡须与鬓角由分析模型文字描述。}
+  M160: {status: qualitative, note: 造型线条曲直由分析模型文字描述。}
+  M161: {status: meta, note: 页面显示“已测 / 可测”项数。}
+  M162: {status: meta, note: 测量稳定性评估属离线验证。}
+  M163: {status: meta, note: 每项的可信度字段。}
+  M164: {status: covered, by: M005, note: 轮廓比例向量 = M001 / M005 / M006 / M003。}
+  M165: {status: deferred, note: 同 M097。}
+  M166: {status: meta, note: 皮相摘要由维度文字给出。}
+  M167: {status: qualitative, note: 柔和—硬朗属综合描述（分析模型）。}
+  M168: {status: qualitative, note: 量感属综合描述（分析模型）。}
+  M171: {status: meta, note: 优先级由规则层排序给出。}
+  M172: {status: meta, note: 跨照片一致性只在多张照片时可评估（离线）。}
+  M173: {status: meta, note: 证据链覆盖由“测量 → 建议”卡片体现。}
+  M174: {status: meta, note: 轮廓修饰方向在建议链接中给出。}
+  M175: {status: meta, note: 眼镜框形建议在眼镜页给出。}
+  M176: {status: meta, note: 拍照建议在行动方案中给出。}

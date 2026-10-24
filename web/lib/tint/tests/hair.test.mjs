@@ -1,0 +1,33 @@
+import assert from 'node:assert/strict';
+import { createRequire } from 'node:module';
+import { join } from 'node:path';
+import test from 'node:test';
+globalThis.ImageData = class { constructor(data, width, height) { Object.assign(this, {data, width, height, colorSpace:'srgb'}); } };
+const require = createRequire(import.meta.url);
+const { prepareHair, recolorHair } = require(join(process.env.TINT_TEST_BUILD, 'hair.js'));
+const { rgbToLab } = require(join(process.env.TINT_TEST_BUILD, 'color.js'));
+const photo = () => new ImageData(new Uint8ClampedArray([30,25,20,255, 75,65,50,255, 125,110,90,255, 250,250,250,255, 190,150,130,255]),5,1);
+test('hair transfer preserves outside pixels, alpha, highlights and strand contrast; reset is exact', () => {
+ const src=photo(), bytes=new Uint8ClampedArray(src.data);
+ const prepared=prepareHair(src,new Uint8ClampedArray([255,255,255,255,0]));
+ const out=recolorHair(prepared,'#80402C',0.8);
+ assert.deepEqual(out.data.slice(16),src.data.slice(16));
+ assert.deepEqual(out.data.slice(12,16),src.data.slice(12,16));
+ for(let i=3;i<20;i+=4) assert.equal(out.data[i],255);
+ const lights=[0,4,8].map(i=>rgbToLab(...out.data.slice(i,i+3))[0]);
+ assert.ok(lights[1]-lights[0]>10 && lights[2]-lights[1]>10);
+ assert.notDeepEqual(out.data.slice(0,12),src.data.slice(0,12));
+ assert.deepEqual(recolorHair(prepared,'#80402C',0).data,bytes);
+ assert.deepEqual(src.data,bytes);
+ assert.ok(recolorHair(prepared,'#D6BF91',1));
+ assert.equal(prepared.approximate('#D6BF91'),true);
+});
+test('soft mask yields a weaker transfer and rejects a mask from another geometry',()=>{
+ const src=photo();
+ const full=recolorHair(prepareHair(src,new Uint8ClampedArray([255,255,255,0,0])),'#632E40',1);
+ const soft=recolorHair(prepareHair(src,new Uint8ClampedArray([0,128,0,0,0])),'#632E40',1);
+ const distance=(a,b)=>Math.abs(a[4]-b[4])+Math.abs(a[5]-b[5])+Math.abs(a[6]-b[6]);
+ assert.ok(distance(soft.data,src.data)<distance(full.data,src.data));
+ assert.throws(()=>prepareHair(src,new Uint8ClampedArray(2)),/mask/i);
+ assert.throws(()=>recolorHair(prepareHair(src,new Uint8ClampedArray(5)),'#fff',NaN));
+});

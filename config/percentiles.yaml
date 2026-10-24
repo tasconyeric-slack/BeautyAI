@@ -1,0 +1,71 @@
+# Percentile engine settings (Issue #41). Data lives in config/reference_distributions.json; this file holds the
+# gates and display rules. See docs/scoring/REFERENCE_DISTRIBUTIONS.md.
+version: "percentiles-0.1"
+
+# ---- Overall score → reference-cohort percentile -------------------------------------------------------------------
+# A score is only placed in the reference cohort when its scoring_version is listed here. Unlisted versions return
+# status "unavailable" (reason score_scale_unverified): we never assign a competitor-cohort rank to an unrelated scale.
+#   mode: direct     → same disclosed weights + normalisations, and the sanity check below passed. Score used as-is.
+#   mode: crosswalk  → monotonic piecewise-linear map from our score to the reference scale; knots [[ours, ref], ...]
+#                      (fit with percentiles.fit_crosswalk on a consented sample, or set by hand from published bins).
+# Every entry records how compatibility was checked.
+# aes-geo-1.0 (#31) is NOT registered: its symmetry and fifths penalties are product constants tuned so a typical face
+# lands near the published medians (docs/scoring/COMPETITOR_FORMULA.md). That is not evidence of scale equivalence,
+# and no consented real-score sample exists yet to run check_scale_compatibility or fit_crosswalk. Until then the
+# rank shows "unavailable / score_scale_unverified" (docs/scoring/REFERENCE_DISTRIBUTIONS.md, "Calibration gap").
+score_mappings: {}
+#   example:
+#   tfr-v1-replica:
+#     mode: direct
+#     checked: "2026-10-30 sanity check on 400 fixtures: max bin-share gap 0.03, median 74"
+
+# Sanity check used before listing a scoring_version as `direct` (percentiles.check_scale_compatibility).
+compatibility:
+  min_sample: 200              # fewer scores than this → inconclusive
+  max_bin_share_gap: 0.05      # |our bin share − published bin share| for every published bin
+  max_median_gap: 3.0          # |our median − published median|
+  max_top_share_gap: 0.05      # |our share ≥ threshold − published top share| at 80 / 84 / 89
+
+# Only these aesthetic_score statuses can be ranked: a "limited" score (pose / expression flags) is not ranked.
+rankable_score_status: [full]
+
+score_display:
+  # Lowest reference score with a published anchor. Below it only the bin share is known, so the result is a bound.
+  lower_tail_below: 50
+  # At or above the highest published threshold the result is a bound ("top 0.1% or better").
+  upper_tail_from: 91
+  # Rounding of the shown share so the copy never claims more precision than the anchors support:
+  #   tail share (the smaller of below / above) ≥ coarse_from → nearest coarse_step percent; otherwise whole percent;
+  #   top share ≤ 1% → "前 1% 以内" (interpolated) / bound copy (tails).
+  coarse_from: 0.10
+  coarse_step: 5
+
+# ---- Per-ratio rails (12 published frontal ratios) ----------------------------------------------------------------
+# Position only: "higher" is a size statement, never "better".
+ratio_bands:                   # percentile cut-offs (share of reference scans below the value, 0-100)
+  very_low: 5
+  low: 25
+  high: 75
+  very_high: 95
+ratio_display_step: 5          # shown percentile rounded to this step (published quantiles are 2-decimal values)
+# Ratios whose landmark definition has evidence of matching the publisher's. Every other ratio is computed but shown as
+# unavailable (definition_unverified) until scripts/check_ratio_norms.py on consented photos supports it.
+ratio_verified:
+  midface_length: "Brow 105/334 -> nose base 2 -> chin 152 on mesh top 10: the same cuts as #31's thirds, which match
+    the publisher's 18/41/41 template on the canonical mesh and its published thirds examples within 2.5 points; the
+    published median scan (16/44/40) equals this table's medians (0.44 / 0.40)."
+  lower_face_length: "Same thirds cuts as midface_length (nose base 2 -> chin 152 / mesh top 10 -> chin)."
+ratio_gates:
+  max_abs_yaw: 12              # |yaw| above this (degrees) → ratios unavailable (a turned head changes widths)
+  max_abs_pitch: 20
+  mouth_open_ratio: 0.08       # inner-lip gap ÷ mouth width above this → lip / mouth-height ratios unavailable
+
+copy_zh:
+  rank_title: "参考扫描人群中的位置"
+  unavailable:
+    no_score: "这张照片没有给出总分，因此没有参考人群位置。"
+    partial_score: "这次分数的照片条件有限（角度或表情），参考人群位置暂不给出。"
+    out_of_range: "分数超出可对照范围，参考人群位置暂不给出。"
+    score_scale_unverified: "参考人群位置校准中：这套分数与公开对照样本的分数尺度还没有用真实扫描核对，暂不给出排名。"
+  ratios_title: "比例在对照扫描中的位置"
+  ratios_unverified_note: "其余比例的关键点定义尚未在真实照片上核对，暂不显示对照位置。"
