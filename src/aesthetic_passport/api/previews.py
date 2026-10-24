@@ -19,6 +19,7 @@ from typing import Any
 from ..assemble import preview_entry
 from ..preview import (
     PreviewError,
+    PreviewTrace,
     QualityGateFailed,
     is_previewable,
     load_edit_prompt,
@@ -66,13 +67,13 @@ def edit_diagnostics(exc: BaseException) -> dict[str, Any] | None:
 
 def _log_edit_failure(pid: str, kind: str, target: str, attempt: int, exc: BaseException) -> dict[str, Any]:
     """One stdout line per failed image-edit attempt (Render logs). No keys, prompts, images or bodies."""
-    d = edit_diagnostics(exc) or {"stage": "pipeline", "category": type(exc).__name__, "message": None,
+    d = edit_diagnostics(exc) or {"stage": "pipeline", "category": type(exc).__name__,
                                   "exception": type(exc).__name__}
     fields = " ".join(f"{k}={d.get(k)}" for k in (*DIAG_KEYS, "exception"))
-    log.warning("image_edit_failed passport=%s target=%s:%s attempt=%d %s detail=%r",
-                pid, kind, target, attempt, fields, d.get("message"))
+    log.warning("image_edit_failed passport=%s target=%s:%s attempt=%d %s",
+                pid, kind, target, attempt, fields)
     return d
-ACTIVE = ("pending", "succeeded", "fallback")
+ACTIVE = ("pending", "succeeded")
 AI_LABEL = "AI 试看"
 FREE_TARGETS = {("hair", "safe")}
 
@@ -176,11 +177,14 @@ def _sync_passport(settings: Settings, store: Store, pid: str) -> None:
 
 def _log_call(settings: Settings, pid: str, kind: str, target: str, attempt: int, ok: bool, model: str | None,
               latency_ms: int | None, cost: float | None, error: str | None,
-              diag: dict[str, Any] | None = None) -> None:
+              diag: dict[str, Any] | None = None, trace: PreviewTrace | None = None) -> None:
     rec = {"kind": "image_edit", "target": f"{kind}:{target}", "attempt": attempt, "ok": ok, "model": model,
            "latency_ms": latency_ms, "cost_usd_est": cost, "error": error, "diag": diag,
            "prompt_version": load_models_config()["production"]["image_edit"].get("prompt_version") or
            load_edit_prompt().version}
+    if trace is not None:
+        rec.update(trace=trace.stages, latency_ms=trace.elapsed_ms, provider_latency_ms=trace.provider_latency_ms,
+                   model=trace.model, cost_usd_est=trace.cost_usd_est)
     run_dir = settings.runs_dir / pid
     run_dir.mkdir(parents=True, exist_ok=True)
     with (run_dir / "calls.jsonl").open("a", encoding="utf-8") as f:
@@ -199,7 +203,8 @@ def run_preview_job(settings: Settings, store: Store, pid: str, kind: str, targe
     try:
         provider = image_from_config()
     except ImageEditError as e:
-        _log_edit_failure(pid, kind, target, -1, e)
+        diag = _log_edit_failure(pid, kind, target, -1, e)
+        _log_call(settings, pid, kind, target, -1, False, None, None, None, type(e).__name__, diag)
         store.upsert_preview(pid, kind, target, "fallback", error="试看服务暂不可用，先看款式插画")
         return "fallback"
     if provider is None:
@@ -208,36 +213,39 @@ def run_preview_job(settings: Settings, store: Store, pid: str, kind: str, targe
     attempts = load_qc_config()["preview_masks"]["max_attempts"]
     last_error = "试看生成失败"
     for attempt in range(attempts):
+        trace = PreviewTrace()
         try:
             res = render_target(front, job["passport"], kind, target, provider=provider_for_attempt(provider, attempt),
                                 out_dir=media_dir(settings.runs_dir, pid),
-                                debug_dir=(settings.runs_dir / pid / "debug") if settings.preview_debug else None)
+                                debug_dir=(settings.runs_dir / pid / "debug") if settings.preview_debug else None,
+                                trace=trace)
         except QualityGateFailed as e:       # too little change, or a displaced/duplicated face (Issue #56)
             last_error = e.detail
-            _log_call(settings, pid, kind, target, attempt, False, None, None, None, str(e))
+            _log_call(settings, pid, kind, target, attempt, False, None, None, None, type(e).__name__, trace=trace)
             continue
         except PreviewError as e:
             if "图像模型" not in e.detail:      # no face / not previewable: retrying will not help
                 store.upsert_preview(pid, kind, target, "failed", error=e.detail, attempts=attempt + 1)
-                _log_call(settings, pid, kind, target, attempt, False, None, None, None, type(e).__name__)
+                _log_call(settings, pid, kind, target, attempt, False, None, None, None, type(e).__name__, trace=trace)
                 return "failed"
             last_error = e.detail
             diag = _log_edit_failure(pid, kind, target, attempt, e)
-            _log_call(settings, pid, kind, target, attempt, False, None, None, None, type(e).__name__, diag)
+            _log_call(settings, pid, kind, target, attempt, False, None, None, None, type(e).__name__, diag, trace)
             if diag.get("retryable") is False:      # e.g. model / endpoint not found: a second call fails the same way
                 store.upsert_preview(pid, kind, target, "fallback", error="试看服务暂不可用，先看款式插画",
                                      attempts=attempt + 1)
                 return "fallback"
             continue
-        except Exception as e:  # a crash must end in `fallback`, not a stuck job
-            log.exception("preview %s %s:%s crashed", pid, kind, target)
+        except Exception as e:  # noqa: BLE001 — end a crashed job; never log a traceback containing private inputs
+            _log_edit_failure(pid, kind, target, attempt, e)  # no raw traceback: it can contain provider inputs
             last_error = "试看生成失败"
             _log_call(settings, pid, kind, target, attempt, False, None, None, None, type(e).__name__,
-                      edit_diagnostics(e))
+                      edit_diagnostics(e), trace)
             continue
         store.upsert_preview(pid, kind, target, "succeeded", image_model=res.image_model, prompt_used=res.prompt,
                              after_name=res.after_path.name, attempts=attempt + 1)
-        _log_call(settings, pid, kind, target, attempt, True, res.image_model, res.latency_ms, res.cost_usd_est, None)
+        _log_call(settings, pid, kind, target, attempt, True, res.image_model, res.latency_ms, res.cost_usd_est, None,
+                  trace=trace)
         return "succeeded"
     store.upsert_preview(pid, kind, target, "fallback", error=last_error, attempts=attempts)
     return "fallback"

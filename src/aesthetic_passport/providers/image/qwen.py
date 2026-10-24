@@ -13,9 +13,9 @@ import base64
 import io
 import math
 import os
-import re
 import time
 from typing import Any
+from uuid import UUID
 
 import httpx
 from PIL import Image
@@ -142,19 +142,19 @@ class QwenImageEditProvider:
         if not isinstance(body, dict):
             raise fail("image edit returned an unexpected JSON shape", "response", "invalid_json",
                        status=resp.status_code, request_id=rid, retryable=not is_unroutable(resp.status_code, None, ""))
-        rid = rid or _str(body.get("request_id"))
+        rid = rid or _safe_request_id(body.get("request_id"))
         if resp.status_code != 200 or "output" not in body:
-            code = _str(body.get("code")) or str(resp.status_code)
-            message = _safe_message(body.get("message"))
-            raise fail(f"image edit refused: {code} {message}".rstrip(), "response", "api_error",
+            code = _provider_code(body.get("code"))
+            unroutable = is_unroutable(resp.status_code, code, str(body.get("message", "")))
+            raise fail(f"image edit refused (HTTP {resp.status_code}, code {code})", "response", "api_error",
                        status=resp.status_code, code=code, request_id=rid,
-                       retryable=not is_unroutable(resp.status_code, code, message))
+                       retryable=not unroutable)
         try:
             choice = body["output"]["choices"][0]
             image_url = next(c["image"] for c in choice["message"]["content"] if "image" in c)
         except (KeyError, IndexError, StopIteration, TypeError) as e:
             raise fail("image edit returned no image", "parse", "no_image", status=resp.status_code,
-                       code=_str(body.get("code")), request_id=rid) from e
+                       code=_provider_code(body.get("code")), request_id=rid) from e
         try:
             img_resp = self._client.get(image_url)      # no Authorization header: pre-signed URL
         except httpx.HTTPError as e:
@@ -170,20 +170,34 @@ class QwenImageEditProvider:
         return ImageEditResult(out, self.model, int((time.perf_counter() - t0) * 1000), self.price)
 
 
-def _str(v: Any) -> str | None:
-    return str(v)[:80] if v not in (None, "") else None
+def _safe_request_id(value: Any) -> str | None:
+    # DashScope IDs are UUIDs. Reject arbitrary response text, including echoed inputs and signed URLs.
+    if not isinstance(value, str):
+        return None
+    try:
+        return str(UUID(value))
+    except ValueError:
+        return None
 
 
 def _request_id(resp: httpx.Response) -> str | None:
     for h in ("x-dashscope-request-id", "x-request-id", "x-acs-request-id"):
         if resp.headers.get(h):
-            return resp.headers[h][:80]
+            rid = _safe_request_id(resp.headers[h])
+            if rid is not None:
+                return rid
     return None
 
 
-_UNSAFE = re.compile(r"data:[^\s]*|https?://\S+|[A-Za-z0-9+/=_-]{32,}")
+_PROVIDER_CODES = {
+    "InvalidParameter", "InvalidApiKey", "InvalidApiKey.NotFound", "AccessDenied", "ModelNotFound",
+    "DataInspectionFailed", "DataInspectionFailed.Rejected", "Throttling", "Throttling.RateQuota",
+    "Throttling.AllocationQuota", "QuotaExhausted", "Arrearage", "InternalError", "ServiceUnavailable",
+}
 
 
-def _safe_message(msg: Any) -> str:
-    """The provider's short error message with URLs, data URIs and long tokens removed, capped at 160 chars."""
-    return _UNSAFE.sub("[redacted]", str(msg or ""))[:160]
+def _provider_code(value: Any) -> str | None:
+    """Keep documented machine codes, never arbitrary provider text that may echo a private prompt."""
+    if value is None:
+        return None
+    return value if isinstance(value, str) and value in _PROVIDER_CODES else "unknown_provider_code"

@@ -33,7 +33,7 @@ class ImageEditError(RuntimeError):
     def diagnostics(self) -> dict[str, Any]:
         return {"stage": self.stage, "http_status": self.http_status, "code": self.code,
                 "request_id": self.request_id, "elapsed_ms": self.elapsed_ms, "category": self.category,
-                "retryable": self.retryable, "message": str(self)}
+                "retryable": self.retryable}
 
 
 @dataclass
