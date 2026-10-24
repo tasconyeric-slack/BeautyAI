@@ -45,3 +45,37 @@ def test_rejected_three_quarter_keeps_diagnostic_trace(monkeypatch):
     check = check_profile90(rgb)
     assert check.status == "reject" and "wrong_angle_for_role" in check.rejects
     assert check.extra["trace"].nose_gap > 0.05
+
+
+@pytest.mark.parametrize("facing", ["left", "right"])
+@pytest.mark.parametrize("connected_skin", [False, True])
+def test_neck_skin_labels_do_not_turn_a_shoulder_into_the_nose(monkeypatch, facing, connected_skin):
+    rgb, seg, truth = synthetic_profile()
+    # Same foreground component as the head: a shoulder extends beyond the nose and the segmenter
+    # labels some neck pixels as face skin. Unlike a detached foreground patch, it survives PR #15.
+    seg[620:, :] = SEG_CLOTHES
+    seg[500 if connected_skin else 700:760, 250:290] = SEG_FACE_SKIN
+    if facing == "left":
+        rgb, seg = rgb[:, ::-1].copy(), seg[:, ::-1].copy()
+    monkeypatch.setattr(MODELS, "faces", lambda _: [])
+    monkeypatch.setattr(MODELS, "segment", lambda _: seg)
+    check = check_profile90(rgb)
+    assert check.status != "reject", check.extra.get("reason")
+    trace = check.extra["trace"]
+    assert trace.facing == facing
+    nose_x = truth["mesh_1"][0] if facing == "right" else rgb.shape[1] - 1 - truth["mesh_1"][0]
+    assert trace.landmarks["prn"][0] == pytest.approx(nose_x, abs=4)
+    assert check.extra["face_h_px"] < 500  # neck labels do not supply native face resolution
+
+
+def test_skin_hidden_behind_foreground_is_an_outline_failure(monkeypatch):
+    rgb, seg, _ = synthetic_profile()
+    # Skin is present, but a foreground occluder covers the entire anterior boundary.
+    seg[:, 550:] = SEG_CLOTHES
+    seg[620:, :] = SEG_CLOTHES
+    monkeypatch.setattr(MODELS, "faces", lambda _: [])
+    monkeypatch.setattr(MODELS, "segment", lambda _: seg)
+    check = check_profile90(rgb)
+    assert check.rejects == {"profile_unclear"}
+    assert check.extra["reason"] == "landmarks_unclear"
+    assert check.extra["reason_detail"] == {"stage": "anterior_face_skin"}

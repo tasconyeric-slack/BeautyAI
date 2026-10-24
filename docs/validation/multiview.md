@@ -80,9 +80,9 @@ Artifacts contain sensitive photo-derived data. The default output is ignored `r
 delete local evaluation inputs/results/overlays when finished, and do not attach real results to CI or PR logs.
 Console output contains only operational status. Use a new output directory per run to avoid stale overlays.
 
-## Observed defect and validation boundary
+## PR #15 baseline (historical)
 
-**Real-photo acceptance is blocked:** this cloud checkout has no mounted `data/` sample. No adult/cohort diversity,
+**At PR #15, real-photo acceptance was blocked:** that cloud checkout had no mounted `data/` sample. No adult/cohort diversity,
 real glasses detection, neural pose performance, or real-photo acceptance result is claimed.
 
 The canonical profile fixture exposed a reproducible resolution bypass: a detached 10×20 skin-label patch above
@@ -107,3 +107,69 @@ and canonical mesh); [CAS-PEAL release](https://www.jdl.link/peal/JDL-PEAL-Relea
 subject to their access/use terms). [3DDFA_V2](https://github.com/cleardusk/3DDFA_V2) is MIT-licensed code but adds
 another model, assets and runtime/build dependencies; it remains a future alternative if real diagnostics justify
 it. No external implementation code or photos were copied. Existing report/overlay behavior is preserved.
+
+## Real-profile false-rejection follow-up (2026-10-24)
+
+A fresh branch from main after #15 evaluated **60 original FEI images from 12 subjects**: one left profile,
+one right profile, two approximate three-quarter controls and one neutral front per subject. FEI's source page
+specifies adults aged 19–40 and permits research use, without redistribution. Only selected ZIP members were
+retrieved using HTTP byte ranges from `https://fei.edu.br/~cet/originalimages_part1.zip`; photos and all
+photo-derived artifacts remain in ignored `data/` and `runs/`. No photographs or segmentation masks are fixtures
+in Git. Pointing'04's index worked, but its advertised `http://www-prima.inrialpes.fr/perso/Gourier/Faces/Person01-1.tar.gz`
+and HTTPS equivalent returned 404; the current Pointing'04 host did not contain that archive either.
+
+The demonstrated defect is **neck/shoulder contamination within the same person component**. In original and
+face-dominant cropped profiles, the segmenter sometimes labels neck pixels as face skin. The old lowest-skin-row
+bound includes the shoulder in the facial search. The shoulder can become the most anterior point (`prn`), so
+`_detect` fails with `landmarks_unclear` or `lips_unclear`; QC maps those to `profile_unclear`. This differs from
+#15's disconnected-foreground resolution bypass. Local RGB/segmentation/contour overlays confirmed it.
+
+QC resolution and tracing now share facial bounds from rows where **face skin reaches the anterior foreground
+boundary**. Neck labels behind that edge cannot extend the search. The trace stops at the facial bottom, before
+shoulders; foreground/hair still defines the outline within those bounds. Existing foreground component selection,
+facing inference, yaw and nose-gap thresholds, metric formulas, schemas and missing-reason IDs remain unchanged.
+Insufficient segmentation still rejects: `no_face` for missing skin, or `profile_unclear` with internal
+`landmarks_unclear` / `anterior_face_skin` stage when the anterior face boundary cannot be located. Later outline
+failures preserve `landmarks_unclear` / `lips_unclear` and `outline_landmarks` stage. The local evaluator now retains
+`trace_reason` and `trace_detail` in both JSON and CSV. These internal diagnostics do not change public QC schema
+or turn outline uncertainty into an angle claim. Wrong angle and insufficient native pixels retain their existing
+`wrong_angle_for_role` and `face_too_small` codes. Rejected optional profiles still supply no side measurements and
+do not block the front-only flow.
+
+| Same original images | Before accepted / rejected | After accepted / rejected |
+| --- | --- | --- |
+| Left near-profile (12) | 9 / 3 | 12 / 0 |
+| Right near-profile (12) | 12 / 0 | 12 / 0 |
+| Approximate 45° controls (24) | 0 / 24 | 0 / 24 |
+| Neutral front (12) | 12 / 0 | 12 / 0 |
+
+There were also **24 native-pixel crops of the first four subjects' profile captures** (three margins per photo,
+no upsampling). These are correlated derivatives, not more people or independent captures: accepted/rejected
+changed from 12/12 to 19/5. All seven `profile_unclear` failures disappeared; five angle-gate rejections remain,
+including detector/outline disagreement. The exact product-owner photos were not available, and this is not a
+claim that all near-profiles now pass. Pose labels are approximate, not calibrated 3D ground truth. Supplied
+cohorts remain `unknown`; no demographic coverage, population rate, glasses performance or metric accuracy is
+claimed. Per-metric range/resolution gates still suppress unsupported numbers; acceptance is not validation of
+all landmark locations or numerical measurements. Crops must not be interpreted as repeat-photo consistency.
+
+Re-run the selected original batch with the standard command above and a local manifest. Source suffixes used
+were `-01.jpg` (left), `-10.jpg` (right), `-03.jpg` / `-08.jpg` (three-quarter), `-11.jpg` (neutral front), with
+anonymized manifest IDs `p01`–`p12` and unknown exact camera pose. The opt-in real regressions read selected
+original files from `data/fei/`, or an explicit mount:
+
+```bash
+BEAUTYAI_FEI_DIR=/mnt/fei .venv/bin/python -m pytest -q tests/test_multiview_real_profile_qc.py
+```
+
+They cover both original directions, four previously failing face-dominant crops, and two real three-quarter
+controls; absent local photos/models skip explicitly. Non-person regressions run in ordinary CI and exercise
+both mirror directions with connected/disconnected neck labels inside the person, rejection of a fully hidden
+anterior face boundary, diagnostic reasons and the existing 45° negative. The full synthetic evaluator continues
+to reject its three-quarter, low-resolution and no-face controls. The existing Apache-2.0 MediaPipe/OpenCV path
+was reused with no new model or dependency. FEI is evaluation input only; its images are not distributed or used
+for training. No external implementation code was copied.
+
+Local validation for this follow-up: `make test` passed with **565 passed, 20 skipped**, including all 12 opt-in
+real-photo regressions; `make lint` and `git diff --check` passed. As with #15, this cloud image needed local
+`libgles2` through `LD_LIBRARY_PATH`; the existing CI installs that library. Real photos remain unavailable to CI,
+so its real-photo regressions skip while the non-person geometry/QC/negative controls run normally.

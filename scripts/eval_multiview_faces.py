@@ -103,6 +103,7 @@ def _evaluate(row: dict[str, Any], index: int) -> tuple[dict[str, Any], PhotoChe
                       measured_pose={"yaw": check.yaw, "pitch": check.pitch, "roll": check.roll},
                       face_h_px=check.extra.get("face_h_px"), face_box_px=check.face_box_px,
                       blur_score=check.blur_score, trace_reason=check.extra.get("reason"),
+                      trace_detail=check.extra.get("reason_detail"),
                       nose_gap=check.extra.get("nose_gap"), facing=check.extra.get("facing"))
         result["pose_error_degrees"] = {
             k: round(result["measured_pose"][k] - v, 3) for k, v in row["expected_camera_pose"].items()
@@ -339,7 +340,8 @@ def main(argv: list[str] | None = None) -> int:
         (args.out / filename).write_text(json.dumps(content, indent=2, allow_nan=False) + "\n", encoding="utf-8")
     _write_csv(args.out / "images.csv", results, ["sample_id", "person_id", "view", "qc_status", "issues",
                "rejection_reasons", "observed_pose", "measured_pose", "expected_camera_pose", "pose_error_degrees",
-               "image_quality", "coverage", "cohort", "face_h_px", "face_box_px", "blur_score", "nose_gap", "invalid_metrics"])
+               "image_quality", "coverage", "cohort", "face_h_px", "face_box_px", "blur_score", "nose_gap",
+               "trace_reason", "trace_detail", "invalid_metrics"])
     _write_csv(args.out / "views.csv", [{"view": k, **v} for k, v in report["per_view"].items()],
                ["view", "total", "accepted", "rejected", "warned"])
     _write_csv(args.out / "metrics.csv", report["metric_coverage"],
