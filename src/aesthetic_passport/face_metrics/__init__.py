@@ -222,6 +222,17 @@ def _side_metric(e: dict[str, Any], m: dict[str, Any], side: SideIn | None) -> N
              components={k: _round(v) for k, v in comps.items()} if comps else None)
 
 
+def measure_side(side: SideIn, *, registry: dict[str, Any] | None = None) -> list[dict[str, Any]]:
+    """Measure an isolated profile with the production registry/gates, without inventing a frontal face."""
+    metrics = []
+    for spec in (registry or load_registry())["metrics"]:
+        if spec["view"] == "side":
+            entry = _entry(spec)
+            _side_metric(entry, spec, side)
+            metrics.append(entry)
+    return metrics
+
+
 def _smile_metric(e: dict[str, Any], m: dict[str, Any], neutral: Frame | None, smile: Frame | None,
                   reason: str | None, yaw: float | None, conf_cfg: dict[str, Any]) -> None:
     from .compute import SMILE_COMPUTE, SmileCtx

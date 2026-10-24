@@ -231,7 +231,7 @@ def check_profile90(im: Image.Image | np.ndarray, cfg: dict | None = None) -> Ph
 
     MediaPipe may or may not find a face at 90°; when it does, its nose tip must lie on the traced outline (in a 45°
     photo the far cheek is in front of it). The trace is kept in `extra` for the measurement layer."""
-    from .face_metrics.profile import ProfileUnavailable, trace_profile
+    from .face_metrics.profile import ProfileUnavailable, profile_masks, trace_profile
 
     cfg = cfg or load_qc_config()
     g = cfg["gate"]
@@ -252,10 +252,10 @@ def check_profile90(im: Image.Image | np.ndarray, cfg: dict | None = None) -> Ph
             pc.rejects.add("wrong_angle_for_role")
             return _finish(pc)
     seg = MODELS.segment(rgb)
-    from .cv import SEG_FACE_SKIN
-
-    skin = seg == SEG_FACE_SKIN
-    if skin.sum() < 150:
+    pc.extra["seg"] = seg
+    try:
+        _, skin = profile_masks(seg)
+    except ProfileUnavailable:
         pc.issues, pc.rejects = ["no_face"], {"no_face"}
         return _finish(pc)
     ys = np.nonzero(skin)[0]
@@ -284,12 +284,14 @@ def check_profile90(im: Image.Image | np.ndarray, cfg: dict | None = None) -> Ph
         pc.rejects.add(pc.issues[-1])
         pc.extra["reason"] = e.reason
         return _finish(pc)
+    # Keep the attempted geometry for offline diagnostics even when the nose/outline gate rejects it.
+    # Consumers must still honor status (the production measurement path does).
+    pc.extra.update(trace=trace, seg=seg, facing=trace.facing, scale_px=round(trace.scale_px, 1))
     if trace.nose_gap is not None and trace.nose_gap > pg["max_nose_gap"]:
         pc.issues.append("wrong_angle_for_role")
         pc.rejects.add("wrong_angle_for_role")
         pc.extra["nose_gap"] = round(trace.nose_gap, 3)
         return _finish(pc)
-    pc.extra.update(trace=trace, seg=seg, facing=trace.facing, scale_px=round(trace.scale_px, 1))
     return _finish(pc)
 
 
