@@ -22,11 +22,14 @@ function context(w: number, h: number) {
 type Base = { key: string; data: ImageData; hair: PreparedHair | null };
 /** All pixels stay in memory; the cache is scoped to one mounted passport/photo. */
 export function useStudioCanvas(opts: {
+  source?: "front" | "noglasses" | "glasses";
   id: string; front: string | null; expired: boolean; geometry: FaceGeometry | null | undefined;
   hair: { src: string; box: readonly number[] | null; target: string } | null;
   layers: LocalLayers; hex: string | null; strength: number; holding: boolean; fixture: boolean;
 }) {
   const { id, front, expired, geometry, hair, layers, hex, strength, holding, fixture } = opts;
+  const source = opts.source ?? "front";
+  const originalSource = React.useRef<string | null>(null);
   const canvas = React.useRef<HTMLCanvasElement>(null);
   const original = React.useRef<ImageData | null>(null);
   const cache = React.useRef(new Map<string, Base>());
@@ -37,7 +40,7 @@ export function useStudioCanvas(opts: {
   const key = `${id}|${front}|${hair ? `${hair.src}|${hair.box?.join(',')}` : 'original'}`;
   const src = hair?.src, boxKey = hair?.box?.join(','), target = hair?.target ?? 'current';
   React.useEffect(() => {
-    original.current = null; cache.current.clear(); setBase(null);
+    original.current = null; originalSource.current = null; cache.current.clear(); setBase(null);
     if (canvas.current) { canvas.current.width = 0; canvas.current.height = 0; }
     if (expired || !front) { setStatus(expired ? 'expired' : 'unavailable'); return; }
     let live = true; setStatus('loading');
@@ -47,14 +50,14 @@ export function useStudioCanvas(opts: {
       try {
         const ctx = context(Math.round(img.naturalWidth * scale), Math.round(img.naturalHeight * scale));
         ctx.drawImage(img, 0, 0, ctx.canvas.width, ctx.canvas.height);
-        original.current = ctx.getImageData(0, 0, ctx.canvas.width, ctx.canvas.height); setStatus('ready');
+        original.current = ctx.getImageData(0, 0, ctx.canvas.width, ctx.canvas.height); originalSource.current = front; setStatus('ready');
       } catch { setStatus('plain'); }
     }, () => live && setStatus('unavailable'));
     return () => { live = false; original.current = null; cache.current.clear(); };
   }, [id, front, expired]);
   React.useEffect(() => {
     const o = original.current;
-    if (expired || status !== 'ready' || !o) return;
+    if (expired || status !== 'ready' || !o || originalSource.current !== front) return;
     const cached = cache.current.get(key);
     if (cached) { setBase(cached); setMaskState(cached.hair ? 'ready' : 'error'); setHairState(src ? 'ready' : 'none'); return; }
     let live = true; const controller = new AbortController();
@@ -75,7 +78,7 @@ export function useStudioCanvas(opts: {
       let prepared: PreparedHair | null = null;
       try {
         if (fixture) throw new Error('Illustrations are not segmented photographs.');
-        const response = await fetch(apiUrl(`/api/passport/${id}/hair-mask?target=${target}`)!, { cache: 'no-store', signal: controller.signal });
+        const response = await fetch(apiUrl(`/api/passport/${id}/hair-mask?target=${target}&source=${source}`)!, { cache: 'no-store', signal: controller.signal });
         if (!response.ok) throw new Error('mask unavailable');
         const url = URL.createObjectURL(await response.blob());
         try {
@@ -93,7 +96,7 @@ export function useStudioCanvas(opts: {
       cache.current.set(key, result); setBase(result); setMaskState(prepared ? 'ready' : 'error');
     })();
     return () => { live = false; controller.abort(); };
-  }, [id, front, expired, key, src, boxKey, target, status, fixture]);
+  }, [id, front, expired, key, src, boxKey, target, status, fixture, source]);
   const makeup = React.useMemo(() => base?.key === key && geometry ? makeupAvailability(base.data, geometry) : NO_MAKEUP,
     [base, key, geometry]);
   const eyewearReason = React.useMemo(() => base?.key === key && geometry && eyewearFit(geometry,base.data.width,base.data.height,layers.eyewear ?? DEFAULT_EYEWEAR) ? null : EYEWEAR_UNAVAILABLE,
@@ -102,7 +105,7 @@ export function useStudioCanvas(opts: {
     [base,key,geometry]);
   React.useLayoutEffect(() => {
     const c = canvas.current, o = original.current;
-    if (!c || !o || status !== 'ready' || expired) return;
+    if (!c || !o || status !== 'ready' || expired || originalSource.current !== front) return;
     c.width = o.width; c.height = o.height;
     const ctx = c.getContext('2d'); if (!ctx) return;
     let out = holding || base?.key !== key ? o : base.data;
@@ -111,7 +114,7 @@ export function useStudioCanvas(opts: {
       if (geometry) out = composeLayers(out, geometry, layers, makeup);
     }
     ctx.putImageData(out, 0, 0);
-  }, [base, key, geometry, layers, hex, strength, holding, status, expired, makeup]);
+  }, [base, key, geometry, layers, hex, strength, holding, status, expired, makeup, front]);
   return { canvas, status, hairState, makeup, eyewearReason, eyewearControlsReason, maskState: base?.key === key ? maskState : 'loading',
     approximate: Boolean(hex && base?.key === key && base.hair?.approximate(hex)) };
 }

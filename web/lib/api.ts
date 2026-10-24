@@ -49,7 +49,7 @@ export interface FeedbackEvent {
 }
 
 /** Upload roles (V3B, D35). Only `front` is required. profile90 / noglasses are measurement-only inputs. */
-export type PhotoRole = "front" | "profile90" | "noglasses" | "smile" | "profile45" | "hair";
+export type PhotoRole = "front" | "profile90" | "noglasses" | "smile" | "profile45" | "hair" | "glasses";
 export type ExtraRole = Exclude<PhotoRole, "front">;
 /** The user-confirmed framing: crop box in source pixels (before rotation, about the crop centre), rotation, sizes. */
 export interface CaptureRecord {
@@ -96,7 +96,7 @@ export interface Backend {
   feedback(id: string, ev: FeedbackEvent): Promise<{ ok: boolean; duplicate: boolean; event_count: number }>;
   rerank(id: string, patch?: ContextPatch): Promise<PassportResponse>;
   previews(id: string, kind: PreviewKind, targetIds: string[]): Promise<{ previews: { target_id: string; kind: string; status: string }[] }>;
-  geometry(id: string): Promise<FaceGeometry | null>;
+  geometry(id: string, source?: "front" | "noglasses" | "glasses"): Promise<FaceGeometry | null>;
   share(id: string): Promise<{ share_token: string; url: string }>;
   shared(token: string): Promise<{ passport: Passport; created_at: string }>;
   remove(id: string): Promise<{ deleted_at: string }>;
@@ -171,9 +171,9 @@ export const httpBackend: Backend = {
   feedback: (id, ev) => call(`/api/passport/${enc(id)}/feedback`, json(ev)),
   rerank: async (id, patch) => absolutize(await call(`/api/passport/${enc(id)}/rerank`, json({ user_context: patch ?? {} }))),
   previews: (id, kind, targetIds) => call(`/api/passport/${enc(id)}/previews`, json({ kind, target_ids: targetIds })),
-  async geometry(id) {
+  async geometry(id, source = "front") {
     try {
-      return await call<FaceGeometry>(`/api/passport/${enc(id)}/geometry`);
+      return await call<FaceGeometry>(`/api/passport/${enc(id)}/geometry?source=${source}`);
     } catch (e) {
       if (e instanceof ApiError && e.status === 404) return null;
       throw e;

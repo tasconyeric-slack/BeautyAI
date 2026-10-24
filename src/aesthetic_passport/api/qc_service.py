@@ -14,6 +14,10 @@ def check_one(im: Image.Image, role: str) -> dict[str, Any]:
         return {"photo_id": role, "status": "ok", "face_count": 1, "yaw": None, "pitch": None, "roll": None,
                 "blur_score": None, "face_luma_mean": None, "face_box_px": None, "issues": [], "messages": [],
                 "mode": "stub"}
-    from ..qc import check_photo_with_messages  # real MediaPipe QC (S3)
+    from ..qc import check_photo_with_messages, messages_for  # real MediaPipe QC (S3)
 
-    return {**check_photo_with_messages(im, role), "mode": "real"}
+    result = check_photo_with_messages(im, "front" if role == "glasses" else role)
+    if role == "glasses":
+        result["photo_id"] = role
+        result["messages"] = messages_for(result["issues"], role=role, face_box_px=result.get("face_box_px"))
+    return {**result, "mode": "real"}

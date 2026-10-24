@@ -50,8 +50,8 @@ export function layersForLook(look: LookSelection, recommended?: {hex: string; p
 }
 
 /** Only haircut shape is generative. The optional legacy colour index never enters a target. */
-export function hairTargetId(hair: HairTier | null, _hairColor?: number | null): string | null {
-  return hair;
+export function hairTargetId(hair: HairTier | null, _hairColor?: number | null, source: "front" | "noglasses" | "glasses" = "front"): string | null {
+  return hair && source !== "front" ? `${hair}_src${source}` : hair;
 }
 
 export interface LocalLayers {

@@ -75,3 +75,8 @@
 - The capsule uses only catalog-matched pieces and ranks first buys by reuse across boards; budget changes how many are called "first buys" (3/5/8), not prices. The catalog reaches the browser as `web/lib/generated/garments.json`, exported by `make types` and checked in `tests/test_garments_config.py`.
 - State: `ap_outfit:<id>` (chosen board, A/B pair, owned keys, budget, dressing ticks), cleared with the passport on delete. If storage is blocked the page says choices last for this tab only.
 - Verified: `npx vitest run` (271 → 306 tests, 35 new), `web/e2e/outfit.mjs` on the fixture at 375px and 1280px (compare, choose, copy, refresh persistence, no horizontal overflow). References: none needed beyond the existing plan/looks patterns.
+
+## 2026-10-24 — Issue #19: natural-hair analysis / everyday eyewear reference
+- Upload guidance now asks for glasses-free, natural everyday hair and hands away; existing fringe-related missing measurements remain unchanged. QC copy explains restricted mode rather than encouraging glasses as the analysis default.
+- Optional API-only `glasses` reference shares photo TTL/delete and stays out of CV measurement/model analysis. Studio chooses the base explicitly, pauses incompatible layers and uses source-qualified hair preview/mask targets; legacy `noglasses` is supported.
+- No prompt, schema, scoring, provider or payment change; synthetic functional validation does not claim live provider image quality.

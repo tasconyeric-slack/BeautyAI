@@ -337,3 +337,118 @@ def test_qc_endpoint_stub(client):
     assert r.status_code == 200 and r.json()["status"] == "ok"
     r = client.post("/api/qc", data={"role": "nope"}, files={"file": ("f.jpg", jpeg(), "image/jpeg")})
     assert r.status_code == 422
+
+
+def test_daily_glasses_reference_is_optional_styling_only_and_expires(client):
+    pid = ready(client, photos=("front", "glasses"))
+    body = get(client, pid)
+    url = body["media"]["photos"].get("glasses")
+    assert url, "the optional styling reference must survive the upload job"
+    assert client.get(url).status_code == 200
+    assert [p["photo_id"] for p in body["partial"]["input_quality"]["photos"]] == ["front"]
+    assert client.get(f"/api/passport/{pid}/geometry?source=glasses").status_code == 404  # no borrowed geometry
+    assert client.post("/api/qc", data={"role": "glasses"}, files={"file": ("g.jpg", jpeg(), "image/jpeg")}).status_code == 200
+    client.app.state.store._exec("UPDATE passports SET media_expires_at=? WHERE id=?", ((now() - timedelta(seconds=1)).isoformat(), pid))
+    assert get(client, pid)["media"]["photos"]["glasses"] is None
+    assert client.get(url).status_code == 410
+    assert client.get(f"/api/passport/{pid}/hair-mask?source=glasses").status_code == 410
+    purge_expired_media(client.app.state.store, client.settings.runs_dir)
+    assert not (client.settings.runs_dir / pid / "media").exists()
+
+
+def test_rejected_optional_glasses_never_blocks_or_is_retained(client, monkeypatch):
+    from aesthetic_passport.api import qc_service
+    monkeypatch.setattr(qc_service, "check_one", lambda *args: {"status": "reject", "issues": ["no_face"]})
+    pid = ready(client, photos=("front", "glasses"))
+    body = get(client, pid)
+    assert body["status"] == "full_ready"
+    assert body["media"]["photos"].get("glasses") is None
+    assert not (client.settings.runs_dir / pid / "media" / "glasses.jpg").exists()
+
+
+def test_glasses_reference_deleted_with_passport(client):
+    pid = ready(client, photos=("front", "glasses"))
+    url = get(client, pid)["media"]["photos"].get("glasses")
+    assert url
+    assert client.delete(f"/api/passport/{pid}").status_code == 200
+    assert client.get(url).status_code == 410
+    assert not (client.settings.runs_dir / pid / "media").exists()
+
+
+def test_hair_previews_are_isolated_by_portrait_source(client, monkeypatch):
+    from types import SimpleNamespace
+
+    from aesthetic_passport.api import previews
+
+    pid = ready(client, photos=("front", "glasses"))
+    client.post("/api/checkout", json={"passport_id": pid})
+    seen = []
+
+    def render(photo, passport, kind, target, **kwargs):
+        seen.append((photo.name, target))
+        path = kwargs["out_dir"] / f"preview_{kind}_{target}.jpg"
+        path.write_bytes(jpeg())
+        path.with_name(path.name.replace("preview_", "before_")).write_bytes(jpeg())
+        return SimpleNamespace(after_path=path, image_model="synthetic-test", prompt="test", latency_ms=0, cost_usd_est=0)
+
+    monkeypatch.setattr(previews, "render_target", render)
+    for target in ("safe", "safe_srcglasses"):
+        response = client.post(f"/api/passport/{pid}/previews", json={"kind": "hair", "target_ids": [target]})
+        assert response.status_code == 202, response.text
+    assert seen == [("front.jpg", "safe"), ("glasses.jpg", "safe_srcglasses")]
+    body = get(client, pid)
+    assert validate_passport(client.app.state.store.get(pid)["passport"]) == []
+    for preview in body["partial"]["previews"]:
+        assert client.get(preview["after_url"]).status_code == 200
+        assert client.get(preview["before_url"]).status_code == 200
+    assert client.get(f"/api/passport/{pid}/hair-mask?target=safe_srcglasses&source=front").status_code == 422
+    # Replacing the base must never reuse the successful crop from the old photograph.
+    replaced = client.post(f"/api/passport/{pid}/enrich", files={"glasses": ("new.jpg", jpeg(), "image/jpeg")})
+    assert replaced.status_code == 409
+
+
+def test_missing_reference_cannot_silently_generate_on_front(client):
+    pid = ready(client)
+    client.post("/api/checkout", json={"passport_id": pid})
+    response = client.post(f"/api/passport/{pid}/previews", json={"kind": "hair", "target_ids": ["bold_srcglasses"]})
+    assert response.status_code == 410
+    assert not client.app.state.store.previews(pid)
+
+
+def test_legacy_noglasses_geometry_is_recomputed_on_its_own_image(client, monkeypatch):
+    from types import SimpleNamespace
+
+    import numpy as np
+
+    from aesthetic_passport import anchors, qc
+
+    pid = ready(client)
+    directory = client.settings.runs_dir / pid / "media"
+    (directory / "noglasses.jpg").write_bytes(jpeg(size=(320, 600)))
+    (directory / "geometry.json").write_text('{"width": 999, "height": 999}')
+    seen = []
+
+    def check(image, role):
+        seen.append((image.size, role))
+        return SimpleNamespace(status="ok", face=object(), issues=[], rgb=np.zeros((600, 320, 3)))
+
+    monkeypatch.setattr(qc, "check_role", check)
+    monkeypatch.setattr(anchors, "export_geometry", lambda face, shape: {"width": shape[1], "height": shape[0]})
+    response = client.get(f"/api/passport/{pid}/geometry?source=noglasses")
+    assert response.status_code == 200 and response.json() == {"width": 320, "height": 600}
+    assert seen == [((320, 600), "noglasses")]
+
+
+def test_ready_is_published_only_after_optional_source_is_processed(client, monkeypatch):
+    from aesthetic_passport.api import qc_service
+
+    observed = []
+
+    def check(*args):
+        observed.append(client.app.state.store._exec("SELECT status FROM passports ORDER BY created_at DESC LIMIT 1").fetchone()["status"])
+        return {"status": "ok"}
+
+    monkeypatch.setattr(qc_service, "check_one", check)
+    pid = ready(client, photos=("front", "glasses"))
+    assert observed and "done" not in observed
+    assert get(client, pid)["media"]["photos"]["glasses"]

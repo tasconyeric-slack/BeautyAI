@@ -1,5 +1,6 @@
 """Local hair masks must never use the broad generative edit support."""
 import numpy as np
+import pytest
 
 pytest_plugins = ["test_api"]
 
@@ -17,7 +18,8 @@ def test_hair_alpha_has_soft_inward_edges_and_never_paints_skin():
     assert not alpha[seg != SEG_HAIR].any()
 
 
-def test_mask_route_caches_exact_composite_and_expires(client, monkeypatch):
+@pytest.mark.parametrize("source", ["front", "glasses"])
+def test_mask_route_caches_exact_composite_and_expires(client, monkeypatch, source):
     import io
     from datetime import timedelta
     from types import SimpleNamespace
@@ -29,7 +31,7 @@ def test_mask_route_caches_exact_composite_and_expires(client, monkeypatch):
     from aesthetic_passport.api.store import now
     from aesthetic_passport.cv import MODELS
 
-    pid = ready(client)
+    pid = ready(client, photos=("front", "glasses"))
     directory = client.settings.runs_dir / pid / 'media'
     seen = []
     face = SimpleNamespace(pts=lambda _: np.array([[1, 1], [2, 1], [1, 2]], np.float32))
@@ -45,8 +47,10 @@ def test_mask_route_caches_exact_composite_and_expires(client, monkeypatch):
     monkeypatch.setattr(MODELS, 'segment', segment)
     original = np.full((500, 400, 3), 180, np.uint8)
     original[20:100, 120:280] = 30
-    Image.fromarray(original).save(directory / 'front.jpg')
-    url = f'/api/passport/{pid}/hair-mask'
+    Image.fromarray(original).save(directory / f'{source}.jpg')
+    url = f'/api/passport/{pid}/hair-mask?source={source}'
+    suffix = '' if source == 'front' else '_srcglasses'
+    target = 'bold' + suffix
     first = client.get(url)
     assert first.status_code == 200
     assert first.headers['cache-control'] == 'no-store'
@@ -57,22 +61,22 @@ def test_mask_route_caches_exact_composite_and_expires(client, monkeypatch):
     # A generated crop replaces the old hair, reveals the old crown, and adds new side hair.
     crop = np.full((200, 240, 3), 180, np.uint8)
     crop[100:180, 10:60] = 30
-    name = 'preview_hair_bold.jpg'
+    name = f'preview_hair_{target}.jpg'
     Image.fromarray(crop).save(directory / name)
-    (directory / 'preview_hair_bold.json').write_text('{"crop_box": [0.2, 0, 0.8, 0.4]}')
-    client.app.state.store.upsert_preview(pid, 'hair', 'bold', 'succeeded', after_name=name)
-    result = client.get(url + '?target=bold')
+    (directory / f'preview_hair_{target}.json').write_text('{"crop_box": [0.2, 0, 0.8, 0.4]}')
+    client.app.state.store.upsert_preview(pid, 'hair', target, 'succeeded', after_name=name)
+    result = client.get(url + '&target=' + target)
     assert result.status_code == 200
     changed = np.asarray(Image.open(io.BytesIO(result.content)))
     assert changed[150, 100] > 200 and changed[50, 150] == 0
     assert len(seen) == 2
-    assert client.get(url + '?target=easy').status_code == 404
-    assert client.get(url + '?target=../../front').status_code == 422
+    assert client.get(url + '&target=easy' + suffix).status_code == 404
+    assert client.get(url + '&target=../../front').status_code == 422
     # Regeneration at the same URL must invalidate server mask cache.
     crop[100:180, 10:60] = 180
     crop[100:180, 160:220] = 30
     Image.fromarray(crop).save(directory / name)
-    regenerated = client.get(url + '?target=bold')
+    regenerated = client.get(url + '&target=' + target)
     assert regenerated.content != result.content and len(seen) == 3
     store = client.app.state.store
     store._exec('UPDATE passports SET media_expires_at=? WHERE id=?', ((now() - timedelta(seconds=1)).isoformat(), pid))
