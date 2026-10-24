@@ -1,5 +1,34 @@
 # Issue #1: preview reliability validation
 
+## Backend continuation from `main` at `bf5b275`
+
+PR #7 is already integrated. This continuation reproduces one remaining failure with synthetic pixels and mocked
+Qwen HTTP, without changing the provider, prompts, masks, registration limits or upload framing editor:
+
+- Qwen returns a square image for a portrait request. The output aspect-ratio guard rejects it before resizing
+  or registration, but raised `PreviewError`, which the job treats as a terminal input failure. Only one request
+  ran, even though another generation with a new seed could recover.
+- The guard now raises the existing `MisalignedEdit` quality-gate failure. The existing retry loop tries once with
+  the next seed. A valid second response proceeds through registration, composite and quality checks to the served
+  preview; a second reframed response ends in `fallback` with a useful error, no image URL and no entitlement spent.
+- The regression covers both outcomes through the API and retains each generated attempt's USD 0.03 estimated
+  cost, even when rejected. Signed result URLs remain absent from diagnostics. Before the fix, both cases failed
+  because only seed 7 ran; after it, seeds 7 and 8 run and both cases pass.
+
+Local validation (2026-10-24): the focused command below passed **121 tests, 2 skipped**; `make test` passed
+**555 tests, 32 skipped**; `make lint` and `git diff --check` passed. The new regression's two cases and the engine
+rejection test passed. Tests used downloaded MediaPipe models and a local Debian `libgles2` library; no portraits
+or provider credentials were installed.
+
+Live acceptance remains **BLOCKED** in this cloud run: `DASHSCOPE_API_KEY` is unset and `data/test_faces` has no
+authorized portrait samples (the directory is absent). No live provider request was made. `DASHSCOPE_BASE_URL`
+is also unset, but is optional if the configured Beijing endpoint serves the selected model. Supply a Beijing key
+authorized for `qwen-image-2.0` and the consented photo set privately to complete the two-cut comparison below.
+Identity, naturalness, haircut adherence, live latency and actual billed cost remain unmeasured. These fixture
+results demonstrate recovery and failure behavior only; they do not demonstrate photorealistic quality.
+
+## Earlier PR #7 evidence
+
 Base: `tasconyeric-slack/BeautyAI`, `main` at `89bcf0f`. No source or samples were taken from the old repository.
 
 ## Reproduced failures and changes
