@@ -9,6 +9,7 @@
  *    hair preview succeeded, and the "delete my photos and report" control.
  */
 import { Check, ClipboardCopy, Download, ImageOff, Link2, Loader2, UserRound } from "lucide-react";
+import Link from "next/link";
 import * as React from "react";
 import { flushSync } from "react-dom";
 import { toast } from "sonner";
@@ -174,6 +175,11 @@ export function ShareStudio() {
           <p className="mt-2 whitespace-pre-line text-ink-soft">{caption.body}</p>
           <p className="mt-2 text-accent">{caption.tags}</p>
         </div>
+      </Section>
+
+      <Section title="两个造型拿不定主意？" kicker="帮我选">
+        <Link href={`/p/${id}/compare`} className="text-[14px] text-accent underline-offset-4 hover:underline">并排比较两个造型，生成“A 还是 B”的图发给朋友 →</Link>
+        <p className="mt-1 text-[12px] leading-5 text-muted">默认的图不含照片和测量数据；要放照片需要你单独同意。</p>
       </Section>
 
       <StylistShare exporter={exporter} cardLink={cardLink} ensureLink={ensureLink} />

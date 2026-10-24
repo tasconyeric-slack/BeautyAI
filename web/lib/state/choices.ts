@@ -23,9 +23,13 @@ export interface Choices {
   hair: { tier: string; at: string } | null;
   looks: SavedLook[];
   plan: Record<string, { saved?: boolean; done?: boolean }>;
+  /** The look the person picked in the A/B comparison (a SavedLook id). Absent in choices saved before the comparison existed. */
+  preferred?: { lookId: string; at: string } | null;
 }
 
-const EMPTY: Choices = { hair: null, looks: [], plan: {} };
+const EMPTY: Choices = { hair: null, looks: [], plan: {}, preferred: null };
+const MAX_LOOKS = 12;
+const newLookId = () => `look_${Date.now().toString(36)}${Math.random().toString(36).slice(2, 6)}`;
 export const choicesKey = (id: string) => `ap_choices:${id}`;
 const EVENT = "ap-choices";
 
@@ -75,9 +79,17 @@ export function useChoices(id: string) {
   return {
     choices: c,
     chooseHair: (tier: string) => update((p) => ({ ...p, hair: { tier, at: new Date().toISOString() } })),
-    saveLook: (look: Omit<SavedLook, "id" | "savedAt">) =>
-      update((p) => ({ ...p, looks: [{ ...look, id: `look_${Date.now().toString(36)}`, savedAt: new Date().toISOString() }, ...p.looks].slice(0, 12) })),
-    removeLook: (lookId: string) => update((p) => ({ ...p, looks: p.looks.filter((l) => l.id !== lookId) })),
+    /** Returns the new look's id so a caller can use it at once (the comparison puts a saved direction straight into A or B). */
+    saveLook: (look: Omit<SavedLook, "id" | "savedAt">): string => {
+      const lookId = newLookId();
+      update((p) => ({ ...p, looks: [{ ...look, id: lookId, savedAt: new Date().toISOString() }, ...p.looks].slice(0, MAX_LOOKS) }));
+      return lookId;
+    },
+    removeLook: (lookId: string) =>
+      update((p) => ({ ...p, looks: p.looks.filter((l) => l.id !== lookId), preferred: p.preferred?.lookId === lookId ? null : p.preferred })),
+    /** Records the preferred look of a comparison; null clears it. */
+    choosePreferred: (lookId: string | null) =>
+      update((p) => ({ ...p, preferred: lookId ? { lookId, at: new Date().toISOString() } : null })),
     setPlan: (recId: string, patch: { saved?: boolean; done?: boolean }) =>
       update((p) => ({ ...p, plan: { ...p.plan, [recId]: { ...p.plan[recId], ...patch } } })),
   };

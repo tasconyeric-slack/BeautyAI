@@ -22,7 +22,7 @@ export const JOURNEY: readonly JourneyStep[] = [
   { key: "report", label: "完整报告", sub: "/report", blurb: "七章读完：发现、解读、改善建议、形象方案与计划", match: /\/report\/?$/ },
   { key: "advice", label: "个性化建议", sub: "/advice", blurb: "发型、妆容、色彩、风格、眼镜、穿搭：选什么、为什么", match: /\/(advice|hair|makeup|outfit|glasses)\/?$/ },
   { key: "plan", label: "行动方案", sub: "/plan", blurb: "最值得先做的 3 件事，可以保存和勾选", match: /\/plan\/?$/ },
-  { key: "studio", label: "形象实验室", sub: "/studio", blurb: "把唇色、近脸色和发型方向放到你的照片上试", match: /\/studio\/?$/ },
+  { key: "studio", label: "形象实验室", sub: "/studio", blurb: "把唇色、近脸色和发型方向放到你的照片上试", match: /\/(studio|compare)\/?$/ },
 ] as const;
 
 export const journeyStep = (key: JourneyKey): JourneyStep => JOURNEY.find((s) => s.key === key) as JourneyStep;
