@@ -469,7 +469,7 @@ def test_hair_segmentation_failure_does_not_paste_a_head_shaped_patch(monkeypatc
 
 
 def test_preview_rejects_reframed_output_instead_of_stretching_face(synthetic, tmp_path):
-    from aesthetic_passport.preview import render_target
+    from aesthetic_passport.preview import MisalignedEdit, render_target
     from aesthetic_passport.providers.image.base import ImageEditResult
 
     class SquareOutput:
@@ -477,7 +477,7 @@ def test_preview_rejects_reframed_output_instead_of_stretching_face(synthetic, t
             return ImageEditResult(Image.new("RGB", (1024, 1024)), "reframed", 1, 0.0)
 
     rgb, *_ = synthetic
-    with pytest.raises(PreviewError):
+    with pytest.raises(MisalignedEdit):
         render_target(Image.fromarray(rgb), PASSPORT, "hair", "safe", provider=SquareOutput(), out_dir=tmp_path)
     assert not list(tmp_path.glob("*.jpg"))
 
@@ -637,6 +637,56 @@ def test_preview_trace_reaches_served_image_without_photo_data(api, synthetic, m
     assert "Signature" not in json.dumps(edit)
     preview = api.get(f"/api/passport/{pid}").json()["partial"]["previews"][0]
     assert api.get(preview["after_url"]).status_code == 200
+
+
+@pytest.mark.parametrize("recover", [True, False], ids=["recovers", "rejects_both"])
+def test_reframed_qwen_output_gets_one_quality_retry(api, synthetic, monkeypatch, recover):
+    from aesthetic_passport.api import previews
+
+    seeds, images = [], []
+
+    def handler(req):
+        if req.method == "POST":
+            import base64
+
+            body = json.loads(req.content)
+            seeds.append(body["parameters"]["seed"])
+            uri = body["input"]["messages"][0]["content"][0]["image"]
+            original = Image.open(io.BytesIO(base64.b64decode(uri.split(",", 1)[1])))
+            # A square, reframed response must never be stretched onto this portrait.
+            edited = (FakeImageEditProvider().edit(original, "synthetic test").image
+                      if recover and len(seeds) == 2 else Image.new("RGB", (1024, 1024)))
+            buf = io.BytesIO()
+            edited.save(buf, format="PNG")
+            images.append(buf.getvalue())
+            return httpx.Response(200, json={"output": {"choices": [{"finish_reason": "stop", "message": {
+                "role": "assistant", "content": [{"image": "https://result.example/edit.png?Signature=private"}]}}]},
+                "usage": {"image_count": 1}})
+        assert req.headers.get("authorization") is None
+        return httpx.Response(200, content=images[-1])
+
+    monkeypatch.setattr(previews, "image_from_config", lambda: _qwen(handler))
+    rgb, *_ = synthetic
+    pid = _submit(api, Image.fromarray(rgb))
+    body = api.get(f"/api/passport/{pid}").json()
+    preview = body["partial"]["previews"][0]
+    assert seeds == [7, 8]        # the existing bounded retry uses a different seed
+    assert preview["status"] == ("succeeded" if recover else "fallback")
+    assert body["entitlement"]["free_previews_left"] == (0 if recover else 1)
+    calls = [json.loads(x) for x in (api.app.state.settings.runs_dir / pid / "calls.jsonl").read_text().splitlines()]
+    edits = [c for c in calls if c["kind"] == "image_edit"]
+    assert len(edits) == 2 and all(c["cost_usd_est"] == 0.03 for c in edits)
+    assert edits[0]["error"] == "MisalignedEdit" and edits[0]["ok"] is False
+    assert edits[0]["trace"][-1]["stage"] == "provider_completed"
+    assert "Signature" not in json.dumps(edits)
+    if recover:
+        assert edits[1]["ok"] is True
+        assert api.get(preview["after_url"]).status_code == 200
+        assert api.get(preview["before_url"]).status_code == 200
+    else:
+        assert edits[1]["error"] == "MisalignedEdit" and edits[1]["ok"] is False
+        assert preview["error"] and preview["after_url"] is None and preview["before_url"] is None
+        assert not list((api.app.state.settings.runs_dir / pid).rglob("preview_*.jpg"))
 
 
 @pytest.mark.parametrize("category", ["MisalignedEdit", "RuntimeError"])

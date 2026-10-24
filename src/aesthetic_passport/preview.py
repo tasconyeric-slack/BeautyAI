@@ -170,7 +170,7 @@ def _restore_crop(image: Image.Image, padded: np.ndarray) -> np.ndarray:
     h, w = padded.shape[:2]
     ow, oh = image.size
     if abs(ow * h - oh * w) > PAD_MULTIPLE * (w + h):
-        raise PreviewError("试看构图发生变化，请换一个发型方向重试")
+        raise MisalignedEdit("generated image changed aspect ratio")
     return np.asarray(image.convert("RGB").resize((w, h), Image.Resampling.LANCZOS))
 
 
