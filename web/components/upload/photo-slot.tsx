@@ -161,18 +161,21 @@ function Verdict({ s, role }: { s: SlotState; role: PhotoRole }) {
   if (s.error) return <p className="text-[12.5px] text-[#b4442f]">{s.error}</p>;
   const qc = s.qc;
   if (!qc) return null;
+  const profileUnclear = role === "profile90" && qc.status === "reject" && qc.issues.includes("profile_unclear");
   const code = qc.issues[0];
   // the server's message is role-specific (e.g. a 45° photo in the 90° slot); the shared copy is the fallback
   const msg = qc.messages?.[0] ?? (code ? `${getQcMessage(code).reason}${getQcMessage(code).action}` : null);
   return (
     <div className={cn("rounded-[10px] border px-3 py-2 text-[12.5px] leading-5", qc.status === "ok" ? "border-accent/30 bg-accent-soft"
-      : qc.status === "warn" ? "border-amber/30 bg-amber-soft" : "border-[#b4442f]/30 bg-[#f6e5e1]")} data-qc={qc.status}>
-      <p className="flex items-center gap-1 font-medium">
-        {qc.status === "ok" && <Check className="size-3.5 text-accent" />}
-        {qc.status === "ok" ? upload.ready.split("，")[0] : qc.status === "warn" ? upload.warning : upload.rejected}
-      </p>
-      {msg && <p className="mt-0.5">{msg}</p>}
-      {qc.status === "reject" && role !== "front" && <p className="mt-0.5 text-muted">{copy.extraNotBlocking}</p>}
+      : qc.status === "warn" ? "border-amber/30 bg-amber-soft text-[#60420f]" : "border-[#b4442f]/30 bg-[#f6e5e1] text-[#682719]")} data-qc={qc.status}>
+      {profileUnclear ? <p>{copy.profileUnclearRejected}</p> : <>
+        <p className="flex items-center gap-1 font-medium">
+          {qc.status === "ok" && <Check className="size-3.5 text-accent" />}
+          {qc.status === "ok" ? upload.ready.split("，")[0] : qc.status === "warn" ? upload.warning : upload.rejected}
+        </p>
+        {msg && <p className="mt-0.5">{msg}</p>}
+        {qc.status === "reject" && role !== "front" && <p className="mt-0.5">{copy.extraNotBlocking}</p>}
+      </>}
     </div>
   );
 }

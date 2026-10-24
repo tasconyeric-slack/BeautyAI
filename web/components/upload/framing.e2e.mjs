@@ -6,11 +6,12 @@ const browser = await chromium.launch({ executablePath: process.env.CHROMIUM_PAT
 try {
   const page = await browser.newPage({ viewport: { width: 1000, height: 900 } });
   const qcImages = [];
-  let submitted = null;
+  let submitted = null, submittedMeta = null, submittedRoles = null;
   await page.route('**/api/**', async route => {
     if (route.request().url().includes('/qc')) {
       const request = route.request();
       const form = await new Response(request.postDataBuffer(), { headers: { 'content-type': request.headers()['content-type'] } }).formData();
+      if (form.get('role') === 'profile90') return route.fulfill({ json: { photo_id: 'profile90', status: 'reject', issues: ['profile_unclear'], messages: ['old server text'], face_count: 1, yaw: 90, mode: 'real' } });
       qcImages.push(Buffer.from(await form.get('file').arrayBuffer()));
       return route.fulfill({ json: { photo_id: 'front', status: 'warn', issues: ['face_too_small'], messages: ['请调整构图后重新检查。'], face_count: 1, yaw: 0, mode: 'real' } });
     }
@@ -18,6 +19,7 @@ try {
       const request=route.request();
       const form=await new Response(request.postDataBuffer(),{headers:{'content-type':request.headers()['content-type']}}).formData();
       submitted=Buffer.from(await form.get('front').arrayBuffer());
+      submittedMeta=JSON.parse(form.get('photo_meta')); submittedRoles=[...form.keys()];
       return route.fulfill({json:{id:'ap_0123456789ab'}});
     }
     return route.fulfill({ json: {} });
@@ -43,6 +45,26 @@ try {
 
   await page.waitForFunction(() => document.querySelector('[data-testid="framing-viewport"]')?.dataset.ready === 'true');
   const crop = () => page.locator('cropper-selection').evaluate(s => ({ x:s.x, y:s.y, width:s.width, height:s.height }));
+  assert.equal(await page.getByRole('radio', { name: /原图|3:4|4:5|方形/ }).count(), 0);
+  const boundaries = r => [r.x, r.y, r.x+r.width, r.y+r.height];
+  const assertIndependentEdges = async () => {
+    for (const [side, dx, dy, changed] of [['w',20,0,0], ['n',0,24,1], ['e',-30,0,2], ['s',0,-18,3]]) {
+      const before = boundaries(await crop());
+      const box = await page.locator(`cropper-handle[action="${side}-resize"]`).boundingBox();
+      const x=box.x+box.width/2, y=box.y+box.height/2;
+      await page.mouse.move(x,y); await page.mouse.down(); await page.mouse.move(x+dx,y+dy,{steps:8}); await page.mouse.up();
+      const after = boundaries(await crop());
+      for(let i=0;i<4;i++) assert.ok(i===changed ? Math.abs(after[i]-before[i])>10 : Math.abs(after[i]-before[i])<0.01, side+' edge must preserve three untouched boundaries');
+    }
+  };
+  await assertIndependentEdges();
+  // Rotation-first trimming used to reject every edge proposal at full-source bounds.
+  await page.getByRole('button',{name:'保留原图',exact:true}).click();
+  await page.getByText('旋转与精细调整', {exact:true}).click();
+  await page.getByLabel('旋转', {exact:true}).fill('6');
+  await assertIndependentEdges();
+  await page.getByLabel('旋转', {exact:true}).fill('0');
+  await page.getByText('旋转与精细调整', {exact:true}).click();
   const initial = await crop();
   const handle = page.locator('cropper-handle[action="se-resize"]');
   const point = await handle.boundingBox();
@@ -59,24 +81,22 @@ try {
   assert.ok(Math.abs(beforeDrag[4]-afterDrag[4])>5, 'drag repositions actual image');
   await page.mouse.wheel(0,-220);
   await page.waitForFunction(a => Math.abs(document.querySelector('cropper-image').$getTransform()[0]-a)>0.01, afterDrag[0]);
-  const sourceCentre=()=>page.locator('cropper-selection').evaluate(s=>{
-    const [a,b,c,d,e,f]=s.parentElement.querySelector('cropper-image').$getTransform();
-    const x=s.x+s.width/2-600-e,y=s.y+s.height/2-800-f,det=a*d-b*c;
-    return [600+(d*x-c*y)/det,800+(a*y-b*x)/det];
-  });
-  const beforeCentre=await sourceCentre();
-  const beforeRatio = await page.getByTestId('framing-output').textContent();
-  await page.getByRole('radio',{name:'1:1 方形'}).click();
-  const square = await crop(); assert.ok(Math.abs(square.width-square.height)<0.01);
-  const afterRatio = await page.getByTestId('framing-output').textContent();
-  const afterCentre=await sourceCentre();
-  assert.ok(Math.hypot(beforeCentre[0]-afterCentre[0],beforeCentre[1]-afterCentre[1])<0.01,'ratio retains the selected face centre');
-  assert.ok(Number(afterRatio.match(/×(\d+)/)[1])<=Number(beforeRatio.match(/×(\d+)/)[1]),'ratio preserves height or shrinks around centre near an edge');
   await page.getByText('旋转与精细调整', {exact:true}).click();
   await page.getByLabel('旋转', {exact:true}).fill('6');
   const confirmedMatrix = await imgMatrix();
   assert.ok(Math.abs(Math.atan2(confirmedMatrix[1],confirmedMatrix[0])*180/Math.PI-6)<0.01);
   const savedCrop = await crop();
+  const savedOutput = await page.getByTestId('framing-output').textContent();
+  const expectedCapture = await page.locator('cropper-selection').evaluate(s => {
+    const [a,b,c,d,e,f]=s.parentElement.querySelector('cropper-image').$getTransform();
+    const scale=Math.hypot(a,b), det=a*d-b*c;
+    const x=s.x+s.width/2-600-e, y=s.y+s.height/2-800-f;
+    const cx=600+(d*x-c*y)/det, cy=800+(a*y-b*x)/det;
+    const width=s.width/scale,height=s.height/scale, round=n=>Math.round(n*10)/10;
+    const dims=document.querySelector('[data-testid="framing-output"]').textContent.match(/(\d+)×(\d+)/);
+    return {crop:[round(cx-width/2),round(cy-height/2),round(width),round(height)],rotate_deg:6,
+      source_w:1200,source_h:1600,output_w:Number(dims[1]),output_h:Number(dims[2]),edited:true};
+  });
   const expectedPixels = await page.evaluate(async () => {
     const s=document.querySelector('cropper-selection'), image=document.querySelector('cropper-image');
     const [a,b,c,d,e,f]=image.$getTransform();
@@ -86,7 +106,8 @@ try {
     const inversePreview=m.inverse();
     for(const [u,v] of [[0.2,0.2],[0.5,0.5],[0.8,0.8]]) {
       const p=inverseStage.transformPoint({x:s.x+s.width*u,y:s.y+s.height*v});
-      const q=inversePreview.transformPoint({x:112*u,y:112*v});
+      const result=document.querySelector('[data-testid="framing-result"]');
+      const q=inversePreview.transformPoint({x:parseFloat(result.style.width)*u,y:parseFloat(result.style.height)*v});
       if(Math.hypot(p.x-q.x,p.y-q.y)>0.02) throw Error('stage and live preview source transforms differ: '+JSON.stringify({p:{x:p.x,y:p.y},q:{x:q.x,y:q.y},matrix:[a,b,c,d,e,f],preview:source.style.transform}));
     }
     const dims=document.querySelector('[data-testid="framing-output"]').textContent.match(/(\d+)×(\d+)/);
@@ -115,8 +136,16 @@ try {
   await page.getByTestId('frame-front').click();
   await page.waitForFunction(() => document.querySelector('[data-testid="framing-viewport"]')?.dataset.ready === 'true');
   // Reopening may fit the workspace differently, but the exact crop output must remain unchanged.
-  assert.equal(await page.getByTestId('framing-output').textContent(),afterRatio);
+  assert.equal(await page.getByTestId('framing-output').textContent(),savedOutput);
   assert.equal(await page.getByLabel('旋转',{exact:true}).inputValue(),'6');
+  const reopenedPixels=await page.getByTestId('framing-result').locator('img').getAttribute('style');
+  assert.ok(reopenedPixels.includes('rotate(6deg)'), 'reopening restores saved rotation');
+  const reopenedSource = await page.locator('cropper-selection').evaluate(s => {
+    const [a,b,c,d,e,f]=s.parentElement.querySelector('cropper-image').$getTransform(), det=a*d-b*c;
+    const x=s.x+s.width/2-600-e,y=s.y+s.height/2-800-f,scale=Math.hypot(a,b);
+    return [600+(d*x-c*y)/det-s.width/scale/2,800+(a*y-b*x)/det-s.height/scale/2,s.width/scale,s.height/scale].map(n=>Math.round(n*10)/10);
+  });
+  assert.deepEqual(reopenedSource,expectedCapture.crop,'reopening restores exact source rectangle');
   await page.getByRole('button',{name:'保留原图',exact:true}).click();
   assert.match(await page.getByTestId('framing-output').textContent(),/1200×1600/);
   const reset=await crop();assert.ok(reset.width>0&&reset.height>0);
@@ -132,10 +161,42 @@ try {
   assert.deepEqual(Buffer.from(await page.getByTestId('preview-front').evaluate(async i => Array.from(new Uint8Array(await (await fetch(i.src)).arrayBuffer())))),qcImages.at(-1),'cancel keeps the previously confirmed image');
   assert.equal(qcImages.length,qcBefore+1,'cancel and re-edit do not upload again');
 
+  // Mobile editor: enlarged edge targets and real touch resizing, then readable exact profile rejection.
+  await page.setViewportSize({width:390,height:844});
+  await page.getByLabel('选择照片 · 侧脸照',{exact:true}).setInputFiles({name:'synthetic-profile.png',mimeType:'image/png',buffer:Buffer.from(artwork,'base64')});
+  await page.waitForFunction(() => document.querySelector('[data-testid="framing-viewport"]')?.dataset.ready === 'true');
+  const mobileBefore=boundaries(await crop());
+  const mobileEdge=await page.locator('cropper-handle[action="w-resize"]').boundingBox();
+  assert.ok(mobileEdge.width>=24, 'mobile edge has at least 24px hit target');
+  const mx=mobileEdge.x+mobileEdge.width/2,my=mobileEdge.y+mobileEdge.height/2;
+  await client.send('Input.dispatchTouchEvent',{type:'touchStart',touchPoints:[{x:mx,y:my,id:0}]});
+  await client.send('Input.dispatchTouchEvent',{type:'touchMove',touchPoints:[{x:mx+24,y:my,id:0}]});
+  await client.send('Input.dispatchTouchEvent',{type:'touchEnd',touchPoints:[]});
+  const mobileAfter=boundaries(await crop());
+  assert.ok(mobileAfter[0]>mobileBefore[0]+10, 'touch drags the left edge');
+  for(const i of [1,2,3]) assert.ok(Math.abs(mobileAfter[i]-mobileBefore[i])<0.01,'touch preserves other edges');
+  await page.getByTestId('framing-confirm').click();
+  await page.getByTestId('framing-editor').waitFor({state:'hidden'});
+  const rejection=page.locator('[data-slot="profile90"] [data-qc="reject"]');
+  await rejection.waitFor();
+  assert.equal(await rejection.textContent(),'侧面轮廓不清晰，这张选填照片没有通过检查，请直接移除或按以下提示重拍：请在明亮的纯色背景前拍，撩开挡住额头、鼻子或下巴的头发，手不要挡脸。');
+  assert.equal(await rejection.locator('p').count(),1);
+  const contrast=await rejection.evaluate(el=>{
+    const css=getComputedStyle(el),rgb=s=>s.match(/[\d.]+/g).slice(0,3).map(Number);
+    const luminance=v=>v.map(n=>n/255).map(n=>n<=0.04045?n/12.92:((n+0.055)/1.055)**2.4).reduce((sum,n,i)=>sum+n*[0.2126,0.7152,0.0722][i],0);
+    const fg=luminance(rgb(css.color)),bg=luminance(rgb(css.backgroundColor));
+    return (Math.max(fg,bg)+0.05)/(Math.min(fg,bg)+0.05);
+  });
+  assert.ok(contrast>=4.5,'mobile rejection meets WCAG AA contrast: '+contrast);
+  console.log('Profile error contrast:',contrast.toFixed(2)+':1');
+  assert.ok(await page.getByTestId('remove-profile90').isVisible());
   await page.getByRole('button',{name:/女性化/}).click();
   await page.getByRole('button',{name:/^开始/}).click();
   await page.waitForURL('**/p/ap_0123456789ab');
   assert.deepEqual(submitted,qcImages.at(-1),'measurement submission uses the exact QC/preview blob');
+  assert.deepEqual(submittedMeta.front.capture,expectedCapture,'capture metadata describes the exact rendered source rectangle');
+  assert.ok(!submittedRoles.includes('profile90'),'rejected optional photo cannot block front-only onward path and is not uploaded');
+  await page.setViewportSize({width:1000,height:900});
   // Known synthetic face geometry exercises suggestion/recenter integration without a remote detector.
   await page.addInitScript(() => { globalThis.FaceDetector=class {
     async detect(bitmap) {
@@ -173,6 +234,6 @@ try {
   await page.getByTestId('framing-editor').waitFor({state:'hidden'});
   const closeDimensions=await page.getByTestId('preview-front').evaluate(async i=>{await i.decode();return [i.naturalWidth,i.naturalHeight];});
   assert.deepEqual(closeDimensions,[800,1000],'native resolution preserved for close headshot');
-  console.log('PASS: synthetic portrait and close headshot; handles, drag, wheel/pinch, ratios, rotation, live-result pixels, identical preview/QC/submit bytes, warning re-edit, local suggestion, recenter, reset and cancel');
+  console.log('PASS: synthetic portrait and close headshot; four independent edges, corners, drag, wheel/pinch, rotation, live-result pixels, identical preview/QC/submit bytes, capture metadata, exact reopen, warning re-edit, mobile touch and QC contrast, rejected optional/front-only submission, local suggestion, recenter, reset and cancel');
 
 } finally { await browser.close(); }

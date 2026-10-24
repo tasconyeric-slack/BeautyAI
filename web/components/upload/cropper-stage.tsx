@@ -3,7 +3,7 @@
 import * as React from "react";
 import type Cropper from "cropperjs";
 import {
-  cropSize, framingFromSelection, imageMatrix, selectionForFraming, type CropRect, type Framing,
+  clampFraming, cropSize, scaleFraming, framingFromSelection, imageMatrix, selectionForFraming, type CropRect, type Framing,
 } from "@/lib/framing";
 
 // Cropper.js owns all pointer, wheel, pinch and handle gestures. Only source-coordinate conversion lives here.
@@ -14,7 +14,11 @@ const template = `<cropper-canvas background style="height:100%;touch-action:non
   <cropper-selection resizable precise outlined theme-color="#fff">
     <cropper-grid rows="3" columns="3" covered></cropper-grid>
     <cropper-handle action="move" plain style="cursor:grab"></cropper-handle>
-    ${["n", "e", "s", "w", "ne", "nw", "se", "sw"].map((side) => `<cropper-handle action="${side}-resize" style="--theme-color:#fff"></cropper-handle>`).join("")}
+    ${["n", "e", "s", "w", "ne", "nw", "se", "sw"].map((side) => {
+      const edges = `${side.includes("n") ? "top:-14px;" : ""}${side.includes("s") ? "bottom:-14px;" : ""}${side.includes("e") ? "right:-14px;" : ""}${side.includes("w") ? "left:-14px;" : ""}`;
+      const size = side.length === 2 ? "width:28px;height:28px;" : side === "n" || side === "s" ? "height:28px;" : "width:28px;";
+      return `<cropper-handle action="${side}-resize" style="--theme-color:#fff;${size}${edges}"></cropper-handle>`;
+    }).join("")}
   </cropper-selection>
 </cropper-canvas>`;
 
@@ -71,12 +75,11 @@ export function CropperStage({ src, width: w, height: h, framing, onChange }: {
         const r = { x: (root.clientWidth - cw * scale) / 2, y: (root.clientHeight - ch * scale) / 2,
           width: cw * scale, height: ch * scale };
         syncing = true;
-        selection.aspectRatio = cw / ch;
         setRect(r);
         image.$setTransform(imageMatrix(w, h, f, r));
         syncing = false;
       };
-      // External changes (ratio/reset/rotation) retain the visible selection centre and scale.
+      // External changes (scale/reset/rotation) retain the visible selection centre and scale.
       apply.current = (f) => {
         const scale = Math.hypot(...image.$getTransform().slice(0, 2));
         const { cw, ch } = cropSize(w, h, f);
@@ -85,7 +88,6 @@ export function CropperStage({ src, width: w, height: h, framing, onChange }: {
           width: cw * scale, height: ch * scale };
         if (r.width > root.clientWidth * 0.95 || r.height > root.clientHeight * 0.95) { layout(); return; }
         syncing = true;
-        selection.aspectRatio = cw / ch;
         setRect(r);
         image.$setTransform(imageMatrix(w, h, f, r));
         syncing = false;
@@ -94,7 +96,11 @@ export function CropperStage({ src, width: w, height: h, framing, onChange }: {
         if (syncing) return;
         event.preventDefault();
         const matrix = (event as CustomEvent<{ matrix: number[] }>).detail.matrix;
-        const f = framingFromSelection(w, h, current.current.aspect, rect(), matrix);
+        const candidate = framingFromSelection(w, h, rect(), matrix);
+        const oldScale = Math.hypot(...image.$getTransform().slice(0, 2));
+        const factor = Math.hypot(...matrix.slice(0, 2)) / oldScale;
+        const f = clampFraming(w, h, { ...scaleFraming(w, h, current.current, factor),
+          cx: candidate.cx, cy: candidate.cy, rotate: candidate.rotate });
         // Enforce source bounds without a second, slightly different crop calculation.
         syncing = true;
         image.$setTransform(imageMatrix(w, h, f, rect()));
@@ -105,11 +111,15 @@ export function CropperStage({ src, width: w, height: h, framing, onChange }: {
         if (syncing || event.target !== selection) return;
         event.preventDefault();
         const r = (event as CustomEvent<CropRect>).detail;
-        if (r.width < 24 || r.height < 24) return;
+        if (r.width <= 0 || r.height <= 0) return;
         const matrix = image.$getTransform();
-        const f = framingFromSelection(w, h, current.current.aspect, r, matrix);
+        const f = framingFromSelection(w, h, r, matrix);
+        const bounded = selectionForFraming(w, h, f, matrix);
+        // Stop at source/minimum bounds rather than moving the three untouched edges.
+        if (["x", "y", "width", "height"].some((key) =>
+          Math.abs(bounded[key as keyof CropRect] - r[key as keyof CropRect]) > 0.01)) return;
         syncing = true;
-        setRect(selectionForFraming(w, h, f, matrix));
+        setRect(bounded);
         syncing = false;
         emit(f);
       });
