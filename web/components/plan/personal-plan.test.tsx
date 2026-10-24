@@ -54,4 +54,20 @@ describe("plan decision key path", () => {
     expect(screen.getByText(/没有需要强行改变的项目/)).toBeTruthy();
     expect(screen.getAllByRole("radio").some(r => (r as HTMLInputElement).checked)).toBe(true);
   });
+
+  it("keeps the plan under a free-text restriction, unlocks on confirmation, and shows alternatives for skipped cards", () => {
+    const p = structuredClone(sample) as unknown as Passport; p.user_context.constraints.other = "不能改变发型";
+    render(<PersonalPlan id="free-text" passport={p} />);
+    fireEvent.click(screen.getByRole("radio", { name: "鲜明表达" }));
+    let card = screen.getByTestId("intervention-lip-statement");
+    expect((within(card).getByRole("button", { name: "加入我的方案" }) as HTMLButtonElement).disabled).toBe(true);
+    fireEvent.click(screen.getByRole("checkbox", { name: /已核对/ }));
+    card = screen.getByTestId("intervention-lip-statement");
+    expect((within(card).getByRole("button", { name: "加入我的方案" }) as HTMLButtonElement).disabled).toBe(false);
+    fireEvent.click(within(card).getByRole("button", { name: "不适合我" }));
+    expect(screen.queryByTestId("intervention-lip-statement")).toBeNull();
+    expect(screen.getByTestId("replacement-lip-statement").textContent).toMatch(/替代|没有其他/);
+    fireEvent.click(within(screen.getByTestId("replacement-lip-statement")).getByRole("button", { name: "恢复" }));
+    expect(screen.getByTestId("intervention-lip-statement")).toBeTruthy();
+  });
 });
