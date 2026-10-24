@@ -55,6 +55,21 @@ def _largest_component(mask: np.ndarray) -> np.ndarray:
     return lab == k
 
 
+def profile_masks(seg: np.ndarray) -> tuple[np.ndarray, np.ndarray]:
+    """Use the same foreground component for profile resolution and contour tracing.
+
+    Disconnected skin-label noise must not add native face pixels. Component selection can also remove all
+    skin (e.g. a larger foreground object); report that explicitly before computing bounds or centroids.
+    """
+    from ..cv import SEG_BACKGROUND, SEG_FACE_SKIN
+
+    fg = _largest_component(seg != SEG_BACKGROUND)
+    skin = (seg == SEG_FACE_SKIN) & fg
+    if skin.sum() < 150:
+        raise ProfileUnavailable("no_face")
+    return fg, skin
+
+
 def _anterior_outline(fg: np.ndarray, sign: int, y0: int, y1: int) -> np.ndarray:
     """Most anterior foreground x per row (sub-row smoothing), rows y0..y1. Returns (N, 2) points, NaN-free."""
     rows, xs = [], []
@@ -144,13 +159,9 @@ def _detect(q: np.ndarray, end: int) -> dict[str, int]:
 def trace_profile(rgb: np.ndarray, seg: np.ndarray, face: Any | None = None, *,
                   min_scale_px: float = 0.0) -> ProfileTrace:
     """Find the anterior outline and its landmarks. Raises ProfileUnavailable with a reason."""
-    from ..cv import SEG_BACKGROUND, SEG_FACE_SKIN, SEG_HAIR
+    from ..cv import SEG_HAIR
 
-    skin = seg == SEG_FACE_SKIN
-    if skin.sum() < 150:
-        raise ProfileUnavailable("no_face")
-    fg = _largest_component(seg != SEG_BACKGROUND)
-    skin &= fg
+    fg, skin = profile_masks(seg)
     ys, xs = np.nonzero(skin)
     hair = (seg == SEG_HAIR) & fg
     # facing: the face skin lies in front of the hair mass (or, with a face, in front of the nose-tip → ear axis)
