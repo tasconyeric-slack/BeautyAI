@@ -378,7 +378,7 @@ export const aestheticScore = {
   method: "总分 = 对称 × 35% + 三庭 × 25% + 五眼 × 25% + 长宽比 × 15%，每项 0–100，由照片上的关键点直接计算，同一张照片结果不变。公式与权重参照公开的面部几何计算方法；换算阈值是产品校准值，不是科学标准。",
   notRank: "参考人群位置只对照公开的自愿扫描样本，为近似值，不代表全人群。",
   methodToggle: "怎么算的",
-  sample: "示例 · 合成平均人脸，非真人",
+  sample: "示例 · 合成人脸，非真人",
   landingTitle: "一个讲依据的分数",
   landingBody: "4 项面部几何，各自对应照片上的关键点；你能看到每一分从哪来，以及可以先调整什么。",
   landingOpen: "打开示例档案",
@@ -401,6 +401,18 @@ export const report = {
   sampleKicker: "示例报告 · 合成人脸",
   sampleNote: "这份示例由合成人脸和虚构档案生成，使用与真实报告相同的组件；其中的参考分是对这张合成人脸的实际计算，不代表任何真人。",
   sampleVariants: { female: "女性化表达示例", male: "男性化表达示例" },
+  /** Issue #14: pipeline-backed samples of AI-generated fictional people. */
+  demo: {
+    selectorLabel: "选择示例人物",
+    illustrated: "插画示例",
+    disclosureTitle: "AI 生成的虚构人物，不是真人照片",
+    disclosureBody: "照片由 AI 合成，人物不存在；报告中的质检、测量、参考分和文字分析，都由与真实用户相同的分析流程实际生成。",
+    provenance: (model: string, scoring: string, date: string) => `分析模型 ${model} · 参考分 ${scoring} · 生成于 ${date}`,
+    sideMeasured: "侧脸照片通过质检，侧面测量为实测",
+    sideMissing: "侧脸照片未通过质检，侧面测量标记为不可用",
+    noPreviews: "未生成 AI 试看图（示例中不展示合成效果图）",
+    noLearned: "未使用任何学习型外貌模型，参考分只来自面部几何计算",
+  },
   sampleCta: "上传一张正脸，生成你自己的报告",
   toc: "目录",
   chapters: {

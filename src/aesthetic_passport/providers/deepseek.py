@@ -56,6 +56,24 @@ def parse_json_object(text: str) -> tuple[dict[str, Any] | None, str | None]:
     return data, None
 
 
+PROXY_PLACEHOLDER_KEY = "proxy-injected"
+
+
+def proxy_auth_enabled(proxy_auth_env: str | None) -> bool:
+    """True when the deployment declares that an egress proxy injects the real credential (the key never enters
+    this process). Refused in production, where a missing key must keep failing loudly."""
+    from ..runtime import is_production
+
+    if not proxy_auth_env or is_production():
+        return False
+    return os.environ.get(proxy_auth_env, "").strip().lower() in ("1", "true", "yes")
+
+
+def proxy_placeholder_key(proxy_auth_env: str | None) -> str | None:
+    """The SDK always sends an Authorization header; the proxy overwrites this placeholder with the real key."""
+    return PROXY_PLACEHOLDER_KEY if proxy_auth_enabled(proxy_auth_env) else None
+
+
 class DeepSeekProvider:
     name = "deepseek"
 
@@ -66,6 +84,7 @@ class DeepSeekProvider:
         base_url: str,
         api_key: str | None = None,
         api_key_env: str = "DEEPSEEK_API_KEY",
+        proxy_auth_env: str | None = None,
         temperature: float = 0.2,
         max_output_tokens: int = 8000,
         timeout_s: float = 120,
@@ -84,7 +103,7 @@ class DeepSeekProvider:
         self.max_output_tokens = max_output_tokens
         self.prices = prices
         if client is None:
-            key = api_key or os.environ.get(api_key_env)
+            key = api_key or os.environ.get(api_key_env) or proxy_placeholder_key(proxy_auth_env)
             if not key:
                 raise ProviderError(f"{api_key_env} is not set (see .env.example)")
             from openai import OpenAI

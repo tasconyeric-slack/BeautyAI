@@ -7,6 +7,9 @@ providers:
     # OpenAI-compatible endpoint; called with the `openai` Python SDK.
     base_url: "https://api.deepseek.com"
     api_key_env: DEEPSEEK_API_KEY
+    # =1 when an egress proxy injects the real key (e.g. a Claude Code Cloud network secret); the SDK then sends a
+    # placeholder. Ignored when APP_ENV=production, where DEEPSEEK_API_KEY stays mandatory.
+    proxy_auth_env: DEEPSEEK_AUTH_VIA_PROXY
     timeout_s: 120
     sdk_max_retries: 2            # transport-level retries (429 / 5xx / connection) inside the SDK
   qwen:

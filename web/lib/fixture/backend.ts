@@ -15,6 +15,7 @@ import { ApiError } from "../api";
 import type { Passport, PassportResponse, PreviewState } from "../passport";
 import type { FaceGeometry } from "../tint";
 import { SAMPLE_IDS, isSampleId } from "../flags";
+import { demoCaseById } from "../fixtures/demo_cases";
 import { freeView } from "./free-view";
 
 const FEMALE = femaleJson as unknown as Passport;
@@ -66,8 +67,11 @@ function load(id: string): FxState | null {
     /* storage unavailable */
   }
   if (isSampleId(id)) {
+    const demo = demoCaseById(id);
+    if (!demo && id !== SAMPLE_IDS.female && id !== SAMPLE_IDS.male) return null;
     const s: FxState = {
-      id, presentation: id === SAMPLE_IDS.male ? "masculine" : "feminine", createdAt: 0, context: {}, events: [],
+      id, presentation: demo ? demo.passport.user_context.presentation : id === SAMPLE_IDS.male ? "masculine" : "feminine",
+      createdAt: 0, context: {}, events: [],
       paid: false, previews: [], shareToken: null,
       deletedAt: null, derivedVersion: 1,
     };
@@ -104,7 +108,7 @@ function mergeContext(base: Passport["user_context"], patch: ContextPatch): Pass
 
 /** A compact client-side version of rules.derive's feedback + constraint effects (fixture mode only). */
 export function fixturePassport(s: FxState): Passport {
-  const p = clone(s.presentation === "masculine" ? MALE : FEMALE);
+  const p = clone(demoCaseById(s.id)?.passport ?? (s.presentation === "masculine" ? MALE : FEMALE));
   p.passport_id = s.id;
   const contextChanged = Object.keys(s.context).length > 0;
   p.user_context = mergeContext(p.user_context, s.context);
@@ -220,7 +224,8 @@ function previewStates(s: FxState, now: number, fullAt: number, p: Passport): Pr
     .map((pv) => {
       const started = Math.max(pv.requestedAt, fullAt);
       const done = now - started >= T_PREVIEW;
-      const art = s.presentation !== "masculine" && pv.kind === "hair" && !photos.has(s.id) ? fixturePreviewArt(p, pv.target_id) : null;
+      const art = s.presentation !== "masculine" && pv.kind === "hair" && !photos.has(s.id) && !demoCaseById(s.id)
+        ? fixturePreviewArt(p, pv.target_id) : null;
       const status: PreviewState["status"] = !done ? "pending" : art ? "succeeded" : "fallback";
       return {
         target_id: pv.target_id, kind: pv.kind, status, image_model: done && art ? "fixture-illustration" : null,
@@ -256,7 +261,8 @@ function response(s: FxState): PassportResponse {
     feature_signature: sig,
     observations: full.analysis.observations.filter((o) => cited.has(o.id)),
   } : null;
-  const front = photos.get(s.id) ?? (s.presentation === "masculine" ? SAMPLE_PORTRAIT_MALE : SAMPLE_PORTRAIT);
+  const demo = demoCaseById(s.id);
+  const front = photos.get(s.id) ?? demo?.photos.front ?? (s.presentation === "masculine" ? SAMPLE_PORTRAIT_MALE : SAMPLE_PORTRAIT);
   return {
     id: s.id,
     status,
@@ -280,10 +286,11 @@ function response(s: FxState): PassportResponse {
       // uploads: the person's own photos (no geometry → no lines on them); samples: the synthetic illustrations
       photos: photos.has(s.id)
         ? { front, ...(rolePhotos.get(s.id) ?? {}) }
+        : demo ? { ...demo.photos }
         : { front, profile90: s.presentation === "masculine" ? SAMPLE_PROFILE_MALE : SAMPLE_PROFILE },
     },
     error: null,
-    created_at: new Date(s.createdAt || Date.parse("2026-10-22T09:00:00Z")).toISOString(),
+    created_at: demo?.passport.created_at ?? new Date(s.createdAt || Date.parse("2026-10-22T09:00:00Z")).toISOString(),
   };
 }
 
@@ -364,7 +371,8 @@ export const fixtureBackend: Backend = {
   async geometry(id) {
     must(id);
     // the sample geometry only matches the sample portrait (same synthetic landmarks as the sample's measurements)
-    return photos.has(id) ? null : must(id).presentation === "masculine" ? GEOMETRY_MALE : GEOMETRY;
+    if (photos.has(id)) return null;
+    return demoCaseById(id)?.geometry ?? (must(id).presentation === "masculine" ? GEOMETRY_MALE : GEOMETRY);
   },
   async share(id) {
     const s = must(id);
@@ -409,11 +417,14 @@ export const fixtureBackend: Backend = {
  *  the same fixture response as /p/[sample] so the report renders exactly what a paid passport would. Nothing is
  *  stored: the visitor's own sample state (free view, feedback) stays untouched. The three hair previews are the
  *  drawn sample illustrations (feminine sample) or an honest "not generated" fallback (masculine sample). */
-export function sampleReportResponse(variant: "female" | "male" = "female"): PassportResponse {
-  const id = variant === "male" ? SAMPLE_IDS.male : SAMPLE_IDS.female;
+export function sampleReportResponse(variant: "female" | "male" | string = "female"): PassportResponse {
+  // Issue #14: a pipeline-backed demo case by sample id. Its previews were never generated, so none are shown.
+  const demo = demoCaseById(variant);
+  const id = demo ? demo.id : variant === "male" ? SAMPLE_IDS.male : SAMPLE_IDS.female;
   const s: FxState = {
-    id, presentation: variant === "male" ? "masculine" : "feminine", createdAt: 0, context: {}, events: [], paid: true,
-    previews: (["safe", "bold", "easy"] as const).map((t) => ({ kind: "hair" as const, target_id: t, requestedAt: 0, paid: true })),
+    id, presentation: demo ? demo.passport.user_context.presentation : variant === "male" ? "masculine" : "feminine",
+    createdAt: 0, context: {}, events: [], paid: true,
+    previews: demo ? [] : (["safe", "bold", "easy"] as const).map((t) => ({ kind: "hair" as const, target_id: t, requestedAt: 0, paid: true })),
     shareToken: null, deletedAt: null, derivedVersion: 1,
   };
   const r = response(s);

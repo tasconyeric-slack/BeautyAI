@@ -70,7 +70,7 @@ describe("Landing", () => {
     for (const k of ["symmetry", "thirds", "fifths", "golden_ratio"]) expect(screen.getByTestId(`score-part-${k}`)).toBeTruthy();
     expect(screen.getByTestId("score-strengths").querySelectorAll("li")).toHaveLength(2);
     expect(screen.getByTestId("score-improvement").textContent).toBeTruthy();
-    expect(hero.textContent).toContain("合成平均人脸");
+    expect(hero.textContent).toContain("合成人脸");
     expect(screen.getByTestId("score-cta").getAttribute("href")).toBe("/p/ap_sample_0001");
     expect(screen.queryByText("颜值评分 · 即将上线")).toBeNull();
   });

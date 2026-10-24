@@ -261,3 +261,12 @@
 - Studio 显式选择分析照 / 日常眼镜照；试戴不同镜框自动回到无眼镜来源，旧 `noglasses` 仍可用。日常戴镜照不叠加几何图层；旧无眼镜照单独检查并重新计算自己的定位，绝不套用另一张照片的多边形。
 - 发型 target 在非默认来源增加 `_srcglasses` / `_srcnoglasses`，隔离任务、生成图、before 图和蒙版；默认 target 不变。已有待处理或成功发型试看时禁止替换对应来源，避免旧裁剪错贴。
 - 复用现有 `media.photos` 开放映射和字符串 target，passport / analysis schema、提示词、付费策略与 provider 不变。保存造型仍是可复用的选项集合，比较页保持分析照基线，Studio 明示此限制；不修改 `components/looks/**`。
+
+**D41 真实流水线示例报告：AI 生成的虚构人物**（2026-10-24，Issue #14）
+- 两位经产品负责人批准的 AI 合成成年虚构人物（person-001 / person-002），由 `scripts/build_demo_cases.py` 调用真实生产流水线生成：MediaPipe 质检 → 测量 → D36 几何参考分 → D37 参考人群位置 → DeepSeek 快速 + 完整分析 → 规则层 → `validate_passport`。脚本拒绝 `fake` 分析与 `QC_MODE=stub`，并逐张核对批准清单的 sha256。
+- 输入角色：无眼镜正脸是唯一分析与测量来源；名义 90° 侧脸只有真实 QC 通过才进入侧面测量并发布；日常眼镜照仅为造型参考（D40），不测量、不送模型、不发布。
+- 版本化快照放在 `examples/demo_cases/<person>/`（passport / geometry / provenance），网页导入逐字节相同的副本（测试保证）。provenance 记录输入与发布图片哈希、CV 引擎与模型文件哈希、评分与百分位版本、分析模型 / 提示词版本 / 重试 / 调用统计，以及“试看图未生成”“不含学习型外貌模型（#13 许可门槛）”。不依赖任何会过期的服务 URL。
+- 发布图片：仅两人的正脸与通过 QC 的侧脸，同尺寸 RGB JPEG、去除元数据，原始 PNG 不改动；仓库默认忽略图片，这四张经人工审核后显式加入。这是不变量 7 的有限例外：只适用于批准的合成人物，绝不适用于用户照片。
+- `/report/sample` 默认展示 person-001，提供两人切换与显眼的“AI 生成的虚构人物”说明；旧插画示例经 `?v=female|male` 保留。新增人物只需清单条目 + 运行脚本 + 一行导入。
+- DeepSeek 新增 `DEEPSEEK_AUTH_VIA_PROXY=1`：凭据由出口代理注入时，SDK 发送占位密钥；`APP_ENV=production` 下忽略此开关，缺少 `DEEPSEEK_API_KEY` 仍然直接失败。
+- 局限：两张合成肖像只证明流程可运行和身份一致的展示，不验证测量精度或人群分布；分析结果是一次真实调用的快照，重新运行会得到措辞不同的结果。

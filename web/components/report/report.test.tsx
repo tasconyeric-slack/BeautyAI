@@ -48,7 +48,7 @@ describe("full report — public synthetic sample (full entitlement)", () => {
 
     // overall: the scoring layer's number, labeled as a synthetic sample
     expect(screen.getByTestId("score-value").textContent).toBe(String(Math.round(p.aesthetic_score!.overall_score!)));
-    expect(report.textContent).toContain("合成平均人脸");
+    expect(report.textContent).toContain("合成人脸");
 
     // findings: six region chapters with measured values straight from measurement_profile
     expect(container.querySelectorAll("[data-region]").length).toBe(6);

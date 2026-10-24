@@ -6,6 +6,7 @@ import type { SwatchColor } from "@/components/ds";
 import { aestheticScore, avatarProps, colorGroups, cover, firstThing, hairOptions, profileCardProps, rankedRecs, triptych } from "@/lib/adapters";
 import { common, topics } from "@/lib/copy/zh";
 import { SAMPLE_IDS } from "@/lib/flags";
+import { DEMO_CASES } from "@/lib/fixtures/demo_cases";
 import female from "@/lib/fixtures/sample_passport.json";
 import male from "@/lib/fixtures/sample_passport_male.json";
 import type { Passport } from "@/lib/passport";
@@ -190,7 +191,9 @@ export const HERO_SAMPLE = {
 
 /** Landing preview of the full sample report (Issue #33): one real line per chapter, read from the sample passport. */
 export const SAMPLE_REPORT_HREF = "/report/sample";
-export function sampleReportPreview(p: Passport = female as unknown as Passport) {
+/** The landing's report preview summarises the first pipeline-backed sample (Issue #14), the same one
+ *  /report/sample opens by default. */
+export function sampleReportPreview(p: Passport = DEMO_CASES[0].passport) {
   const score = aestheticScore(p);
   const cov = p.measurement_profile?.coverage;
   const recs = rankedRecs(p);

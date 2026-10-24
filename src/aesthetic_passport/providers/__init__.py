@@ -21,7 +21,7 @@ from .base import (
     estimate_cost,
     load_models_config,
 )
-from .deepseek import DeepSeekProvider
+from .deepseek import DeepSeekProvider, proxy_auth_enabled
 from .fake import FakeProvider
 
 _REGISTRY: dict[str, type] = {"deepseek": DeepSeekProvider, "fake": FakeProvider}
@@ -59,6 +59,7 @@ def from_config(role: str = "analysis", cfg: dict[str, Any] | None = None, **ove
     opts: dict[str, Any] = {
         "base_url": pcfg["base_url"],
         "api_key_env": pcfg["api_key_env"],
+        "proxy_auth_env": pcfg.get("proxy_auth_env"),
         "timeout_s": pcfg.get("timeout_s", 120),
         "sdk_max_retries": pcfg.get("sdk_max_retries", 2),
         "temperature": spec.get("temperature", 0.2),
@@ -76,8 +77,9 @@ def resolve_provider_name(configured: str, cfg: dict[str, Any] | None = None) ->
     choice = os.environ.get("ANALYSIS_PROVIDER", "auto").strip().lower() or "auto"
     if choice == "auto":
         cfg = cfg or load_models_config()
-        key_env = cfg["providers"].get(configured, {}).get("api_key_env")
-        if key_env and os.environ.get(key_env):
+        pcfg = cfg["providers"].get(configured, {})
+        key_env = pcfg.get("api_key_env")
+        if (key_env and os.environ.get(key_env)) or proxy_auth_enabled(pcfg.get("proxy_auth_env")):
             return configured
         # Production never falls back to the fixture silently: the configured provider then fails on its missing key.
         return "fake" if mocks_allowed() else configured
