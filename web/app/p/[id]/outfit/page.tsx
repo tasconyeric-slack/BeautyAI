@@ -1,16 +1,18 @@
 "use client";
 
-// TODO(B3): neckline / colour comparison on the photo, occasion boards, frame-aware hints.
+// TODO(B3): neckline / colour comparison on the photo, frame-aware hints. (Occasion boards, compare and capsule: components/outfit.)
 import { Copy } from "lucide-react";
 import { toast } from "sonner";
 import { FeedbackFor } from "@/components/adjust/feedback-for";
+import { OutfitBoards } from "@/components/outfit/outfit-boards";
 import { Card, Locked, NotReady, Page, PageHeader, Section } from "@/components/passport/ui";
 import { stripRefs } from "@/lib/adapters";
-import { adjustments } from "@/lib/copy/zh";
 import { usePassport } from "@/lib/state/passport-store";
+import * as React from "react";
 
 export default function OutfitPage() {
-  const { passport, data } = usePassport();
+  const { id, passport, data, marks } = usePassport();
+  const disliked = React.useMemo(() => new Set(Object.entries(marks).filter(([k, m]) => k.startsWith("garment:") && m.reaction === "dislike").map(([k]) => k.slice(8))), [marks]);
   if (!passport || !data) return <NotReady />;
   const od = passport.analysis.outfit_direction;
   const checks = new Map(passport.derived.outfit_checks.items.map((i) => [i.garment_id, i]));
@@ -57,11 +59,7 @@ export default function OutfitPage() {
         </ul>
         {locked.includes("outfit.items") && <Locked what="全部单品清单" />}
       </Section>
-      {od.occasions.length > 0 && (
-        <Section title="场合方案">
-          <ul className="space-y-2">{od.occasions.map((o) => <li key={o.occasion}><Card><p className="text-[12px] text-muted">{adjustments.occasions[o.occasion]}</p><p className="text-[14px]">{o.look}</p></Card></li>)}</ul>
-        </Section>
-      )}
+      <OutfitBoards id={id} passport={passport} disliked={disliked} locked={locked} />
     </Page>
   );
 }

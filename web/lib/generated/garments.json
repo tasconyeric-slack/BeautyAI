@@ -1,0 +1,2972 @@
+{
+  "garments": [
+    {
+      "id": "doll_collar_blouse",
+      "category": "top",
+      "name_zh": "娃娃领衬衫",
+      "silhouette": "微宽松",
+      "fabric": "棉府绸",
+      "color_slot": "near_face",
+      "presentations": [
+        "feminine"
+      ],
+      "occasions": [
+        "commute",
+        "date"
+      ],
+      "search_tpl": "{color} {fabric} {name} {silhouette}"
+    },
+    {
+      "id": "puff_sleeve_knit_top",
+      "category": "top",
+      "name_zh": "泡泡袖针织短上衣",
+      "silhouette": "短款合身",
+      "fabric": "针织棉",
+      "color_slot": "near_face",
+      "presentations": [
+        "feminine"
+      ],
+      "occasions": [
+        "commute",
+        "date"
+      ],
+      "search_tpl": "{color} {fabric} {name} {silhouette}"
+    },
+    {
+      "id": "scallop_neck_knit",
+      "category": "top",
+      "name_zh": "花边圆领针织衫",
+      "silhouette": "合身",
+      "fabric": "棉粘胶混纺",
+      "color_slot": "near_face",
+      "presentations": [
+        "feminine"
+      ],
+      "occasions": [
+        "commute",
+        "date"
+      ],
+      "search_tpl": "{color} {fabric} {name} {silhouette}"
+    },
+    {
+      "id": "textured_polo_top",
+      "category": "top",
+      "name_zh": "肌理针织Polo衫",
+      "silhouette": "直身",
+      "fabric": "棉混纺",
+      "color_slot": "near_face",
+      "presentations": [
+        "feminine",
+        "masculine",
+        "neutral"
+      ],
+      "occasions": [
+        "commute",
+        "casual"
+      ],
+      "search_tpl": "{color} {fabric} {name} {silhouette}"
+    },
+    {
+      "id": "fine_stripe_tee",
+      "category": "top",
+      "name_zh": "细条纹圆领T恤",
+      "silhouette": "微宽松",
+      "fabric": "纯棉",
+      "color_slot": "near_face",
+      "presentations": [
+        "feminine",
+        "masculine",
+        "neutral"
+      ],
+      "occasions": [
+        "date",
+        "casual"
+      ],
+      "search_tpl": "{color} {fabric} {name} {silhouette}"
+    },
+    {
+      "id": "jacquard_knit_vest",
+      "category": "top",
+      "name_zh": "小提花针织背心",
+      "silhouette": "合身",
+      "fabric": "棉毛混纺",
+      "color_slot": "near_face",
+      "presentations": [
+        "masculine",
+        "neutral"
+      ],
+      "occasions": [
+        "commute",
+        "casual"
+      ],
+      "search_tpl": "{color} {fabric} {name} {silhouette}"
+    },
+    {
+      "id": "pleated_a_line_mini",
+      "category": "bottom",
+      "name_zh": "A字百褶短裙",
+      "silhouette": "A字",
+      "fabric": "斜纹棉",
+      "color_slot": "base",
+      "presentations": [
+        "feminine"
+      ],
+      "occasions": [
+        "date",
+        "casual"
+      ],
+      "search_tpl": "{color} {fabric} {name} {silhouette}"
+    },
+    {
+      "id": "cropped_tapered_trousers",
+      "category": "bottom",
+      "name_zh": "九分锥形休闲裤",
+      "silhouette": "锥形",
+      "fabric": "棉弹力混纺",
+      "color_slot": "base",
+      "presentations": [
+        "feminine",
+        "masculine",
+        "neutral"
+      ],
+      "occasions": [
+        "commute",
+        "casual"
+      ],
+      "search_tpl": "{color} {fabric} {name} {silhouette}"
+    },
+    {
+      "id": "relaxed_knee_shorts",
+      "category": "bottom",
+      "name_zh": "宽松五分短裤",
+      "silhouette": "宽松",
+      "fabric": "棉麻",
+      "color_slot": "base",
+      "presentations": [
+        "masculine",
+        "neutral"
+      ],
+      "occasions": [
+        "casual"
+      ],
+      "search_tpl": "{color} {fabric} {name} {silhouette}"
+    },
+    {
+      "id": "round_neck_short_cardigan",
+      "category": "outer",
+      "name_zh": "圆领短款开衫",
+      "silhouette": "短款合身",
+      "fabric": "棉羊毛混纺",
+      "color_slot": "near_face",
+      "presentations": [
+        "feminine"
+      ],
+      "occasions": [
+        "commute",
+        "date"
+      ],
+      "search_tpl": "{color} {fabric} {name} {silhouette}"
+    },
+    {
+      "id": "baseball_collar_knit_jacket",
+      "category": "outer",
+      "name_zh": "棒球领针织夹克",
+      "silhouette": "直身",
+      "fabric": "棉混纺",
+      "color_slot": "near_face",
+      "presentations": [
+        "feminine",
+        "masculine",
+        "neutral"
+      ],
+      "occasions": [
+        "casual"
+      ],
+      "search_tpl": "{color} {fabric} {name} {silhouette}"
+    },
+    {
+      "id": "cropped_cotton_jacket",
+      "category": "outer",
+      "name_zh": "翻领短款棉夹克",
+      "silhouette": "短款直身",
+      "fabric": "斜纹棉",
+      "color_slot": "near_face",
+      "presentations": [
+        "masculine",
+        "neutral"
+      ],
+      "occasions": [
+        "commute",
+        "casual"
+      ],
+      "search_tpl": "{color} {fabric} {name} {silhouette}"
+    },
+    {
+      "id": "doll_collar_a_line_dress",
+      "category": "dress",
+      "name_zh": "娃娃领A字连衣裙",
+      "silhouette": "A字",
+      "fabric": "纯棉",
+      "color_slot": "near_face",
+      "presentations": [
+        "feminine"
+      ],
+      "occasions": [
+        "date",
+        "casual"
+      ],
+      "search_tpl": "{color} {fabric} {name} {silhouette}"
+    },
+    {
+      "id": "square_neck_floral_dress",
+      "category": "dress",
+      "name_zh": "小方领碎花连衣裙",
+      "silhouette": "收腰A字",
+      "fabric": "棉粘胶混纺",
+      "color_slot": "near_face",
+      "presentations": [
+        "feminine"
+      ],
+      "occasions": [
+        "date"
+      ],
+      "search_tpl": "{color} {fabric} {name} {silhouette}"
+    },
+    {
+      "id": "mary_jane_flats",
+      "category": "shoes",
+      "name_zh": "玛丽珍平底鞋",
+      "silhouette": "圆头搭带",
+      "fabric": "皮革",
+      "color_slot": "base",
+      "presentations": [
+        "feminine"
+      ],
+      "occasions": [
+        "commute",
+        "date"
+      ],
+      "search_tpl": "{color} {fabric} {name} {silhouette}"
+    },
+    {
+      "id": "lace_up_canvas_shoes",
+      "category": "shoes",
+      "name_zh": "系带帆布鞋",
+      "silhouette": "圆头低帮",
+      "fabric": "帆布",
+      "color_slot": "base",
+      "presentations": [
+        "feminine",
+        "masculine",
+        "neutral"
+      ],
+      "occasions": [
+        "date",
+        "casual"
+      ],
+      "search_tpl": "{color} {fabric} {name} {silhouette}"
+    },
+    {
+      "id": "suede_panel_sneakers",
+      "category": "shoes",
+      "name_zh": "麂皮拼接休闲鞋",
+      "silhouette": "圆头低帮",
+      "fabric": "麂皮",
+      "color_slot": "base",
+      "presentations": [
+        "masculine",
+        "neutral"
+      ],
+      "occasions": [
+        "casual"
+      ],
+      "search_tpl": "{color} {fabric} {name} {silhouette}"
+    },
+    {
+      "id": "rounded_flap_crossbody",
+      "category": "bag",
+      "name_zh": "圆角翻盖斜挎包",
+      "silhouette": "小号圆角",
+      "fabric": "皮革",
+      "color_slot": "base",
+      "presentations": [
+        "feminine",
+        "masculine",
+        "neutral"
+      ],
+      "occasions": [
+        "commute",
+        "date"
+      ],
+      "search_tpl": "{color} {fabric} {name} {silhouette}"
+    },
+    {
+      "id": "small_canvas_messenger",
+      "category": "bag",
+      "name_zh": "小号帆布邮差包",
+      "silhouette": "方形软包",
+      "fabric": "帆布",
+      "color_slot": "base",
+      "presentations": [
+        "masculine",
+        "neutral"
+      ],
+      "occasions": [
+        "casual"
+      ],
+      "search_tpl": "{color} {fabric} {name} {silhouette}"
+    },
+    {
+      "id": "resin_round_pendant",
+      "category": "accessory",
+      "name_zh": "圆形树脂吊坠项链",
+      "silhouette": "小圆片",
+      "fabric": "树脂",
+      "color_slot": "near_face",
+      "presentations": [
+        "feminine",
+        "masculine",
+        "neutral"
+      ],
+      "occasions": [
+        "date",
+        "casual"
+      ],
+      "search_tpl": "{color} {fabric} {name} {silhouette}"
+    },
+    {
+      "id": "narrow_knit_scarf",
+      "category": "accessory",
+      "name_zh": "窄幅针织围巾",
+      "silhouette": "窄长条",
+      "fabric": "羊毛混纺",
+      "color_slot": "near_face",
+      "presentations": [
+        "feminine",
+        "masculine",
+        "neutral"
+      ],
+      "occasions": [
+        "commute",
+        "casual"
+      ],
+      "search_tpl": "{color} {fabric} {name} {silhouette}"
+    },
+    {
+      "id": "round_buckle_webbing_belt",
+      "category": "accessory",
+      "name_zh": "圆扣织带腰带",
+      "silhouette": "窄幅",
+      "fabric": "棉织带",
+      "color_slot": "accent",
+      "presentations": [
+        "masculine",
+        "neutral"
+      ],
+      "occasions": [
+        "casual"
+      ],
+      "search_tpl": "{color} {fabric} {name} {silhouette}"
+    },
+    {
+      "id": "sailor_collar_shirt",
+      "category": "top",
+      "name_zh": "海军领衬衫",
+      "silhouette": "直身",
+      "fabric": "纯棉",
+      "color_slot": "near_face",
+      "presentations": [
+        "feminine"
+      ],
+      "occasions": [
+        "date",
+        "casual"
+      ],
+      "search_tpl": "{color} {fabric} {name} {silhouette}"
+    },
+    {
+      "id": "cropped_straight_vest",
+      "category": "top",
+      "name_zh": "短款直身背心",
+      "silhouette": "短款直身",
+      "fabric": "斜纹棉",
+      "color_slot": "near_face",
+      "presentations": [
+        "feminine"
+      ],
+      "occasions": [
+        "commute",
+        "casual"
+      ],
+      "search_tpl": "{color} {fabric} {name} {silhouette}"
+    },
+    {
+      "id": "striped_knit_polo",
+      "category": "top",
+      "name_zh": "条纹针织Polo衫",
+      "silhouette": "短款合身",
+      "fabric": "针织棉",
+      "color_slot": "near_face",
+      "presentations": [
+        "feminine"
+      ],
+      "occasions": [
+        "commute",
+        "casual"
+      ],
+      "search_tpl": "{color} {fabric} {name} {silhouette}"
+    },
+    {
+      "id": "short_sleeve_oxford_shirt",
+      "category": "top",
+      "name_zh": "短袖牛津纺衬衫",
+      "silhouette": "微宽松",
+      "fabric": "牛津纺棉",
+      "color_slot": "near_face",
+      "presentations": [
+        "feminine",
+        "masculine",
+        "neutral"
+      ],
+      "occasions": [
+        "commute",
+        "casual"
+      ],
+      "search_tpl": "{color} {fabric} {name} {silhouette}"
+    },
+    {
+      "id": "raglan_contrast_tee",
+      "category": "top",
+      "name_zh": "撞色插肩袖T恤",
+      "silhouette": "直身",
+      "fabric": "纯棉",
+      "color_slot": "near_face",
+      "presentations": [
+        "feminine",
+        "masculine",
+        "neutral"
+      ],
+      "occasions": [
+        "casual"
+      ],
+      "search_tpl": "{color} {fabric} {name} {silhouette}"
+    },
+    {
+      "id": "henley_long_sleeve",
+      "category": "top",
+      "name_zh": "亨利领长袖衫",
+      "silhouette": "直身",
+      "fabric": "竹节棉",
+      "color_slot": "near_face",
+      "presentations": [
+        "masculine",
+        "neutral"
+      ],
+      "occasions": [
+        "casual"
+      ],
+      "search_tpl": "{color} {fabric} {name} {silhouette}"
+    },
+    {
+      "id": "cargo_mini_skirt",
+      "category": "bottom",
+      "name_zh": "工装短裙",
+      "silhouette": "直筒",
+      "fabric": "斜纹棉",
+      "color_slot": "base",
+      "presentations": [
+        "feminine"
+      ],
+      "occasions": [
+        "casual"
+      ],
+      "search_tpl": "{color} {fabric} {name} {silhouette}"
+    },
+    {
+      "id": "straight_ankle_jeans",
+      "category": "bottom",
+      "name_zh": "直筒九分牛仔裤",
+      "silhouette": "直筒",
+      "fabric": "牛仔布",
+      "color_slot": "base",
+      "presentations": [
+        "feminine",
+        "masculine",
+        "neutral"
+      ],
+      "occasions": [
+        "commute",
+        "casual"
+      ],
+      "search_tpl": "{color} {fabric} {name} {silhouette}"
+    },
+    {
+      "id": "pleated_bermuda_shorts",
+      "category": "bottom",
+      "name_zh": "褶裥百慕大短裤",
+      "silhouette": "宽直筒",
+      "fabric": "斜纹棉",
+      "color_slot": "base",
+      "presentations": [
+        "masculine",
+        "neutral"
+      ],
+      "occasions": [
+        "commute",
+        "casual"
+      ],
+      "search_tpl": "{color} {fabric} {name} {silhouette}"
+    },
+    {
+      "id": "cropped_bomber_jacket",
+      "category": "outer",
+      "name_zh": "短款飞行夹克",
+      "silhouette": "短款廓形",
+      "fabric": "锦纶",
+      "color_slot": "near_face",
+      "presentations": [
+        "feminine"
+      ],
+      "occasions": [
+        "casual"
+      ],
+      "search_tpl": "{color} {fabric} {name} {silhouette}"
+    },
+    {
+      "id": "knit_varsity_jacket",
+      "category": "outer",
+      "name_zh": "针织棒球服",
+      "silhouette": "直身",
+      "fabric": "棉毛混纺",
+      "color_slot": "near_face",
+      "presentations": [
+        "feminine",
+        "masculine",
+        "neutral"
+      ],
+      "occasions": [
+        "casual"
+      ],
+      "search_tpl": "{color} {fabric} {name} {silhouette}"
+    },
+    {
+      "id": "shirt_workwear_jacket",
+      "category": "outer",
+      "name_zh": "衬衫式工装夹克",
+      "silhouette": "宽直身",
+      "fabric": "帆布",
+      "color_slot": "near_face",
+      "presentations": [
+        "masculine",
+        "neutral"
+      ],
+      "occasions": [
+        "commute",
+        "casual"
+      ],
+      "search_tpl": "{color} {fabric} {name} {silhouette}"
+    },
+    {
+      "id": "denim_pinafore_dress",
+      "category": "dress",
+      "name_zh": "背带牛仔连衣裙",
+      "silhouette": "直身",
+      "fabric": "牛仔布",
+      "color_slot": "near_face",
+      "presentations": [
+        "feminine"
+      ],
+      "occasions": [
+        "casual"
+      ],
+      "search_tpl": "{color} {fabric} {name} {silhouette}"
+    },
+    {
+      "id": "polo_straight_dress",
+      "category": "dress",
+      "name_zh": "Polo领直筒连衣裙",
+      "silhouette": "直身",
+      "fabric": "珠地棉",
+      "color_slot": "near_face",
+      "presentations": [
+        "feminine"
+      ],
+      "occasions": [
+        "commute",
+        "casual"
+      ],
+      "search_tpl": "{color} {fabric} {name} {silhouette}"
+    },
+    {
+      "id": "chunky_buckle_loafers",
+      "category": "shoes",
+      "name_zh": "厚底搭扣乐福鞋",
+      "silhouette": "圆头厚底",
+      "fabric": "皮革",
+      "color_slot": "base",
+      "presentations": [
+        "feminine"
+      ],
+      "occasions": [
+        "commute",
+        "casual"
+      ],
+      "search_tpl": "{color} {fabric} {name} {silhouette}"
+    },
+    {
+      "id": "low_top_board_shoes",
+      "category": "shoes",
+      "name_zh": "低帮板鞋",
+      "silhouette": "圆头低帮",
+      "fabric": "皮革",
+      "color_slot": "base",
+      "presentations": [
+        "feminine",
+        "masculine",
+        "neutral"
+      ],
+      "occasions": [
+        "casual"
+      ],
+      "search_tpl": "{color} {fabric} {name} {silhouette}"
+    },
+    {
+      "id": "casual_derby_shoes",
+      "category": "shoes",
+      "name_zh": "德比休闲皮鞋",
+      "silhouette": "圆头系带",
+      "fabric": "皮革",
+      "color_slot": "base",
+      "presentations": [
+        "masculine",
+        "neutral"
+      ],
+      "occasions": [
+        "commute",
+        "casual"
+      ],
+      "search_tpl": "{color} {fabric} {name} {silhouette}"
+    },
+    {
+      "id": "small_nylon_backpack",
+      "category": "bag",
+      "name_zh": "小号尼龙双肩包",
+      "silhouette": "方形软包",
+      "fabric": "锦纶",
+      "color_slot": "base",
+      "presentations": [
+        "feminine",
+        "masculine",
+        "neutral"
+      ],
+      "occasions": [
+        "casual"
+      ],
+      "search_tpl": "{color} {fabric} {name} {silhouette}"
+    },
+    {
+      "id": "canvas_tote_bag",
+      "category": "bag",
+      "name_zh": "帆布托特包",
+      "silhouette": "方形大包",
+      "fabric": "帆布",
+      "color_slot": "base",
+      "presentations": [
+        "masculine",
+        "neutral"
+      ],
+      "occasions": [
+        "commute",
+        "casual"
+      ],
+      "search_tpl": "{color} {fabric} {name} {silhouette}"
+    },
+    {
+      "id": "open_geometric_ring",
+      "category": "accessory",
+      "name_zh": "开口几何戒指",
+      "silhouette": "小号几何",
+      "fabric": "金属",
+      "color_slot": "accent",
+      "presentations": [
+        "feminine",
+        "masculine",
+        "neutral"
+      ],
+      "occasions": [
+        "date",
+        "casual"
+      ],
+      "search_tpl": "{color} {fabric} {name} {silhouette}"
+    },
+    {
+      "id": "contrast_baseball_cap",
+      "category": "accessory",
+      "name_zh": "撞色棒球帽",
+      "silhouette": "弯檐",
+      "fabric": "纯棉",
+      "color_slot": "near_face",
+      "presentations": [
+        "feminine",
+        "masculine",
+        "neutral"
+      ],
+      "occasions": [
+        "casual"
+      ],
+      "search_tpl": "{color} {fabric} {name} {silhouette}"
+    },
+    {
+      "id": "canvas_pin_belt",
+      "category": "accessory",
+      "name_zh": "帆布针扣腰带",
+      "silhouette": "中幅",
+      "fabric": "帆布",
+      "color_slot": "accent",
+      "presentations": [
+        "masculine",
+        "neutral"
+      ],
+      "occasions": [
+        "commute",
+        "casual"
+      ],
+      "search_tpl": "{color} {fabric} {name} {silhouette}"
+    },
+    {
+      "id": "asymmetric_shoulder_top",
+      "category": "top",
+      "name_zh": "斜肩针织上衣",
+      "silhouette": "合身",
+      "fabric": "粘胶混纺",
+      "color_slot": "near_face",
+      "presentations": [
+        "feminine"
+      ],
+      "occasions": [
+        "date"
+      ],
+      "search_tpl": "{color} {fabric} {name} {silhouette}"
+    },
+    {
+      "id": "ruched_fitted_top",
+      "category": "top",
+      "name_zh": "褶皱修身打底衫",
+      "silhouette": "合身抽褶",
+      "fabric": "弹力针织",
+      "color_slot": "near_face",
+      "presentations": [
+        "feminine"
+      ],
+      "occasions": [
+        "date",
+        "casual"
+      ],
+      "search_tpl": "{color} {fabric} {name} {silhouette}"
+    },
+    {
+      "id": "asymmetric_hem_shirt",
+      "category": "top",
+      "name_zh": "不对称下摆衬衫",
+      "silhouette": "不对称直身",
+      "fabric": "棉府绸",
+      "color_slot": "near_face",
+      "presentations": [
+        "feminine"
+      ],
+      "occasions": [
+        "commute",
+        "date"
+      ],
+      "search_tpl": "{color} {fabric} {name} {silhouette}"
+    },
+    {
+      "id": "mock_neck_sleeveless_knit",
+      "category": "top",
+      "name_zh": "半高领无袖针织衫",
+      "silhouette": "直身",
+      "fabric": "粘胶混纺",
+      "color_slot": "near_face",
+      "presentations": [
+        "feminine",
+        "masculine",
+        "neutral"
+      ],
+      "occasions": [
+        "commute",
+        "date"
+      ],
+      "search_tpl": "{color} {fabric} {name} {silhouette}"
+    },
+    {
+      "id": "structured_panel_tee",
+      "category": "top",
+      "name_zh": "结构拼接短袖T恤",
+      "silhouette": "短款廓形",
+      "fabric": "重磅棉",
+      "color_slot": "near_face",
+      "presentations": [
+        "feminine",
+        "masculine",
+        "neutral"
+      ],
+      "occasions": [
+        "casual"
+      ],
+      "search_tpl": "{color} {fabric} {name} {silhouette}"
+    },
+    {
+      "id": "drop_shoulder_zip_sweatshirt",
+      "category": "top",
+      "name_zh": "落肩拉链卫衣",
+      "silhouette": "宽松落肩",
+      "fabric": "棉毛圈",
+      "color_slot": "near_face",
+      "presentations": [
+        "masculine",
+        "neutral"
+      ],
+      "occasions": [
+        "casual"
+      ],
+      "search_tpl": "{color} {fabric} {name} {silhouette}"
+    },
+    {
+      "id": "wrap_panel_skirt",
+      "category": "bottom",
+      "name_zh": "裹片式半身裙",
+      "silhouette": "不对称A字",
+      "fabric": "聚酯混纺",
+      "color_slot": "base",
+      "presentations": [
+        "feminine"
+      ],
+      "occasions": [
+        "commute",
+        "date"
+      ],
+      "search_tpl": "{color} {fabric} {name} {silhouette}"
+    },
+    {
+      "id": "curved_seam_trousers",
+      "category": "bottom",
+      "name_zh": "弧线剪裁长裤",
+      "silhouette": "弧形宽腿",
+      "fabric": "斜纹棉",
+      "color_slot": "base",
+      "presentations": [
+        "feminine",
+        "masculine",
+        "neutral"
+      ],
+      "occasions": [
+        "commute",
+        "casual"
+      ],
+      "search_tpl": "{color} {fabric} {name} {silhouette}"
+    },
+    {
+      "id": "cargo_cuff_trousers",
+      "category": "bottom",
+      "name_zh": "立体口袋束脚裤",
+      "silhouette": "宽松束脚",
+      "fabric": "锦纶",
+      "color_slot": "base",
+      "presentations": [
+        "masculine",
+        "neutral"
+      ],
+      "occasions": [
+        "casual"
+      ],
+      "search_tpl": "{color} {fabric} {name} {silhouette}"
+    },
+    {
+      "id": "cropped_biker_jacket",
+      "category": "outer",
+      "name_zh": "短款机车夹克",
+      "silhouette": "短款合身",
+      "fabric": "皮革",
+      "color_slot": "near_face",
+      "presentations": [
+        "feminine"
+      ],
+      "occasions": [
+        "date",
+        "casual"
+      ],
+      "search_tpl": "{color} {fabric} {name} {silhouette}"
+    },
+    {
+      "id": "collarless_short_blazer",
+      "category": "outer",
+      "name_zh": "无领短款西装",
+      "silhouette": "短款直身",
+      "fabric": "精纺羊毛",
+      "color_slot": "near_face",
+      "presentations": [
+        "feminine",
+        "masculine",
+        "neutral"
+      ],
+      "occasions": [
+        "commute",
+        "formal"
+      ],
+      "search_tpl": "{color} {fabric} {name} {silhouette}"
+    },
+    {
+      "id": "stand_collar_box_jacket",
+      "category": "outer",
+      "name_zh": "立领廓形夹克",
+      "silhouette": "箱型",
+      "fabric": "锦纶",
+      "color_slot": "near_face",
+      "presentations": [
+        "masculine",
+        "neutral"
+      ],
+      "occasions": [
+        "commute",
+        "casual"
+      ],
+      "search_tpl": "{color} {fabric} {name} {silhouette}"
+    },
+    {
+      "id": "asymmetric_neck_dress",
+      "category": "dress",
+      "name_zh": "不对称领口连衣裙",
+      "silhouette": "直身不对称",
+      "fabric": "醋酸混纺",
+      "color_slot": "near_face",
+      "presentations": [
+        "feminine"
+      ],
+      "occasions": [
+        "date",
+        "formal"
+      ],
+      "search_tpl": "{color} {fabric} {name} {silhouette}"
+    },
+    {
+      "id": "side_drawstring_knit_dress",
+      "category": "dress",
+      "name_zh": "侧抽绳针织连衣裙",
+      "silhouette": "抽褶合身",
+      "fabric": "弹力针织",
+      "color_slot": "near_face",
+      "presentations": [
+        "feminine"
+      ],
+      "occasions": [
+        "date"
+      ],
+      "search_tpl": "{color} {fabric} {name} {silhouette}"
+    },
+    {
+      "id": "square_toe_ankle_boots",
+      "category": "shoes",
+      "name_zh": "方头短靴",
+      "silhouette": "方头短筒",
+      "fabric": "皮革",
+      "color_slot": "base",
+      "presentations": [
+        "feminine"
+      ],
+      "occasions": [
+        "commute",
+        "date"
+      ],
+      "search_tpl": "{color} {fabric} {name} {silhouette}"
+    },
+    {
+      "id": "platform_chelsea_boots",
+      "category": "shoes",
+      "name_zh": "厚底切尔西靴",
+      "silhouette": "方圆头厚底",
+      "fabric": "皮革",
+      "color_slot": "base",
+      "presentations": [
+        "feminine",
+        "masculine",
+        "neutral"
+      ],
+      "occasions": [
+        "commute",
+        "casual"
+      ],
+      "search_tpl": "{color} {fabric} {name} {silhouette}"
+    },
+    {
+      "id": "streamlined_panel_sneakers",
+      "category": "shoes",
+      "name_zh": "流线拼接运动鞋",
+      "silhouette": "流线厚底",
+      "fabric": "网布",
+      "color_slot": "base",
+      "presentations": [
+        "masculine",
+        "neutral"
+      ],
+      "occasions": [
+        "casual"
+      ],
+      "search_tpl": "{color} {fabric} {name} {silhouette}"
+    },
+    {
+      "id": "geometric_crossbody_bag",
+      "category": "bag",
+      "name_zh": "几何斜挎小方包",
+      "silhouette": "硬挺几何",
+      "fabric": "皮革",
+      "color_slot": "base",
+      "presentations": [
+        "feminine",
+        "masculine",
+        "neutral"
+      ],
+      "occasions": [
+        "commute",
+        "date"
+      ],
+      "search_tpl": "{color} {fabric} {name} {silhouette}"
+    },
+    {
+      "id": "multi_pocket_chest_bag",
+      "category": "bag",
+      "name_zh": "多口袋胸包",
+      "silhouette": "紧凑多袋",
+      "fabric": "锦纶",
+      "color_slot": "base",
+      "presentations": [
+        "masculine",
+        "neutral"
+      ],
+      "occasions": [
+        "casual"
+      ],
+      "search_tpl": "{color} {fabric} {name} {silhouette}"
+    },
+    {
+      "id": "irregular_metal_ear_cuff",
+      "category": "accessory",
+      "name_zh": "不规则金属耳骨夹",
+      "silhouette": "不对称几何",
+      "fabric": "金属",
+      "color_slot": "near_face",
+      "presentations": [
+        "feminine",
+        "masculine",
+        "neutral"
+      ],
+      "occasions": [
+        "date",
+        "casual"
+      ],
+      "search_tpl": "{color} {fabric} {name} {silhouette}"
+    },
+    {
+      "id": "mirror_link_bracelet",
+      "category": "accessory",
+      "name_zh": "镜面链节手链",
+      "silhouette": "中号链节",
+      "fabric": "金属",
+      "color_slot": "accent",
+      "presentations": [
+        "feminine",
+        "masculine",
+        "neutral"
+      ],
+      "occasions": [
+        "commute",
+        "date"
+      ],
+      "search_tpl": "{color} {fabric} {name} {silhouette}"
+    },
+    {
+      "id": "geometric_buckle_belt",
+      "category": "accessory",
+      "name_zh": "几何金属扣腰带",
+      "silhouette": "中幅几何扣",
+      "fabric": "皮革",
+      "color_slot": "accent",
+      "presentations": [
+        "masculine",
+        "neutral"
+      ],
+      "occasions": [
+        "commute",
+        "casual"
+      ],
+      "search_tpl": "{color} {fabric} {name} {silhouette}"
+    },
+    {
+      "id": "tie_neck_silk_blouse",
+      "category": "top",
+      "name_zh": "系带领真丝衬衫",
+      "silhouette": "垂顺合身",
+      "fabric": "真丝",
+      "color_slot": "near_face",
+      "presentations": [
+        "feminine"
+      ],
+      "occasions": [
+        "commute",
+        "date",
+        "formal"
+      ],
+      "search_tpl": "{color} {fabric} {name} {silhouette}"
+    },
+    {
+      "id": "boat_neck_fine_knit",
+      "category": "top",
+      "name_zh": "船领细针织衫",
+      "silhouette": "合身",
+      "fabric": "羊毛真丝混纺",
+      "color_slot": "near_face",
+      "presentations": [
+        "feminine"
+      ],
+      "occasions": [
+        "commute",
+        "date"
+      ],
+      "search_tpl": "{color} {fabric} {name} {silhouette}"
+    },
+    {
+      "id": "cowl_sleeveless_blouse",
+      "category": "top",
+      "name_zh": "垂领无袖上衣",
+      "silhouette": "垂顺合身",
+      "fabric": "醋酸缎",
+      "color_slot": "near_face",
+      "presentations": [
+        "feminine"
+      ],
+      "occasions": [
+        "date",
+        "formal"
+      ],
+      "search_tpl": "{color} {fabric} {name} {silhouette}"
+    },
+    {
+      "id": "small_stand_collar_shirt",
+      "category": "top",
+      "name_zh": "小立领衬衫",
+      "silhouette": "直身",
+      "fabric": "真丝棉混纺",
+      "color_slot": "near_face",
+      "presentations": [
+        "feminine",
+        "masculine",
+        "neutral"
+      ],
+      "occasions": [
+        "commute",
+        "date",
+        "formal"
+      ],
+      "search_tpl": "{color} {fabric} {name} {silhouette}"
+    },
+    {
+      "id": "fine_v_neck_cardigan_top",
+      "category": "top",
+      "name_zh": "细针织V领开衫上衣",
+      "silhouette": "合身",
+      "fabric": "细羊毛",
+      "color_slot": "near_face",
+      "presentations": [
+        "feminine",
+        "masculine",
+        "neutral"
+      ],
+      "occasions": [
+        "commute",
+        "date"
+      ],
+      "search_tpl": "{color} {fabric} {name} {silhouette}"
+    },
+    {
+      "id": "soft_shoulder_knit_polo",
+      "category": "top",
+      "name_zh": "柔肩长袖针织Polo衫",
+      "silhouette": "合身柔肩",
+      "fabric": "羊毛混纺",
+      "color_slot": "near_face",
+      "presentations": [
+        "masculine",
+        "neutral"
+      ],
+      "occasions": [
+        "commute",
+        "date"
+      ],
+      "search_tpl": "{color} {fabric} {name} {silhouette}"
+    },
+    {
+      "id": "bias_satin_skirt",
+      "category": "bottom",
+      "name_zh": "斜裁缎面半身裙",
+      "silhouette": "斜裁A字",
+      "fabric": "醋酸缎",
+      "color_slot": "base",
+      "presentations": [
+        "feminine"
+      ],
+      "occasions": [
+        "commute",
+        "date",
+        "formal"
+      ],
+      "search_tpl": "{color} {fabric} {name} {silhouette}"
+    },
+    {
+      "id": "draped_taper_trousers",
+      "category": "bottom",
+      "name_zh": "垂感微锥长裤",
+      "silhouette": "微锥",
+      "fabric": "粘胶混纺",
+      "color_slot": "base",
+      "presentations": [
+        "feminine",
+        "masculine",
+        "neutral"
+      ],
+      "occasions": [
+        "commute",
+        "date"
+      ],
+      "search_tpl": "{color} {fabric} {name} {silhouette}"
+    },
+    {
+      "id": "single_pleat_wool_trousers",
+      "category": "bottom",
+      "name_zh": "单褶羊毛长裤",
+      "silhouette": "直筒",
+      "fabric": "精纺羊毛",
+      "color_slot": "base",
+      "presentations": [
+        "masculine",
+        "neutral"
+      ],
+      "occasions": [
+        "commute",
+        "formal"
+      ],
+      "search_tpl": "{color} {fabric} {name} {silhouette}"
+    },
+    {
+      "id": "small_round_neck_jacket",
+      "category": "outer",
+      "name_zh": "小圆领短外套",
+      "silhouette": "短款合身",
+      "fabric": "羊毛混纺",
+      "color_slot": "near_face",
+      "presentations": [
+        "feminine"
+      ],
+      "occasions": [
+        "commute",
+        "date",
+        "formal"
+      ],
+      "search_tpl": "{color} {fabric} {name} {silhouette}"
+    },
+    {
+      "id": "soft_shoulder_blazer",
+      "category": "outer",
+      "name_zh": "柔肩单排扣西装",
+      "silhouette": "柔肩直身",
+      "fabric": "羊毛真丝混纺",
+      "color_slot": "near_face",
+      "presentations": [
+        "feminine",
+        "masculine",
+        "neutral"
+      ],
+      "occasions": [
+        "commute",
+        "date",
+        "formal"
+      ],
+      "search_tpl": "{color} {fabric} {name} {silhouette}"
+    },
+    {
+      "id": "shawl_collar_knit_jacket",
+      "category": "outer",
+      "name_zh": "青果领针织外套",
+      "silhouette": "垂顺直身",
+      "fabric": "羊毛混纺",
+      "color_slot": "near_face",
+      "presentations": [
+        "masculine",
+        "neutral"
+      ],
+      "occasions": [
+        "commute",
+        "date"
+      ],
+      "search_tpl": "{color} {fabric} {name} {silhouette}"
+    },
+    {
+      "id": "wrap_knee_dress",
+      "category": "dress",
+      "name_zh": "围裹式及膝连衣裙",
+      "silhouette": "围裹收腰",
+      "fabric": "真丝混纺",
+      "color_slot": "near_face",
+      "presentations": [
+        "feminine"
+      ],
+      "occasions": [
+        "commute",
+        "date",
+        "formal"
+      ],
+      "search_tpl": "{color} {fabric} {name} {silhouette}"
+    },
+    {
+      "id": "boat_neck_waisted_dress",
+      "category": "dress",
+      "name_zh": "船领收腰连衣裙",
+      "silhouette": "收腰A字",
+      "fabric": "醋酸混纺",
+      "color_slot": "near_face",
+      "presentations": [
+        "feminine"
+      ],
+      "occasions": [
+        "commute",
+        "date",
+        "formal"
+      ],
+      "search_tpl": "{color} {fabric} {name} {silhouette}"
+    },
+    {
+      "id": "almond_low_heel_pumps",
+      "category": "shoes",
+      "name_zh": "杏仁头低跟单鞋",
+      "silhouette": "杏仁头低跟",
+      "fabric": "皮革",
+      "color_slot": "base",
+      "presentations": [
+        "feminine"
+      ],
+      "occasions": [
+        "commute",
+        "date",
+        "formal"
+      ],
+      "search_tpl": "{color} {fabric} {name} {silhouette}"
+    },
+    {
+      "id": "minimal_suede_loafers",
+      "category": "shoes",
+      "name_zh": "极简麂皮乐福鞋",
+      "silhouette": "杏仁头平底",
+      "fabric": "麂皮",
+      "color_slot": "base",
+      "presentations": [
+        "feminine",
+        "masculine",
+        "neutral"
+      ],
+      "occasions": [
+        "commute",
+        "date"
+      ],
+      "search_tpl": "{color} {fabric} {name} {silhouette}"
+    },
+    {
+      "id": "thin_sole_lace_shoes",
+      "category": "shoes",
+      "name_zh": "薄底系带皮鞋",
+      "silhouette": "杏仁头薄底",
+      "fabric": "皮革",
+      "color_slot": "base",
+      "presentations": [
+        "masculine",
+        "neutral"
+      ],
+      "occasions": [
+        "commute",
+        "date",
+        "formal"
+      ],
+      "search_tpl": "{color} {fabric} {name} {silhouette}"
+    },
+    {
+      "id": "curved_top_handle_bag",
+      "category": "bag",
+      "name_zh": "圆弧手提包",
+      "silhouette": "圆弧中号",
+      "fabric": "皮革",
+      "color_slot": "base",
+      "presentations": [
+        "feminine",
+        "masculine",
+        "neutral"
+      ],
+      "occasions": [
+        "commute",
+        "date",
+        "formal"
+      ],
+      "search_tpl": "{color} {fabric} {name} {silhouette}"
+    },
+    {
+      "id": "small_soft_leather_crossbody",
+      "category": "bag",
+      "name_zh": "小号软皮斜挎包",
+      "silhouette": "圆角软包",
+      "fabric": "皮革",
+      "color_slot": "base",
+      "presentations": [
+        "masculine",
+        "neutral"
+      ],
+      "occasions": [
+        "commute",
+        "date"
+      ],
+      "search_tpl": "{color} {fabric} {name} {silhouette}"
+    },
+    {
+      "id": "teardrop_pendant",
+      "category": "accessory",
+      "name_zh": "水滴形吊坠项链",
+      "silhouette": "细链水滴",
+      "fabric": "金属",
+      "color_slot": "near_face",
+      "presentations": [
+        "feminine",
+        "masculine",
+        "neutral"
+      ],
+      "occasions": [
+        "date",
+        "formal"
+      ],
+      "search_tpl": "{color} {fabric} {name} {silhouette}"
+    },
+    {
+      "id": "narrow_silk_scarf",
+      "category": "accessory",
+      "name_zh": "窄幅真丝围巾",
+      "silhouette": "窄长条",
+      "fabric": "真丝",
+      "color_slot": "near_face",
+      "presentations": [
+        "feminine",
+        "masculine",
+        "neutral"
+      ],
+      "occasions": [
+        "commute",
+        "date",
+        "formal"
+      ],
+      "search_tpl": "{color} {fabric} {name} {silhouette}"
+    },
+    {
+      "id": "fine_embossed_belt",
+      "category": "accessory",
+      "name_zh": "细纹压花皮带",
+      "silhouette": "窄幅",
+      "fabric": "皮革",
+      "color_slot": "accent",
+      "presentations": [
+        "masculine",
+        "neutral"
+      ],
+      "occasions": [
+        "commute",
+        "date",
+        "formal"
+      ],
+      "search_tpl": "{color} {fabric} {name} {silhouette}"
+    },
+    {
+      "id": "point_collar_darted_shirt",
+      "category": "top",
+      "name_zh": "尖领收省衬衫",
+      "silhouette": "合身收省",
+      "fabric": "棉府绸",
+      "color_slot": "near_face",
+      "presentations": [
+        "feminine"
+      ],
+      "occasions": [
+        "commute",
+        "formal"
+      ],
+      "search_tpl": "{color} {fabric} {name} {silhouette}"
+    },
+    {
+      "id": "crew_neck_knit_pullover",
+      "category": "top",
+      "name_zh": "圆领针织套衫",
+      "silhouette": "合身",
+      "fabric": "细羊毛",
+      "color_slot": "near_face",
+      "presentations": [
+        "feminine"
+      ],
+      "occasions": [
+        "commute",
+        "date"
+      ],
+      "search_tpl": "{color} {fabric} {name} {silhouette}"
+    },
+    {
+      "id": "double_breasted_suit_vest",
+      "category": "top",
+      "name_zh": "双排扣西装马甲",
+      "silhouette": "合身收腰",
+      "fabric": "精纺羊毛",
+      "color_slot": "near_face",
+      "presentations": [
+        "feminine"
+      ],
+      "occasions": [
+        "commute",
+        "formal"
+      ],
+      "search_tpl": "{color} {fabric} {name} {silhouette}"
+    },
+    {
+      "id": "button_down_oxford_shirt",
+      "category": "top",
+      "name_zh": "纽扣领牛津纺衬衫",
+      "silhouette": "合身直身",
+      "fabric": "牛津纺棉",
+      "color_slot": "near_face",
+      "presentations": [
+        "feminine",
+        "masculine",
+        "neutral"
+      ],
+      "occasions": [
+        "commute",
+        "casual"
+      ],
+      "search_tpl": "{color} {fabric} {name} {silhouette}"
+    },
+    {
+      "id": "fine_rib_turtleneck",
+      "category": "top",
+      "name_zh": "细罗纹高领毛衣",
+      "silhouette": "合身",
+      "fabric": "羊毛羊绒混纺",
+      "color_slot": "near_face",
+      "presentations": [
+        "feminine",
+        "masculine",
+        "neutral"
+      ],
+      "occasions": [
+        "commute",
+        "formal"
+      ],
+      "search_tpl": "{color} {fabric} {name} {silhouette}"
+    },
+    {
+      "id": "long_sleeve_pique_polo",
+      "category": "top",
+      "name_zh": "长袖珠地Polo衫",
+      "silhouette": "直身",
+      "fabric": "珠地棉",
+      "color_slot": "near_face",
+      "presentations": [
+        "masculine",
+        "neutral"
+      ],
+      "occasions": [
+        "commute",
+        "casual"
+      ],
+      "search_tpl": "{color} {fabric} {name} {silhouette}"
+    },
+    {
+      "id": "straight_knee_skirt",
+      "category": "bottom",
+      "name_zh": "直筒及膝半身裙",
+      "silhouette": "直筒",
+      "fabric": "精纺羊毛",
+      "color_slot": "base",
+      "presentations": [
+        "feminine"
+      ],
+      "occasions": [
+        "commute",
+        "formal"
+      ],
+      "search_tpl": "{color} {fabric} {name} {silhouette}"
+    },
+    {
+      "id": "mid_rise_straight_trousers",
+      "category": "bottom",
+      "name_zh": "中腰直筒西裤",
+      "silhouette": "直筒",
+      "fabric": "羊毛混纺",
+      "color_slot": "base",
+      "presentations": [
+        "feminine",
+        "masculine",
+        "neutral"
+      ],
+      "occasions": [
+        "commute",
+        "formal"
+      ],
+      "search_tpl": "{color} {fabric} {name} {silhouette}"
+    },
+    {
+      "id": "double_pleat_cuff_trousers",
+      "category": "bottom",
+      "name_zh": "双褶翻边西裤",
+      "silhouette": "直筒翻边",
+      "fabric": "精纺羊毛",
+      "color_slot": "base",
+      "presentations": [
+        "masculine",
+        "neutral"
+      ],
+      "occasions": [
+        "commute",
+        "formal"
+      ],
+      "search_tpl": "{color} {fabric} {name} {silhouette}"
+    },
+    {
+      "id": "tweed_cropped_jacket",
+      "category": "outer",
+      "name_zh": "粗花呢短外套",
+      "silhouette": "短款直身",
+      "fabric": "粗花呢",
+      "color_slot": "near_face",
+      "presentations": [
+        "feminine"
+      ],
+      "occasions": [
+        "commute",
+        "date",
+        "formal"
+      ],
+      "search_tpl": "{color} {fabric} {name} {silhouette}"
+    },
+    {
+      "id": "double_breasted_trench",
+      "category": "outer",
+      "name_zh": "双排扣风衣",
+      "silhouette": "直身腰带",
+      "fabric": "棉涤混纺",
+      "color_slot": "near_face",
+      "presentations": [
+        "feminine",
+        "masculine",
+        "neutral"
+      ],
+      "occasions": [
+        "commute",
+        "casual"
+      ],
+      "search_tpl": "{color} {fabric} {name} {silhouette}"
+    },
+    {
+      "id": "two_button_notch_blazer",
+      "category": "outer",
+      "name_zh": "驳领两粒扣西装",
+      "silhouette": "合身直身",
+      "fabric": "精纺羊毛",
+      "color_slot": "near_face",
+      "presentations": [
+        "masculine",
+        "neutral"
+      ],
+      "occasions": [
+        "commute",
+        "formal"
+      ],
+      "search_tpl": "{color} {fabric} {name} {silhouette}"
+    },
+    {
+      "id": "belted_shirt_dress",
+      "category": "dress",
+      "name_zh": "衬衫式腰带连衣裙",
+      "silhouette": "收腰直身",
+      "fabric": "棉府绸",
+      "color_slot": "near_face",
+      "presentations": [
+        "feminine"
+      ],
+      "occasions": [
+        "commute",
+        "date"
+      ],
+      "search_tpl": "{color} {fabric} {name} {silhouette}"
+    },
+    {
+      "id": "sleeveless_shift_dress",
+      "category": "dress",
+      "name_zh": "无袖直身连衣裙",
+      "silhouette": "直身",
+      "fabric": "羊毛混纺",
+      "color_slot": "near_face",
+      "presentations": [
+        "feminine"
+      ],
+      "occasions": [
+        "commute",
+        "formal"
+      ],
+      "search_tpl": "{color} {fabric} {name} {silhouette}"
+    },
+    {
+      "id": "round_toe_mid_heel_pumps",
+      "category": "shoes",
+      "name_zh": "圆头中跟单鞋",
+      "silhouette": "圆头中跟",
+      "fabric": "皮革",
+      "color_slot": "base",
+      "presentations": [
+        "feminine"
+      ],
+      "occasions": [
+        "commute",
+        "formal"
+      ],
+      "search_tpl": "{color} {fabric} {name} {silhouette}"
+    },
+    {
+      "id": "horsebit_loafers",
+      "category": "shoes",
+      "name_zh": "马衔扣乐福鞋",
+      "silhouette": "圆头平底",
+      "fabric": "皮革",
+      "color_slot": "base",
+      "presentations": [
+        "feminine",
+        "masculine",
+        "neutral"
+      ],
+      "occasions": [
+        "commute",
+        "date"
+      ],
+      "search_tpl": "{color} {fabric} {name} {silhouette}"
+    },
+    {
+      "id": "oxford_lace_shoes",
+      "category": "shoes",
+      "name_zh": "牛津系带皮鞋",
+      "silhouette": "圆头系带",
+      "fabric": "皮革",
+      "color_slot": "base",
+      "presentations": [
+        "masculine",
+        "neutral"
+      ],
+      "occasions": [
+        "commute",
+        "formal"
+      ],
+      "search_tpl": "{color} {fabric} {name} {silhouette}"
+    },
+    {
+      "id": "structured_trapeze_bag",
+      "category": "bag",
+      "name_zh": "梯形硬挺手提包",
+      "silhouette": "中号梯形",
+      "fabric": "皮革",
+      "color_slot": "base",
+      "presentations": [
+        "feminine",
+        "masculine",
+        "neutral"
+      ],
+      "occasions": [
+        "commute",
+        "formal"
+      ],
+      "search_tpl": "{color} {fabric} {name} {silhouette}"
+    },
+    {
+      "id": "leather_briefcase",
+      "category": "bag",
+      "name_zh": "公文手提包",
+      "silhouette": "长方形硬挺",
+      "fabric": "皮革",
+      "color_slot": "base",
+      "presentations": [
+        "masculine",
+        "neutral"
+      ],
+      "occasions": [
+        "commute",
+        "formal"
+      ],
+      "search_tpl": "{color} {fabric} {name} {silhouette}"
+    },
+    {
+      "id": "narrow_rectangular_glasses",
+      "category": "accessory",
+      "name_zh": "窄框矩形眼镜架",
+      "silhouette": "窄幅矩形",
+      "fabric": "金属",
+      "color_slot": "near_face",
+      "presentations": [
+        "feminine",
+        "masculine",
+        "neutral"
+      ],
+      "occasions": [
+        "commute",
+        "casual"
+      ],
+      "search_tpl": "{color} {fabric} {name} {silhouette}"
+    },
+    {
+      "id": "metal_link_watch",
+      "category": "accessory",
+      "name_zh": "金属表链腕表",
+      "silhouette": "圆形表盘",
+      "fabric": "金属",
+      "color_slot": "accent",
+      "presentations": [
+        "feminine",
+        "masculine",
+        "neutral"
+      ],
+      "occasions": [
+        "commute",
+        "date",
+        "formal"
+      ],
+      "search_tpl": "{color} {fabric} {name} {silhouette}"
+    },
+    {
+      "id": "pin_buckle_leather_belt",
+      "category": "accessory",
+      "name_zh": "针扣皮腰带",
+      "silhouette": "中幅方扣",
+      "fabric": "皮革",
+      "color_slot": "accent",
+      "presentations": [
+        "masculine",
+        "neutral"
+      ],
+      "occasions": [
+        "commute",
+        "formal"
+      ],
+      "search_tpl": "{color} {fabric} {name} {silhouette}"
+    },
+    {
+      "id": "relaxed_linen_shirt",
+      "category": "top",
+      "name_zh": "亚麻宽松衬衫",
+      "silhouette": "宽松",
+      "fabric": "亚麻",
+      "color_slot": "near_face",
+      "presentations": [
+        "feminine"
+      ],
+      "occasions": [
+        "commute",
+        "casual"
+      ],
+      "search_tpl": "{color} {fabric} {name} {silhouette}"
+    },
+    {
+      "id": "cable_short_sleeve_knit",
+      "category": "top",
+      "name_zh": "绞花短袖毛衣",
+      "silhouette": "宽松短款",
+      "fabric": "棉麻",
+      "color_slot": "near_face",
+      "presentations": [
+        "feminine"
+      ],
+      "occasions": [
+        "date",
+        "casual"
+      ],
+      "search_tpl": "{color} {fabric} {name} {silhouette}"
+    },
+    {
+      "id": "drop_shoulder_knit_vest",
+      "category": "top",
+      "name_zh": "落肩针织背心",
+      "silhouette": "宽松落肩",
+      "fabric": "粗针羊毛",
+      "color_slot": "near_face",
+      "presentations": [
+        "feminine"
+      ],
+      "occasions": [
+        "commute",
+        "casual"
+      ],
+      "search_tpl": "{color} {fabric} {name} {silhouette}"
+    },
+    {
+      "id": "linen_blend_pullover_shirt",
+      "category": "top",
+      "name_zh": "棉麻套头衬衫",
+      "silhouette": "宽松直身",
+      "fabric": "棉麻",
+      "color_slot": "near_face",
+      "presentations": [
+        "feminine",
+        "masculine",
+        "neutral"
+      ],
+      "occasions": [
+        "casual"
+      ],
+      "search_tpl": "{color} {fabric} {name} {silhouette}"
+    },
+    {
+      "id": "relaxed_crew_sweatshirt",
+      "category": "top",
+      "name_zh": "宽松圆领卫衣",
+      "silhouette": "宽松落肩",
+      "fabric": "棉毛圈",
+      "color_slot": "near_face",
+      "presentations": [
+        "feminine",
+        "masculine",
+        "neutral"
+      ],
+      "occasions": [
+        "casual"
+      ],
+      "search_tpl": "{color} {fabric} {name} {silhouette}"
+    },
+    {
+      "id": "heavy_cotton_pocket_tee",
+      "category": "top",
+      "name_zh": "重磅棉口袋T恤",
+      "silhouette": "宽直身",
+      "fabric": "重磅棉",
+      "color_slot": "near_face",
+      "presentations": [
+        "masculine",
+        "neutral"
+      ],
+      "occasions": [
+        "casual"
+      ],
+      "search_tpl": "{color} {fabric} {name} {silhouette}"
+    },
+    {
+      "id": "linen_long_skirt",
+      "category": "bottom",
+      "name_zh": "棉麻长半身裙",
+      "silhouette": "宽A字",
+      "fabric": "棉麻",
+      "color_slot": "base",
+      "presentations": [
+        "feminine"
+      ],
+      "occasions": [
+        "date",
+        "casual"
+      ],
+      "search_tpl": "{color} {fabric} {name} {silhouette}"
+    },
+    {
+      "id": "washed_straight_jeans",
+      "category": "bottom",
+      "name_zh": "水洗直筒牛仔裤",
+      "silhouette": "宽直筒",
+      "fabric": "牛仔布",
+      "color_slot": "base",
+      "presentations": [
+        "feminine",
+        "masculine",
+        "neutral"
+      ],
+      "occasions": [
+        "casual"
+      ],
+      "search_tpl": "{color} {fabric} {name} {silhouette}"
+    },
+    {
+      "id": "drawstring_linen_trousers",
+      "category": "bottom",
+      "name_zh": "抽绳亚麻休闲裤",
+      "silhouette": "宽松直筒",
+      "fabric": "亚麻",
+      "color_slot": "base",
+      "presentations": [
+        "masculine",
+        "neutral"
+      ],
+      "occasions": [
+        "date",
+        "casual"
+      ],
+      "search_tpl": "{color} {fabric} {name} {silhouette}"
+    },
+    {
+      "id": "shawl_knit_cardigan",
+      "category": "outer",
+      "name_zh": "针织披肩式开衫",
+      "silhouette": "宽松披肩",
+      "fabric": "羊毛混纺",
+      "color_slot": "near_face",
+      "presentations": [
+        "feminine"
+      ],
+      "occasions": [
+        "date",
+        "casual"
+      ],
+      "search_tpl": "{color} {fabric} {name} {silhouette}"
+    },
+    {
+      "id": "corduroy_overshirt",
+      "category": "outer",
+      "name_zh": "灯芯绒衬衫外套",
+      "silhouette": "宽直身",
+      "fabric": "灯芯绒",
+      "color_slot": "near_face",
+      "presentations": [
+        "feminine",
+        "masculine",
+        "neutral"
+      ],
+      "occasions": [
+        "commute",
+        "casual"
+      ],
+      "search_tpl": "{color} {fabric} {name} {silhouette}"
+    },
+    {
+      "id": "multi_pocket_work_jacket",
+      "category": "outer",
+      "name_zh": "多口袋工装外套",
+      "silhouette": "宽松直身",
+      "fabric": "帆布",
+      "color_slot": "near_face",
+      "presentations": [
+        "masculine",
+        "neutral"
+      ],
+      "occasions": [
+        "casual"
+      ],
+      "search_tpl": "{color} {fabric} {name} {silhouette}"
+    },
+    {
+      "id": "loose_linen_maxi_dress",
+      "category": "dress",
+      "name_zh": "棉麻宽松长连衣裙",
+      "silhouette": "宽松A字",
+      "fabric": "棉麻",
+      "color_slot": "near_face",
+      "presentations": [
+        "feminine"
+      ],
+      "occasions": [
+        "date",
+        "casual"
+      ],
+      "search_tpl": "{color} {fabric} {name} {silhouette}"
+    },
+    {
+      "id": "knit_straight_tank_dress",
+      "category": "dress",
+      "name_zh": "针织直筒背心裙",
+      "silhouette": "宽直身",
+      "fabric": "棉针织",
+      "color_slot": "near_face",
+      "presentations": [
+        "feminine"
+      ],
+      "occasions": [
+        "date",
+        "casual"
+      ],
+      "search_tpl": "{color} {fabric} {name} {silhouette}"
+    },
+    {
+      "id": "woven_flat_sandals",
+      "category": "shoes",
+      "name_zh": "编织平底凉鞋",
+      "silhouette": "宽带平底",
+      "fabric": "皮革",
+      "color_slot": "base",
+      "presentations": [
+        "feminine"
+      ],
+      "occasions": [
+        "date",
+        "casual"
+      ],
+      "search_tpl": "{color} {fabric} {name} {silhouette}"
+    },
+    {
+      "id": "soft_suede_casual_shoes",
+      "category": "shoes",
+      "name_zh": "软底麂皮休闲鞋",
+      "silhouette": "圆头软底",
+      "fabric": "麂皮",
+      "color_slot": "base",
+      "presentations": [
+        "feminine",
+        "masculine",
+        "neutral"
+      ],
+      "occasions": [
+        "casual"
+      ],
+      "search_tpl": "{color} {fabric} {name} {silhouette}"
+    },
+    {
+      "id": "hiking_low_top_shoes",
+      "category": "shoes",
+      "name_zh": "徒步低帮休闲鞋",
+      "silhouette": "宽头系带",
+      "fabric": "网布",
+      "color_slot": "base",
+      "presentations": [
+        "masculine",
+        "neutral"
+      ],
+      "occasions": [
+        "casual"
+      ],
+      "search_tpl": "{color} {fabric} {name} {silhouette}"
+    },
+    {
+      "id": "straw_large_tote",
+      "category": "bag",
+      "name_zh": "草编大托特包",
+      "silhouette": "大号软包",
+      "fabric": "草编",
+      "color_slot": "base",
+      "presentations": [
+        "feminine",
+        "masculine",
+        "neutral"
+      ],
+      "occasions": [
+        "date",
+        "casual"
+      ],
+      "search_tpl": "{color} {fabric} {name} {silhouette}"
+    },
+    {
+      "id": "roll_top_canvas_backpack",
+      "category": "bag",
+      "name_zh": "卷口帆布双肩包",
+      "silhouette": "卷口大包",
+      "fabric": "帆布",
+      "color_slot": "base",
+      "presentations": [
+        "masculine",
+        "neutral"
+      ],
+      "occasions": [
+        "casual"
+      ],
+      "search_tpl": "{color} {fabric} {name} {silhouette}"
+    },
+    {
+      "id": "textured_ceramic_pendant",
+      "category": "accessory",
+      "name_zh": "纹理陶瓷吊坠项链",
+      "silhouette": "不规则圆片",
+      "fabric": "陶瓷",
+      "color_slot": "near_face",
+      "presentations": [
+        "feminine",
+        "masculine",
+        "neutral"
+      ],
+      "occasions": [
+        "date",
+        "casual"
+      ],
+      "search_tpl": "{color} {fabric} {name} {silhouette}"
+    },
+    {
+      "id": "wide_wool_scarf",
+      "category": "accessory",
+      "name_zh": "宽幅羊毛围巾",
+      "silhouette": "宽长条",
+      "fabric": "羊毛",
+      "color_slot": "near_face",
+      "presentations": [
+        "feminine",
+        "masculine",
+        "neutral"
+      ],
+      "occasions": [
+        "commute",
+        "casual"
+      ],
+      "search_tpl": "{color} {fabric} {name} {silhouette}"
+    },
+    {
+      "id": "braided_leather_belt",
+      "category": "accessory",
+      "name_zh": "编织皮腰带",
+      "silhouette": "中幅编织",
+      "fabric": "皮革",
+      "color_slot": "accent",
+      "presentations": [
+        "masculine",
+        "neutral"
+      ],
+      "occasions": [
+        "commute",
+        "casual"
+      ],
+      "search_tpl": "{color} {fabric} {name} {silhouette}"
+    },
+    {
+      "id": "ruffle_silk_blouse",
+      "category": "top",
+      "name_zh": "荷叶边真丝衬衫",
+      "silhouette": "垂顺抽褶",
+      "fabric": "真丝",
+      "color_slot": "near_face",
+      "presentations": [
+        "feminine"
+      ],
+      "occasions": [
+        "date",
+        "formal"
+      ],
+      "search_tpl": "{color} {fabric} {name} {silhouette}"
+    },
+    {
+      "id": "lace_panel_knit_top",
+      "category": "top",
+      "name_zh": "蕾丝拼接针织上衣",
+      "silhouette": "合身",
+      "fabric": "蕾丝针织",
+      "color_slot": "near_face",
+      "presentations": [
+        "feminine"
+      ],
+      "occasions": [
+        "date"
+      ],
+      "search_tpl": "{color} {fabric} {name} {silhouette}"
+    },
+    {
+      "id": "sweetheart_knit_top",
+      "category": "top",
+      "name_zh": "心形领针织衫",
+      "silhouette": "合身",
+      "fabric": "粘胶混纺",
+      "color_slot": "near_face",
+      "presentations": [
+        "feminine"
+      ],
+      "occasions": [
+        "date"
+      ],
+      "search_tpl": "{color} {fabric} {name} {silhouette}"
+    },
+    {
+      "id": "lantern_sleeve_pleat_shirt",
+      "category": "top",
+      "name_zh": "灯笼袖褶裥衬衫",
+      "silhouette": "宽松褶裥",
+      "fabric": "人造丝",
+      "color_slot": "near_face",
+      "presentations": [
+        "feminine",
+        "masculine",
+        "neutral"
+      ],
+      "occasions": [
+        "date",
+        "formal"
+      ],
+      "search_tpl": "{color} {fabric} {name} {silhouette}"
+    },
+    {
+      "id": "wide_lapel_satin_shirt",
+      "category": "top",
+      "name_zh": "大翻领缎面衬衫",
+      "silhouette": "垂顺直身",
+      "fabric": "醋酸缎",
+      "color_slot": "near_face",
+      "presentations": [
+        "feminine",
+        "masculine",
+        "neutral"
+      ],
+      "occasions": [
+        "date",
+        "formal"
+      ],
+      "search_tpl": "{color} {fabric} {name} {silhouette}"
+    },
+    {
+      "id": "cowl_neck_knit_pullover",
+      "category": "top",
+      "name_zh": "垂坠领针织套衫",
+      "silhouette": "宽松垂顺",
+      "fabric": "羊毛粘胶混纺",
+      "color_slot": "near_face",
+      "presentations": [
+        "masculine",
+        "neutral"
+      ],
+      "occasions": [
+        "date"
+      ],
+      "search_tpl": "{color} {fabric} {name} {silhouette}"
+    },
+    {
+      "id": "mermaid_maxi_skirt",
+      "category": "bottom",
+      "name_zh": "鱼尾长半身裙",
+      "silhouette": "鱼尾",
+      "fabric": "醋酸缎",
+      "color_slot": "base",
+      "presentations": [
+        "feminine"
+      ],
+      "occasions": [
+        "date",
+        "formal"
+      ],
+      "search_tpl": "{color} {fabric} {name} {silhouette}"
+    },
+    {
+      "id": "side_pleat_wide_trousers",
+      "category": "bottom",
+      "name_zh": "侧褶宽腿长裤",
+      "silhouette": "垂顺宽腿",
+      "fabric": "粘胶混纺",
+      "color_slot": "base",
+      "presentations": [
+        "feminine",
+        "masculine",
+        "neutral"
+      ],
+      "occasions": [
+        "commute",
+        "date"
+      ],
+      "search_tpl": "{color} {fabric} {name} {silhouette}"
+    },
+    {
+      "id": "high_waist_draped_trousers",
+      "category": "bottom",
+      "name_zh": "高腰双褶垂感长裤",
+      "silhouette": "高腰宽直筒",
+      "fabric": "羊毛粘胶混纺",
+      "color_slot": "base",
+      "presentations": [
+        "masculine",
+        "neutral"
+      ],
+      "occasions": [
+        "date",
+        "formal"
+      ],
+      "search_tpl": "{color} {fabric} {name} {silhouette}"
+    },
+    {
+      "id": "waisted_suede_jacket",
+      "category": "outer",
+      "name_zh": "收腰绒面短外套",
+      "silhouette": "短款收腰",
+      "fabric": "麂皮",
+      "color_slot": "near_face",
+      "presentations": [
+        "feminine"
+      ],
+      "occasions": [
+        "date"
+      ],
+      "search_tpl": "{color} {fabric} {name} {silhouette}"
+    },
+    {
+      "id": "velvet_single_breasted_blazer",
+      "category": "outer",
+      "name_zh": "天鹅绒单排扣西装",
+      "silhouette": "柔肩合身",
+      "fabric": "天鹅绒",
+      "color_slot": "near_face",
+      "presentations": [
+        "feminine",
+        "masculine",
+        "neutral"
+      ],
+      "occasions": [
+        "date",
+        "formal"
+      ],
+      "search_tpl": "{color} {fabric} {name} {silhouette}"
+    },
+    {
+      "id": "long_drape_collar_cardigan",
+      "category": "outer",
+      "name_zh": "长款披领开衫",
+      "silhouette": "长款垂顺",
+      "fabric": "羊毛混纺",
+      "color_slot": "near_face",
+      "presentations": [
+        "masculine",
+        "neutral"
+      ],
+      "occasions": [
+        "date"
+      ],
+      "search_tpl": "{color} {fabric} {name} {silhouette}"
+    },
+    {
+      "id": "square_neck_puff_dress",
+      "category": "dress",
+      "name_zh": "方领泡泡袖连衣裙",
+      "silhouette": "收腰伞摆",
+      "fabric": "棉真丝混纺",
+      "color_slot": "near_face",
+      "presentations": [
+        "feminine"
+      ],
+      "occasions": [
+        "date",
+        "formal"
+      ],
+      "search_tpl": "{color} {fabric} {name} {silhouette}"
+    },
+    {
+      "id": "satin_slip_maxi_dress",
+      "category": "dress",
+      "name_zh": "缎面吊带长连衣裙",
+      "silhouette": "斜裁垂顺",
+      "fabric": "真丝缎",
+      "color_slot": "near_face",
+      "presentations": [
+        "feminine"
+      ],
+      "occasions": [
+        "date",
+        "formal"
+      ],
+      "search_tpl": "{color} {fabric} {name} {silhouette}"
+    },
+    {
+      "id": "fine_strap_mid_heel_sandals",
+      "category": "shoes",
+      "name_zh": "细带中跟凉鞋",
+      "silhouette": "细带中跟",
+      "fabric": "皮革",
+      "color_slot": "base",
+      "presentations": [
+        "feminine"
+      ],
+      "occasions": [
+        "date",
+        "formal"
+      ],
+      "search_tpl": "{color} {fabric} {name} {silhouette}"
+    },
+    {
+      "id": "suede_buckle_loafers",
+      "category": "shoes",
+      "name_zh": "绒面搭扣乐福鞋",
+      "silhouette": "杏仁头平底",
+      "fabric": "麂皮",
+      "color_slot": "base",
+      "presentations": [
+        "feminine",
+        "masculine",
+        "neutral"
+      ],
+      "occasions": [
+        "date"
+      ],
+      "search_tpl": "{color} {fabric} {name} {silhouette}"
+    },
+    {
+      "id": "embroidered_velvet_slippers",
+      "category": "shoes",
+      "name_zh": "刺绣丝绒便鞋",
+      "silhouette": "圆头薄底",
+      "fabric": "丝绒",
+      "color_slot": "base",
+      "presentations": [
+        "masculine",
+        "neutral"
+      ],
+      "occasions": [
+        "date",
+        "formal"
+      ],
+      "search_tpl": "{color} {fabric} {name} {silhouette}"
+    },
+    {
+      "id": "ruched_cloud_clutch",
+      "category": "bag",
+      "name_zh": "褶皱云朵手拿包",
+      "silhouette": "褶皱软包",
+      "fabric": "皮革",
+      "color_slot": "base",
+      "presentations": [
+        "feminine",
+        "masculine",
+        "neutral"
+      ],
+      "occasions": [
+        "date",
+        "formal"
+      ],
+      "search_tpl": "{color} {fabric} {name} {silhouette}"
+    },
+    {
+      "id": "soft_drawstring_bucket_bag",
+      "category": "bag",
+      "name_zh": "软质抽绳水桶包",
+      "silhouette": "圆底软包",
+      "fabric": "皮革",
+      "color_slot": "base",
+      "presentations": [
+        "masculine",
+        "neutral"
+      ],
+      "occasions": [
+        "date",
+        "casual"
+      ],
+      "search_tpl": "{color} {fabric} {name} {silhouette}"
+    },
+    {
+      "id": "baroque_pearl_necklace",
+      "category": "accessory",
+      "name_zh": "巴洛克珍珠项链",
+      "silhouette": "不规则串珠",
+      "fabric": "淡水珍珠",
+      "color_slot": "near_face",
+      "presentations": [
+        "feminine",
+        "masculine",
+        "neutral"
+      ],
+      "occasions": [
+        "date",
+        "formal"
+      ],
+      "search_tpl": "{color} {fabric} {name} {silhouette}"
+    },
+    {
+      "id": "floral_branch_brooch",
+      "category": "accessory",
+      "name_zh": "花枝胸针",
+      "silhouette": "曲线花枝",
+      "fabric": "金属",
+      "color_slot": "accent",
+      "presentations": [
+        "feminine",
+        "masculine",
+        "neutral"
+      ],
+      "occasions": [
+        "date",
+        "formal"
+      ],
+      "search_tpl": "{color} {fabric} {name} {silhouette}"
+    },
+    {
+      "id": "jacquard_long_silk_scarf",
+      "category": "accessory",
+      "name_zh": "提花长丝巾",
+      "silhouette": "宽长条",
+      "fabric": "真丝",
+      "color_slot": "near_face",
+      "presentations": [
+        "masculine",
+        "neutral"
+      ],
+      "occasions": [
+        "date",
+        "formal"
+      ],
+      "search_tpl": "{color} {fabric} {name} {silhouette}"
+    },
+    {
+      "id": "oversized_point_collar_shirt",
+      "category": "top",
+      "name_zh": "夸张尖领衬衫",
+      "silhouette": "合身长领",
+      "fabric": "棉府绸",
+      "color_slot": "near_face",
+      "presentations": [
+        "feminine"
+      ],
+      "occasions": [
+        "date",
+        "formal"
+      ],
+      "search_tpl": "{color} {fabric} {name} {silhouette}"
+    },
+    {
+      "id": "structured_shoulder_shell_top",
+      "category": "top",
+      "name_zh": "立体肩线无袖上衣",
+      "silhouette": "挺括直身",
+      "fabric": "聚酯混纺",
+      "color_slot": "near_face",
+      "presentations": [
+        "feminine"
+      ],
+      "occasions": [
+        "commute",
+        "formal"
+      ],
+      "search_tpl": "{color} {fabric} {name} {silhouette}"
+    },
+    {
+      "id": "deep_v_draped_blouse",
+      "category": "top",
+      "name_zh": "深V领垂感衬衫",
+      "silhouette": "长款垂顺",
+      "fabric": "醋酸缎",
+      "color_slot": "near_face",
+      "presentations": [
+        "feminine"
+      ],
+      "occasions": [
+        "date",
+        "formal"
+      ],
+      "search_tpl": "{color} {fabric} {name} {silhouette}"
+    },
+    {
+      "id": "broad_shoulder_short_top",
+      "category": "top",
+      "name_zh": "宽肩短袖上衣",
+      "silhouette": "宽肩箱型",
+      "fabric": "重磅棉",
+      "color_slot": "near_face",
+      "presentations": [
+        "feminine",
+        "masculine",
+        "neutral"
+      ],
+      "occasions": [
+        "date",
+        "casual"
+      ],
+      "search_tpl": "{color} {fabric} {name} {silhouette}"
+    },
+    {
+      "id": "wide_lapel_long_sleeve_shirt",
+      "category": "top",
+      "name_zh": "大翻领长袖衬衫",
+      "silhouette": "长款宽直身",
+      "fabric": "真丝混纺",
+      "color_slot": "near_face",
+      "presentations": [
+        "feminine",
+        "masculine",
+        "neutral"
+      ],
+      "occasions": [
+        "date",
+        "formal"
+      ],
+      "search_tpl": "{color} {fabric} {name} {silhouette}"
+    },
+    {
+      "id": "asymmetric_placket_shirt",
+      "category": "top",
+      "name_zh": "立领不对称门襟衬衫",
+      "silhouette": "长款不对称",
+      "fabric": "棉涤混纺",
+      "color_slot": "near_face",
+      "presentations": [
+        "masculine",
+        "neutral"
+      ],
+      "occasions": [
+        "date",
+        "formal"
+      ],
+      "search_tpl": "{color} {fabric} {name} {silhouette}"
+    },
+    {
+      "id": "slit_straight_maxi_skirt",
+      "category": "bottom",
+      "name_zh": "开衩直筒长裙",
+      "silhouette": "长款直筒",
+      "fabric": "羊毛混纺",
+      "color_slot": "base",
+      "presentations": [
+        "feminine"
+      ],
+      "occasions": [
+        "date",
+        "formal"
+      ],
+      "search_tpl": "{color} {fabric} {name} {silhouette}"
+    },
+    {
+      "id": "high_waist_floor_wide_trousers",
+      "category": "bottom",
+      "name_zh": "高腰落地阔腿裤",
+      "silhouette": "长款宽腿",
+      "fabric": "精纺羊毛",
+      "color_slot": "base",
+      "presentations": [
+        "feminine",
+        "masculine",
+        "neutral"
+      ],
+      "occasions": [
+        "commute",
+        "formal"
+      ],
+      "search_tpl": "{color} {fabric} {name} {silhouette}"
+    },
+    {
+      "id": "side_stripe_suit_trousers",
+      "category": "bottom",
+      "name_zh": "侧条纹直筒西裤",
+      "silhouette": "长款直筒",
+      "fabric": "羊毛混纺",
+      "color_slot": "base",
+      "presentations": [
+        "masculine",
+        "neutral"
+      ],
+      "occasions": [
+        "date",
+        "formal"
+      ],
+      "search_tpl": "{color} {fabric} {name} {silhouette}"
+    },
+    {
+      "id": "broad_shoulder_waisted_blazer",
+      "category": "outer",
+      "name_zh": "宽肩收腰长西装",
+      "silhouette": "宽肩收腰",
+      "fabric": "精纺羊毛",
+      "color_slot": "near_face",
+      "presentations": [
+        "feminine"
+      ],
+      "occasions": [
+        "commute",
+        "formal"
+      ],
+      "search_tpl": "{color} {fabric} {name} {silhouette}"
+    },
+    {
+      "id": "long_double_breasted_coat",
+      "category": "outer",
+      "name_zh": "长款双排扣大衣",
+      "silhouette": "长款直身",
+      "fabric": "羊毛",
+      "color_slot": "near_face",
+      "presentations": [
+        "feminine",
+        "masculine",
+        "neutral"
+      ],
+      "occasions": [
+        "commute",
+        "formal"
+      ],
+      "search_tpl": "{color} {fabric} {name} {silhouette}"
+    },
+    {
+      "id": "long_leather_trench",
+      "category": "outer",
+      "name_zh": "皮革长款风衣",
+      "silhouette": "长款宽直身",
+      "fabric": "皮革",
+      "color_slot": "near_face",
+      "presentations": [
+        "masculine",
+        "neutral"
+      ],
+      "occasions": [
+        "date",
+        "formal"
+      ],
+      "search_tpl": "{color} {fabric} {name} {silhouette}"
+    },
+    {
+      "id": "one_shoulder_maxi_dress",
+      "category": "dress",
+      "name_zh": "单肩长连衣裙",
+      "silhouette": "长款直身",
+      "fabric": "醋酸混纺",
+      "color_slot": "near_face",
+      "presentations": [
+        "feminine"
+      ],
+      "occasions": [
+        "formal"
+      ],
+      "search_tpl": "{color} {fabric} {name} {silhouette}"
+    },
+    {
+      "id": "geometric_panel_maxi_dress",
+      "category": "dress",
+      "name_zh": "几何拼接长连衣裙",
+      "silhouette": "几何A字",
+      "fabric": "聚酯混纺",
+      "color_slot": "near_face",
+      "presentations": [
+        "feminine"
+      ],
+      "occasions": [
+        "date",
+        "formal"
+      ],
+      "search_tpl": "{color} {fabric} {name} {silhouette}"
+    },
+    {
+      "id": "pointed_knee_high_boots",
+      "category": "shoes",
+      "name_zh": "尖头高筒靴",
+      "silhouette": "尖头高筒",
+      "fabric": "皮革",
+      "color_slot": "base",
+      "presentations": [
+        "feminine"
+      ],
+      "occasions": [
+        "date"
+      ],
+      "search_tpl": "{color} {fabric} {name} {silhouette}"
+    },
+    {
+      "id": "platform_lace_ankle_boots",
+      "category": "shoes",
+      "name_zh": "厚底系带短靴",
+      "silhouette": "方头厚底",
+      "fabric": "皮革",
+      "color_slot": "base",
+      "presentations": [
+        "feminine",
+        "masculine",
+        "neutral"
+      ],
+      "occasions": [
+        "date",
+        "casual"
+      ],
+      "search_tpl": "{color} {fabric} {name} {silhouette}"
+    },
+    {
+      "id": "square_toe_buckle_shoes",
+      "category": "shoes",
+      "name_zh": "方头搭扣皮鞋",
+      "silhouette": "方头中厚底",
+      "fabric": "皮革",
+      "color_slot": "base",
+      "presentations": [
+        "masculine",
+        "neutral"
+      ],
+      "occasions": [
+        "date",
+        "formal"
+      ],
+      "search_tpl": "{color} {fabric} {name} {silhouette}"
+    },
+    {
+      "id": "structured_geometric_tote",
+      "category": "bag",
+      "name_zh": "硬挺几何手提包",
+      "silhouette": "大号几何",
+      "fabric": "皮革",
+      "color_slot": "base",
+      "presentations": [
+        "feminine",
+        "masculine",
+        "neutral"
+      ],
+      "occasions": [
+        "commute",
+        "formal"
+      ],
+      "search_tpl": "{color} {fabric} {name} {silhouette}"
+    },
+    {
+      "id": "large_envelope_clutch",
+      "category": "bag",
+      "name_zh": "大号信封手拿包",
+      "silhouette": "长方形硬挺",
+      "fabric": "皮革",
+      "color_slot": "base",
+      "presentations": [
+        "masculine",
+        "neutral"
+      ],
+      "occasions": [
+        "date",
+        "formal"
+      ],
+      "search_tpl": "{color} {fabric} {name} {silhouette}"
+    },
+    {
+      "id": "wide_metal_cuff",
+      "category": "accessory",
+      "name_zh": "宽版金属手镯",
+      "silhouette": "宽幅几何",
+      "fabric": "金属",
+      "color_slot": "accent",
+      "presentations": [
+        "feminine",
+        "masculine",
+        "neutral"
+      ],
+      "occasions": [
+        "date",
+        "formal"
+      ],
+      "search_tpl": "{color} {fabric} {name} {silhouette}"
+    },
+    {
+      "id": "linear_drop_earrings",
+      "category": "accessory",
+      "name_zh": "长线条耳坠",
+      "silhouette": "长条垂坠",
+      "fabric": "金属",
+      "color_slot": "near_face",
+      "presentations": [
+        "feminine",
+        "masculine",
+        "neutral"
+      ],
+      "occasions": [
+        "date",
+        "formal"
+      ],
+      "search_tpl": "{color} {fabric} {name} {silhouette}"
+    },
+    {
+      "id": "wide_square_buckle_belt",
+      "category": "accessory",
+      "name_zh": "宽幅方扣皮带",
+      "silhouette": "宽幅方扣",
+      "fabric": "皮革",
+      "color_slot": "accent",
+      "presentations": [
+        "masculine",
+        "neutral"
+      ],
+      "occasions": [
+        "date",
+        "formal"
+      ],
+      "search_tpl": "{color} {fabric} {name} {silhouette}"
+    }
+  ]
+}

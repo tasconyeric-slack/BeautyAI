@@ -1,4 +1,4 @@
-"""Export the parts of config/*.yaml the web report displays (style prototypes, label names, the face atlas).
+"""Export the parts of config/*.yaml the web report displays (style prototypes, label names, the face atlas, the garment catalog).
 
 Run by `make types`. Keeps config as the single source of truth instead of copying numbers into TypeScript.
 """
@@ -22,6 +22,7 @@ def main() -> None:
     }
     write(ROOT / "web" / "lib" / "generated" / "rules-config.json", out)
     write(ROOT / "web" / "lib" / "generated" / "face-atlas.json", face_atlas(rules))
+    write(ROOT / "web" / "lib" / "generated" / "garments.json", garment_catalog())
 
 
 def face_atlas(rules: dict) -> dict:
@@ -29,6 +30,15 @@ def face_atlas(rules: dict) -> dict:
     atlas = yaml.safe_load((ROOT / "config" / "face_atlas.yaml").read_text(encoding="utf-8"))
     areas = rules["measurement_insights"]["areas"]
     return {**atlas, "areas": {k: {"page": v["page"], "label_zh": v["label_zh"]} for k, v in areas.items()}}
+
+
+GARMENT_FIELDS = ("id", "category", "name_zh", "silhouette", "fabric", "color_slot", "presentations", "occasions", "search_tpl")
+
+
+def garment_catalog() -> dict:
+    """config/garments.yaml reduced to what the outfit boards match against (no styles/frames: those stay rules-layer)."""
+    cfg = yaml.safe_load((ROOT / "config" / "garments.yaml").read_text(encoding="utf-8"))
+    return {"garments": [{k: g.get(k) for k in GARMENT_FIELDS} for g in cfg["garments"]]}
 
 
 def write(dest: Path, data: dict) -> None:
