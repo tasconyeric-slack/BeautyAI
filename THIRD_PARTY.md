@@ -6,6 +6,7 @@
 |---|---|---|---|
 | [Oby-Borges/haircut-vision-advisor](https://github.com/Oby-Borges/haircut-vision-advisor) | MIT, © 2026 Haircut Vision Advisor contributors | Face-shape heuristic (weighted scores over length/width, forehead/cheek, jaw/cheek ratios); forehead landmark choice (103/332) for comparison; hairstyle catalog (`assets/hairstyles.json`, 15 styles with face-shape fit, length and mm parameters). V2 (K3) adds 45 original feminine entries and V2 fields (length band, fringe type, curl, salon scripts) to the same file; only the 15 adapted entries derive from the MIT source | `src/aesthetic_passport/face_shape.py`, `config/hairstyles.json` |
 | [QuLi-ops/ai-hairstyle-try-on](https://github.com/QuLi-ops/ai-hairstyle-try-on) | MIT | Skimmed `detect_face_shape.py` as a second opinion on thresholds; no code copied | — |
+| [dr-irina-lebedeva/MEBeauty-Benchmark](https://github.com/dr-irina-lebedeva/MEBeauty-Benchmark) | MIT, © 2026 Irina Lebedeva | Dinov2 attention-key remap (`align_state`); `dinov2-partial` architecture and evaluation preprocessing re-implemented to match its source. Offline experiment only (Issue #11) | `experiments/aesthetics/model.py`, `experiments/aesthetics/preprocess.py` |
 
 The MIT license text for haircut-vision-advisor is reproduced at the top of `face_shape.py` and in
 `config/hairstyles.LICENSE`.
@@ -31,6 +32,8 @@ The MIT license text for haircut-vision-advisor is reproduced at the top of `fac
 |---|---|---|
 | MediaPipe Tasks `face_landmarker.task`, `selfie_multiclass_256x256.tflite` | Apache 2.0 | Downloaded at build time by `make models` / the API Dockerfile; never committed. |
 | MediaPipe canonical face model `canonical_face_model.obj` (google-ai-edge/mediapipe, `mediapipe/modules/face_geometry/data/`) | Apache 2.0 | Committed at `scripts/mesh/` (vertex positions only, an average face, not a person). Used to derive the 220 left/right landmark mirror pairs (`face_metrics/points.py`, re-checked by tests) and to build the synthetic test / demo face (`face_metrics/synthetic.py`). |
+| MEBeauty `dinov2-partial` weights ([dr-irina-lebedeva/MEBeauty-FBP-models](https://huggingface.co/dr-irina-lebedeva/MEBeauty-FBP-models)), backbone `facebook/dinov2-base` (Apache 2.0) | trained on MEBeauty (non-commercial research only) | Offline experiment only (`experiments/aesthetics/`); downloaded by the user into git-ignored `models/`, never committed, not used by the product. |
+| MEBeauty dataset (HF, gated) · SCUT-FBP5500 (HCIILAB) | non-commercial research only | Evaluation data for the offline experiment; never committed. SCUT split files are read from the user's clone of HCIILAB/SCUT-FBP5500-Database-Release. |
 | DeepSeek API (`deepseek-flash`) | DeepSeek API terms | Production analysis model. |
 | Alibaba Model Studio / DashScope (`qwen-image-edit-plus`) | Alibaba Cloud terms | Recommended Look image editing. |
 

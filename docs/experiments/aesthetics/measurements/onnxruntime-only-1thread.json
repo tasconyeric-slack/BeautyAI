@@ -1,0 +1,27 @@
+{
+  "status": "ok",
+  "rss_start_mb": 38.2,
+  "ort_import_s": 0.02,
+  "rss_after_import_mb": 65.9,
+  "load_s": 0.75,
+  "rss_after_load_mb": 619.1,
+  "single_image_flip_avg": {
+    "p50_ms": 885.5,
+    "p90_ms": 979.2,
+    "min_ms": 706.9,
+    "iters": 10
+  },
+  "file_mb": 331.5,
+  "onnxruntime": "1.31.0",
+  "torch_loaded": false,
+  "peak_rss_mb": 631.8,
+  "threads": 1,
+  "environment": {
+    "python": "3.13.17",
+    "platform": "Linux x86_64",
+    "cpu_count": 4,
+    "repo_commit": "3d61096ccb8b",
+    "cpu_model": "Intel(R) Xeon(R) Processor @ 2.10GHz"
+  },
+  "note": "random-init weights, identical architecture: timing/memory only, no score. Seeded random input tensors, no photos."
+}

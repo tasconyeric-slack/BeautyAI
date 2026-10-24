@@ -1,0 +1,13 @@
+# Second guard (repo root already ignores models/, runs/, data/ and images): never commit weights, exports,
+# datasets or prediction dumps from this experiment.
+*.pt
+*.pth
+*.bin
+*.safetensors
+*.onnx
+*.npz
+*.parquet
+*.arrow
+data/
+weights/
+outputs/
