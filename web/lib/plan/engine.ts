@@ -8,14 +8,17 @@ export function defaultPreferences(p: Passport): PlanPreferences {
   const goals = p.user_context.desired_impression;
   const goal: Goal = goals.includes("distinctive") ? "bold"
     : goals.some(g => ["professional", "sharp", "refined", "authoritative"].includes(g)) ? "polished" : "relaxed";
-  return { goal, budget: p.user_context.constraints.budget_level, minutes: p.user_context.constraints.daily_minutes };
+  return { goal, budget: p.user_context.constraints.budget_level, minutes: p.user_context.constraints.daily_minutes, declined: [], confirmedOther: "" };
 }
 
-export function buildPlan(p: Passport, preferences: PlanPreferences): Intervention[] {
-  const { goal } = preferences;
+/** Written restrictions are never interpreted. Until the user confirms them, every action that changes
+ * hair, makeup or clothing is marked for checking; photo-comparison advice touches none of these. */
+export const otherConstraint = (p: Passport) => p.user_context.constraints.other.trim();
+const KIND_OF = (id: string) => id.startsWith("hair-") ? "hair" : id.startsWith("lip-") ? "lip" : id.startsWith("near-face-") ? "drape"
+  : id.startsWith("brow-") ? "brow" : "photo";
+
+function candidatesFor(p: Passport, preferences: PlanPreferences, goal: Goal, declined: ReadonlySet<string>): Intervention[] {
   const constraints = p.user_context.constraints;
-  // Arbitrary written restrictions need individual review; do not guess their meaning.
-  if (constraints.other.trim()) return [];
   const budget = Math.min(costOrder[preferences.budget], costOrder[constraints.budget_level]);
   const minutes = Math.min(preferences.minutes, constraints.daily_minutes);
   const fits = (c: Cost, m: number) => costOrder[c] <= budget && m <= minutes;
@@ -29,7 +32,7 @@ export function buildPlan(p: Passport, preferences: PlanPreferences): Interventi
 
   const preferred = goal === "bold" ? ["bold", "safe", "easy"] : goal === "relaxed" ? ["easy", "safe", "bold"] : ["safe", "easy", "bold"];
   const hair = preferred.map(t => p.analysis.hair_options.find(h => h.tier === t)).find(h => {
-    if (!h || blockedCategory.has("hairstyle")) return false;
+    if (!h || declined.has(`hair-${h.tier}`) || blockedCategory.has("hairstyle")) return false;
     if (p.derived.hair_option_checks.some(c => c.tier === h.tier && c.status === "excluded")) return false;
     if (!constraints.accepts_perm && h.requires.includes("perm")) return false;
     if (!constraints.accepts_dye && (h.requires.includes("dye") || h.params.color !== "keep")) return false;
@@ -55,7 +58,7 @@ export function buildPlan(p: Passport, preferences: PlanPreferences): Interventi
   }
 
   for (const entry of CATALOG) {
-    if (!entry.goals.includes(goal) || blockedCategory.has(entry.sourceCategory) || !fits(entry.cost, entry.minutes)) continue;
+    if (!entry.goals.includes(goal) || declined.has(entry.id) || blockedCategory.has(entry.sourceCategory) || !fits(entry.cost, entry.minutes)) continue;
     if ((entry.kind === "lip" || entry.kind === "brow") && p.analysis.makeup_direction.mode !== "makeup") continue;
     if (entry.kind === "drape" && constraints.dress_code === "uniform") continue;
     const evidence = p.analysis.observations.filter(entry.matches);
@@ -82,6 +85,38 @@ export function buildPlan(p: Passport, preferences: PlanPreferences): Interventi
   }
   // Catalog order is intentional editorial priority, not a fabricated score of benefit.
   return candidates;
+}
+
+export interface Replacement { declined: Intervention; replacement: Intervention | null; note: string }
+export interface PlanView { cards: Intervention[]; replacements: Replacement[]; needsCheck: boolean; constraintText: string }
+
+/** Cards for the chosen goal, plus a supported alternative (or a truthful "none") for every declined card.
+ * Alternatives only come from observed evidence under the same hard limits; nothing is generated or scored. */
+export function buildPlanView(p: Passport, preferences: PlanPreferences): PlanView {
+  const goal = preferences.goal;
+  const declined = new Set(preferences.declined ?? []);
+  const constraintText = otherConstraint(p);
+  const needsCheck = constraintText !== "" && preferences.confirmedOther !== constraintText;
+  const mark = (c: Intervention): Intervention => needsCheck && KIND_OF(c.id) !== "photo" ? { ...c, needsCheck: true } : c;
+  const baseline = candidatesFor(p, preferences, goal, new Set());
+  const cards = candidatesFor(p, preferences, goal, declined);
+  const replacements: Replacement[] = [];
+  const elsewhere = (Object.keys(GOALS) as Goal[]).filter(g => g !== goal)
+    .flatMap(g => candidatesFor(p, preferences, g, declined)).map(c => ({ ...c, outOfGoal: true }));
+  const taken = new Set(cards.map(c => c.id));
+  for (const d of baseline.filter(c => declined.has(c.id))) {
+    // A declined hair tier is already replaced by the next permitted tier inside `cards`; look for a different kind.
+    const alt = elsewhere.find(c => !taken.has(c.id) && !declined.has(c.id) && KIND_OF(c.id) !== KIND_OF(d.id));
+    if (alt) taken.add(alt.id);
+    replacements.push({ declined: d, replacement: alt ? mark(alt) : null, note: alt
+      ? (alt.outOfGoal ? "不在你所选目标内，但同样有报告观察支持、符合你的限制，可作参考。" : "同一目标下、有报告观察支持的另一种做法。")
+      : "已跳过。在你的观察与限制下，没有其他有依据的替代项；可以保持现状，或使用卡片里更轻量的替代做法。" });
+  }
+  return { cards: cards.map(mark), replacements, needsCheck, constraintText };
+}
+
+export function buildPlan(p: Passport, preferences: PlanPreferences): Intervention[] {
+  return buildPlanView(p, preferences).cards;
 }
 
 export function progressKey(goal: Goal, card: Intervention): string {

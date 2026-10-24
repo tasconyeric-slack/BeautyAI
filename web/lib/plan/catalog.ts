@@ -11,7 +11,8 @@ export type Goal = keyof typeof GOALS;
 export type Budget = "low" | "medium" | "high";
 export type Cost = "free" | Budget;
 export type Observation = Passport["analysis"]["observations"][number];
-export interface PlanPreferences { goal: Goal; budget: Budget; minutes: number }
+/** declined: card ids the user skipped. confirmedOther: the exact free-text restriction the user checked the plan against. */
+export interface PlanPreferences { goal: Goal; budget: Budget; minutes: number; declined?: string[]; confirmedOther?: string }
 export interface ActionOption { action: string; cost: Cost; minutes: number; upkeep: string }
 export interface Intervention extends ActionOption {
   id: string;
@@ -28,6 +29,10 @@ export interface Intervention extends ActionOption {
   reversibility: string;
   studioQuery: string;
   studioLabel: string;
+  /** Set when a written restriction has not been confirmed against this action. */
+  needsCheck?: boolean;
+  /** Supported by observations but outside the selected goal; only used as an alternative. */
+  outOfGoal?: boolean;
 }
 
 interface CatalogEntry {

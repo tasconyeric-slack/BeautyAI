@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import sample from "@/lib/fixtures/sample_passport.json";
 import type { Passport } from "@/lib/api";
-import { buildPlan, defaultPreferences } from "./engine";
+import { buildPlan, buildPlanView, defaultPreferences } from "./engine";
 
 const fixture = () => structuredClone(sample) as unknown as Passport;
 
@@ -54,7 +54,41 @@ describe("personal intervention decisions", () => {
     const p = fixture(); p.user_context.constraints.dress_code = "uniform";
     expect(buildPlan(p, { ...defaultPreferences(p), goal: "bold" }).some(c => c.id.startsWith("near-face-"))).toBe(false);
     p.user_context.constraints.other = "不能添加围巾或改变领口";
-    expect(buildPlan(p, defaultPreferences(p))).toEqual([]);
+    const view = buildPlanView(p, defaultPreferences(p));
+    expect(view.cards.length).toBeGreaterThan(0);
+    expect(view.needsCheck).toBe(true);
+    expect(view.cards.filter(c => !c.id.startsWith("photo-")).every(c => c.needsCheck)).toBe(true);
+    expect(view.cards.filter(c => c.id.startsWith("photo-")).every(c => !c.needsCheck)).toBe(true);
+    const ok = buildPlanView(p, { ...defaultPreferences(p), confirmedOther: "不能添加围巾或改变领口" });
+    expect(ok.needsCheck).toBe(false);
+    expect(ok.cards.some(c => c.needsCheck)).toBe(false);
+  });
+
+  it("gives a supported alternative for a declined action, or says none exists", () => {
+    const p = fixture(); const prefs = { ...defaultPreferences(p), goal: "relaxed" as const };
+    const before = buildPlan(p, prefs).map(c => c.id);
+    const view = buildPlanView(p, { ...prefs, declined: ["lip-soft"] });
+    expect(view.cards.map(c => c.id)).not.toContain("lip-soft");
+    const r = view.replacements[0];
+    expect(r.declined.id).toBe("lip-soft");
+    expect(r.replacement).not.toBeNull();
+    expect(before).not.toContain(r.replacement!.id);
+    expect(r.replacement!.id.startsWith("lip-")).toBe(false);
+    expect(r.replacement!.evidence.length).toBeGreaterThan(0);
+    // With zero budget and time only free, out-of-goal alternatives must still respect limits.
+    const tight = buildPlanView(p, { ...prefs, budget: "low", minutes: 0, declined: ["near-face-soft", "photo-light"] });
+    for (const x of tight.replacements) {
+      if (x.replacement) expect(x.replacement.minutes).toBeLessThanOrEqual(0);
+      else expect(x.note).toContain("没有其他有依据的替代项");
+    }
+  });
+
+  it("different goals and constraints rank different feasible advice on one face", () => {
+    const p = fixture();
+    const ids = (prefs: Parameters<typeof buildPlan>[1]) => buildPlan(p, prefs).map(c => c.id).join();
+    const base = defaultPreferences(p);
+    expect(ids({ ...base, goal: "relaxed" })).not.toBe(ids({ ...base, goal: "bold" }));
+    expect(ids({ ...base, goal: "bold", budget: "low", minutes: 1 })).not.toBe(ids({ ...base, goal: "bold" }));
   });
 
   it("does not invent evidence or require changes when observations are missing", () => {
