@@ -114,3 +114,30 @@ def test_batch_counts_invalid_computations_already_rejected_by_registry(evaluato
     assert "M001" in results[0]["invalid_metrics"]
     summary = json.loads((tmp_path / "summary.json").read_text())
     assert summary["invalid_values"] >= 3
+
+
+def test_batch_retains_outline_failure_stage_in_local_diagnostics(evaluator, tmp_path, monkeypatch):
+    from PIL import Image
+
+    from aesthetic_passport.cv import SEG_CLOTHES
+    from aesthetic_passport.face_metrics.synthetic import synthetic_profile
+
+    rgb, seg, _ = synthetic_profile()
+    seg[:, 550:] = SEG_CLOTHES
+    seg[620:, :] = SEG_CLOTHES
+    Image.fromarray(rgb).save(tmp_path / "profile.png")
+    monkeypatch.setattr(evaluator.MODELS, "faces", lambda _: [])
+    monkeypatch.setattr(evaluator.MODELS, "segment", lambda _: seg)
+    manifest = tmp_path / "manifest.jsonl"
+    manifest.write_text(json.dumps({"person_id": "p01", "view": "right90", "image_path": "profile.png"}))
+    out = tmp_path / "out"
+    assert evaluator.main(["--manifest", str(manifest), "--out", str(out), "--max-overlays", "0"]) == 0
+    result = json.loads((out / "results.json").read_text())[0]
+    assert result["rejection_reasons"] == ["profile_unclear"]
+    assert result["trace_reason"] == "landmarks_unclear"
+    assert result["trace_detail"] == {"stage": "anterior_face_skin"}
+    assert all(m["value"] is None for m in result["metrics"])
+    with (out / "images.csv").open() as stream:
+        row = next(csv.DictReader(stream))
+    assert row["trace_reason"] == "landmarks_unclear"
+    assert json.loads(row["trace_detail"]) == {"stage": "anterior_face_skin"}

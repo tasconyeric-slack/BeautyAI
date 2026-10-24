@@ -70,6 +70,35 @@ def profile_masks(seg: np.ndarray) -> tuple[np.ndarray, np.ndarray]:
     return fg, skin
 
 
+def profile_bounds(seg: np.ndarray, fg: np.ndarray, skin: np.ndarray,
+                   face: Any | None = None) -> tuple[int, int, int]:
+    """Facing sign and visible facial top/bottom, excluding neck labels behind the outline.
+
+    The segmenter can label neck pixels as face skin, including islands within the same person component.
+    Only face skin on the anterior foreground boundary supplies facial bounds; otherwise a shoulder below
+    the chin can become the most anterior point and be mistaken for the nose. Interior holes do not move
+    this boundary, and hair remains part of the outline between the facial bounds.
+    """
+    from ..cv import SEG_HAIR
+
+    _, xs = np.nonzero(skin)
+    hair = (seg == SEG_HAIR) & fg
+    if face is not None:
+        sign = 1 if face.landmarks[1, 0] > xs.mean() else -1
+    elif hair.sum() > 0.2 * skin.sum():
+        sign = 1 if xs.mean() > np.nonzero(hair)[1].mean() else -1
+    else:
+        sign = 1 if xs.mean() > np.nonzero(fg)[1].mean() else -1
+    rows = np.flatnonzero(fg.any(axis=1))
+    anterior = np.argmax(fg if sign < 0 else fg[:, ::-1], axis=1)
+    if sign > 0:
+        anterior = fg.shape[1] - 1 - anterior
+    facial = rows[skin[rows, anterior[rows]]]
+    if len(facial) < 20:
+        raise ProfileUnavailable("landmarks_unclear", {"stage": "anterior_face_skin"})
+    return sign, int(facial.min()), int(facial.max())
+
+
 def _anterior_outline(fg: np.ndarray, sign: int, y0: int, y1: int) -> np.ndarray:
     """Most anterior foreground x per row (sub-row smoothing), rows y0..y1. Returns (N, 2) points, NaN-free."""
     rows, xs = [], []
@@ -159,21 +188,10 @@ def _detect(q: np.ndarray, end: int) -> dict[str, int]:
 def trace_profile(rgb: np.ndarray, seg: np.ndarray, face: Any | None = None, *,
                   min_scale_px: float = 0.0) -> ProfileTrace:
     """Find the anterior outline and its landmarks. Raises ProfileUnavailable with a reason."""
-    from ..cv import SEG_HAIR
-
     fg, skin = profile_masks(seg)
-    ys, xs = np.nonzero(skin)
-    hair = (seg == SEG_HAIR) & fg
-    # facing: the face skin lies in front of the hair mass (or, with a face, in front of the nose-tip → ear axis)
-    if face is not None:
-        sign = 1 if face.landmarks[1, 0] > xs.mean() else -1
-    elif hair.sum() > 0.2 * skin.sum():
-        sign = 1 if xs.mean() > np.nonzero(hair)[1].mean() else -1
-    else:
-        sign = 1 if xs.mean() > np.nonzero(fg)[1].mean() else -1
-    top, bottom = int(ys.min()), int(ys.max())
+    sign, top, bottom = profile_bounds(seg, fg, skin, face)
     face_h = bottom - top
-    outline = _anterior_outline(fg, sign, top - int(0.1 * face_h), bottom + int(0.15 * face_h))
+    outline = _anterior_outline(fg, sign, top - int(0.1 * face_h), bottom + 1)
     end = int(np.searchsorted(outline[:, 1], bottom)) - 1
     # work facing right: mirror x, then rotate so the glabella → pogonion line is vertical (two passes)
     q0 = outline.copy()

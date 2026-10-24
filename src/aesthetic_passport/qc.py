@@ -231,7 +231,7 @@ def check_profile90(im: Image.Image | np.ndarray, cfg: dict | None = None) -> Ph
 
     MediaPipe may or may not find a face at 90°; when it does, its nose tip must lie on the traced outline (in a 45°
     photo the far cheek is in front of it). The trace is kept in `extra` for the measurement layer."""
-    from .face_metrics.profile import ProfileUnavailable, profile_masks, trace_profile
+    from .face_metrics.profile import ProfileUnavailable, profile_bounds, profile_masks, trace_profile
 
     cfg = cfg or load_qc_config()
     g = cfg["gate"]
@@ -254,12 +254,15 @@ def check_profile90(im: Image.Image | np.ndarray, cfg: dict | None = None) -> Ph
     seg = MODELS.segment(rgb)
     pc.extra["seg"] = seg
     try:
-        _, skin = profile_masks(seg)
-    except ProfileUnavailable:
-        pc.issues, pc.rejects = ["no_face"], {"no_face"}
+        fg, skin = profile_masks(seg)
+        _, top, bottom = profile_bounds(seg, fg, skin, main)
+    except ProfileUnavailable as e:
+        reason = "no_face" if e.reason == "no_face" else "profile_unclear"
+        pc.issues.append(reason)
+        pc.rejects.add(reason)
+        pc.extra.update(reason=e.reason, reason_detail=e.detail)
         return _finish(pc)
-    ys = np.nonzero(skin)[0]
-    face_h = float(ys.max() - ys.min())
+    face_h = float(bottom - top)
     pc.extra["face_h_px"] = round(face_h, 1)
     mask = skin
     luma = float((rgb[mask] @ np.array([0.299, 0.587, 0.114])).mean())
@@ -283,6 +286,7 @@ def check_profile90(im: Image.Image | np.ndarray, cfg: dict | None = None) -> Ph
         pc.issues.append("no_face" if e.reason == "no_face" else "profile_unclear")
         pc.rejects.add(pc.issues[-1])
         pc.extra["reason"] = e.reason
+        pc.extra["reason_detail"] = e.detail or {"stage": "outline_landmarks"}
         return _finish(pc)
     # Keep the attempted geometry for offline diagnostics even when the nose/outline gate rejects it.
     # Consumers must still honor status (the production measurement path does).
