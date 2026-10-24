@@ -3,7 +3,7 @@
  * Runs on the server only — the passports never ship to the browser, just the plain props below. */
 import type { IllustratedAvatarProps, ProfileCardProps } from "@/components/cards";
 import type { SwatchColor } from "@/components/ds";
-import { aestheticScore, avatarProps, colorGroups, cover, hairOptions, profileCardProps, rankedRecs, triptych } from "@/lib/adapters";
+import { aestheticScore, avatarProps, colorGroups, cover, firstThing, hairOptions, profileCardProps, rankedRecs, triptych } from "@/lib/adapters";
 import { common, topics } from "@/lib/copy/zh";
 import { SAMPLE_IDS } from "@/lib/flags";
 import female from "@/lib/fixtures/sample_passport.json";
@@ -178,6 +178,15 @@ export const SHOWCASE: Showcase = buildShowcase(female as unknown as Passport);
  * (canonical-mesh) sample face — not a hand-written number. */
 export const SAMPLE_SCORE = aestheticScore(female as unknown as Passport);
 export const SAMPLE_SCORE_HREF = `/p/${SAMPLE_IDS.female}`;
+
+/** The first-screen deliverable (Issue #2): the same synthetic sample passport the visitor can open — its drawn face,
+ * its computed score and its first action. Read from the passport, never hand-written. */
+export const HERO_SAMPLE = {
+  /** The program-drawn synthetic portrait (no photo of a real person is ever involved). */
+  portrait: "/sample/portrait.svg",
+  score: SAMPLE_SCORE,
+  firstAction: firstThing(female as unknown as Passport)?.action ?? null,
+};
 
 /** Landing preview of the full sample report (Issue #33): one real line per chapter, read from the sample passport. */
 export const SAMPLE_REPORT_HREF = "/report/sample";

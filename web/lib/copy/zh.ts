@@ -152,6 +152,20 @@ export const landing = {
   viewCase: "看真实案例",
   topicLabel: "从你关心的话题开始",
   illustrationLabel: "插画示意",
+  /** Issue #2: the first screen — a free start, a look at the deliverable first, and what the visit is for. */
+  secondaryAction: "先看示例报告",
+  journeyLabel: "这一次访问会带你走完三步",
+  journey: [
+    { title: "看懂", body: "参考分、逐部位测量，以及它们对造型意味着什么" },
+    { title: "试试", body: "在你的照片上试唇色和近脸色，比较三个发型方向" },
+    { title: "决定", body: "带走排好优先级的行动方案和能给发型师看的简报" },
+  ],
+  sampleBadge: "示例 · 合成人脸，非真人",
+  sampleNotLive: "不是实时分析结果",
+  sampleScoreNote: "分数是对这张合成人脸的实际计算，不代表任何真人。",
+  sampleFirstAction: "先做这一件",
+  sampleOpen: "打开完整示例档案",
+  privacyLabel: "照片与隐私",
 } as const;
 
 export const presentation = {

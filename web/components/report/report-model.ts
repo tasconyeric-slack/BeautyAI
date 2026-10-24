@@ -3,6 +3,7 @@
  *  Nothing here measures, scores or recommends. Every number is read from the passport (CV `measurement_profile`,
  *  scoring-layer `aesthetic_score`), every reading from the rules layer (`derived.measurement_insights`) and every
  *  sentence about the face from the model's `analysis`. The report only regroups them into one narrative. */
+import { rankedRecs } from "@/lib/adapters";
 import { report as copy } from "@/lib/copy/zh";
 import type { Passport } from "@/lib/api";
 import type { FaceGeometry, Pt } from "@/lib/tint";
@@ -107,6 +108,74 @@ export function regionViews(p: Passport, v: MeasureView): RegionView[] {
       drawable: sorted.filter((m) => metricRole(m) === "front").slice(0, 3),
     };
   });
+}
+
+// --- evidence ↔ recommendation ---------------------------------------------------------------------------------
+
+export interface RecRef { recId: string; rank: number; action: string }
+export interface RecEvidence {
+  /** The report's region chapters this recommendation rests on (via its cited observations and the readings that point at it). */
+  regions: { key: string; title: string }[];
+  /** The rules layer's readings ("眉尾偏低") whose advice points at this recommendation. */
+  readings: { metricId: string; label: string; regionKey: string }[];
+}
+export interface EvidenceLinks {
+  byRec: Record<string, RecEvidence>;
+  /** Region key → the shown recommendations that rest on it, best-ranked first. */
+  byRegion: Record<string, RecRef[]>;
+}
+
+/** The report region an observation belongs to, or null (hair, crown and neck sit outside the six measured regions). */
+export const regionOfObservation = (region: Observation["region"]): string | null =>
+  REGIONS.find((r) => r.regions.includes(region))?.key ?? null;
+
+/** Links both ways between findings and the recommendations shown in the report: a recommendation cites observations
+ *  (analysis.recommendations[].evidence) and measurement readings advise it (derived.measurement_insights[].advice).
+ *  Only recommendations the report actually shows (the top `shown`, same order as the chapter) get a link. */
+export function evidenceLinks(p: Passport, regions: RegionView[], shown = 5): EvidenceLinks {
+  const ranked = rankedRecs(p).slice(0, shown);
+  const rank = new Map(ranked.map((r, i) => [r.id, i + 1]));
+  const action = new Map(ranked.map((r) => [r.id, r.action]));
+  const title = new Map(REGIONS.map((r) => [r.key, r.title]));
+  const obs = new Map(p.analysis.observations.map((o) => [o.id, o]));
+  const byRec: Record<string, RecEvidence> = {};
+  const touch = (recId: string, regionKey: string, reading?: RecEvidence["readings"][number]) => {
+    const e = (byRec[recId] ??= { regions: [], readings: [] });
+    if (!e.regions.some((g) => g.key === regionKey)) e.regions.push({ key: regionKey, title: title.get(regionKey) ?? regionKey });
+    if (reading && !e.readings.some((x) => x.metricId === reading.metricId)) e.readings.push(reading);
+  };
+  for (const rec of p.analysis.recommendations) {
+    if (!rank.has(rec.id)) continue;
+    for (const ev of rec.evidence) {
+      const o = obs.get(ev);
+      const key = o ? regionOfObservation(o.region) : null;
+      if (key) touch(rec.id, key);
+    }
+  }
+  for (const rg of regions) {
+    for (const ins of rg.insights) {
+      for (const a of ins.advice) {
+        if (a.recId && rank.has(a.recId)) touch(a.recId, rg.key, { metricId: ins.metricId, label: ins.label, regionKey: rg.key });
+      }
+    }
+  }
+  const byRegion: Record<string, RecRef[]> = {};
+  for (const [recId, e] of Object.entries(byRec)) {
+    for (const g of e.regions) (byRegion[g.key] ??= []).push({ recId, rank: rank.get(recId) as number, action: action.get(recId) as string });
+  }
+  for (const list of Object.values(byRegion)) list.sort((a, b) => a.rank - b.rank);
+  return { byRec, byRegion };
+}
+
+// --- reading position ------------------------------------------------------------------------------------------
+
+/** Which chapter the reader is in: the last one whose top has reached the reading line. Before any layout exists
+ *  (every top is 0, e.g. server render or jsdom) or above the first chapter, the first one. */
+export function pickActive(tops: number[], line: number): number {
+  if (tops.length === 0 || tops.every((t) => t === 0)) return 0;
+  let at = 0;
+  tops.forEach((t, i) => { if (t <= line) at = i; });
+  return at;
 }
 
 // --- region crop -----------------------------------------------------------------------------------------------

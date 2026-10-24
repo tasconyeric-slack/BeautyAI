@@ -1,6 +1,6 @@
 "use client";
 
-import { Compass, IdCard, ListChecks, Settings, Sparkles, X } from "lucide-react";
+import { ArrowRight, ChevronRight, Compass, IdCard, ListChecks, Settings, Sparkles, X } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import * as React from "react";
@@ -9,6 +9,8 @@ import { backendFor } from "@/lib/api";
 import { privacy, settings } from "@/lib/copy/zh";
 import { PassportProvider, usePassport } from "@/lib/state/passport-store";
 import { cn } from "@/lib/utils";
+import { currentStep, JOURNEY, journeyHref, nextStep } from "./journey";
+import { ErrorState } from "./states";
 
 export function PassportShell({ id, children }: { id: string; children: React.ReactNode }) {
   return (
@@ -19,7 +21,7 @@ export function PassportShell({ id, children }: { id: string; children: React.Re
 }
 
 function Inner({ children }: { children: React.ReactNode }) {
-  const { deletedAt, error } = usePassport();
+  const { deletedAt, error, data, refresh } = usePassport();
   const [sheet, setSheet] = React.useState(false);
   if (deletedAt) return <Deleted at={deletedAt} />;
   if (error && error.status === 404) {
@@ -31,10 +33,14 @@ function Inner({ children }: { children: React.ReactNode }) {
       </div>
     );
   }
+  // Nothing loaded and the request keeps failing: say so and offer a retry, instead of a page that stays blank.
+  if (error && !data) return <ErrorState error={error} onRetry={refresh} />;
   return (
     <>
       <DemoBanner />
+      <JourneyBar />
       {children}
+      <JourneyNext />
       <div className="no-print mx-auto mt-10 flex max-w-5xl justify-center px-4">
         <button type="button" onClick={() => setSheet(true)}
           className="inline-flex items-center gap-1.5 rounded-full border border-rule px-4 py-2 text-[13px] text-muted hover:text-ink">
@@ -45,6 +51,55 @@ function Inner({ children }: { children: React.ReactNode }) {
       <BottomNav />
       {sheet && <SettingsSheet onClose={() => setSheet(false)} />}
     </>
+  );
+}
+
+/** Desktop: where you are in overview → evidence → report → advice → plan → studio, one click from every step.
+ *  Phones keep the four-area bottom bar (below); this bar is desktop only and never replaces it there. */
+export function JourneyBar() {
+  const { id, data } = usePassport();
+  const path = usePathname() ?? "";
+  const here = currentStep(path);
+  if (!here || data?.status !== "full_ready") return null;
+  return (
+    <nav aria-label="浏览路径" data-testid="journey-bar" data-journey-bar className="no-print sticky top-[49px] z-30 hidden h-11 border-b border-rule bg-paper/95 backdrop-blur md:block">
+      <ol className="mx-auto flex h-full max-w-5xl items-center gap-0.5 px-6">
+        {JOURNEY.map((s, i) => {
+          const active = s.key === here;
+          return (
+            <li key={s.key} className="flex items-center gap-0.5">
+              {i > 0 && <ChevronRight aria-hidden className="size-3.5 text-rule-strong" />}
+              <Link href={journeyHref(id, s.key)} aria-current={active ? "page" : undefined} title={s.blurb}
+                className={cn("inline-flex h-8 items-center gap-1.5 rounded-full px-3 text-[13px] transition-colors",
+                  active ? "bg-accent-soft font-medium text-accent" : "text-ink-soft hover:bg-paper-sunk hover:text-ink")}>
+                <span aria-hidden className="tnum text-[11px] opacity-70">{i + 1}</span>{s.label}
+              </Link>
+            </li>
+          );
+        })}
+      </ol>
+    </nav>
+  );
+}
+
+/** Below evidence, advice and plan: the next step and why it follows. The overview and the report write their own. */
+export function JourneyNext() {
+  const { id, data } = usePassport();
+  const next = nextStep(currentStep(usePathname()));
+  if (!next || data?.status !== "full_ready") return null;
+  return (
+    <section aria-labelledby="journey-next" data-testid="journey-next" className="no-print mx-auto mt-10 max-w-5xl px-4 sm:px-6">
+      <div className="flex flex-col gap-3 rounded-[16px] border border-rule bg-paper-raised p-5 sm:flex-row sm:items-center sm:justify-between">
+        <div className="min-w-0">
+          <h2 id="journey-next" className="text-[11px] tracking-[0.18em] text-muted">下一步</h2>
+          <p className="mt-1 text-[14px] leading-6 text-ink-soft">{next.lead}</p>
+        </div>
+        <Link href={journeyHref(id, next.step.key)}
+          className="inline-flex shrink-0 items-center justify-center gap-1.5 rounded-full bg-accent px-5 py-2.5 text-[14px] font-medium text-[var(--ap-on-primary)] hover:opacity-90">
+          {next.step.label}<ArrowRight className="size-4" />
+        </Link>
+      </div>
+    </section>
   );
 }
 
@@ -97,7 +152,7 @@ function BottomNav() {
   const path = usePathname() ?? "";
   const base = `/p/${id}`;
   return (
-    <nav aria-label="护照导航" className="no-print fixed inset-x-0 bottom-0 z-40 border-t border-rule bg-paper/95 pb-[env(safe-area-inset-bottom)] backdrop-blur">
+    <nav aria-label="护照导航" className="no-print fixed inset-x-0 bottom-0 z-40 border-t border-rule bg-paper/95 pb-[env(safe-area-inset-bottom)] backdrop-blur md:hidden">
       <ul className="mx-auto grid max-w-md grid-cols-4">
         {NAV_AREAS.map(({ key, sub, label, icon: Icon, match }) => {
           const active = match.test(path);
