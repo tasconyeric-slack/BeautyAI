@@ -115,6 +115,11 @@ Reports torch import time, model build/load time, RSS after load, p50/p90 latenc
 the flip) and batch throughput, peak RSS, and optional int8 / ONNX Runtime variants with their numerical
 difference from fp32 on the same weights.
 
+Real-image parity of an export (and torch dynamic int8) against the 250 published MEBeauty test predictions:
+`python -m experiments.aesthetics.onnx_parity --onnx models/aesthetics/mebeauty-fbp/model.onnx --reference <npz> --int8`.
+Measured result: ONNX Runtime PASS (max |Δ| 3.8e-06); dynamic int8 FAIL (mean |Δ| 3.9 points), so don't use int8.
+The ONNX export is derived from restricted weights: keep it in git-ignored `models/`, never redistribute or deploy it.
+
 ## Tests
 
 `tests/test_aesthetics_experiment.py` (runs in `make test`): metrics, exact preprocessing parity with the reference

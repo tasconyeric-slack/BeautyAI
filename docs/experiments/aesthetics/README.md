@@ -1,26 +1,85 @@
 # Pretrained facial-attractiveness model — offline run & benchmark (Issue #11)
 
 Code: [`experiments/aesthetics/`](../../../experiments/aesthetics/README.md) · Tests: `tests/test_aesthetics_experiment.py` ·
-Raw measurements: [`measurements/`](measurements/) · First recorded 2026-10-24 at `3d61096`; SCUT benchmark at `5ba1cec`.
+Raw measurements: [`measurements/`](measurements/) · First recorded 2026-10-24 at `3d61096`; SCUT geometry at `5ba1cec`; real-checkpoint runs at `5e1eff4`.
 
-## Status — what is done, what is blocked (updated 2026-10-24, second pass)
+## Status — acceptance evidence complete (updated 2026-10-24, third pass)
 
 | Acceptance item | State |
 |---|---|
-| `predict` / `evaluate` / `bench` commands, clean failure statuses, leakage guards | **Done** (PR #16), 19 no-photo tests |
-| Report quality: `complete` only when every requested method scored ≥ 1 test image; parity is an explicit `pass`/`fail` against a stated tolerance (default 1e-3), zero usable rows → `fail` without crashing | **Done** (this follow-up) |
-| **Measured benchmark of our own** | **Done on SCUT-FBP5500** — official 60/40 split and 5-fold CV fold 1, below |
-| **Real-checkpoint inference** (`predict` with `status=ok`), MEBeauty holdout benchmark + parity, real-weight ONNX parity | **Blocked — needs a Hugging Face credential.** Network access now works, but both repos are *gated* (see below) |
-| Runtime / memory | Measured for the identical architecture (untrained weights); Render-tier verdict below. Real-weight ONNX parity still pending the checkpoint |
+| `predict` / `evaluate` / `bench` commands, clean failure statuses, leakage guards | **Done** (PR #16) |
+| Truthful `complete` status; explicit parity `pass`/`fail` with tolerance | **Done** (PR #17) |
+| **Real-checkpoint inference** | **Done** — `predict` `status=ok` with the published weights, below |
+| **MEBeauty holdout benchmark + published-prediction parity** | **Done** — parity **PASS** (max \|Δ\| 2.4e-06), metrics reproduce exactly |
+| Framing drift (`--crop face` vs `--crop none`) | **Done** — aggregate accuracy unchanged, per-image drift quantified |
+| SCUT-FBP5500 benchmark (geometry) and cross-dataset model evaluation | **Done** (geometry in PR #17, model here) |
+| Real-weight ONNX parity, CPU latency and memory | **Done** — ONNX **PASS** on the 250 real test images; int8 **FAIL** |
 
-### Remaining blocker (exact)
+Access: weights and dataset are gated (automatic approval). The account holder accepted the terms; the session
+authenticates through a proxy-injected Hugging Face credential (no token in the environment, files or repo). Weights
+(`dinov2-partial.pt`, sha256 `7b8fd2cb55aa…`, 348 MB) and the dataset cache live in git-ignored `models/` and `data/`.
+Nothing derived from the weights (including `model.onnx`) is committed or distributed.
 
-`dr-irina-lebedeva/MEBeauty-FBP-models` (weights) and `dr-irina-lebedeva/MEBeauty-Facial-Beauty-Prediction` (dataset)
-are both **gated** (`gated: auto`, automatic approval). `hf download` from this environment returns
-*"Access denied … requires approval"* because there is no Hugging Face credential here. The account holder must,
-while signed in to huggingface.co, accept the terms on **both** pages, then expose a read token to the environment as
-the secret/environment variable **`HF_TOKEN`**. No access control was bypassed and no token is stored in the repo.
-The weights are therefore *not* "public": they are free-to-request, research-only.
+## Real-checkpoint results (ours, measured 2026-10-24 on 4 vCPU, no GPU)
+
+**Single-photo inference** (`predict`, SCUT-FBP5500 image `CF1.jpg`, research terms): `status=ok`,
+`model_version mebeauty-fbp/dinov2-partial@sha256:7b8fd2cb55aa`, `raw_score 7.61` on MEBeauty's 1–10 `beauty_score`
+(`--crop none` 7.60). The checkpoint loads *strictly* into the re-implemented architecture with the backbone config
+inferred from tensor shapes; `score_range` read from the model's `config.json`. Cold load 8–13 s (includes hashing
+348 MB), inference 0.40–0.46 s. Evidence: [`real-weights-predict-example.json`](measurements/real-weights-predict-example.json).
+
+**MEBeauty holdout test** (publisher's identity-grouped split, n = 250, `--crop none` = harness setting):
+
+| Method | Coverage | Spearman [95% CI] | Pearson | MAE (1–10) | Error basis |
+|---|---|---|---|---|---|
+| `train_mean` | 250 | — | — | 0.911 | native |
+| `geometric` (product `aes-geo-1.0`) | 146 | 0.078 [−0.088, 0.229] | 0.124 | 0.892 | calibrated on train |
+| `geometry_ridge` | 146 | 0.288 [0.127, 0.429] | 0.301 | 0.871 | native |
+| **`mebeauty_dinov2`** | **250** | **0.767** [0.708, 0.816] | **0.771** | **0.566** | native |
+
+- **Parity PASS**: our predictions vs the 250 published ones: max |Δ| 2.4e-06, mean 5.7e-07 (tolerance 1e-3). The
+  authors' published holdout numbers (PC 0.7711, SROCC 0.7669, MAE 0.5658) are reproduced exactly by our run.
+- Common subset (n = 146, all methods scored): model Spearman 0.777 / MAE 0.550 vs ridge 0.288 / 0.871 vs geometric 0.078.
+- Geometry covers only 146 / 250 aligned 256×256 crops: MediaPipe finds every face, but tight crops often cut the
+  forehead/chin the D36 components need (`geometry_unavailable`).
+- Model by dataset-published group (Spearman): female 0.57, male 0.65; asian 0.84, caucasian 0.67, hispanic 0.74,
+  indian 0.90 (black n = 29, mideastern n = 28 below the n ≥ 30 reporting floor). Small groups; wide uncertainty.
+- **Framing drift** (`--crop face`, MediaPipe square crop, no alignment): Spearman 0.765, MAE 0.569 — aggregate
+  accuracy is unchanged, but individual scores move (mean |Δ| 0.030, max 0.345; parity correctly **FAIL**s at 1e-3).
+  For arbitrary portraits expect per-photo noise of a few tenths, not a systematic loss.
+
+**SCUT-FBP5500 cross-dataset** (official 60/40 test, n = 2,200; the MEBeauty model never saw SCUT):
+
+| Method | Coverage | Spearman [95% CI] | MAE (1–5) | Error basis |
+|---|---|---|---|---|
+| `train_mean` | 2200 | — | 0.560 | native |
+| `geometric` (PR #17) | 2128 | −0.187 [−0.231, −0.144] | 0.529 | calibrated on train |
+| `geometry_ridge` (PR #17, fitted on SCUT train) | 2128 | 0.614 [0.589, 0.642] | 0.420 | native |
+| **`mebeauty_dinov2`** | **2200** | **0.653** [0.628, 0.676] | **0.394** | calibrated on 500 SCUT train images (label ≈ −0.449 + 0.591·score) |
+
+By SCUT subset (Spearman): AF 0.80, AM 0.64, CF 0.86, CM 0.64. The MEBeauty-panel predictor transfers to a different,
+mostly-Asian panel better than a geometry model fitted on that panel itself; raw scores are on MEBeauty's scale and
+need the train-fitted map for MAE (scales never mixed).
+
+**Real-weight ONNX parity, latency, memory** (identical weights; timing on seeded random tensors, parity on the 250
+real MEBeauty test images via `python -m experiments.aesthetics.onnx_parity`):
+
+| Path | Real-image parity vs published | Spearman / MAE | p50 per photo (flip avg) 4 thr / 1 thr | Load | RSS after load / peak |
+|---|---|---|---|---|---|
+| PyTorch fp32 | PASS (2.4e-06) | 0.767 / 0.566 | 263 ms / 820 ms | 1.2 s import + 4.8 s | 1,018 MB / 1.8–2.6 GB with variants |
+| **ONNX Runtime fp32, no torch** | **PASS (max 3.8e-06)** | 0.767 / 0.566 | 327 ms / 713 ms | 0.8 s | **596 MB / 608 MB** |
+| Torch dynamic int8 | **FAIL** (mean \|Δ\| 3.88) | 0.541 / 3.81 | 150 ms / 357 ms | — | — |
+
+Dynamic int8 quantisation of the Linear layers wrecks this model (scores shift by ~4 points); do not use it.
+Exported ONNX file 332 MB. Raw files: `measurements/real-weights-*.json`.
+
+### Remaining limits
+
+- Evidence is research-only: MEBeauty and SCUT are non-commercial, and the weights' licence forbids deployment that
+  scores real people (below). Nothing here authorises production use.
+- SCUT publishes no identity grouping; MEBeauty subgroup cells are small (29–130). No GPU measurements.
+- The geometric-score coverage gap on aligned crops is a dataset-framing effect, not a product defect, but means the
+  MEBeauty geometry numbers rest on 146 images.
 
 ### Licence finding that gates Issue #13
 
@@ -31,7 +90,7 @@ either). A score shown to product users is a deployment that scores real people.
 permission, these weights cannot back a production feature, whatever the benchmark shows. Issue #13 should start
 from this constraint (e.g. a written licence from the author, or a model trained on data whose terms allow it).
 
-## Measured benchmark — SCUT-FBP5500 (ours)
+## SCUT-FBP5500 geometry benchmark (PR #17)
 
 SCUT-FBP5500 v2 images from the official Google Drive release (non-commercial research use), kept in git-ignored
 `data/`. Labels: 1–5, mean of 60 raters. Splits: the release's own files. MediaPipe found a face in every test image;
@@ -47,7 +106,6 @@ Reports (aggregates only): [`measurements/scut-60-40.report.md`](measurements/sc
 | CV fold 1 (test 1,100) | `train_mean` | 1100 | — | — | 0.567 | native |
 | | `geometric` | 1060 | **−0.205** [−0.261, −0.151] | −0.230 | 0.533 | calibrated on train |
 | | `geometry_ridge` | 1060 | **0.601** [0.558, 0.637] | 0.593 | 0.428 | native |
-| both | `mebeauty_dinov2` | 0 | — | — | — | `model_unavailable` (gated weights) |
 
 60/40 breakdown by SCUT's own subset labels (Spearman): `geometric` AF −0.27, AM −0.08, CF 0.00, CM −0.03;
 `geometry_ridge` AF 0.66, AM 0.59, CF 0.49, CM 0.54.
@@ -59,39 +117,37 @@ What this shows (research evidence, not a product claim):
 - The same landmark measurements carry real signal when weighted by data (ridge, fitted on train only): Spearman ≈ 0.61,
   MAE 0.42 vs 0.56 for the train-mean floor, within every subset. That ceiling belongs to the SCUT panel and does not
   transfer to other raters or scales.
-- No pretrained-model number on SCUT exists yet: it needs the gated weights, and would be cross-panel (MEBeauty → SCUT)
-  with a train-calibrated MAE.
+- The pretrained-model cross-panel result is in the real-checkpoint section above.
 
-## Runtime / resource verdict
+## Runtime / resource verdict (real weights)
 
-- Measured (architecture-identical, untrained weights; see below): ONNX Runtime alone peaks at **641 MB RSS**, PyTorch
-  at **1,426 MB**; ~0.26–0.32 s per photo on 4 vCPU, ~0.75–0.89 s on 1 vCPU.
+- ONNX Runtime alone: **~600 MB RSS**, 0.8 s load, ~0.33 s per photo on 4 vCPU (~0.7 s on 1 vCPU), parity PASS on
+  real images. PyTorch: ~1.0 GB after load (CUDA wheel), more during inference. int8 dynamic: not usable (FAIL).
 - Render web tiers (render.com/pricing, 2026-10-24): **Starter 512 MB / 0.5 CPU** (the plan in `render.yaml`),
-  Standard 2 GB / 1 CPU. The model alone exceeds Starter even before the API and MediaPipe are loaded (this benchmark's
-  geometry-only run already peaks at 762 MB). On Starter the only option would be a separate service of at least
-  Standard size; in-process needs Standard or larger with headroom measured on the real API.
-- The licence finding above blocks production use regardless; the resource numbers matter only if a permissive model
-  replaces these weights (a similar ViT-B backbone would cost the same).
+  Standard 2 GB / 1 CPU. The model alone exceeds Starter before the API and MediaPipe load; anything would need at
+  least a Standard-size separate worker. ~0.5 CPU would push latency towards ~1.4 s per photo (1-thread figure × 2).
+- **Verdict:** technically, an ONNX Runtime fp32 worker on a ≥ 1 GB instance is the smallest faithful inference path.
+  **Legally, these weights may not be deployed to score real people (Issue #13 gate below)**; the numbers only size a
+  future, permissively licensed model of the same ViT-B class.
 
-## To finish once `HF_TOKEN` is available (CPU is enough)
+## Reproduce (gated access required; CPU is enough)
 
 ```bash
 hf download dr-irina-lebedeva/MEBeauty-FBP-models dinov2-partial.pt config.json --local-dir models/aesthetics/mebeauty-fbp
-python -m experiments.aesthetics predict data/scut-fbp5500/SCUT-FBP5500_v2/Images/<one adult image>.jpg   # real status=ok
-git clone https://github.com/dr-irina-lebedeva/MEBeauty-Benchmark ../MEBeauty-Benchmark
-python -m experiments.aesthetics evaluate --dataset mebeauty \
-    --reference-predictions ../MEBeauty-Benchmark/results/dinov2-partial_predictions.npz      # parity PASS/FAIL
-python -m experiments.aesthetics evaluate --dataset mebeauty --crop face --methods mebeauty_dinov2   # framing drift
-T=data/scut-fbp5500/SCUT-FBP5500_v2/train_test_files/split_of_60%training\ and\ 40%testing
+REF=../MEBeauty-Benchmark/results/dinov2-partial_predictions.npz       # git clone dr-irina-lebedeva/MEBeauty-Benchmark
+python -m experiments.aesthetics predict data/scut-fbp5500/SCUT-FBP5500_v2/Images/CF1.jpg
+python -m experiments.aesthetics evaluate --dataset mebeauty --reference-predictions $REF
+python -m experiments.aesthetics evaluate --dataset mebeauty --crop face --methods mebeauty_dinov2 --reference-predictions $REF
+T="data/scut-fbp5500/SCUT-FBP5500_v2/train_test_files/split_of_60%training and 40%testing"
 python -m experiments.aesthetics evaluate --dataset scut-fbp5500 --images-dir data/scut-fbp5500/SCUT-FBP5500_v2/Images \
-    --train-file "$T/train.txt" --test-file "$T/test.txt"                                   # cross-panel transfer
-python -m experiments.aesthetics bench --variants onnxruntime --export-onnx models/aesthetics/mebeauty-fbp/model.onnx
-python -m experiments.aesthetics bench-onnx --onnx models/aesthetics/mebeauty-fbp/model.onnx   # real-weight parity + RSS
+    --train-file "$T/train.txt" --test-file "$T/test.txt" --methods train_mean,mebeauty_dinov2
+python -m experiments.aesthetics bench --variants int8_dynamic,onnxruntime --export-onnx models/aesthetics/mebeauty-fbp/model.onnx
+python -m experiments.aesthetics bench-onnx --onnx models/aesthetics/mebeauty-fbp/model.onnx [--threads 1]
+python -m experiments.aesthetics.onnx_parity --onnx models/aesthetics/mebeauty-fbp/model.onnx --reference $REF --int8
 ```
 
-MEBeauty's `image` field holds aligned 256×256 face crops, so `--crop none` is the harness-faithful setting on that
-dataset; `--crop face` on arbitrary portraits (MediaPipe box, no alignment) is not established to reproduce that
-alignment until the framing-drift run above quantifies it.
+Run the evaluations one at a time: two concurrent torch jobs on 4 vCPU oversubscribe threads and slowed each ~5×
+(the MEBeauty holdout took 28 min while sharing the CPU).
 
 ## What was verified from the reference source
 
@@ -126,7 +182,7 @@ claim.** They set the expectation the blocked run should reproduce.
 Geometry-only methods in their benchmark reach Spearman ≈ 0.33–0.39; how far the product's `aes-geo-1.0` score and
 our `geometry_ridge` get on the same split is exactly what the blocked `evaluate` run will measure.
 
-## Measured runtime (this environment)
+## Measured runtime — first pass, untrained weights (superseded by the real-weight table above)
 
 Intel Xeon @ 2.10 GHz, 4 vCPU, 16 GB, no GPU · Python 3.13 · torch 2.14.1 (CUDA build from PyPI; the CPU-only wheel
 is smaller) · transformers 5.18.0 · onnxruntime 1.31.0. Identical architecture with **untrained** weights (`bench
@@ -149,7 +205,7 @@ flip averaging (2 forward passes), the published-metrics setting.
 
 > **Superseded for these weights by the licence finding at the top:** the MEBeauty weights may not be deployed to
 > score real people. Points 1–2 apply only to a replacement model with permissive terms and the same architecture
-> class; real-weight ONNX parity is still unmeasured.
+> class. Real-weight ONNX parity has since been measured (PASS); dynamic int8 FAILs and is ruled out.
 
 1. **Deployable path: export the checkpoint once to ONNX and run it with onnxruntime (fp32), no PyTorch in
    production.** Same latency as PyTorch on CPU, less than half the memory (641 vs 1,426 MB peak), sub-second cold

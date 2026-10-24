@@ -1,0 +1,223 @@
+{
+  "report_version": 1,
+  "tool_version": "0.1.0",
+  "dataset": {
+    "name": "scut-fbp5500",
+    "source": "Images",
+    "label": "beauty score (mean of 60 raters)",
+    "label_range": [
+      1.0,
+      5.0
+    ],
+    "protocol": "split files train.txt / test.txt",
+    "n_train": 3300,
+    "n_test": 2200,
+    "notes": [
+      "Subsets AF/AM/CF/CM are SCUT's own published file-name labels.",
+      "SCUT publishes no identity grouping; folds are used exactly as released."
+    ]
+  },
+  "subsampled": {
+    "test": false,
+    "train": false,
+    "n_test": 2200,
+    "n_train": 3300,
+    "seed": 0
+  },
+  "settings": {
+    "crop": "none",
+    "crop_margin": null,
+    "flip": true,
+    "device": "cpu",
+    "calibration_n": 500,
+    "bootstrap": 1000,
+    "min_group": 30
+  },
+  "methods": {
+    "train_mean": {
+      "status": "ok",
+      "scale": "native",
+      "train_mean": 2.9888,
+      "coverage": {
+        "n_total": 2200,
+        "n_scored": 2200,
+        "rate": 1.0,
+        "failures": {}
+      },
+      "metrics": {
+        "n": 2200,
+        "spearman": null,
+        "pearson": null,
+        "spearman_ci95": null,
+        "mae": 0.5597,
+        "rmse": 0.6784
+      },
+      "metrics_common_subset": {
+        "n": 2200,
+        "spearman": null,
+        "pearson": null,
+        "spearman_ci95": null,
+        "mae": 0.5597,
+        "rmse": 0.6784
+      },
+      "breakdowns": {
+        "subset": {
+          "AF": {
+            "n": 792,
+            "spearman": null,
+            "mae": 0.5976
+          },
+          "AM": {
+            "n": 811,
+            "spearman": null,
+            "mae": 0.5413
+          },
+          "CF": {
+            "n": 285,
+            "spearman": null,
+            "mae": 0.5902
+          },
+          "CM": {
+            "n": 312,
+            "spearman": null,
+            "mae": 0.4836
+          }
+        }
+      }
+    },
+    "mebeauty_dinov2": {
+      "status": "ok",
+      "model_version": "mebeauty-fbp/dinov2-partial@sha256:7b8fd2cb55aa",
+      "model": {
+        "name": "dinov2-partial",
+        "source_repo": "dr-irina-lebedeva/MEBeauty-FBP-models",
+        "weights_file": "dinov2-partial.pt",
+        "weights_sha256": "7b8fd2cb55aab425088ef1c1ac9cbe7af6e00572ce5d12a0db4a7aceb4e2b6af",
+        "random_init": false,
+        "architecture": "Dinov2Model + CLS‖mean-patch + 2-layer MLP head",
+        "backbone_config": {
+          "hidden_size": 768,
+          "num_hidden_layers": 12,
+          "num_attention_heads": 12,
+          "patch_size": 14,
+          "image_size": 518,
+          "mlp_ratio": 4,
+          "layerscale_value": 1.0,
+          "layer_norm_eps": 1e-06,
+          "qkv_bias": true,
+          "use_swiglu_ffn": false
+        },
+        "backbone_config_source": "inferred from checkpoint tensor shapes",
+        "parameters": 86977281,
+        "score_range": [
+          1.0,
+          10.0
+        ],
+        "score_range_source": "config.json",
+        "device": "cpu",
+        "torch": "2.14.1+cu130",
+        "transformers": "5.18.0"
+      },
+      "load_s": 13.208,
+      "scale": "calibrated_on_train",
+      "calibration": {
+        "a": -0.4490923218504928,
+        "b": 0.5911847084901078,
+        "n_train": 500
+      },
+      "native_range": [
+        1.0,
+        10.0
+      ],
+      "coverage": {
+        "n_total": 2200,
+        "n_scored": 2200,
+        "rate": 1.0,
+        "failures": {}
+      },
+      "metrics": {
+        "n": 2200,
+        "spearman": 0.6526,
+        "pearson": 0.6597,
+        "spearman_ci95": [
+          0.6275,
+          0.676
+        ],
+        "mae": 0.3939,
+        "rmse": 0.5103,
+        "error_basis": "calibrated_on_train"
+      },
+      "metrics_common_subset": {
+        "n": 2200,
+        "spearman": 0.6526,
+        "pearson": 0.6597,
+        "spearman_ci95": [
+          0.6275,
+          0.676
+        ],
+        "mae": 0.3939,
+        "rmse": 0.5103,
+        "error_basis": "calibrated_on_train"
+      },
+      "breakdowns": {
+        "subset": {
+          "AF": {
+            "n": 792,
+            "spearman": 0.8014,
+            "mae": 0.3906
+          },
+          "AM": {
+            "n": 811,
+            "spearman": 0.6414,
+            "mae": 0.3937
+          },
+          "CF": {
+            "n": 285,
+            "spearman": 0.8603,
+            "mae": 0.374
+          },
+          "CM": {
+            "n": 312,
+            "spearman": 0.6403,
+            "mae": 0.4206
+          }
+        }
+      },
+      "runtime": {
+        "seconds": 3742.5,
+        "per_image_ms": 1386.1
+      }
+    }
+  },
+  "notes": [
+    "Subsets AF/AM/CF/CM are SCUT's own published file-name labels.",
+    "SCUT publishes no identity grouping; folds are used exactly as released."
+  ],
+  "common_subset": {
+    "n": 2200,
+    "methods": [
+      "mebeauty_dinov2"
+    ]
+  },
+  "face_detection": {},
+  "runtime": {
+    "total_s": 3797.6,
+    "peak_rss_mb": 1350.2,
+    "stages_s": {
+      "decode": 30.52,
+      "mebeauty_dinov2": 3742.5
+    }
+  },
+  "environment": {
+    "python": "3.13.17",
+    "platform": "Linux x86_64",
+    "cpu_count": 4,
+    "repo_commit": "6aa2b8a60e2a",
+    "cpu_model": "Intel(R) Xeon(R) Processor @ 2.10GHz",
+    "torch": "2.14.1+cu130",
+    "torch_threads": 4,
+    "cuda_available": false
+  },
+  "incomplete_reasons": {},
+  "status": "complete"
+}

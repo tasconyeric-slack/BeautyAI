@@ -1,0 +1,43 @@
+{
+  "onnxruntime": {
+    "status": "pass",
+    "tolerance": 0.001,
+    "n": 250,
+    "max_abs_diff": 3.81e-06,
+    "mean_abs_diff": 1e-06,
+    "n_over_tolerance": 0,
+    "vs_labels": {
+      "n": 250,
+      "spearman": 0.7669,
+      "pearson": 0.7711,
+      "spearman_ci95": null,
+      "mae": 0.5658,
+      "rmse": 0.7373
+    }
+  },
+  "reference_vs_labels": {
+    "n": 250,
+    "spearman": 0.7669,
+    "pearson": 0.7711,
+    "spearman_ci95": null,
+    "mae": 0.5658,
+    "rmse": 0.7373
+  },
+  "torch_int8_dynamic": {
+    "status": "fail",
+    "tolerance": 0.001,
+    "n": 250,
+    "max_abs_diff": 5.36,
+    "mean_abs_diff": 3.88,
+    "n_over_tolerance": 250,
+    "vs_labels": {
+      "n": 250,
+      "spearman": 0.5411,
+      "pearson": 0.4998,
+      "spearman_ci95": null,
+      "mae": 3.8145,
+      "rmse": 3.9699
+    }
+  },
+  "note": "MEBeauty holdout test (250 images), real weights, vs MEBeauty-Benchmark results/dinov2-partial_predictions.npz; aggregates only."
+}

@@ -1,0 +1,84 @@
+{
+  "tool_version": "0.1.0",
+  "status": "ok",
+  "model_version": "mebeauty-fbp/dinov2-partial@sha256:7b8fd2cb55aa",
+  "dataset": "MEBeauty",
+  "label_scale": {
+    "dataset": "MEBeauty",
+    "label": "beauty_score",
+    "min": 1.0,
+    "max": 10.0,
+    "meaning": "predicted mean rating of the MEBeauty rater panel (not an objective property)"
+  },
+  "raw_score": 7.614,
+  "raw_score_unclipped": 7.614,
+  "preprocessing": {
+    "crop_mode": "face",
+    "input_size": [
+      350,
+      350
+    ],
+    "crop_margin": 0.25,
+    "crop_size_px": 310,
+    "framing_matches_training": "unverified",
+    "resize": [
+      256,
+      256
+    ],
+    "resize_filter": "PIL bilinear (aspect not preserved)",
+    "center_crop": 224,
+    "normalize": {
+      "mean": [
+        0.48500001430511475,
+        0.4560000002384186,
+        0.4059999883174896
+      ],
+      "std": [
+        0.2290000021457672,
+        0.2240000069141388,
+        0.22499999403953552
+      ]
+    },
+    "test_time_flip_average": true,
+    "reference": "fbp_benchmark.pretrained.predict (MEBeauty-Benchmark)"
+  },
+  "model": {
+    "name": "dinov2-partial",
+    "source_repo": "dr-irina-lebedeva/MEBeauty-FBP-models",
+    "weights_file": "dinov2-partial.pt",
+    "weights_sha256": "7b8fd2cb55aab425088ef1c1ac9cbe7af6e00572ce5d12a0db4a7aceb4e2b6af",
+    "random_init": false,
+    "architecture": "Dinov2Model + CLS‖mean-patch + 2-layer MLP head",
+    "backbone_config": {
+      "hidden_size": 768,
+      "num_hidden_layers": 12,
+      "num_attention_heads": 12,
+      "patch_size": 14,
+      "image_size": 518,
+      "mlp_ratio": 4,
+      "layerscale_value": 1.0,
+      "layer_norm_eps": 1e-06,
+      "qkv_bias": true,
+      "use_swiglu_ffn": false
+    },
+    "backbone_config_source": "inferred from checkpoint tensor shapes",
+    "parameters": 86977281,
+    "score_range": [
+      1.0,
+      10.0
+    ],
+    "score_range_source": "config.json",
+    "device": "cpu",
+    "torch": "2.14.1+cu130",
+    "transformers": "5.18.0"
+  },
+  "runtime": {
+    "face_check_s": 1.219,
+    "model_load_s": 13.082,
+    "inference_s": 0.462,
+    "total_s": 14.969,
+    "peak_rss_mb": 1535.6
+  },
+  "note": "raw_score predicts how the MEBeauty rater panel would rate this photo on its 1–10 beauty_score scale. It is not an objective measure, not a population rank, and not comparable with SCUT-FBP5500 (1–5) or the product's geometric harmony score (0–100). Research-only weights; non-commercial dataset terms apply.",
+  "input": "SCUT-FBP5500 v2 image CF1.jpg (dataset research terms; image not committed). SCUT's own panel label: 4.12 on its 1-5 scale, not comparable."
+}
