@@ -519,10 +519,12 @@ def api(tmp_path, monkeypatch):
     monkeypatch.setenv("IMAGE_EDIT_PROVIDER", "fake")
     # These tests exercise the preview engine through the automatic first preview; pricing policy (D33: no free
     # preview) is tested in test_api.py.
+    from aesthetic_passport.api import entitlement as entitlement_mod
     from aesthetic_passport.api import previews as previews_mod
 
     policy = {**previews_mod.pricing(), "free_previews": 1}
     monkeypatch.setattr(previews_mod, "pricing", lambda: policy)
+    monkeypatch.setattr(entitlement_mod, "pricing", lambda: policy)
     settings = Settings(runs_dir=tmp_path / "runs", run_jobs_inline=True)
     with TestClient(create_app(settings)) as c:
         yield c
@@ -563,6 +565,114 @@ def test_api_preview_failure_becomes_fallback(api, synthetic, monkeypatch):
     assert sum(1 for c in calls if c["kind"] == "image_edit") == 2           # one retry, then fallback
 
 
+def test_failed_free_preview_keeps_entitlement_and_can_be_retried(api, synthetic, monkeypatch):
+    from aesthetic_passport.api import previews
+
+    rgb, *_ = synthetic
+    monkeypatch.setattr(previews, "image_from_config", lambda: FakeImageEditProvider(fail=True))
+    pid = _submit(api, Image.fromarray(rgb))
+    body = api.get(f"/api/passport/{pid}").json()
+    failed = body["partial"]["previews"][0]
+    assert failed["status"] == "fallback" and failed["after_url"] is None
+    assert body["entitlement"]["free_previews_left"] == 1
+    monkeypatch.setattr(previews, "image_from_config", lambda: FakeImageEditProvider())
+    retry = api.post(f"/api/passport/{pid}/previews", json={"kind": "hair", "target_ids": ["safe"]})
+    assert retry.status_code == 202, retry.json()
+    body = api.get(f"/api/passport/{pid}").json()
+    assert body["partial"]["previews"][0]["status"] == "succeeded"
+    assert body["entitlement"]["free_previews_left"] == 0
+
+
+def test_failed_paid_preview_releases_cap_for_retry(api, synthetic, monkeypatch):
+    from aesthetic_passport.api import previews
+
+    rgb, *_ = synthetic
+    pid = _submit(api, Image.fromarray(rgb))
+    api.post("/api/checkout", json={"passport_id": pid})
+    api.app.state.settings.preview_cap = 1
+    monkeypatch.setattr(previews, "image_from_config", lambda: FakeImageEditProvider(fail=True))
+    payload = {"kind": "hair", "target_ids": ["bold"]}
+    assert api.post(f"/api/passport/{pid}/previews", json=payload).status_code == 202
+    monkeypatch.setattr(previews, "image_from_config", lambda: FakeImageEditProvider())
+    retry = api.post(f"/api/passport/{pid}/previews", json=payload)
+    assert retry.status_code == 202, retry.json()
+    assert next(p for p in api.get(f"/api/passport/{pid}").json()["partial"]["previews"]
+                if p["target_id"] == "bold")["status"] == "succeeded"
+    # Success still spends the cap; the fix must not make successful generations unlimited.
+    assert api.post(f"/api/passport/{pid}/previews",
+                    json={"kind": "hair", "target_ids": ["easy"]}).status_code == 429
+
+
+def test_preview_trace_reaches_served_image_without_photo_data(api, synthetic, monkeypatch):
+    from aesthetic_passport.api import previews
+
+    def handler(req):
+        if req.method == "POST":
+            body = json.loads(req.content)
+            uri = body["input"]["messages"][0]["content"][0]["image"]
+            import base64
+
+            original = Image.open(io.BytesIO(base64.b64decode(uri.split(",", 1)[1])))
+            edited = FakeImageEditProvider().edit(original, "synthetic test").image
+            image_bytes = io.BytesIO()
+            edited.save(image_bytes, format="PNG")
+            handler.image = image_bytes.getvalue()
+            return httpx.Response(200, json={"output": {"choices": [{"message": {"content": [
+                {"image": "https://result.example/edited.png?Signature=private"}]}}]}})
+        assert req.headers.get("authorization") is None
+        return httpx.Response(200, content=handler.image)
+
+    monkeypatch.setattr(previews, "image_from_config", lambda: _qwen(handler))
+    rgb, *_ = synthetic
+    pid = _submit(api, Image.fromarray(rgb))
+    calls = [json.loads(x) for x in (api.app.state.settings.runs_dir / pid / "calls.jsonl").read_text().splitlines()]
+    edit = next(c for c in calls if c["kind"] == "image_edit")
+    trace = edit["trace"]
+    assert [s["stage"] for s in trace] == ["input_ready", "provider_request", "provider_completed",
+                                         "registration_completed", "composite_completed", "quality_passed", "preview_saved"]
+    times = [s["elapsed_ms"] for s in trace]
+    assert times == sorted(times) and edit["latency_ms"] >= times[-1]
+    assert edit["provider_latency_ms"] >= 0 and edit["cost_usd_est"] == 0.03
+    assert "prompt" not in edit and "change" not in edit
+    assert "Signature" not in json.dumps(edit)
+    preview = api.get(f"/api/passport/{pid}").json()["partial"]["previews"][0]
+    assert api.get(preview["after_url"]).status_code == 200
+
+
+@pytest.mark.parametrize("category", ["MisalignedEdit", "RuntimeError"])
+def test_rejected_generation_keeps_cost_and_safe_failure_category(api, synthetic, monkeypatch, caplog, category):
+    from aesthetic_passport import preview as pv
+
+    rgb, *_ = synthetic
+
+    def reject(*args, **kwargs):
+        error = pv.MisalignedEdit if category == "MisalignedEdit" else RuntimeError
+        raise error("private landmark drift 0.123")
+
+    monkeypatch.setattr(pv, "verify_composite", reject)
+    pid = _submit(api, Image.fromarray(rgb))
+    calls = [json.loads(x) for x in (api.app.state.settings.runs_dir / pid / "calls.jsonl").read_text().splitlines()]
+    edits = [c for c in calls if c["kind"] == "image_edit"]
+    assert len(edits) == 2 and all(c["cost_usd_est"] == 0 for c in edits)
+    assert all(c["model"] == "fake-image-edit" and c["error"] == category for c in edits)
+    assert "private landmark" not in json.dumps(edits)
+    assert "private landmark" not in caplog.text
+    assert api.get(f"/api/passport/{pid}").json()["partial"]["previews"][0]["after_url"] is None
+
+
+def test_provider_diagnostics_drop_echoed_prompts_and_untrusted_fields():
+    private = "private short face description"
+
+    def handler(req):
+        return httpx.Response(400, json={"code": private, "request_id": private, "message": private})
+
+    with pytest.raises(ImageEditError) as exc:
+        _qwen(handler).edit(Image.new("RGB", (400, 400)), private)
+    diagnostic = exc.value.diagnostics()
+    assert private not in json.dumps(diagnostic)
+    assert diagnostic["code"] == "unknown_provider_code" and diagnostic["request_id"] is None
+
+
 def test_api_model_not_exist_is_not_retried(api, synthetic, monkeypatch):
     """The real Qwen adapter against a 404 "Model not exist": exactly one request, then the text fallback."""
     from aesthetic_passport.api import previews
@@ -588,7 +698,7 @@ def test_api_model_not_exist_is_not_retried(api, synthetic, monkeypatch):
     assert len(edits) == 1 and edits[0]["ok"] is False
     diag = edits[0]["diag"]
     assert (diag["stage"], diag["http_status"], diag["code"], diag["retryable"]) == ("response", 404, "InvalidParameter", False)
-    assert "Model not exist" in diag["message"]
+    assert "message" not in diag                 # provider prose may echo the private prompt
     assert pv["error"] == "试看服务暂不可用，先看款式插画"
 
 
@@ -621,25 +731,26 @@ def test_qwen_key_only_on_dashscope_call_not_on_result_download():
 
 
 @pytest.mark.parametrize("handler, expect", [
-    (lambda r: httpx.Response(400, json={"code": "InvalidParameter", "request_id": "rid-2",
+    (lambda r: httpx.Response(400, json={"code": "InvalidParameter", "request_id": "a1b2c3d4-1234-4321-9876-abcdef123456",
                                          "message": "bad image data:image/jpeg;base64,AAAA"}),
-     {"stage": "response", "http_status": 400, "code": "InvalidParameter", "request_id": "rid-2",
+     {"stage": "response", "http_status": 400, "code": "InvalidParameter",
+      "request_id": "a1b2c3d4-1234-4321-9876-abcdef123456",
       "category": "api_error"}),
     (lambda r: httpx.Response(502, text="<html>gateway</html>", headers={"x-request-id": "gw-1"}),
-     {"stage": "response", "http_status": 502, "request_id": "gw-1", "category": "invalid_json"}),
+     {"stage": "response", "http_status": 502, "request_id": None, "category": "invalid_json"}),
     (lambda r: (_ for _ in ()).throw(httpx.ConnectTimeout("t", request=r)),
      {"stage": "request", "category": "ConnectTimeout"}),
     (lambda r: httpx.Response(200, json={"output": {"choices": [{"message": {"content": [{"image": "https://o/x"}]}}]},
                                          "request_id": "rid-3"}) if r.method == "POST"
      else httpx.Response(403, text="<Error>AccessDenied</Error>"),
-     {"stage": "download", "http_status": 403, "request_id": "rid-3", "category": "download_http_error"}),
+     {"stage": "download", "http_status": 403, "request_id": None, "category": "download_http_error"}),
 ])
 def test_qwen_failure_diagnostics(handler, expect):
     with pytest.raises(ImageEditError) as ei:
         _qwen(handler).edit(Image.new("RGB", (400, 400)), "SECRET PROMPT")
     d = ei.value.diagnostics()
     assert {k: d[k] for k in expect} == expect and isinstance(d["elapsed_ms"], int)
-    assert "base64" not in d["message"] and "SECRET PROMPT" not in d["message"]
+    assert "base64" not in json.dumps(d) and "SECRET PROMPT" not in json.dumps(d)
 
 
 def test_preview_job_logs_edit_failure_to_stdout_with_cause(tmp_path, monkeypatch, caplog):

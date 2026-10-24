@@ -18,7 +18,8 @@ import copy
 import json
 import math
 import re
-from dataclasses import dataclass
+import time
+from dataclasses import dataclass, field
 from functools import lru_cache
 from pathlib import Path
 from typing import Any
@@ -419,6 +420,24 @@ class TargetResult:
     core: np.ndarray | None = None
 
 
+@dataclass
+class PreviewTrace:
+    """Operational milestones only: never include prompts, pixels, landmarks or measured quality values."""
+
+    started_at: float = field(default_factory=time.perf_counter)
+    stages: list[dict[str, Any]] = field(default_factory=list)
+    model: str | None = None
+    provider_latency_ms: int | None = None
+    cost_usd_est: float | None = None
+
+    @property
+    def elapsed_ms(self) -> int:
+        return int((time.perf_counter() - self.started_at) * 1000)
+
+    def mark(self, stage: str) -> None:
+        self.stages.append({"stage": stage, "elapsed_ms": self.elapsed_ms})
+
+
 def crop_box_path(after: Path) -> Path:
     return after.with_suffix(".json")
 
@@ -511,8 +530,8 @@ def verify_composite(composite: np.ndarray, face: Any, window: np.ndarray, cfg: 
 
 
 def generate_registered(rgb: np.ndarray, face: Any, seg: np.ndarray, spec: dict[str, Any], cfg: dict[str, Any],
-                        provider: ImageEditProvider) -> tuple[tuple[int, int, int, int], np.ndarray, np.ndarray, Any,
-                                                              Any, str]:
+                        provider: ImageEditProvider, trace: PreviewTrace | None = None,
+                        ) -> tuple[tuple[int, int, int, int], np.ndarray, np.ndarray, Any, Any, str]:
     """Crop the head (more pixels on the hair), pad to the model's size grid, edit, un-pad, paste back, register.
 
     Returns (crop box, edited full-size image, window of usable edited pixels, generated Face, provider result,
@@ -521,16 +540,23 @@ def generate_registered(rgb: np.ndarray, face: Any, seg: np.ndarray, spec: dict[
     x0, y0, x1, y1 = head_crop_box(face, shape, spec["region"], cfg, seg=seg)
     padded, (ch, cw) = _pad(rgb[y0:y1, x0:x1])
     prompt = build_prompt(spec)
+    if trace is not None:
+        trace.mark("provider_request")
     try:
         res = provider.edit(Image.fromarray(padded), prompt, negative_prompt=load_edit_prompt().negative)
     except ImageEditError as e:
         raise PreviewError("图像模型这次没有返回可用的结果") from e
+    if trace is not None:
+        trace.model, trace.provider_latency_ms, trace.cost_usd_est = res.model, res.latency_ms, res.cost_usd_est
+        trace.mark("provider_completed")
     out_pad = _restore_crop(res.image, padded)
     edited = rgb.copy()
     edited[y0:y1, x0:x1] = out_pad[:ch, :cw]
     window = np.zeros(shape, bool)
     window[y0:y1, x0:x1] = True
     edited, window, result_face = register_edit(rgb, edited, face, window, cfg)
+    if trace is not None:
+        trace.mark("registration_completed")
     return (x0, y0, x1, y1), edited, window, result_face, res, prompt
 
 
@@ -619,6 +645,7 @@ def render_target(
     provider: ImageEditProvider,
     out_dir: Path,
     debug_dir: Path | None = None,
+    trace: PreviewTrace | None = None,
 ) -> TargetResult:
     """One preview target end to end. Raises PreviewError (user-facing) or QualityGateFailed (LowChange, MisalignedEdit)."""
     spec = target_spec(passport, kind, target_id)
@@ -634,13 +661,19 @@ def render_target(
         raise PreviewError("没有在正脸照里找到人脸")
     face = faces[0]
     shape = rgb.shape[:2]
+    if trace is not None:
+        trace.mark("input_ready")
     (x0, y0, x1, y1), edited, window, result_face, res, prompt = generate_registered(
-        rgb, face, seg, spec, cfg, provider)
+        rgb, face, seg, spec, cfg, provider, trace)
     composite, core, mask = composite_edit(rgb, edited, face, seg, region, window, cfg, result_face=result_face)
+    if trace is not None:
+        trace.mark("composite_completed")
     change = float(np.abs(composite.astype(np.int16) - rgb.astype(np.int16))[mask].mean()) if mask.any() else 0.0
     if change < cfg["preview_masks"]["min_hair_change"]:
         raise LowChange(f"change {change:.1f} below gate")
     verify_composite(composite, face, window, cfg)    # a change score is not a success: check the face, too
+    if trace is not None:
+        trace.mark("quality_passed")
     dx0, dy0, dx1, dy1 = display_box((x0, y0, x1, y1), shape)
     name = f"{kind}_{target_id}.jpg"
     after = save_labeled_jpeg(Image.fromarray(composite[dy0:dy1, dx0:dx1]), out_dir / f"preview_{name}",
@@ -655,5 +688,7 @@ def render_target(
     if debug_dir is not None:
         debug_dir.mkdir(parents=True, exist_ok=True)
         Image.fromarray(overlay(rgb, {"edit": mask, "protected": core})).save(debug_dir / f"mask_{kind}_{target_id}.jpg")
+    if trace is not None:
+        trace.mark("preview_saved")
     return TargetResult(kind, target_id, res.model, prompt, after, before, res.latency_ms, res.cost_usd_est,
                         round(change, 2), composite, core)
