@@ -20,7 +20,9 @@ pip install -r experiments/aesthetics/requirements.txt   # torch, transformers, 
 python -m experiments.aesthetics doctor           # lists exactly what is present / missing (exit 3 if anything is)
 ```
 
-Weights (≈ 330 MB by parameter count, git-ignored location; needs network access to huggingface.co):
+Weights (≈ 330 MB by parameter count, git-ignored location). The model repo is **gated** (automatic approval):
+accept its terms while signed in to huggingface.co, then provide a read token as `HF_TOKEN`. Research use only; the
+licence forbids deploying it to score real people.
 
 ```bash
 hf download dr-irina-lebedeva/MEBeauty-FBP-models dinov2-partial.pt config.json \
@@ -52,8 +54,8 @@ Output fields: `status`, `model_version` (`mebeauty-fbp/dinov2-partial@sha256:<1
 
 **Framing caveat.** The reference harness feeds MEBeauty's own images straight into resize-256 → centre-crop-224.
 For an arbitrary portrait the default `--crop face` takes a square around the MediaPipe face box (`--margin 0.25`
-per side) to approximate a face-centred dataset image. Whether that matches MEBeauty's cropping has **not** been
-verified (the dataset card was not reachable from the build environment); the output says
+per side) to approximate a face-centred dataset image. MEBeauty's `image` field holds *aligned* 256×256 face crops,
+and a MediaPipe box crop does no alignment, so a match is **not** established; the output says
 `framing_matches_training: "unverified"`. Compare `--crop face` vs `--crop none` on the MEBeauty test split before
 trusting single-photo numbers.
 
@@ -65,7 +67,11 @@ trusting single-photo numbers.
 python -m experiments.aesthetics evaluate --dataset mebeauty \
     --reference-predictions ../MEBeauty-Benchmark/results/dinov2-partial_predictions.npz   # optional parity check
 
-# SCUT-FBP5500: images from the dataset download + official 5-fold split files from the release repo
+# SCUT-FBP5500 60/40 split shipped inside the dataset zip (train_test_files/…), as used in docs/experiments/aesthetics
+T="data/scut-fbp5500/SCUT-FBP5500_v2/train_test_files/split_of_60%training and 40%testing"
+python -m experiments.aesthetics evaluate --dataset scut-fbp5500 --images-dir data/scut-fbp5500/SCUT-FBP5500_v2/Images \
+    --train-file "$T/train.txt" --test-file "$T/test.txt"
+# or the official 5-fold split files from the release repo
 git clone https://github.com/HCIILAB/SCUT-FBP5500-Database-Release ../SCUT-FBP5500-Database-Release
 python -m experiments.aesthetics evaluate --dataset scut-fbp5500 \
     --images-dir data/scut-fbp5500/Images --splits-dir ../SCUT-FBP5500-Database-Release/data --fold 1
