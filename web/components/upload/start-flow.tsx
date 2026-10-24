@@ -54,7 +54,7 @@ export function StartFlow() {
   const qc = front?.qc ?? null;
   const checking = Object.values(slots).some((s) => s?.checking);
   const eyewearDetected = Boolean(qc?.issues.includes("eyewear_detected"));
-  const showNoGlasses = eyewear || eyewearDetected || Boolean(slots.noglasses);
+  const restricted = eyewear || eyewearDetected;
 
   const submit = async () => {
     if (!front || !pres) return;
@@ -72,12 +72,12 @@ export function StartFlow() {
       for (const [role, st] of Object.entries(slots) as [PhotoRole, NonNullable<typeof front>][]) {
         if (!st) continue;
         if (role !== "front") {
-          if (st.qc?.status === "reject" || (role === "noglasses" && !showNoGlasses)) continue;
+          if (!st.qc || st.qc.status === "reject" || st.error) continue;
           extra[role] = st.blob;
         }
         if (st.capture) photoMeta[role] = { ...(photoMeta[role] ?? {}), capture: st.capture };
       }
-      if (eyewear) photoMeta.front = { ...(photoMeta.front ?? {}), eyewear: true };
+      photoMeta.front = { ...(photoMeta.front ?? {}), eyewear: restricted };
       const { id } = await backend.create({ front: front.blob, context, extra, photoMeta });
       const dataUrl = await toDataUrl(front.blob);
       try {
@@ -137,10 +137,8 @@ export function StartFlow() {
             </PhotoSlot>
             <PhotoSlot role="profile90" state={slots.profile90} prominent onChoose={(f) => choose("profile90", f)}
               onReframe={(f) => reframe("profile90", f)} onRemove={() => remove("profile90")} />
-            {showNoGlasses && (
-              <PhotoSlot role="noglasses" state={slots.noglasses} onChoose={(f) => choose("noglasses", f)}
-                onReframe={(f) => reframe("noglasses", f)} onRemove={() => remove("noglasses")} />
-            )}
+            <PhotoSlot role="glasses" state={slots.glasses} onChoose={(f) => choose("glasses", f)}
+              onReframe={(f) => reframe("glasses", f)} onRemove={() => remove("glasses")} />
           </div>
 
           <div className="mt-3 rounded-[14px] border border-rule">
@@ -218,7 +216,7 @@ export function StartFlow() {
             <div className="mt-6 flex flex-col gap-2">
               <Button variant="accent" size="lg" className="w-full" disabled={!pres || submitting || checking} onClick={submit}>
                 {submitting ? <Loader2 className="animate-spin" /> : null}
-                {qc.status === "reject" ? upload.useAnyway : onboarding.start}
+                {qc.status === "reject" ? upload.useAnyway : restricted ? "以受限模式开始" : onboarding.start}
               </Button>
               {!pres && <p className="text-center text-[12px] text-muted">选择一个表达方向后开始</p>}
             </div>

@@ -12,6 +12,7 @@ from ..imaging import open_rgb, save_jpeg, thumbnail
 from ..pipeline import PipelineError, run_pipeline
 from ..providers import ProviderError
 from .entitlement import pricing
+from .portrait_sources import keep_glasses_reference
 from .previews import start_free_preview
 from .rerank import rerank_passport
 from .retention import media_dir
@@ -39,6 +40,7 @@ def _run(settings: Settings, store: Store, pid: str, user_context: dict, photos:
         if pricing()["free_previews"] <= 0:
             # D33: no automatic preview, so no placeholder entry either (a "pending" one would never resolve).
             passport["previews"] = []
+        keep_glasses_reference(uploads_dir(settings.runs_dir, pid), media_dir(settings.runs_dir, pid), store, pid)
         store.finish(pid, passport)
         return True
     except PipelineError as e:
@@ -112,6 +114,7 @@ def run_reanalysis_job(settings: Settings, store: Store, pid: str, user_context:
             passport = rerank_passport(passport, user_context, preference_events, context_changed=False)
         passport["previews"] = previous.get("previews", [])
         passport["meta"]["quick"] = passport["meta"].get("quick") or previous["meta"].get("quick")
+        keep_glasses_reference(up, mdir, store, pid)
         store.finish(pid, passport)
         _keep_measurement_photos(up, mdir, passport)
         (settings.runs_dir / pid / "passport.json").write_text(json.dumps(passport, ensure_ascii=False, indent=2) + "\n",

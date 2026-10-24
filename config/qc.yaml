@@ -113,11 +113,13 @@ retake_messages_zh:
   occluded_eyes: "眼睛被遮挡，请摘下墨镜、撩开遮眼的头发。"
   lighting_inconsistent: "几张照片的光线差别较大，色彩判断会更保守。可以的话在同一处光线下重拍。"
   beauty_filter_suspect: "照片可能开了美颜或滤镜，肤色与质感会不准。可以的话关掉美颜重拍。"
-  eyewear_detected: "可能戴着眼镜：可以正常分析，眼部和眉部的个别项目会标注影响；补充一张无眼镜正脸照会更准。"
+  eyewear_detected: "分析正脸建议换成无眼镜照片；也可受限地继续，眼睛和眉毛测量可信度较低。日常戴镜照可放在选填参考位。"
   profile_unclear: "侧面轮廓不清晰：请在明亮的纯色背景前拍，撩开挡住额头、鼻子或下巴的头发，手不要挡脸。"
 
 # Role-specific wording (falls back to retake_messages_zh).
 retake_messages_role_zh:
+  glasses:
+    eyewear_detected: "日常眼镜参考照会用于造型参考，不参与眼睛和眉毛测量。"
   profile90:
     wrong_angle_for_role: "这张更像 45° 半侧面。侧脸照需要接近 90°：只露出一侧脸，鼻尖在脸的轮廓线上，看不到另一侧脸颊。"
     face_too_small: "侧脸在照片里像素太少，鼻唇角等细节误差会过大。请上传原图，或靠近一些拍，让头部占画面高度一半左右。"

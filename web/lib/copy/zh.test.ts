@@ -45,7 +45,8 @@ test("privacy copy states the V2 retention, deletion and separate consent facts"
   assert.equal(zh.privacy.facts.length, 3);
   assert.match(zh.consent.purpose, /发型.*妆容.*穿搭/);
   assert.match(zh.consent.retention, /24 小时/);
-  assert.match(zh.consent.retention, /非正脸.*结束后.*删除/);
+  assert.match(zh.consent.retention, /日常眼镜参考照/);
+  assert.match(zh.consent.retention, /其余照片.*结束后.*删除/);
   assert.match(zh.consent.deleteInstruction, /删除我的照片与报告/);
   assert.match(zh.privacy.unsavedPassport, /7 天/);
   assert.match(zh.privacy.noTraining, /不用于训练/);

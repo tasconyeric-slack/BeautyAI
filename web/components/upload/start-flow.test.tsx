@@ -46,7 +46,9 @@ describe("StartFlow (V3B multi-photo upload)", () => {
     expect(document.querySelector('[data-slot="profile90"]')!.textContent).toContain("不影响用正脸照开始");
 
     fireEvent.click(screen.getByTestId("eyewear"));
-    expect(document.querySelector('[data-slot="noglasses"]')).toBeTruthy();       // the glasses-free slot appears
+    expect(document.querySelector('[data-slot="glasses"]')).toBeTruthy();
+    expect(document.querySelector('[data-slot="noglasses"]')).toBeNull();
+    expect(screen.getByRole("button", { name: "以受限模式开始" })).toBeTruthy();
     fireEvent.click(screen.getByRole("button", { name: /女性化/ }));
     await act(async () => { fireEvent.click(screen.getByRole("button", { name: /开始/ })); });
     await waitFor(() => expect(sent).not.toBeNull());
@@ -56,4 +58,26 @@ describe("StartFlow (V3B multi-photo upload)", () => {
     // navigation follows create() and the thumbnail read (FileReader), so it lands a task or two later
     await waitFor(() => expect(push).toHaveBeenCalledWith("/p/ap_0123456789ab"));
   });
+});
+
+
+it("submits a glasses-free front and optional daily reference independently", async () => {
+  vi.spyOn(httpBackend, "event").mockResolvedValue();
+  vi.spyOn(httpBackend, "qc").mockImplementation(async (role) => verdict(role, "ok"));
+  const create = vi.spyOn(httpBackend, "create").mockResolvedValue({ id: "ap_abcdef123456" });
+  render(<StartFlow />);
+  for (const cb of screen.getAllByRole("checkbox")) fireEvent.click(cb);
+  fireEvent.click(screen.getByRole("button", { name: /继续|同意/ }));
+  expect(screen.getByText(/头发保持日常自然状态/)).toBeTruthy();
+  const file = new File(["safe synthetic"], "test.jpg", { type: "image/jpeg" });
+  await act(async () => {
+    fireEvent.change(screen.getByLabelText("选择照片 · 正脸照"), { target: { files: [file] } });
+    fireEvent.change(screen.getByLabelText("选择照片 · 日常眼镜参考照"), { target: { files: [file] } });
+  });
+  await waitFor(() => expect(document.querySelector('[data-slot="glasses"] [data-qc="ok"]')).toBeTruthy());
+  fireEvent.click(screen.getByRole("button", { name: /女性化/ }));
+  await act(async () => { fireEvent.click(screen.getByRole("button", { name: /开始/ })); });
+  await waitFor(() => expect(create).toHaveBeenCalled());
+  expect(create.mock.calls[0][0].extra?.glasses).toBeInstanceOf(Blob);
+  expect(create.mock.calls[0][0].photoMeta?.front?.eyewear).toBe(false);
 });

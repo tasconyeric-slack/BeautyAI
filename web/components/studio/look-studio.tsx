@@ -28,6 +28,7 @@ import { EYESHADOW_SHADES } from "@/lib/tint/eye-palette";
 import { MakeupControls } from "./makeup-controls";
 import { LIP_SHADES, BROW_SHAPES } from "@/lib/tint/makeup-palette";
 import { HairColorControls } from "./hair-color-controls";
+import { portraitSource, type PortraitChoice } from "./portrait-source";
 import { useStudioCanvas } from "./use-studio-canvas";
 import { cn } from "@/lib/utils";
 import { describeLook, EMPTY_LOOK, hairTargetId, layersForLook, restoreLook, type HairTier, type LookSelection } from "./compose";
@@ -40,7 +41,8 @@ export function LookStudio() {
   const params = useSearchParams();
   const hold = useHold();
   const { choices, saveLook, removeLook } = useChoices(id);
-  const [geometry, setGeometry] = React.useState<FaceGeometry | null | undefined>(undefined);
+  const [measured, setMeasured] = React.useState<{ key: string; value: FaceGeometry | null } | null>(null);
+  const [portrait, setPortrait] = React.useState<PortraitChoice>("front");
   const [look, setLook] = React.useState<LookSelection>(EMPTY_LOOK);
   const [err, setErr] = React.useState<string | null>(null);
   const [requesting, setRequesting] = React.useState(false);
@@ -57,12 +59,19 @@ export function LookStudio() {
   const history = React.useRef<LookSelection[]>([]);
   const lastEdit = React.useRef({key:"",at:0});
 
+  const frontEyewear = Boolean(passport?.measurement_profile?.flags.eyewear
+    || data?.partial.input_quality?.photos.some(p => p.photo_id === "front" && p.issues.includes("eyewear_detected"))
+    || data?.media.photos?.noglasses);
+  const source = portraitSource(data ? { ...data.media, expired } : { front: null, expired }, portrait, Boolean(look.eyewear), frontEyewear);
+  const geometryKey = `${id}|${source.role}|${source.url}`;
+  const geometry = source.role === "glasses" ? null : measured?.key === geometryKey ? measured.value : undefined;
   React.useEffect(() => {
-    if (expired) return;
+    if (expired || !source.url || source.role === "glasses") return;
     let live = true;
-    backendFor(id).geometry(id).then((g) => live && setGeometry(g)).catch(() => live && setGeometry(null));
+    backendFor(id).geometry(id, source.role).then((g) => live && setMeasured({ key: geometryKey, value: g }))
+      .catch(() => live && setMeasured({ key: geometryKey, value: null }));
     return () => { live = false; };
-  }, [id, expired]);
+  }, [id, expired, source.role, source.url, geometryKey]);
 
   // Preselection from the URL (/studio?hair=bold&hc=1&lip=B5707A&drape=1F4E5F) — e.g. "试试这个发型".
   const seeded = React.useRef(false);
@@ -80,7 +89,7 @@ export function LookStudio() {
     });
   }, [params, passport]);
 
-  const hairTarget = hairTargetId(look.hair, look.hairColor);
+  const hairTarget = hairTargetId(look.hair, look.hairColor, source.role);
   const previews = React.useMemo(() => data?.partial.previews ?? [], [data?.partial.previews]);
   const pv: PreviewState | null = hairTarget ? previews.find((p) => p.kind === "hair" && p.target_id === hairTarget) ?? null : null;
   const hairReady = React.useMemo(() => pv?.status === "succeeded" && pv.after_url
@@ -89,9 +98,9 @@ export function LookStudio() {
   const hairHex = look.hairHex ?? colorDir?.hex ?? null;
   const md = passport?.analysis.makeup_direction;
   const recommendedBlush = React.useMemo(() => md ? {hex:md.blush.hex,placement:md.blush.placement as BlushPlacement} : undefined,[md]);
-  const layers = React.useMemo(() => layersForLook(look,recommendedBlush),[look,recommendedBlush]);
-  const front = data && !expired ? data.media.front : null;
-  const { canvas, status, hairState, maskState, approximate, makeup, eyewearReason, eyewearControlsReason } = useStudioCanvas({ id, front, expired, geometry, hair: hairReady,
+  const layers = React.useMemo(() => layersForLook({ ...look, eyewear: source.framesAllowed ? look.eyewear : null },recommendedBlush),[look,recommendedBlush,source.framesAllowed]);
+  const front = source.url;
+  const { canvas, status, hairState, maskState, approximate, makeup, eyewearReason, eyewearControlsReason } = useStudioCanvas({ id, front, source: source.role, expired, geometry, hair: hairReady,
     layers, hex: hairHex, strength: look.hairStrength ?? 0.8, holding: hold.holding, fixture: backendFor(id).kind === "fixture" });
 
   if (!passport || !data) return <NotReady />;
@@ -164,6 +173,21 @@ export function LookStudio() {
       <div className="md:grid md:grid-cols-[minmax(0,420px)_minmax(0,1fr)] md:items-start md:gap-8">
         {/* Stage: sticky under the site header on phones, so controls scroll beneath it. */}
         <div className="sticky top-12 z-20 -mx-4 bg-paper px-4 pb-3 pt-1 md:top-16 md:mx-0 md:px-0">
+          <fieldset className="mb-3 rounded-[12px] border border-rule p-3">
+            <legend className="px-1 text-[13px] font-medium">照片来源</legend>
+            <div className="flex flex-wrap gap-2" role="radiogroup" aria-label="照片来源">
+              <Choice on={portrait === "front"} onClick={() => setPortrait("front")}>分析正脸照</Choice>
+              <Choice on={portrait === "glasses"} disabled={expired || !data.media.photos?.glasses}
+                onClick={() => setPortrait("glasses")}>日常眼镜参考照</Choice>
+            </div>
+            <p className="mt-2 text-[12px] text-muted" aria-live="polite">
+              {expired ? "照片已过期，请重新上传。" : source.notice ?? (source.role === "glasses"
+                ? "当前使用日常戴镜照；用于发型和发色，不叠加测量线、眼妆或新镜框。"
+                : source.role === "noglasses" ? "当前使用原有的无眼镜补充照，定位来自这张照片。"
+                : frontEyewear ? "分析照戴镜：眼睛和眉毛测量受限。试新镜框需要无眼镜照片。" : "当前使用无眼镜分析照，保留日常自然发型。")}
+            </p>
+            {!data.media.photos?.glasses && !expired && <p className="mt-1 text-[12px] text-muted">未提供可用的日常眼镜参考照，仍可使用分析正脸照。</p>}
+          </fieldset>
           <Stage className="relative mx-auto w-full max-w-[min(100%,calc(40dvh*0.8))] overflow-hidden rounded-[14px] md:max-w-none">
             <div className="relative aspect-[4/5] w-full">
               {status === "ready" ? (
@@ -230,7 +254,7 @@ export function LookStudio() {
           <EyeMakeupControls look={look} set={set} availability={makeup} />
           <MakeupControls look={look} set={set} availability={makeup} recommendedBlush={recommendedBlush} recommendedLips={cp.lip_families} />
 
-          <EyewearControls look={look} set={set} reason={expired ? "照片已过期，请重新上传后试戴。" : status !== "ready" ? "照片载入后才能试戴眼镜。" : eyewearControlsReason}
+          <EyewearControls look={look} set={set} reason={expired ? "照片已过期，请重新上传后试戴。" : status !== "ready" ? "照片载入后才能试戴眼镜。" : frontEyewear && !data.media.photos?.noglasses ? "没有无眼镜来源，不能在已有眼镜上叠加新镜框。" : (source.role === "glasses" || (frontEyewear && data.media.photos?.noglasses && !look.eyewear)) ? null : eyewearControlsReason}
             warning={look.eyewear && eyewearReason ? "当前调整超出照片或可靠定位范围，请缩小镜框或调回高低；也可重置眼镜。" : null} />
 
           <Group title="近脸色" hint="衣领或围巾的颜色，看它对气色的影响">
@@ -249,6 +273,7 @@ export function LookStudio() {
             <Button variant="outline" disabled={!hasEdits} onClick={() => set({ ...EMPTY_LOOK, hairHex: null, hairStrength: 0.8 })}><RotateCcw />重置全部</Button>
           </div>
           <section className="rounded-[14px] border border-rule bg-paper-raised p-4">
+            <p className="mb-2 text-[12px] text-muted">保存的是造型选项；比较页仍使用分析正脸照。</p>
             <div className="flex flex-wrap items-center justify-between gap-2">
               <div className="min-w-0">
                 <h2 className="font-serif text-[17px] font-semibold">保存这个造型</h2>

@@ -60,10 +60,15 @@ REGION_KIND = {v: k for k, v in KIND_REGION.items()}
 TIERS = ("safe", "bold", "easy")
 # Look Studio (D30): a hair target is a direction or "current" (keep the haircut), optionally with a hair colour from
 # analysis.color_profile.hair_color_directions — one edit, always from the original photo. e.g. bold, bold_hc1, current_hc2.
-HAIR_TARGET = re.compile(r"^(safe|bold|easy|current)(?:_hc([0-9]))?$")
+HAIR_TARGET = re.compile(r"^(safe|bold|easy|current)(?:_hc([0-9]))?(?:_src(glasses|noglasses))?$")
 KEEP_CUT = ("the same haircut as now: keep the current length, layers, fringe, parting, volume and styling exactly "
             "as they are")
 
+
+def hair_source(target: str) -> str:
+    """Source is part of a hair job identity; legacy targets still use the original front."""
+    match = HAIR_TARGET.fullmatch(target)
+    return (match.group(3) or "front") if match else "front"
 
 class QualityGateFailed(RuntimeError):
     """The model answered, but the result is not a usable preview. Another generation may be: retried, then
