@@ -1,6 +1,6 @@
 "use client";
 
-// TODO(B5): frame-shape try-on (B1 kind=glasses) and grooming/makeup combos by scene.
+import Link from "next/link";
 import { Card, Locked, NotReady, Page, PageHeader, Section } from "@/components/passport/ui";
 import { usePassport } from "@/lib/state/passport-store";
 
@@ -8,13 +8,17 @@ const SHAPE_ZH: Record<string, string> = { round: "圆框", oval: "椭圆框", r
   aviator: "飞行员框", browline: "眉线框", geometric: "多边形框", rimless: "无框" };
 
 export default function GlassesPage() {
-  const { passport, data } = usePassport();
+  const { id, passport, data } = usePassport();
   if (!passport || !data) return <NotReady />;
   const gd = passport.analysis.glasses_direction;
   const size = passport.derived.glasses_size;
   return (
     <Page>
       <PageHeader kicker="眼镜与配饰" title={gd ? gd.frame_shapes.map((s) => SHAPE_ZH[s] ?? s).join(" · ") : "暂不需要换镜框"} />
+      <div className="my-5 rounded-[14px] border border-rule bg-paper-raised p-4">
+        <p className="mb-2 text-[13px] text-ink-soft">把圆框、长方框和猫眼框放到自己的正脸上比较，可调颜色、宽度和位置。</p>
+        <Link href={`/p/${id}/studio#eyewear`} className="text-accent underline">进入实验室试戴眼镜 →</Link>
+      </div>
       {gd && (
         <Section title="镜框方向">
           <Card>

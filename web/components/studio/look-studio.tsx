@@ -21,6 +21,8 @@ import type { BlushPlacement, FaceGeometry } from "@/lib/tint";
 import { useChoices, type SavedLook } from "@/lib/state/choices";
 import { usePassport } from "@/lib/state/passport-store";
 import { HAIR_SHADES } from "@/lib/tint/hair-palette";
+import { EyewearControls } from "./eyewear-controls";
+import { FRAME_SHAPES } from "@/lib/tint/eyewear";
 import { EyeMakeupControls, MakeupPresets } from "./eye-makeup-controls";
 import { EYESHADOW_SHADES } from "@/lib/tint/eye-palette";
 import { MakeupControls } from "./makeup-controls";
@@ -89,7 +91,7 @@ export function LookStudio() {
   const recommendedBlush = React.useMemo(() => md ? {hex:md.blush.hex,placement:md.blush.placement as BlushPlacement} : undefined,[md]);
   const layers = React.useMemo(() => layersForLook(look,recommendedBlush),[look,recommendedBlush]);
   const front = data && !expired ? data.media.front : null;
-  const { canvas, status, hairState, maskState, approximate, makeup } = useStudioCanvas({ id, front, expired, geometry, hair: hairReady,
+  const { canvas, status, hairState, maskState, approximate, makeup, eyewearReason, eyewearControlsReason } = useStudioCanvas({ id, front, expired, geometry, hair: hairReady,
     layers, hex: hairHex, strength: look.hairStrength ?? 0.8, holding: hold.holding, fixture: backendFor(id).kind === "fixture" });
 
   if (!passport || !data) return <NotReady />;
@@ -109,9 +111,10 @@ export function LookStudio() {
     hairName: hairOpt ? `${hairOpt.tierZh} · ${hairOpt.name}` : null, hairColorName: hairHex ? colorName : null,
     eyeshadowName: !look.eyesObscured && !makeup.eyeshadow && look.eyeshadow ? EYESHADOW_SHADES.find(s=>s.hex===look.eyeshadow?.hex)?.name ?? "自选" : null,
     eyelinerName: !look.eyesObscured && !makeup.eyeliner && look.eyeliner ? look.eyeliner.style === "wing" ? "微翘眼线" : "自然眼线" : null,
+    eyewearName: !eyewearReason && !look.eyesObscured && look.eyewear ? FRAME_SHAPES.find(s=>s.id===look.eyewear?.shape)?.name : null,
     lipName, blush: look.blush, browName: BROW_SHAPES.find(b=>b.id===look.brows?.shape)?.name, drapeName,
   });
-  const hasEdits = summary !== "原图" || Boolean(look.eyeshadow || look.eyeliner || look.eyesObscured);
+  const hasEdits = summary !== "原图" || Boolean(look.eyewear || look.eyeshadow || look.eyeliner || look.eyesObscured);
   const set = (patch: Partial<LookSelection>, continuous?: string) => {
     setErr(null);
     const key=continuous ?? Object.keys(patch).join(","), now=Date.now();
@@ -134,7 +137,7 @@ export function LookStudio() {
     }
   };
   const save = () => {
-    const saved = { name: summary === "原图" ? "眼妆设置（未叠加预览）" : summary, ...look, hairHex, hairStrength: look.hairStrength ?? 0.8 };
+    const saved = { name: summary === "原图" ? (look.eyewear ? "眼镜设置（未叠加预览）" : "眼妆设置（未叠加预览）") : summary, ...look, hairHex, hairStrength: look.hairStrength ?? 0.8 };
     saveLook(saved);
     if (look.hair) sendFeedback({ target_type: "hair_option", target_id: look.hair, reaction: "like", reason_tags: [] });
     toast.success("已保存这个造型，可以在行动方案里找到");
@@ -157,7 +160,7 @@ export function LookStudio() {
   return (
     <Page wide>
       <PageHeader kicker="形象实验室 · Look Studio" title="把变化放在同一张脸上看"
-        sub="发型、发色、眼影、眼线、腮红、唇色、眉形和近脸色叠加成同一个造型。颜色即时在本地计算；发型需要点“生成”。" />
+        sub="发型、发色、眼影、眼线、腮红、唇色、眉形、眼镜和近脸色叠加成同一个造型。颜色即时在本地计算；发型需要点“生成”。" />
       <div className="md:grid md:grid-cols-[minmax(0,420px)_minmax(0,1fr)] md:items-start md:gap-8">
         {/* Stage: sticky under the site header on phones, so controls scroll beneath it. */}
         <div className="sticky top-12 z-20 -mx-4 bg-paper px-4 pb-3 pt-1 md:top-16 md:mx-0 md:px-0">
@@ -178,7 +181,7 @@ export function LookStudio() {
               )}
               {status === "ready" && (
                 <span className="absolute left-2.5 top-2.5 rounded-full bg-black/55 px-2.5 py-1 text-[11px] text-white">
-                  {hold.holding ? "原图" : hairReady && hairState === "ready" ? "AI 试看 · 发型为近似模拟" : summary === "原图" ? "原图" : "颜色模拟"}
+                  {hold.holding ? "原图" : hairReady && hairState === "ready" ? "AI 试看 · 发型为近似模拟" : summary === "原图" ? "原图" : look.eyewear && !eyewearReason && !look.eyesObscured ? "眼镜与颜色模拟" : "颜色模拟"}
                 </span>
               )}
               {(pv?.status === "pending" || requesting) && !hold.holding && (
@@ -227,6 +230,9 @@ export function LookStudio() {
           <EyeMakeupControls look={look} set={set} availability={makeup} />
           <MakeupControls look={look} set={set} availability={makeup} recommendedBlush={recommendedBlush} recommendedLips={cp.lip_families} />
 
+          <EyewearControls look={look} set={set} reason={expired ? "照片已过期，请重新上传后试戴。" : status !== "ready" ? "照片载入后才能试戴眼镜。" : eyewearControlsReason}
+            warning={look.eyewear && eyewearReason ? "当前调整超出照片或可靠定位范围，请缩小镜框或调回高低；也可重置眼镜。" : null} />
+
           <Group title="近脸色" hint="衣领或围巾的颜色，看它对气色的影响">
             <div className="flex flex-wrap gap-2" role="radiogroup" aria-label="近脸色">
               <Choice on={look.drape === null} onClick={() => set({ drape: null })}>不加</Choice>
@@ -263,7 +269,7 @@ export function LookStudio() {
           </section>
 
           <p className="text-[12px] leading-6 text-muted">
-            发型是 AI 近似模拟；发色、眼影、眼线、唇色、腮红、眉形和近脸色在本地计算。试色不会调用 AI 生成或产生生成费用。
+            发型是 AI 近似模拟；发色、眼影、眼线、唇色、腮红、眉形、眼镜和近脸色在本地计算。试色不会调用 AI 生成或产生生成费用。
             每次生成都从你的原照片出发，照片、生成图和头发蒙版 24 小时后自动删除；浏览器仅在当前页面内存保留像素，保存造型只记录选项。
           </p>
           <div className="flex flex-wrap gap-3 text-[13px]">

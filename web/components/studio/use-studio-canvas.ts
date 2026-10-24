@@ -1,5 +1,6 @@
 'use client';
 import * as React from 'react';
+import { eyewearFit, DEFAULT_EYEWEAR, EYEWEAR_UNAVAILABLE } from '@/lib/tint/eyewear';
 import { prepareHair, recolorHair, type PreparedHair } from '@/lib/tint/hair';
 import { makeupAvailability, NO_MAKEUP } from '@/lib/tint/makeup';
 import type { FaceGeometry } from '@/lib/tint';
@@ -95,6 +96,10 @@ export function useStudioCanvas(opts: {
   }, [id, front, expired, key, src, boxKey, target, status, fixture]);
   const makeup = React.useMemo(() => base?.key === key && geometry ? makeupAvailability(base.data, geometry) : NO_MAKEUP,
     [base, key, geometry]);
+  const eyewearReason = React.useMemo(() => base?.key === key && geometry && eyewearFit(geometry,base.data.width,base.data.height,layers.eyewear ?? DEFAULT_EYEWEAR) ? null : EYEWEAR_UNAVAILABLE,
+    [base,key,geometry,layers.eyewear]);
+  const eyewearControlsReason = React.useMemo(() => base?.key === key && geometry && eyewearFit(geometry,base.data.width,base.data.height,DEFAULT_EYEWEAR) ? null : EYEWEAR_UNAVAILABLE,
+    [base,key,geometry]);
   React.useLayoutEffect(() => {
     const c = canvas.current, o = original.current;
     if (!c || !o || status !== 'ready' || expired) return;
@@ -107,6 +112,6 @@ export function useStudioCanvas(opts: {
     }
     ctx.putImageData(out, 0, 0);
   }, [base, key, geometry, layers, hex, strength, holding, status, expired, makeup]);
-  return { canvas, status, hairState, makeup, maskState: base?.key === key ? maskState : 'loading',
+  return { canvas, status, hairState, makeup, eyewearReason, eyewearControlsReason, maskState: base?.key === key ? maskState : 'loading',
     approximate: Boolean(hex && base?.key === key && base.hair?.approximate(hex)) };
 }

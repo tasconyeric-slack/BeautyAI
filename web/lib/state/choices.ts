@@ -2,10 +2,12 @@
  *  localStorage only (never sent anywhere, no photo data — option ids and colour values), cleared with the passport. */
 "use client";
 
+import type { EyewearOptions } from "@/lib/tint/eyewear";
 import type { MakeupSelection } from "@/lib/tint/makeup";
 import * as React from "react";
 
 export interface SavedLook extends MakeupSelection {
+  eyewear?: EyewearOptions | null;
   hairHex?: string | null;
   hairStrength?: number;
   id: string;

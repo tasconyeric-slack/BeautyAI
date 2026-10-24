@@ -2,8 +2,9 @@
  *
  *  base     = the original front photo, or the original with the generated hair crop laid back at its crop_box
  *             (outside the edit mask a generated crop equals the original, so geometry still fits)
- *  layers   = local hair color (its own segmentation) → near-face colour → blush → lip → shadow → liner → brows
+ *  layers   = local hair color (its own segmentation) → near-face colour → blush → lip → shadow → liner → brows → eyewear
  */
+import { eyewear, normalizeEyewear, type EyewearOptions } from "@/lib/tint/eyewear";
 import { eyeshadow, type EyeshadowOptions } from "@/lib/tint/eyeshadow";
 import { eyeliner, type EyelinerOptions } from "@/lib/tint/eyeliner";
 import { browTint, type BrowOptions } from "@/lib/tint/brow";
@@ -15,6 +16,7 @@ export type HairTier = "safe" | "bold" | "easy";
 
 export type { MakeupSelection } from "@/lib/tint/makeup";
 export interface LookSelection extends MakeupSelection {
+  eyewear?: EyewearOptions | null;
   hair: HairTier | null;        // null = keep the current haircut
   hairHex?: string | null;
   hairStrength?: number;
@@ -26,15 +28,16 @@ export interface LookSelection extends MakeupSelection {
 
 export const MAKEUP_DEFAULTS = { eyeshadow: null, eyeliner: null, eyesObscured: false, blushHex: null, blushPlacement: "apple" as BlushPlacement, blushIntensity: .45,
   blushOpacity: 1, blushFeather: .5, lipIntensity: .6, lipFinish: "satin" as LipFinish, brows: null };
-export const EMPTY_LOOK: LookSelection = { hair: null, hairColor: null, hairHex: null, hairStrength: .8, lip: null, blush: false, drape: null, ...MAKEUP_DEFAULTS };
+export const EMPTY_LOOK: LookSelection = { eyewear: null, hair: null, hairColor: null, hairHex: null, hairStrength: .8, lip: null, blush: false, drape: null, ...MAKEUP_DEFAULTS };
 
 /** Legacy boolean blushes retain the passport recommendation, including its placement. */
 export function restoreLook(saved: Partial<LookSelection>): LookSelection {
-  return { ...EMPTY_LOOK, ...saved, ...Object.fromEntries(Object.entries(MAKEUP_DEFAULTS).map(([k,v]) =>
+  return { ...EMPTY_LOOK, ...saved, eyewear: normalizeEyewear(saved.eyewear), ...Object.fromEntries(Object.entries(MAKEUP_DEFAULTS).map(([k,v]) =>
     [k, saved[k as keyof LookSelection] ?? v])) };
 }
 export function layersForLook(look: LookSelection, recommended?: {hex: string; placement: BlushPlacement}): LocalLayers {
   return {
+    eyewear: look.eyesObscured ? null : normalizeEyewear(look.eyewear),
     eyeshadow: look.eyesObscured ? null : look.eyeshadow ?? null,
     eyeliner: look.eyesObscured ? null : look.eyeliner ?? null,
     drape: look.drape,
@@ -52,6 +55,7 @@ export function hairTargetId(hair: HairTier | null, _hairColor?: number | null):
 }
 
 export interface LocalLayers {
+  eyewear?: EyewearOptions | null;
   eyeshadow?: EyeshadowOptions | null;
   eyeliner?: EyelinerOptions | null;
   drape: string | null;
@@ -74,6 +78,7 @@ export function composeLayers(base: ImageData, g: FaceGeometry, l: LocalLayers, 
   if (l.eyeshadow && !ready.eyeshadow) out = eyeshadow(out,g,l.eyeshadow);
   if (l.eyeliner && !ready.eyeliner) out = eyeliner(out,g,l.eyeliner);
   if (l.brows && !ready.brows) out = browTint(out,g,l.brows);
+  if (l.eyewear) out = eyewear(out, g, l.eyewear);
   return out;
 }
 
@@ -85,7 +90,7 @@ export function cropRect(box: readonly number[], w: number, h: number) {
 
 /** Short, honest description of what the main image shows. */
 export function describeLook(parts: { hairName?: string | null; hairColorName?: string | null; lipName?: string | null;
-  eyeshadowName?: string | null; eyelinerName?: string | null;
+  eyewearName?: string | null; eyeshadowName?: string | null; eyelinerName?: string | null;
   blush?: boolean; browName?: string | null; drapeName?: string | null }): string {
   const out = [
     parts.hairName ?? null,
@@ -95,6 +100,7 @@ export function describeLook(parts: { hairName?: string | null; hairColorName?: 
     parts.eyeshadowName ? `${parts.eyeshadowName}眼影` : null,
     parts.eyelinerName ?? null,
     parts.browName ? `${parts.browName}眉形` : null,
+    parts.eyewearName ? `${parts.eyewearName}眼镜` : null,
     parts.drapeName ? `${parts.drapeName}近脸色` : null,
   ].filter(Boolean);
   return out.length ? out.join(" + ") : "原图";
