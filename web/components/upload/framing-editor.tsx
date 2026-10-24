@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import type { PhotoRole } from "@/lib/api";
 import { photos as copy } from "@/lib/copy/zh";
 import {
-  ASPECTS, ROTATE_MAX, ZOOM_MAX, changeAspect, clampFraming, cropSize, cssTransform, defaultFraming, outputSize, type Framing,
+  MIN_CROP_SIDE, ROTATE_MAX, scaleFraming, clampFraming, cropSize, cssTransform, defaultFraming, outputSize, type Framing,
 } from "@/lib/framing";
 import { cn } from "@/lib/utils";
 import { CropperStage } from "./cropper-stage";
@@ -22,7 +22,7 @@ export function FramingEditor({ role, src, width: w, height: h, initial, suggest
   const update = (next: Framing) => setF(clampFraming(w, h, next));
   const { cw, ch } = cropSize(w, h, f);
   const { ow, oh } = outputSize(cw, ch);
-  const previewWidth = 112, previewHeight = previewWidth * ch / cw;
+  const previewWidth = Math.min(112, 150 * cw / ch), previewHeight = previewWidth * ch / cw;
 
   React.useEffect(() => {
     const previous = document.activeElement as HTMLElement | null;
@@ -48,8 +48,10 @@ export function FramingEditor({ role, src, width: w, height: h, initial, suggest
     const delta: Record<string, Partial<Framing>> = {
       ArrowLeft: { cx: f.cx - step }, ArrowRight: { cx: f.cx + step },
       ArrowUp: { cy: f.cy - step }, ArrowDown: { cy: f.cy + step },
-      "+": { zoom: f.zoom * 1.1 }, "=": { zoom: f.zoom * 1.1 }, "-": { zoom: f.zoom / 1.1 },
     };
+    if (["+", "=", "-"].includes(event.key)) {
+      event.preventDefault(); setF(scaleFraming(w, h, f, event.key === "-" ? 1 / 1.1 : 1.1)); return;
+    }
     if (delta[event.key]) { event.preventDefault(); update({ ...f, ...delta[event.key] }); }
   };
 
@@ -70,29 +72,20 @@ export function FramingEditor({ role, src, width: w, height: h, initial, suggest
         <div className={cn(saving && "pointer-events-none opacity-60")}>
           <CropperStage src={src} width={w} height={h} framing={f} onChange={setF} />
         </div>
-        <div className="mt-3 flex flex-wrap items-center gap-2 text-[13px]" role="radiogroup" aria-label={copy.editor.aspect}>
-          {ASPECTS.map((a) => (
-            <button key={a} type="button" role="radio" aria-checked={f.aspect === a} disabled={saving}
-              onClick={() => setF(changeAspect(w, h, f, a))}
-              className={cn("min-h-9 rounded-full border px-3", f.aspect === a ? "border-accent bg-accent-soft text-accent" : "border-rule-strong")}>
-              {copy.editor.aspects[a]}
-            </button>
-          ))}
-        </div>
         <div className="mt-3 flex items-center gap-3">
           <div className="min-w-0 flex-1 space-y-2">
             <div className="flex flex-wrap gap-1.5">
-              <Button size="sm" variant="outline" aria-label="缩小" disabled={saving || f.zoom <= 1}
-                onClick={() => update({ ...f, zoom: f.zoom / 1.15 })}><Minus /></Button>
-              <Button size="sm" variant="outline" aria-label="放大" disabled={saving || f.zoom >= ZOOM_MAX}
-                onClick={() => update({ ...f, zoom: f.zoom * 1.15 })}><Plus /></Button>
+              <Button size="sm" variant="outline" aria-label="缩小" disabled={saving || (cw >= w || ch >= h)}
+                onClick={() => setF(scaleFraming(w, h, f, 1 / 1.15))}><Minus /></Button>
+              <Button size="sm" variant="outline" aria-label="放大" disabled={saving || (cw <= Math.min(w, MIN_CROP_SIDE) || ch <= Math.min(h, MIN_CROP_SIDE))}
+                onClick={() => setF(scaleFraming(w, h, f, 1.15))}><Plus /></Button>
               <Button size="sm" variant="outline" disabled={saving}
                 onClick={() => setF(defaultFraming(w, h))}><RotateCcw />保留原图</Button>
               {suggestion && <Button size="sm" variant="outline" disabled={saving} onClick={() => setF(suggestion)}><Focus />人脸居中</Button>}
             </div>
             <p className="text-[12px] leading-5 text-muted">{suggestion ? "已找到可用的人脸构图建议，可随时调整或保留原图。" : "已保留原图；可直接拖动边角裁剪。"}</p>
             <p className="tnum text-[12px] text-muted" data-testid="framing-output">{copy.editor.output} {ow}×{oh}px</p>
-            {(Math.min(ow, oh) < 600 || f.zoom > 1.5) && <p className="text-[12px] text-amber">{copy.editor.zoomNote}</p>}
+            {Math.min(ow, oh) < 600 && <p className="text-[12px] text-amber">{copy.editor.zoomNote}</p>}
           </div>
           <figure className="shrink-0">
             <div className="relative overflow-hidden rounded-[8px] bg-[#e6e3de]" data-testid="framing-result"
@@ -107,11 +100,6 @@ export function FramingEditor({ role, src, width: w, height: h, initial, suggest
         <details className="mt-3 text-[12px] text-muted">
           <summary className="cursor-pointer py-1">旋转与精细调整</summary>
           <div className="mt-2 grid gap-3">
-            <label className="flex items-center gap-2">{copy.editor.zoom}
-              <input type="range" min={1} max={ZOOM_MAX} step={0.01} value={f.zoom} disabled={saving} aria-label={copy.editor.zoom}
-                onChange={(e) => update({ ...f, zoom: Number(e.target.value) })} className="min-w-0 flex-1" />
-              <span className="tnum">{f.zoom.toFixed(2)}×</span>
-            </label>
             <label className="flex items-center gap-2">{copy.editor.rotate}
               <input type="range" min={-ROTATE_MAX} max={ROTATE_MAX} step={0.5} value={f.rotate} disabled={saving} aria-label={copy.editor.rotate}
                 onChange={(e) => update({ ...f, rotate: Number(e.target.value) })} className="min-w-0 flex-1" />
