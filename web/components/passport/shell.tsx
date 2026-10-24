@@ -143,7 +143,7 @@ function ChangeNote() {
 export const NAV_AREAS = [
   { key: "profile", sub: "", label: "档案", icon: IdCard, match: /^\/p\/[^/]+(\/(face|color|style|detail|share|more|report))?$/ },
   { key: "advice", sub: "/advice", label: "建议", icon: Compass, match: /\/(advice|hair|makeup|outfit|glasses)$/ },
-  { key: "studio", sub: "/studio", label: "实验室", icon: Sparkles, match: /\/studio$/ },
+  { key: "studio", sub: "/studio", label: "实验室", icon: Sparkles, match: /\/(studio|compare)$/ },
   { key: "plan", sub: "/plan", label: "行动", icon: ListChecks, match: /\/plan$/ },
 ] as const;
 

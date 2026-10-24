@@ -14,7 +14,7 @@ export function PageHeader({ kicker, title, sub, back = true }: { kicker?: strin
   const { id } = usePassport();
   const path = usePathname() ?? "";
   // Area pages (advice, studio, plan) are top level; advice detail pages go back to advice, profile details to the profile.
-  const top = /\/(advice|studio|plan)$/.test(path);
+  const top = /\/(advice|studio|plan|compare)$/.test(path);
   const toAdvice = /\/(hair|makeup|outfit|glasses)$/.test(path);
   return (
     <header className="mb-6 pt-5">

@@ -276,6 +276,7 @@ export function LookStudio() {
             <Link href={`/p/${id}/hair`} className="text-accent underline-offset-4 hover:underline">发型建议 →</Link>
             <Link href={`/p/${id}/color`} className="text-accent underline-offset-4 hover:underline">个人色彩 →</Link>
             <Link href={`/p/${id}/plan`} className="text-accent underline-offset-4 hover:underline">我的行动方案 →</Link>
+            <Link href={`/p/${id}/compare`} className="text-accent underline-offset-4 hover:underline">比较两个造型 →</Link>
           </div>
         </div>
       </div>
