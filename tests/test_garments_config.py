@@ -117,3 +117,16 @@ def test_catalog_copy_is_brand_free_and_avoids_prohibited_terms(garments):
         copy = " ".join(item[field] or "" for field in ("name_zh", "silhouette", "fabric", "neckline", "search_tpl"))
         copy = copy.casefold()
         assert not {term for term in prohibited | brands if term in copy}, item["id"]
+
+
+def test_generated_web_garment_catalog_is_in_sync():
+    """web/lib/generated/garments.json (outfit boards) is exported from config/garments.yaml by `make types`."""
+    import importlib.util
+    import json
+
+    spec = importlib.util.spec_from_file_location("export_web_config", ROOT / "scripts" / "export_web_config.py")
+    mod = importlib.util.module_from_spec(spec)
+    assert spec.loader
+    spec.loader.exec_module(mod)
+    generated = json.loads((ROOT / "web" / "lib" / "generated" / "garments.json").read_text(encoding="utf-8"))
+    assert generated == mod.garment_catalog(), "run `make types`"

@@ -19,6 +19,7 @@ import {
   type ExtraRole, type PhotoMeta,
 } from "../api";
 import { clearChoices } from "./choices";
+import { clearOutfit } from "@/lib/outfit/store";
 
 export type FeedbackKey = `${FeedbackEvent["target_type"]}:${string}`;
 export interface FeedbackMark {
@@ -248,6 +249,7 @@ export function PassportProvider({ id, initial, children }: { id: string; initia
       localStorage.removeItem(queueKey(id));
       localStorage.removeItem(`ap_plan:${id}`);
       clearChoices(id); // chosen hairstyle, saved looks, plan state
+      clearOutfit(id); // chosen outfit board, owned pieces
     } catch {
       /* ignore */
     }
