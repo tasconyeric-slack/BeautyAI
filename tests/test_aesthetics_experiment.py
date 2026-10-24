@@ -273,4 +273,38 @@ def test_evaluate_with_model_calibrated_native_and_parity(tiny_checkpoint, tmp_p
     np.savez(ref, predictions=np.array([r["pred"]["mebeauty_dinov2"] for r in rows], np.float32))
     rep, _ = evaluate(ds, methods=("mebeauty_dinov2",), weights=str(path), bootstrap=0, reference_predictions=str(ref))
     parity = rep["parity_with_published_predictions"]
-    assert parity["status"] == "ok" and parity["n"] == 6 and parity["max_abs_diff"] < 1e-5
+    assert parity["status"] == "pass" and parity["n_compared"] == 6 and parity["max_abs_diff"] < 1e-5
+    assert rep["status"] == "complete"
+    # a readable reference that disagrees must FAIL, and the report must not claim completion
+    np.savez(ref, predictions=np.array([r["pred"]["mebeauty_dinov2"] + 0.5 for r in rows], np.float32))
+    rep, _ = evaluate(ds, methods=("mebeauty_dinov2",), weights=str(path), bootstrap=0, reference_predictions=str(ref))
+    parity = rep["parity_with_published_predictions"]
+    assert parity["status"] == "fail" and parity["n_over_tolerance"] == 6 and rep["status"] == "partial"
+    assert rep["incomplete_reasons"] == {"parity": "fail"}
+
+
+def test_parity_with_zero_scored_rows_fails_without_crashing(tmp_path):
+    from experiments.aesthetics.evaluate import _parity
+
+    ds = EvalSet("mebeauty", "beauty_score", (1, 10), [], [], "t", "holdout", "mebeauty")
+    ref = tmp_path / "ref.npz"
+    np.savez(ref, predictions=np.array([5.0, 6.0], np.float32))
+
+    class Rec:                                                    # model failed on every row
+        def __init__(self, label: float) -> None:
+            self.pred, self.item = {}, Item("x", "test", label, lambda: None)
+
+    out = _parity(str(ref), ds, [Rec(5.0), Rec(6.0)], {"subsampled": {"test": False}})
+    assert out["status"] == "fail" and out["n_compared"] == 0 and "no reference row" in out["reason"]
+
+
+def test_status_partial_when_a_requested_method_scores_nothing(tmp_path):
+    from experiments.aesthetics.evaluate import evaluate
+
+    train = [Item(f"r{i}", "train", 1.0 + i % 5, (lambda i=i: _blank(tmp_path / f"r{i}.png", 64))) for i in range(5)]
+    test = [Item(f"t{i}", "test", 2.0, (lambda i=i: _blank(tmp_path / f"t{i}.png", 64))) for i in range(3)]
+    ds = EvalSet("x", "label", (1, 5), train, test, "t", "t", "custom")
+    rep, _ = evaluate(ds, methods=("train_mean", "geometric"), bootstrap=0)   # flat images: no face, no geometry
+    assert rep["methods"]["geometric"]["status"] == "ok"
+    assert rep["methods"]["geometric"]["coverage"]["n_scored"] == 0
+    assert rep["status"] == "partial" and rep["incomplete_reasons"] == {"geometric": "zero_test_samples_scored"}

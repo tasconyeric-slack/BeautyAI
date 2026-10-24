@@ -30,6 +30,9 @@ from .model import MEBeautyDinoV2, ModelUnavailable
 from .runtime import environment, peak_rss_mb
 
 METHODS = ("train_mean", "geometric", "geometry_ridge", "mebeauty_dinov2")
+# Max |Δ score| (1–10 scale) vs the published predictions. The maintainers report the hosted weights reproduce the
+# published metrics bit-exactly on MPS; CPU vs MPS and transformers versions give ~1e-4-level float differences.
+PARITY_TOLERANCE = 1e-3
 MODEL = "mebeauty_dinov2"
 
 
@@ -124,7 +127,8 @@ def evaluate(ds: EvalSet, *, methods: tuple[str, ...] = METHODS, weights: str | 
              margin: float = 0.25, flip: bool = True, device: str = "cpu", threads: int | None = None, batch: int = 8,
              max_test: int | None = None, max_train: int | None = None, calibration_n: int = 500,
              bootstrap: int = 1000, min_group: int = 30, seed: int = 0,
-             reference_predictions: str | None = None) -> tuple[dict[str, Any], list[dict[str, Any]]]:
+             reference_predictions: str | None = None,
+             parity_tolerance: float = PARITY_TOLERANCE) -> tuple[dict[str, Any], list[dict[str, Any]]]:
     unknown = set(methods) - set(METHODS)
     if unknown:
         raise ValueError(f"unknown method(s) {sorted(unknown)}; choose from {METHODS}")
@@ -283,32 +287,55 @@ def evaluate(ds: EvalSet, *, methods: tuple[str, ...] = METHODS, weights: str | 
     face_counts = Counter(r.face for r in test_recs if r.face)
     report["face_detection"] = dict(face_counts)
     if reference_predictions and model is not None:
-        report["parity_with_published_predictions"] = _parity(reference_predictions, ds, test_recs, report)
+        report["parity_with_published_predictions"] = _parity(reference_predictions, ds, test_recs, report,
+                                                              parity_tolerance)
     report["runtime"] = {"total_s": round(time.perf_counter() - t_start, 1), "peak_rss_mb": peak_rss_mb(),
                          "stages_s": {k: round(v, 2) for k, v in timers.items()}}
     report["environment"] = environment()
     expected = [m for m in methods if m != MODEL or MODEL not in ds.blocked]
-    report["status"] = "complete" if all(final[m]["status"] == "ok" for m in expected) else "partial"
+    # complete = every requested (non-blocked) method ran AND scored at least one test image; a requested parity
+    # check must also pass. Anything else is partial, with the reasons listed.
+    incomplete = {m: final[m]["status"] for m in expected if final[m]["status"] != "ok"}
+    incomplete.update({m: "zero_test_samples_scored" for m in expected
+                       if final[m]["status"] == "ok" and not report["methods"][m]["coverage"]["n_scored"]})
+    parity = report.get("parity_with_published_predictions")
+    if parity and parity["status"] != "pass":
+        incomplete["parity"] = parity["status"]
+    report["incomplete_reasons"] = incomplete
+    report["status"] = "partial" if incomplete else "complete"
     return report, [r.row() for r in test_recs]
 
 
-def _parity(path: str, ds: EvalSet, recs: list[_Recorder], report: dict[str, Any]) -> dict[str, Any]:
-    """Compare against MEBeauty-Benchmark results/dinov2-partial_predictions.npz (holdout test, dataset order)."""
+def _parity(path: str, ds: EvalSet, recs: list[_Recorder], report: dict[str, Any],
+            tolerance: float = PARITY_TOLERANCE) -> dict[str, Any]:
+    """Compare against MEBeauty-Benchmark results/dinov2-partial_predictions.npz (holdout test, dataset order).
+
+    status: "pass" only if EVERY reference row was scored and max |Δ| ≤ tolerance; otherwise "fail" (with a reason),
+    "skipped" (not applicable) or "error" (reference unreadable / wrong length)."""
+    base: dict[str, Any] = {"tolerance": tolerance, "reference": Path(path).name}
     if ds.name != "mebeauty" or report["subsampled"]["test"]:
-        return {"status": "skipped", "reason": "needs the full, unsubsampled MEBeauty holdout test split"}
+        return {**base, "status": "skipped", "reason": "needs the full, unsubsampled MEBeauty holdout test split"}
     try:
         ref = np.load(path)["predictions"].astype(float)
     except (OSError, KeyError, ValueError) as e:
-        return {"status": "error", "reason": f"{type(e).__name__}: {e}"}
-    ours = np.array([r.pred.get(MODEL, np.nan) if r.pred.get(MODEL) is not None else np.nan for r in recs])
+        return {**base, "status": "error", "reason": f"{type(e).__name__}: {e}"}
+    ours = np.array([np.nan if r.pred.get(MODEL) is None else r.pred[MODEL] for r in recs], float)
     if len(ref) != len(ours):
-        return {"status": "error", "reason": f"reference has {len(ref)} rows, test split has {len(ours)}"}
+        return {**base, "status": "error", "reason": f"reference has {len(ref)} rows, test split has {len(ours)}"}
     ok = ~np.isnan(ours)
+    out = {**base, "n_reference": len(ref), "n_compared": int(ok.sum())}
+    if not ok.any():
+        return {**out, "status": "fail", "reason": "no reference row was scored by the model"}
     diff = np.abs(ours[ok] - ref[ok])
     labels = np.array([r.item.label for r in recs])
-    return {"status": "ok", "n": int(ok.sum()), "max_abs_diff": round(float(diff.max()), 5),
-            "mean_abs_diff": round(float(diff.mean()), 5),
-            "published_predictions_metrics": point_metrics(ref, labels, bootstrap=0)}
+    out.update(max_abs_diff=float(f"{diff.max():.3g}"), mean_abs_diff=float(f"{diff.mean():.3g}"),
+               n_over_tolerance=int((diff > tolerance).sum()),
+               published_predictions_metrics=point_metrics(ref, labels, bootstrap=0))
+    if not ok.all():
+        return {**out, "status": "fail", "reason": f"{int((~ok).sum())} reference rows were not scored"}
+    if diff.max() > tolerance:
+        return {**out, "status": "fail", "reason": f"max |Δ| {diff.max():.3g} > tolerance {tolerance}"}
+    return {**out, "status": "pass"}
 
 
 def _scoring_version() -> str | None:
@@ -354,8 +381,12 @@ def to_markdown(report: dict[str, Any]) -> str:
         for m, i in unavailable.items():
             lines.append(f"- `{m}`: {i['status']} — {i.get('reason')}"
                          + (f" · prerequisite: {i['prerequisite']}" if i.get("prerequisite") else ""))
+    if report.get("incomplete_reasons"):
+        lines += ["", "Incomplete: " + ", ".join(f"`{k}` ({v})" for k, v in report["incomplete_reasons"].items())]
     if report.get("parity_with_published_predictions"):
-        lines += ["", "## Parity with published predictions", "", "```json",
+        par = report["parity_with_published_predictions"]
+        lines += ["", (f"## Parity with published predictions: **{par['status'].upper()}** "
+                      f"(tolerance {par['tolerance']})"), "", "```json",
                   json.dumps(report["parity_with_published_predictions"], indent=2), "```"]
     lines += ["", "## Notes", ""] + [f"- {n}" for n in report["notes"]]
     lines += [("- Scores predict a specific rater panel's mean rating; MEBeauty (1–10) and SCUT (1–5) scales are "

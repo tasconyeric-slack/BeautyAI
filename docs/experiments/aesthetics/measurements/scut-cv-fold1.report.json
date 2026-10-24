@@ -1,0 +1,291 @@
+{
+  "report_version": 1,
+  "tool_version": "0.1.0",
+  "dataset": {
+    "name": "scut-fbp5500",
+    "source": "Images",
+    "label": "beauty score (mean of 60 raters)",
+    "label_range": [
+      1.0,
+      5.0
+    ],
+    "protocol": "split files train_1.txt / test_1.txt",
+    "n_train": 4400,
+    "n_test": 1100,
+    "notes": [
+      "Subsets AF/AM/CF/CM are SCUT's own published file-name labels.",
+      "SCUT publishes no identity grouping; folds are used exactly as released."
+    ]
+  },
+  "subsampled": {
+    "test": false,
+    "train": false,
+    "n_test": 1100,
+    "n_train": 4400,
+    "seed": 0
+  },
+  "settings": {
+    "crop": "none",
+    "crop_margin": null,
+    "flip": true,
+    "device": "cpu",
+    "calibration_n": 500,
+    "bootstrap": 1000,
+    "min_group": 30
+  },
+  "methods": {
+    "train_mean": {
+      "status": "ok",
+      "scale": "native",
+      "train_mean": 2.9921,
+      "coverage": {
+        "n_total": 1100,
+        "n_scored": 1100,
+        "rate": 1.0,
+        "failures": {}
+      },
+      "metrics": {
+        "n": 1100,
+        "spearman": null,
+        "pearson": null,
+        "spearman_ci95": null,
+        "mae": 0.5666,
+        "rmse": 0.6827
+      },
+      "metrics_common_subset": {
+        "n": 1060,
+        "spearman": null,
+        "pearson": null,
+        "spearman_ci95": null,
+        "mae": 0.5621,
+        "rmse": 0.6769
+      },
+      "breakdowns": {
+        "subset": {
+          "AF": {
+            "n": 404,
+            "spearman": null,
+            "mae": 0.5732
+          },
+          "AM": {
+            "n": 394,
+            "spearman": null,
+            "mae": 0.5509
+          },
+          "CF": {
+            "n": 171,
+            "spearman": null,
+            "mae": 0.6314
+          },
+          "CM": {
+            "n": 131,
+            "spearman": null,
+            "mae": 0.5088
+          }
+        }
+      }
+    },
+    "geometric": {
+      "status": "ok",
+      "scale": "calibrated_on_train",
+      "calibration": {
+        "a": 3.99373713503067,
+        "b": -0.014496427303268963,
+        "n_train": 4264
+      },
+      "native_range": [
+        0,
+        100
+      ],
+      "scoring_version": "aes-geo-1.0",
+      "coverage": {
+        "n_total": 1100,
+        "n_scored": 1060,
+        "rate": 0.9636,
+        "failures": {
+          "geometry_unavailable": 40
+        }
+      },
+      "metrics": {
+        "n": 1060,
+        "spearman": -0.2051,
+        "pearson": -0.2301,
+        "spearman_ci95": [
+          -0.2611,
+          -0.1513
+        ],
+        "mae": 0.5333,
+        "rmse": 0.6585,
+        "error_basis": "calibrated_on_train"
+      },
+      "metrics_common_subset": {
+        "n": 1060,
+        "spearman": -0.2051,
+        "pearson": -0.2301,
+        "spearman_ci95": [
+          -0.2611,
+          -0.1513
+        ],
+        "mae": 0.5333,
+        "rmse": 0.6585,
+        "error_basis": "calibrated_on_train"
+      },
+      "breakdowns": {
+        "subset": {
+          "AF": {
+            "n": 396,
+            "spearman": -0.2207,
+            "mae": 0.5415
+          },
+          "AM": {
+            "n": 390,
+            "spearman": -0.1804,
+            "mae": 0.4871
+          },
+          "CF": {
+            "n": 149,
+            "spearman": -0.0504,
+            "mae": 0.6273
+          },
+          "CM": {
+            "n": 125,
+            "spearman": 0.1472,
+            "mae": 0.5396
+          }
+        }
+      },
+      "runtime": {
+        "seconds": 4.25,
+        "per_image_ms": 4.0
+      }
+    },
+    "geometry_ridge": {
+      "status": "ok",
+      "scale": "native",
+      "features": [
+        "symmetry.mean_residual",
+        "symmetry.eyes",
+        "symmetry.brows",
+        "symmetry.nose",
+        "symmetry.mouth",
+        "symmetry.jaw",
+        "thirds.upper",
+        "thirds.middle",
+        "thirds.lower",
+        "fifths.1",
+        "fifths.2",
+        "fifths.3",
+        "fifths.4",
+        "fifths.5",
+        "golden_ratio.ratio",
+        "pose.yaw",
+        "pose.pitch"
+      ],
+      "alpha": 100.0,
+      "train_cv_mae": 0.421,
+      "n_train": 4264,
+      "coverage": {
+        "n_total": 1100,
+        "n_scored": 1060,
+        "rate": 0.9636,
+        "failures": {
+          "geometry_unavailable": 40
+        }
+      },
+      "metrics": {
+        "n": 1060,
+        "spearman": 0.6005,
+        "pearson": 0.5926,
+        "spearman_ci95": [
+          0.5575,
+          0.6368
+        ],
+        "mae": 0.4275,
+        "rmse": 0.5451,
+        "error_basis": "native"
+      },
+      "metrics_common_subset": {
+        "n": 1060,
+        "spearman": 0.6005,
+        "pearson": 0.5926,
+        "spearman_ci95": [
+          0.5575,
+          0.6368
+        ],
+        "mae": 0.4275,
+        "rmse": 0.5451,
+        "error_basis": "native"
+      },
+      "breakdowns": {
+        "subset": {
+          "AF": {
+            "n": 396,
+            "spearman": 0.595,
+            "mae": 0.4436
+          },
+          "AM": {
+            "n": 390,
+            "spearman": 0.5682,
+            "mae": 0.3819
+          },
+          "CF": {
+            "n": 149,
+            "spearman": 0.5627,
+            "mae": 0.4982
+          },
+          "CM": {
+            "n": 125,
+            "spearman": 0.5541,
+            "mae": 0.4346
+          }
+        }
+      }
+    },
+    "mebeauty_dinov2": {
+      "status": "model_unavailable",
+      "reason": "weights not found at models/aesthetics/mebeauty-fbp/dinov2-partial.pt",
+      "prerequisite": "Download dinov2-partial.pt and config.json from https://huggingface.co/dr-irina-lebedeva/MEBeauty-FBP-models into models/aesthetics/mebeauty-fbp/ (git-ignored), e.g. `hf download dr-irina-lebedeva/MEBeauty-FBP-models dinov2-partial.pt config.json --local-dir models/aesthetics/mebeauty-fbp`, or pass --weights / set AESTHETICS_WEIGHTS. Needs network access to huggingface.co.",
+      "coverage": {
+        "n_total": 1100,
+        "n_scored": 0
+      }
+    }
+  },
+  "notes": [
+    "Subsets AF/AM/CF/CM are SCUT's own published file-name labels.",
+    "SCUT publishes no identity grouping; folds are used exactly as released."
+  ],
+  "common_subset": {
+    "n": 1060,
+    "methods": [
+      "geometric",
+      "geometry_ridge"
+    ]
+  },
+  "face_detection": {
+    "ok": 1100
+  },
+  "runtime": {
+    "total_s": 92.9,
+    "peak_rss_mb": 762.5,
+    "stages_s": {
+      "decode": 6.14,
+      "face_detect": 72.16,
+      "geometric": 4.25
+    }
+  },
+  "environment": {
+    "python": "3.13.17",
+    "platform": "Linux x86_64",
+    "cpu_count": 4,
+    "repo_commit": "5ba1ceca6ac5",
+    "cpu_model": "Intel(R) Xeon(R) Processor @ 2.10GHz",
+    "torch": "2.14.1+cu130",
+    "torch_threads": 4,
+    "cuda_available": false
+  },
+  "incomplete_reasons": {
+    "mebeauty_dinov2": "model_unavailable"
+  },
+  "status": "partial"
+}

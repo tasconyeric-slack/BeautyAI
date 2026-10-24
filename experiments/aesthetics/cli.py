@@ -100,7 +100,8 @@ def cmd_evaluate(a: argparse.Namespace) -> int:
                                 model_config=a.model_config, crop=a.crop, margin=a.margin, flip=a.flip,
                                 device=a.device, threads=a.threads, batch=a.batch, max_test=a.max_test,
                                 max_train=a.max_train, calibration_n=a.calibration_n, bootstrap=a.bootstrap,
-                                min_group=a.min_group, reference_predictions=a.reference_predictions)
+                                min_group=a.min_group, reference_predictions=a.reference_predictions,
+                                parity_tolerance=a.parity_tolerance)
     except ValueError as e:
         _emit({"status": "error", "error": str(e)})
         return 1
@@ -174,6 +175,8 @@ def build_parser() -> argparse.ArgumentParser:
     e.add_argument("--min-group", type=int, default=30)
     e.add_argument("--reference-predictions",
                    help="MEBeauty-Benchmark results/dinov2-partial_predictions.npz for a parity check")
+    e.add_argument("--parity-tolerance", type=float, default=1e-3,
+                   help="max |Δ score| vs the published predictions for parity PASS (default 1e-3)")
     e.add_argument("--require-all", action="store_true", help="exit 3 unless every method ran")
     e.add_argument("--out", help="output dir (default runs/aesthetics/eval-<dataset>-<time>, git-ignored)")
     e.set_defaults(fn=cmd_evaluate)
