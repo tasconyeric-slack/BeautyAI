@@ -221,3 +221,22 @@ def test_default_is_auto_so_keyless_deploys_run_in_demo_mode(monkeypatch):
     assert from_config("analysis", delay_s=0).name == "fake"
     monkeypatch.setenv("DEEPSEEK_API_KEY", "sk-test")
     assert from_config("analysis").name == "deepseek"
+
+
+def test_proxy_injected_auth_needs_no_key_outside_production(monkeypatch):
+    monkeypatch.delenv("DEEPSEEK_API_KEY", raising=False)
+    monkeypatch.delenv("ANALYSIS_PROVIDER", raising=False)
+    monkeypatch.setenv("APP_ENV", "development")
+    monkeypatch.setenv("DEEPSEEK_AUTH_VIA_PROXY", "1")
+    p = from_config("analysis")
+    assert isinstance(p, DeepSeekProvider)
+    assert p._client.api_key == "proxy-injected"   # placeholder; the proxy swaps in the real key
+
+
+def test_proxy_auth_flag_is_ignored_in_production(monkeypatch):
+    monkeypatch.delenv("DEEPSEEK_API_KEY", raising=False)
+    monkeypatch.delenv("ANALYSIS_PROVIDER", raising=False)
+    monkeypatch.setenv("APP_ENV", "production")
+    monkeypatch.setenv("DEEPSEEK_AUTH_VIA_PROXY", "1")
+    with pytest.raises(ProviderError, match="DEEPSEEK_API_KEY"):
+        from_config("analysis")

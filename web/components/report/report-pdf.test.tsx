@@ -101,7 +101,7 @@ describe("PDF report export", () => {
     expect(squash(r.pages[1])).toContain(squash(copyPdf.demoScore));
     for (const t of r.pages.slice(1)) expect(squash(t)).toContain(squash(copyPdf.demoBand.fixture));
     // simulated, but never claims the viewer's own photo is a synthetic face
-    expect(r.all).not.toContain("合成平均人脸");
+    expect(r.all).not.toContain("合成人脸");
   }, 60_000);
 
   it("treats photos as gone once the TTL has passed, even if the page still holds expired: false", () => {

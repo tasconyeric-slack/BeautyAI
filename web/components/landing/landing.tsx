@@ -207,7 +207,7 @@ function ReportPreview() {
             </li>
           ))}
         </ol>
-        <p className="mt-2 text-[11px] tracking-[0.12em] text-muted">{common.syntheticExample} · 合成人脸 · 数字来自示例档案的实际计算</p>
+        <p className="mt-2 text-[11px] tracking-[0.12em] text-muted">{reportCopy.demo.disclosureTitle} · 数字与分析由真实分析流程生成</p>
         <Link href={SAMPLE_REPORT_HREF} data-testid="landing-sample-report"
           className="mt-5 inline-flex h-11 items-center justify-center rounded-full border border-ink px-6 text-[14px] font-medium hover:bg-ink hover:text-paper">
           {reportCopy.landingOpen} →

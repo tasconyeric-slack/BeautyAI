@@ -8,4 +8,6 @@ export const flags = {
 
 /** Sample passports are always served from fixtures (landing "看示例档案" works without an API). */
 export const SAMPLE_IDS = { female: "ap_sample_0001", male: "ap_sample_0002" } as const;
-export const isSampleId = (id: string) => id === SAMPLE_IDS.female || id === SAMPLE_IDS.male;
+/** Pipeline-backed sample reports (Issue #14) use `ap_demo_*` ids; see lib/fixtures/demo_cases. */
+export const DEMO_ID_PREFIX = "ap_demo_";
+export const isSampleId = (id: string) => id === SAMPLE_IDS.female || id === SAMPLE_IDS.male || id.startsWith(DEMO_ID_PREFIX);

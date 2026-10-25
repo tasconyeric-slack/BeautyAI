@@ -1,0 +1,53 @@
+{
+  "manifest_version": 1,
+  "snapshot_version": "demo-2026.10-1",
+  "purpose": "Issue #14: real-pipeline sample reports for owner-approved, fully AI-synthesized fictional adults",
+  "asset_source": {
+    "bundle": "beautyai-issue14-approved-portraits.zip (manifest_version 1)",
+    "approval_date": "2026-10-24",
+    "provenance": "AI-synthesized adult portraits supplied and explicitly approved by the product owner; no known real-person subject",
+    "local_dir": "data/demo-assets (git-ignored masters; never overwritten)"
+  },
+  "cases": [
+    {
+      "person_id": "person-001",
+      "sample_id": "ap_demo_p001",
+      "display_label": "AI 虚构人物 001",
+      "photos": {
+        "front": {"path": "assets/person-001/frontal.png", "sha256": "68d55b12e55241a34860d787bcf86e417893b533461e66a1c86c7b0fbb1212b0", "use": "analysis + measurement (glasses-free frontal)"},
+        "profile90": {"path": "assets/person-001/profile-90.png", "sha256": "6a432963b40dac181d948491efa053acbcb11945f27899e79b55fa1e2e0ecb14", "use": "side measurements only if real QC accepts"},
+        "glasses": {"path": "assets/person-001/glasses.png", "sha256": "07ea77dacb74bf1d9954d65c28ebb7592fd97f7d68c47f8e2ae6583c5fce29ce", "use": "styling reference only; not measured, not sent to the model, not published"}
+      },
+      "user_context": {
+        "presentation": "feminine",
+        "optimize_focus": ["hair", "color_wardrobe", "makeup"],
+        "desired_impression": ["refined", "approachable"],
+        "constraints": {"dress_code": "business_casual", "accepts_dye": true, "accepts_perm": false, "accepts_glasses_change": true, "budget_level": "medium", "daily_minutes": 15, "other": ""},
+        "hair": {"texture": "straight", "density": "medium", "grow_out_ok": true},
+        "haircut_budget": "medium",
+        "occasions": ["commute", "casual"],
+        "ref": "demo_case"
+      }
+    },
+    {
+      "person_id": "person-002",
+      "sample_id": "ap_demo_p002",
+      "display_label": "AI 虚构人物 002",
+      "photos": {
+        "front": {"path": "assets/person-002/frontal.png", "sha256": "1a31f350115a2c46d6f3a30f3b5dee3391c5529cb7c8f963ac35cf9516d705c1", "use": "analysis + measurement (glasses-free frontal)"},
+        "profile90": {"path": "assets/person-002/profile-90.png", "sha256": "2ef8c2069b15719c98449d87c70dda168f84cbcd8426b52f2f6164754c222963", "use": "side measurements only if real QC accepts"},
+        "glasses": {"path": "assets/person-002/glasses.png", "sha256": "145b3c1de9fd366b2b051b7316e184fd27d132f168297429e1d0f8cbcc6085f4", "use": "styling reference only; not measured, not sent to the model, not published"}
+      },
+      "user_context": {
+        "presentation": "masculine",
+        "optimize_focus": ["hair", "glasses", "color_wardrobe"],
+        "desired_impression": ["sharp", "professional"],
+        "constraints": {"dress_code": "business_casual", "accepts_dye": false, "accepts_perm": false, "accepts_glasses_change": true, "budget_level": "medium", "daily_minutes": 10, "other": ""},
+        "hair": {"texture": "straight", "density": "thick", "grow_out_ok": false},
+        "haircut_budget": "medium",
+        "occasions": ["commute", "formal"],
+        "ref": "demo_case"
+      }
+    }
+  ]
+}

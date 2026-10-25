@@ -84,7 +84,7 @@ describe("the full report as a document", () => {
     expect(items.map((a) => a.getAttribute("data-glance"))).toEqual(["score", "strength", "first", "coverage"]);
     for (const a of items) expect(container.querySelector(a.getAttribute("href")!), a.getAttribute("href")!).not.toBeNull();
     expect(strip.textContent).toContain(String(Math.round(passport.aesthetic_score!.overall_score!)));
-    expect(strip.textContent).toContain("合成平均人脸"); // the sample says whose number this is
+    expect(strip.textContent).toContain("合成人脸"); // the sample says whose number this is
   });
 
   it("every in-page link — contents, region jumps, evidence and recommendation chips — lands on an element that exists", () => {

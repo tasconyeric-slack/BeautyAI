@@ -1,0 +1,148 @@
+{
+  "snapshot_version": "demo-2026.10-1",
+  "person_id": "person-002",
+  "sample_id": "ap_demo_p002",
+  "display_label": "AI 虚构人物 002",
+  "subject": "AI-synthesized fictional adult; not a photograph of a real person",
+  "asset_source": {
+    "bundle": "beautyai-issue14-approved-portraits.zip (manifest_version 1)",
+    "approval_date": "2026-10-24",
+    "provenance": "AI-synthesized adult portraits supplied and explicitly approved by the product owner; no known real-person subject",
+    "local_dir": "data/demo-assets (git-ignored masters; never overwritten)"
+  },
+  "built_at": "2026-10-24T19:49:51+00:00",
+  "code_commit": "8f52808052235542cbe0f5a5398cc52ce4877aa8",
+  "inputs": {
+    "front": {
+      "file": "assets/person-002/frontal.png",
+      "sha256": "1a31f350115a2c46d6f3a30f3b5dee3391c5529cb7c8f963ac35cf9516d705c1",
+      "use": "analysis + measurement (glasses-free frontal)",
+      "sent_to_pipeline": true
+    },
+    "profile90": {
+      "file": "assets/person-002/profile-90.png",
+      "sha256": "2ef8c2069b15719c98449d87c70dda168f84cbcd8426b52f2f6164754c222963",
+      "use": "side measurements only if real QC accepts",
+      "sent_to_pipeline": true
+    },
+    "glasses": {
+      "file": "assets/person-002/glasses.png",
+      "sha256": "145b3c1de9fd366b2b051b7316e184fd27d132f168297429e1d0f8cbcc6085f4",
+      "use": "styling reference only; not measured, not sent to the model, not published",
+      "sent_to_pipeline": false
+    }
+  },
+  "published_images": {
+    "front": {
+      "path": "/sample/demo/person-002/front.jpg",
+      "width": 1122,
+      "height": 1402,
+      "sha256": "6cc0c583739790dde15136150c3389e42d1f9f24332cbb8099bc2d507cdf2b13",
+      "encoding": "jpeg q92, metadata stripped"
+    },
+    "profile90": {
+      "path": "/sample/demo/person-002/profile90.jpg",
+      "width": 1024,
+      "height": 1536,
+      "sha256": "2f42672bca15c634073fd996dca72f322715c08e4540326d06ae29e764d2ffa4",
+      "encoding": "jpeg q92, metadata stripped"
+    }
+  },
+  "layers": {
+    "cv": {
+      "source": "real",
+      "qc_mode": "real",
+      "engine": "mediapipe 1.1.1",
+      "models": {
+        "face_landmarker.task": "64184e229b263107bc2b804c6625db1341ff2bb731874b0bcc2fe6544e0bc9ff",
+        "selfie_multiclass_256x256.tflite": "c6748b1253a99067ef71f7e26ca71096cd449baefa8f101900ea23016507e0e0"
+      },
+      "side_view": {
+        "qc_accepted": true,
+        "status": "measured",
+        "reason": null
+      }
+    },
+    "scoring": {
+      "source": "real (deterministic D36 geometric reference, front landmarks)",
+      "scoring_version": "aes-geo-1.0",
+      "status": "full",
+      "overall_score": 81.9,
+      "confidence": "high"
+    },
+    "percentiles": {
+      "source": "real (D37, published self-selected reference cohort; not a population rank)",
+      "engine_version": "percentiles-0.1",
+      "reference_distribution_version": "refdist-2026-10-23.2"
+    },
+    "analysis": {
+      "source": "real",
+      "provider": "deepseek",
+      "model": "deepseek-flash",
+      "prompt_version": "analyzer-0.3",
+      "retries": 1,
+      "latency_ms": 54032,
+      "cost_usd_est": 0.016652,
+      "quick": {
+        "model": "deepseek-flash",
+        "prompt_version": "analyzer-quick-0.1",
+        "latency_ms": 3716,
+        "ok": true
+      },
+      "calls": [
+        {
+          "kind": "quick",
+          "attempt": 0,
+          "provider": "deepseek",
+          "model": "deepseek-flash",
+          "latency_ms": 3716,
+          "input_tokens": 2329,
+          "output_tokens": 497,
+          "stop_reason": "stop",
+          "cost_usd_est": 0.001032,
+          "valid": true,
+          "validation_errors": 0
+        },
+        {
+          "kind": "analysis",
+          "attempt": 0,
+          "provider": "deepseek",
+          "model": "deepseek-flash",
+          "latency_ms": 32748,
+          "input_tokens": 12923,
+          "output_tokens": 6487,
+          "stop_reason": "stop",
+          "cost_usd_est": 0.008688,
+          "valid": false,
+          "validation_errors": 3
+        },
+        {
+          "kind": "analysis",
+          "attempt": 1,
+          "provider": "deepseek",
+          "model": "deepseek-flash",
+          "latency_ms": 21284,
+          "input_tokens": 19559,
+          "output_tokens": 6482,
+          "stop_reason": "stop",
+          "cost_usd_est": 0.007964,
+          "valid": true,
+          "validation_errors": 0
+        }
+      ]
+    },
+    "rules": {
+      "source": "real (rules layer, config/rules.yaml)",
+      "schema_version": "0.7"
+    },
+    "previews": {
+      "status": "unavailable",
+      "reason": "no real image-edit provider configured (DASHSCOPE_API_KEY)"
+    },
+    "learned_attractiveness": {
+      "status": "not_included",
+      "reason": "Issue #13 licence gate; no learned-attractiveness model is used"
+    }
+  },
+  "user_context_note": "styling context is a fictional, user-declared profile from the demo manifest"
+}
