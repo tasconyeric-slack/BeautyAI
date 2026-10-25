@@ -1,0 +1,167 @@
+{
+  "inspection_date": "2026-10-25",
+  "repository": "https://github.com/tasconyeric-slack/BeautyAI",
+  "main_sha": "dc140cb79dc8c80989ed44be379722118c82ef43",
+  "browser": "Chromium 154.0.8037.57",
+  "device_scale_factor": 1,
+  "scope": "Public browser captures only. Proprietary media and fonts were not extracted. QOVES images are reference evidence, not reusable product assets.",
+  "beautyai_deployed_sha": "not verified",
+  "captures": [
+    {
+      "file": "beautyai-home.jpg",
+      "source_url": "https://beautytest-xi.vercel.app/",
+      "captured_at_utc": "2026-10-25T12:42:47+00:00",
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "state": "Homepage; older illustrated fixture"
+    },
+    {
+      "file": "beautyai-report-001.jpg",
+      "source_url": "https://beautytest-xi.vercel.app/report/sample",
+      "captured_at_utc": "2026-10-25T12:43:22+00:00",
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "state": "AI fictional person 001 public sample report"
+    },
+    {
+      "file": "beautyai-report-002.jpg",
+      "source_url": "https://beautytest-xi.vercel.app/report/sample?v=p002",
+      "captured_at_utc": "2026-10-25T12:43:26+00:00",
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "state": "AI fictional person 002 public sample report"
+    },
+    {
+      "file": "beautyai-studio.jpg",
+      "source_url": "https://beautytest-xi.vercel.app/p/ap_sample_0001/studio",
+      "captured_at_utc": "2026-10-25T12:43:30+00:00",
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "state": "Original state; older illustrated fixture ap_sample_0001"
+    },
+    {
+      "file": "qoves-desktop-analysis.jpg",
+      "source_url": "https://www.qoves.com/",
+      "captured_at_utc": "2026-10-25T12:42:14+00:00",
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "state": "desktop analysis"
+    },
+    {
+      "file": "qoves-desktop-faq-privacy.jpg",
+      "source_url": "https://www.qoves.com/",
+      "captured_at_utc": "2026-10-25T12:52:04+00:00",
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "state": "Privacy category selected; first answer expanded"
+    },
+    {
+      "file": "qoves-desktop-faq.jpg",
+      "source_url": "https://www.qoves.com/",
+      "captured_at_utc": "2026-10-25T12:42:30+00:00",
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "state": "desktop faq"
+    },
+    {
+      "file": "qoves-desktop-hero.jpg",
+      "source_url": "https://www.qoves.com/",
+      "captured_at_utc": "2026-10-25T12:42:12+00:00",
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "state": "desktop hero"
+    },
+    {
+      "file": "qoves-desktop-plan.jpg",
+      "source_url": "https://www.qoves.com/",
+      "captured_at_utc": "2026-10-25T12:42:16+00:00",
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "state": "desktop plan"
+    },
+    {
+      "file": "qoves-desktop-transformation-open.jpg",
+      "source_url": "https://www.qoves.com/",
+      "captured_at_utc": "2026-10-25T12:42:27+00:00",
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "state": "desktop transformation open"
+    },
+    {
+      "file": "qoves-desktop-transformations.jpg",
+      "source_url": "https://www.qoves.com/",
+      "captured_at_utc": "2026-10-25T12:42:26+00:00",
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "state": "desktop transformations"
+    },
+    {
+      "file": "qoves-mobile-analysis.jpg",
+      "source_url": "https://www.qoves.com/",
+      "captured_at_utc": "2026-10-25T12:43:05+00:00",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "state": "mobile analysis"
+    },
+    {
+      "file": "qoves-mobile-faq.jpg",
+      "source_url": "https://www.qoves.com/",
+      "captured_at_utc": "2026-10-25T12:44:54+00:00",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "state": "Privacy category selected; first answer expanded"
+    },
+    {
+      "file": "qoves-mobile-hero.jpg",
+      "source_url": "https://www.qoves.com/",
+      "captured_at_utc": "2026-10-25T12:42:48+00:00",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "state": "mobile hero"
+    },
+    {
+      "file": "qoves-mobile-menu.jpg",
+      "source_url": "https://www.qoves.com/",
+      "captured_at_utc": "2026-10-25T12:42:51+00:00",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "state": "mobile menu"
+    }
+  ],
+  "derived_boards": [
+    "qoves-desktop-board.jpg",
+    "qoves-mobile-board.jpg",
+    "beautyai-board.jpg",
+    "beautyai-fictional-portraits.jpg"
+  ]
+}
