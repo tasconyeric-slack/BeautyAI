@@ -1,6 +1,6 @@
-# Image Edit Prompt Builder — v0.5
+# Image Edit Prompt Builder — v0.6
 
-`prompt_version: preview-0.5`
+`prompt_version: preview-0.6`
 
 The preview never lets a model free-write the edit. It is built deterministically from the
 top-ranked recommendation that has a non-null `visual_edit_spec`, or the one the user picked
@@ -57,6 +57,41 @@ original's. Finally the composite must show one face whose eye, brow, nose and m
 do. A rejection is a quality-gate failure: one retry with a new seed, then `fallback`. Limits:
 `config/qc.yaml → preview_masks.registration`. The template also asks the model to keep head position and size.
 
+**Live findings (v0.6, Issue #1, 2026-10-25; `qwen-image-2.0` on two synthetic portraits, 34 generations).**
+`scripts/live_hair_preview.py` reproduces the acceptance run; `docs/demos/issue-1-live-hair-previews.md` has the
+evidence. Each change below fixes something seen in a real result, and has a regression test with a control:
+
+- *Registration.* On a full-frame portrait the model returned the same face 9–15.5 % smaller (scale 1.09–1.155),
+  shifted 0.115–0.134 cheek widths and rotated < 0.5° despite "keep head size"; 3 of 4 generations were rejected by the
+  original ±0.12 scale limit. The inner face was a rigid copy (residual 0.005–0.008). `max_scale_dev` 0.12 → 0.20, and
+  the cheek-contour landmarks (234/454) no longer take part in registration: side hair over the cheek edge moves them
+  (residual 0.034) without the face being reshaped.
+- *Wall tint.* The Lab lighting offset is measured on skin; applied to the wall a shorter cut reveals it tinted it
+  (+7 R / −7 B). It is no longer applied to pixels the generated image segments as background.
+- *Doubled ears.* A generated ear is a few pixels off the real one (registration is fitted on the inner face);
+  blending the two drew a ghost contour. From brow level down and outside the face oval, original skin that no
+  generated hair covers is kept, and generated skin is never pasted over original wall (`keep_original_ears_neck`).
+  Dark sideburn tips the segmenter calls "skin" are not kept (closer in luminance to hair than to skin).
+- *Floating strands.* Original flyaways the segmenter misses stayed on the wall after the cut changed
+  (`stray_strands`): thin lines, in the original only, near the hair, never near the face and never imported from the
+  generated image. Near the edge of the area the model's image covers, the crop-boundary fade still lets some show.
+- *Forehead ghost.* The old fringe's shadow left the original skin beside it ~50 levels darker than the clean skin the
+  model generated, so the seam drew the fringe's outline. Shadowed original face skin contiguous with the mask joins
+  it (`shadow_halo`), moving the seam to where the two images agree. Matching the generated skin to the shadowed
+  original was tried first and made it worse (a darker band), so it was dropped.
+- *Fringe holes.* A fringe covering the outer brow came out with a skin-coloured hole: the segmenter called its thin
+  strands "not hair" and the whole brow-landmark hull was frozen. The user's brow is now its dark pixels in the hull,
+  and dark generated pixels connected to the generated hair are strands (`protected_brows`).
+- *Prompt.* The hair block states the length as a hard limit and asks for a groomed finish. The old wording ("how the
+  ends fall around the neck and shoulders", "irregular fine strands… restrained flyaways") produced messy shag cuts
+  and ended a chin-length target at the collar. Measured on the `easy` target (hair ends below the chin, cheek
+  widths; original +0.31): v0.5 +0.38/+0.41/+0.43, v0.6 +0.33/+0.35/+0.32 over three seeds each; visibly tidier, but
+  still collar-level, not a chin bob.
+
+Known limits: the 7:3 side part in a target came out centred in every sample; a crown "root lift" can come out as
+clumped curls (seed-dependent); fringe strands that cross the eye or the protected core end flat at its edge; the
+old fringe's shadow inside the protected brow zone can leave a faint strip above the brow.
+
 The remaining edit regions retain their existing masks:
 
 | region | mask source (first choice) | dilation |
@@ -93,14 +128,16 @@ clothing_top → "top (shirt, collar and neckline)".
 
 ```
 Implement the target as a real haircut: follow its length, perimeter, layers, fringe, part, root volume and
-texture, including how the ends fall around the neck and shoulders. Fit it to this person's visible scalp
-curvature, forehead height and natural hair growth direction. Keep hair colour unless the target specifies
-a colour change. Let the new hairline, temples, sideburns and hair around the ears change where the cut requires;
-reveal believable skin where old hair is removed. Keep the ears' anatomy, and let strands naturally pass in
-front of or behind them. Use irregular fine strands, soft root transitions, realistic scalp visibility at the
-part and restrained flyaways. Match the original light direction, exposure, focus, grain and strand highlights;
-include subtle contact shadows on the forehead, temples and ears. Preserve the recognizable face and its skin
-texture. The result should be one coherent photograph with the requested haircut clearly visible.
+texture. Respect the stated length exactly: the ends must stop where the target says (for example at the chin or
+jaw, above the shoulders, or at the collarbone) and must not hang longer than that; remove the old longer hair
+completely. Fit it to this person's visible scalp curvature, forehead height and natural hair growth direction.
+Keep hair colour unless the target specifies a colour change. Let the new hairline, temples, sideburns and hair
+around the ears change where the cut requires; reveal believable skin where old hair is removed. Keep the ears'
+anatomy, and let strands naturally pass in front of or behind them. Give a clean, well-groomed salon finish:
+fine individual strands with soft root transitions, realistic scalp visibility at the part and very few flyaways.
+Match the original light direction, exposure, focus, grain and strand highlights; include subtle contact shadows
+on the forehead, temples and ears. Preserve the recognizable face and its skin texture. The result should be one
+coherent photograph with the requested haircut clearly visible.
 ```
 
 This block is inserted only for `region=hair`; the target description is kept verbatim, including deliberate
