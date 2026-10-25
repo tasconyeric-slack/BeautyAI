@@ -167,6 +167,20 @@ preview_masks:
   # the edge zone (cheek outline, temples, jaw outline = the rest of the old protected region) may be covered only
   # by pixels the result itself segments as hair, so long hair and fringes are not cut off.
   core_pad_px: 6
+  brow_contrast: 18               # L* levels below the brow hull's skin for a pixel to count as the brow itself
+  # Issue #1, live qwen-image-2.0 on Person-002 (a cut that removes a fringe). Original flyaways outside the hair
+  # mask stayed behind as floating strands: thin original wall/hair pixels within this reach of the old and new hair
+  # that the generated image shows as clean wall are replaced by it (generated lines are never imported).
+  # Fractions are × cheekbone width.
+  stray_strand_reach_frac: 0.25
+  stray_strand_min_diff: 12       # contrast of a line against the local median, 0–255; clean wall noise ≈ 4
+  stray_strand_width_frac: 0.03   # median window, × cheek width: only lines narrower than ~half of it count
+  # The shadow of an old fringe left the original forehead ~50 L* darker than the clean generated skin that replaced
+  # the hair, so the seam drew the fringe's outline. Original face skin beside the mask that is still this much darker
+  # than the (globally corrected) generated skin, contiguous with the mask and within reach, joins the edit mask.
+  shadow_halo_reach_frac: 0.22
+  shadow_halo_min_diff: 10        # L* (0–255) after smoothing at shadow_halo_smooth_frac
+  shadow_halo_smooth_frac: 0.01
   soft_protection: true
   composite_mode: feather        # feather | seamless (cv2.seamlessClone; off by default, D22)
   color_transfer: true           # Lab mean/std transfer of the edited crop onto the original over the boundary band
@@ -178,12 +192,14 @@ preview_masks:
   concurrency: 3
   # Issue #56: image-edit models can move, zoom or tilt the head. The generated face's rigid landmarks register it
   # back onto the original before compositing; anything not a small rigid move is rejected (retry, then fallback).
-  # Fractions are × cheekbone width. Landmark jitter on an unmoved edit measured ≈ 0.01. Provisional: confirm on
-  # consented real photos with live Qwen output.
+  # Fractions are × cheekbone width. Landmark jitter on an unmoved edit measured ≈ 0.01. Calibrated on live
+  # qwen-image-2.0 output (Issue #1, 2026-10-25, synthetic Person-001, 4 generations): the model returns the head
+  # 9–15.5 % smaller (scale 1.09–1.155), shifted 0.115–0.134, rotated < 0.5°, inner-face residual 0.005–0.008.
+  # Still provisional beyond that one identity.
   registration:
     min_shift_frac: 0.015           # smaller offsets (landmark jitter, inside the 6 px feature pad) are not resampled
     max_shift_frac: 0.25            # larger head moves are reframings: reject
-    max_scale_dev: 0.12             # |scale − 1|
+    max_scale_dev: 0.20             # |scale − 1|; observed live max 0.155
     max_rotation_deg: 8
     max_residual_frac: 0.03         # largest landmark error after alignment: above it the face was reshaped
     min_face_area_frac: 0.25        # a detected face smaller than this × the original face box is ignored

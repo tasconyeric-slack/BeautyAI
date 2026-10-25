@@ -29,20 +29,34 @@ import numpy as np
 from PIL import Image, ImageDraw, ImageFont
 
 from .cv import (
+    FACE_OVAL,
     LEFT_BROW,
     LEFT_EYE,
     LIPS_OUTER,
     MODELS,
     RIGHT_BROW,
     RIGHT_EYE,
+    SEG_BACKGROUND,
+    SEG_BODY_SKIN,
     SEG_FACE_SKIN,
     SEG_HAIR,
     CVUnavailable,
     Face,
     hull_mask,
+    polygon_mask,
 )
 from .imaging import open_rgb, save_jpeg
-from .masks import NOSE_HULL, _dilate, edit_mask, feathered_alpha, head_crop_box, overlay, protected_region
+from .masks import (
+    NOSE_HULL,
+    _dilate,
+    _px,
+    brow_line_y,
+    edit_mask,
+    feathered_alpha,
+    head_crop_box,
+    overlay,
+    protected_region,
+)
 from .providers.image import ImageEditError, ImageEditProvider
 from .qc import load_qc_config
 
@@ -91,8 +105,10 @@ class MisalignedEdit(QualityGateFailed):
 
 
 # Rigid, hair-independent landmarks for registration: eye corners, nose bridge/tip/base, mouth corners and midline,
-# chin and cheekbones. Brows are left out (a fringe can hide them); the forehead/hairline points move with the cut.
-REGISTRATION_POINTS = [33, 133, 362, 263, 168, 6, 1, 2, 61, 291, 0, 17, 152, 234, 454]
+# and chin. Brows are left out (a fringe can hide them); the forehead/hairline points move with the cut. The cheek
+# contour (234/454) is left out too: side hair over the cheek edge makes the detector snap it to the hair line, which
+# read as a "reshaped" face on live Qwen output (residual 0.034 there vs ≤ 0.008 for every other point).
+REGISTRATION_POINTS = [33, 133, 362, 263, 168, 6, 1, 2, 61, 291, 0, 17, 152]
 FEATURE_GROUPS = (LEFT_EYE, RIGHT_EYE, LEFT_BROW, RIGHT_BROW, LIPS_OUTER, NOSE_HULL)
 
 
@@ -335,6 +351,37 @@ def core_region(face: Any, shape: tuple[int, int], region: str, pad_px: int) -> 
     return _dilate(core, pad_px)
 
 
+def protected_brows(faces_: tuple[Any, ...], rgb: np.ndarray, edited: np.ndarray, seg: np.ndarray,
+                    result_seg: np.ndarray, pm: dict[str, Any]) -> np.ndarray:
+    """Brow pixels that stay the user's own unless the generated hair covers them.
+
+    The segmenter often calls thin fringe strands over skin "not hair". Freezing the brow where it says so punched
+    skin-coloured holes into a fringe that really covers the brow (live Qwen, Person-001: the brow tail showed
+    through a solid fringe). Dark generated pixels that run into the generated hair mass are strands, not a brow, so
+    they count as hair here. The user's own brow is its dark pixels inside the landmark hull (the hull is a lens that
+    also holds plain skin); the generated brow hull still guards against a displaced second brow."""
+    shape = rgb.shape[:2]
+    lum = lambda a: cv2.cvtColor(a, cv2.COLOR_RGB2LAB)[..., 0].astype(np.float32)
+    lum_rgb, lum_gen = lum(rgb), lum(edited)
+    hulls = [[hull_mask(shape, f.pts(brow)) > 0 for brow in (LEFT_BROW, RIGHT_BROW)] for f in faces_]
+    level = float(np.mean([np.percentile(lum_rgb[h], 90) for h in hulls[0]]))       # the user's skin beside the brows
+    generated_hair = result_seg == SEG_HAIR
+    covered = generated_hair | _strands_of_the_hair(generated_hair, lum_gen < level - pm["brow_contrast"])
+    out = np.zeros(shape, bool)
+    for hull in hulls[0]:
+        out |= _dilate(hull & (seg != SEG_HAIR) & (lum_rgb < level - pm["brow_contrast"]), pm["core_pad_px"])
+    for hull in hulls[-1]:
+        out |= _dilate(hull, pm["core_pad_px"])
+    return out & ~covered
+
+
+def _strands_of_the_hair(hair: np.ndarray, dark: np.ndarray) -> np.ndarray:
+    """Dark pixels that run into the hair mass (8-connected through dark pixels): thin strands the segmenter missed."""
+    _, labels = cv2.connectedComponents((hair | dark).astype(np.uint8), connectivity=8)
+    touching = np.unique(labels[hair])
+    return dark & np.isin(labels, touching[touching != 0])
+
+
 def lab_transfer(edited: np.ndarray, original: np.ndarray, sample: np.ndarray, apply: np.ndarray) -> np.ndarray:
     """Remove the median Lab lighting cast over stable skin, preserving hair colour/strand contrast.
 
@@ -352,6 +399,74 @@ def lab_transfer(edited: np.ndarray, original: np.ndarray, sample: np.ndarray, a
     out = edited.copy()
     out[apply] = converted[apply]
     return out
+
+
+def shadow_halo(face: Any, rgb: np.ndarray, edited: np.ndarray, seg: np.ndarray, result_seg: np.ndarray,
+                mask: np.ndarray, window: np.ndarray, pm: dict[str, Any]) -> np.ndarray:
+    """Face skin the old hair shadowed, beside the part of the old hair that the cut removes.
+
+    The new image shows that skin clean and evenly lit, but the original's pixels next to the old hair edge are
+    still darkened by the shadow of hair that is now gone, so the seam drew the old fringe's outline (live Qwen,
+    Person-002: a 50-level step across the forehead). Original skin outside the mask that is still darker than the
+    generated skin, contiguous with the mask and within a bounded reach, joins the mask: the seam moves out to where
+    the two images agree. `edited` already carries the global lighting correction, so an exposure drift of the
+    whole image does not grow it. Never reaches the protected face (the caller removes `hard`)."""
+    cheek = _cheek_px(face)
+    skin = (seg == SEG_FACE_SKIN) & (result_seg == SEG_FACE_SKIN) & window
+    lum = lambda a: cv2.cvtColor(a, cv2.COLOR_RGB2LAB)[..., 0].astype(np.float32)
+    darker = cv2.GaussianBlur(lum(edited) - lum(rgb), (0, 0), max(1.0, pm["shadow_halo_smooth_frac"] * cheek))
+    near = skin & ~mask & _dilate(mask, _px(face, pm["shadow_halo_reach_frac"])) & (darker > pm["shadow_halo_min_diff"])
+    near = cv2.morphologyEx(near.astype(np.uint8), cv2.MORPH_CLOSE, np.ones((5, 5), np.uint8)) > 0
+    near &= skin & ~mask
+    _, labels = cv2.connectedComponents((near | mask).astype(np.uint8), connectivity=8)
+    touching = np.unique(labels[mask])
+    return near & np.isin(labels, touching[touching != 0])
+
+
+def stray_strands(face: Any, rgb: np.ndarray, edited: np.ndarray, seg: np.ndarray, result_seg: np.ndarray,
+                  hair: np.ndarray, mask: np.ndarray, window: np.ndarray, pm: dict[str, Any]) -> np.ndarray:
+    """Original flyaways that the segmenter missed and the new cut leaves floating on the wall.
+
+    A pixel qualifies when it is a thin standout (a line narrower than the median window, dark or light) in the
+    ORIGINAL near the old and new hair, the generated image shows clean wall there, and the generated image has no
+    such line of its own (those are never imported). Skin, clothes and lighting differences are not thin lines."""
+    reach = _dilate(hair, _px(face, pm["stray_strand_reach_frac"]))
+    k = max(5, _px(face, pm["stray_strand_width_frac"])) | 1
+
+    def standout(img: np.ndarray) -> np.ndarray:
+        return np.abs(img.astype(np.int16) - cv2.medianBlur(img, k).astype(np.int16)).max(axis=2) > \
+            pm["stray_strand_min_diff"]
+
+    face_zone = _dilate(((seg == SEG_FACE_SKIN) | (seg == SEG_BODY_SKIN)) | _face_oval(face, rgb.shape[:2]), 8)
+    generated_lines = _dilate(standout(edited), 2)
+    lines = standout(rgb) & ~generated_lines & reach & window & ~mask & ~face_zone & (result_seg == SEG_BACKGROUND)
+    lines &= (seg == SEG_BACKGROUND) | (seg == SEG_HAIR)
+    return _dilate(lines, 2) & reach & window & ~face_zone & (result_seg == SEG_BACKGROUND) & ~generated_lines
+
+
+def _face_oval(face: Any, shape: tuple[int, int]) -> np.ndarray:
+    return polygon_mask(shape, face.pts(FACE_OVAL)) > 0
+
+
+def keep_original_ears_neck(face: Any, shape: tuple[int, int], rgb: np.ndarray, seg: np.ndarray,
+                            result_seg: np.ndarray) -> np.ndarray:
+    """Ears and neck stay the original's: no generated ear is blended over, or pasted beside, the real one.
+
+    The registration is fitted on the inner face, so a generated ear is a few pixels off the original one; blending
+    the two drew a second, ghost ear contour (live Qwen, Person-002). From brow level down and outside the face
+    oval, original skin that no generated hair covers is kept, and generated skin is never pasted over original wall.
+    Ears the old hair covered are not kept: those pixels are hair in the original and are revealed as before. The
+    segmenter also calls dark sideburn tips "skin"; a pixel closer in luminance to the original's hair than to its
+    skin is hair, and is replaced like any other old hair."""
+    lum = cv2.cvtColor(rgb, cv2.COLOR_RGB2LAB)[..., 0].astype(np.float32)
+    oval = _face_oval(face, shape)
+    skin = (seg == SEG_FACE_SKIN) | (seg == SEG_BODY_SKIN)
+    if (seg == SEG_HAIR).any() and (skin & oval).any():
+        hair_level, skin_level = np.median(lum[seg == SEG_HAIR]), np.median(lum[skin & oval])
+        skin &= np.abs(lum - skin_level) <= np.abs(lum - hair_level)
+    generated_skin = (result_seg == SEG_FACE_SKIN) | (result_seg == SEG_BODY_SKIN)
+    outside = ~oval & (np.arange(shape[0])[:, None] >= brow_line_y(face))
+    return outside & ((skin & (result_seg != SEG_HAIR)) | (generated_skin & (seg == SEG_BACKGROUND)))
 
 
 @lru_cache(maxsize=1)
@@ -592,6 +707,7 @@ def composite_edit(rgb: np.ndarray, edited: np.ndarray, face: Any, seg: np.ndarr
     edge = protected_region(face, shape, region, cfg) & ~core
     mask = edit_mask(face, seg, region, cfg) & window
     result_seg = None
+    stray = np.zeros(shape, bool)
     if region == "hair":
         try:
             result_seg = MODELS.segment(edited)
@@ -601,14 +717,13 @@ def composite_edit(rgb: np.ndarray, edited: np.ndarray, face: Any, seg: np.ndarr
         # Replace removed hair as well as new hair. A small context band retains scalp, temple/ear occlusion,
         # fine strands and local shadows, without pasting the model's entire head-shaped background region.
         mask = _dilate(hair, pm["feather_px"]) & window
+        stray = stray_strands(face, rgb, edited, seg, result_seg, hair, mask, window, pm)
+        mask |= stray
     if pm.get("soft_protection", True) and region == "hair":
-        hard = core | (edge & ~mask)
+        hard = core | (edge & ~mask) | keep_original_ears_neck(face, shape, rgb, seg, result_seg)
         # Keeping brows in the immutable core amputated below-brow fringes. Protect visible brows, while
         # allowing actual generated hair to occlude them (eyes/nose/mouth remain immutable in either case).
-        for brow in (LEFT_BROW, RIGHT_BROW):
-            for f in faces_:
-                brow_mask = _dilate(hull_mask(shape, f.pts(brow)) > 0, pm["core_pad_px"])
-                hard |= brow_mask & (result_seg != SEG_HAIR)
+        hard |= protected_brows(faces_, rgb, edited, seg, result_seg, pm)
     else:
         hard = core | edge                    # V1 behaviour: hard protection of the whole lower face
     mask &= ~hard
@@ -616,10 +731,16 @@ def composite_edit(rgb: np.ndarray, edited: np.ndarray, face: Any, seg: np.ndarr
         if region == "hair":
             skin = (seg == SEG_FACE_SKIN) & (result_seg == SEG_FACE_SKIN) & ~_dilate(mask, pm["color_band_px"])
             skin &= window & (core | edge)
+            # The offset is measured on skin: it must not tint the wall a shorter cut reveals (live Qwen: +7 R /
+            # −7 B on a neutral wall). The model's own wall already matched the original to ~1 level.
+            apply = window & (result_seg != SEG_BACKGROUND)
         else:
             band = _dilate(mask, pm["color_band_px"]) & ~mask & window
             skin = (seg == SEG_FACE_SKIN) & band
-        edited = lab_transfer(edited, rgb, skin, mask)
+            apply = mask
+        edited = lab_transfer(edited, rgb, skin, apply)
+    if region == "hair":
+        mask |= shadow_halo(face, rgb, edited, seg, result_seg, mask, window, pm) & ~hard
     # Poisson cloning can import the original hair's colour into a recolour and wash out thin strands.
     if region != "hair" and pm.get("composite_mode", "feather") == "seamless" and mask.any():
         ys, xs = np.where(mask)
@@ -635,6 +756,9 @@ def composite_edit(rgb: np.ndarray, edited: np.ndarray, face: Any, seg: np.ndarr
         # Fade at internal crop boundaries too; otherwise a crop that meets a mask produces a rectangular seam.
         distance = cv2.distanceTransform(window.astype(np.uint8), cv2.DIST_L2, cv2.DIST_MASK_PRECISE)
         alpha *= np.clip(distance / max(1, pm["feather_px"]), 0, 1) * window
+        if stray.any():     # a feather as wide as a strand would leave most of the old strand visible
+            alpha = np.maximum(alpha, cv2.GaussianBlur(stray.astype(np.float32), (0, 0), 1.0) * window)
+            alpha[hard] = 0
         out = (rgb.astype(np.float32) * (1 - alpha[..., None]) + edited.astype(np.float32) * alpha[..., None])
         out = out.round().astype(np.uint8)
     out[hard] = rgb[hard]                # the identity guarantee does not depend on float rounding
