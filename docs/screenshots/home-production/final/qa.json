@@ -1,0 +1,578 @@
+[
+  {
+    "width": 1440,
+    "height": 900,
+    "overflow": 0,
+    "clippedText": [],
+    "sticky": {
+      "x": 72,
+      "y": 213.9375,
+      "w": 604.796875,
+      "h": 725.984375,
+      "b": 939.921875
+    },
+    "drift": [
+      {
+        "section": "hero",
+        "view": "front",
+        "dx": 0,
+        "dy": 0
+      },
+      {
+        "section": "hero",
+        "view": "profile",
+        "dx": 0,
+        "dy": 0
+      },
+      {
+        "section": "reading",
+        "dx": 0,
+        "dy": 0
+      },
+      {
+        "section": "choices",
+        "dx": 0,
+        "dy": 0
+      }
+    ],
+    "images": [
+      {
+        "src": "/sample/demo/person-002/front.jpg",
+        "loading": "auto",
+        "priority": "high",
+        "loaded": true
+      },
+      {
+        "src": "/sample/demo/person-002/profile90.jpg",
+        "loading": "auto",
+        "priority": "low",
+        "loaded": true
+      },
+      {
+        "src": "/sample/demo/person-002/front.jpg",
+        "loading": "lazy",
+        "priority": "auto",
+        "loaded": true
+      },
+      {
+        "src": "/sample/demo/person-001/front.jpg",
+        "loading": "lazy",
+        "priority": "auto",
+        "loaded": true
+      }
+    ],
+    "errors": []
+  },
+  {
+    "width": 1101,
+    "height": 900,
+    "overflow": 0,
+    "clippedText": [],
+    "sticky": {
+      "x": 72,
+      "y": 280.5625,
+      "w": 445.46875,
+      "h": 548.953125,
+      "b": 829.515625
+    },
+    "drift": [
+      {
+        "section": "hero",
+        "view": "front",
+        "dx": 0,
+        "dy": 0
+      },
+      {
+        "section": "hero",
+        "view": "profile",
+        "dx": 0,
+        "dy": 0
+      },
+      {
+        "section": "reading",
+        "dx": 0,
+        "dy": 0
+      },
+      {
+        "section": "choices",
+        "dx": 0,
+        "dy": 0
+      }
+    ],
+    "images": [
+      {
+        "src": "/sample/demo/person-002/front.jpg",
+        "loading": "auto",
+        "priority": "high",
+        "loaded": true
+      },
+      {
+        "src": "/sample/demo/person-002/profile90.jpg",
+        "loading": "auto",
+        "priority": "low",
+        "loaded": true
+      },
+      {
+        "src": "/sample/demo/person-002/front.jpg",
+        "loading": "lazy",
+        "priority": "auto",
+        "loaded": true
+      },
+      {
+        "src": "/sample/demo/person-001/front.jpg",
+        "loading": "lazy",
+        "priority": "auto",
+        "loaded": true
+      }
+    ],
+    "errors": []
+  },
+  {
+    "width": 1100,
+    "height": 900,
+    "overflow": 0,
+    "clippedText": [],
+    "sticky": {
+      "x": 48,
+      "y": 264.1875,
+      "w": 486,
+      "h": 594,
+      "b": 858.1875
+    },
+    "drift": [
+      {
+        "section": "hero",
+        "view": "front",
+        "dx": 0,
+        "dy": 0
+      },
+      {
+        "section": "hero",
+        "view": "profile",
+        "dx": 0,
+        "dy": 0
+      },
+      {
+        "section": "reading",
+        "dx": 0,
+        "dy": 0
+      },
+      {
+        "section": "choices",
+        "dx": 0,
+        "dy": 0
+      }
+    ],
+    "images": [
+      {
+        "src": "/sample/demo/person-002/front.jpg",
+        "loading": "auto",
+        "priority": "high",
+        "loaded": true
+      },
+      {
+        "src": "/sample/demo/person-002/profile90.jpg",
+        "loading": "auto",
+        "priority": "low",
+        "loaded": true
+      },
+      {
+        "src": "/sample/demo/person-002/front.jpg",
+        "loading": "lazy",
+        "priority": "auto",
+        "loaded": true
+      },
+      {
+        "src": "/sample/demo/person-001/front.jpg",
+        "loading": "lazy",
+        "priority": "auto",
+        "loaded": true
+      }
+    ],
+    "errors": []
+  },
+  {
+    "width": 1024,
+    "height": 768,
+    "overflow": 0,
+    "clippedText": [],
+    "sticky": {
+      "x": 48,
+      "y": 210.9375,
+      "w": 448,
+      "h": 551.765625,
+      "b": 762.703125
+    },
+    "drift": [
+      {
+        "section": "hero",
+        "view": "front",
+        "dx": 0,
+        "dy": 0
+      },
+      {
+        "section": "hero",
+        "view": "profile",
+        "dx": 0,
+        "dy": 0
+      },
+      {
+        "section": "reading",
+        "dx": 0,
+        "dy": 0
+      },
+      {
+        "section": "choices",
+        "dx": 0,
+        "dy": 0
+      }
+    ],
+    "images": [
+      {
+        "src": "/sample/demo/person-002/front.jpg",
+        "loading": "auto",
+        "priority": "high",
+        "loaded": true
+      },
+      {
+        "src": "/sample/demo/person-002/profile90.jpg",
+        "loading": "auto",
+        "priority": "low",
+        "loaded": true
+      },
+      {
+        "src": "/sample/demo/person-002/front.jpg",
+        "loading": "lazy",
+        "priority": "auto",
+        "loaded": true
+      },
+      {
+        "src": "/sample/demo/person-001/front.jpg",
+        "loading": "lazy",
+        "priority": "auto",
+        "loaded": true
+      }
+    ],
+    "errors": []
+  },
+  {
+    "width": 800,
+    "height": 1000,
+    "overflow": 0,
+    "clippedText": [],
+    "sticky": {
+      "x": 48,
+      "y": 306.09375,
+      "w": 336,
+      "h": 427.328125,
+      "b": 733.421875
+    },
+    "drift": [
+      {
+        "section": "hero",
+        "view": "front",
+        "dx": 0,
+        "dy": 0
+      },
+      {
+        "section": "hero",
+        "view": "profile",
+        "dx": 0,
+        "dy": 0
+      },
+      {
+        "section": "reading",
+        "dx": 0,
+        "dy": 0
+      },
+      {
+        "section": "choices",
+        "dx": 0,
+        "dy": 0
+      }
+    ],
+    "images": [
+      {
+        "src": "/sample/demo/person-002/front.jpg",
+        "loading": "auto",
+        "priority": "high",
+        "loaded": true
+      },
+      {
+        "src": "/sample/demo/person-002/profile90.jpg",
+        "loading": "auto",
+        "priority": "low",
+        "loaded": true
+      },
+      {
+        "src": "/sample/demo/person-002/front.jpg",
+        "loading": "lazy",
+        "priority": "auto",
+        "loaded": true
+      },
+      {
+        "src": "/sample/demo/person-001/front.jpg",
+        "loading": "lazy",
+        "priority": "auto",
+        "loaded": true
+      }
+    ],
+    "errors": []
+  },
+  {
+    "width": 761,
+    "height": 900,
+    "overflow": 0,
+    "clippedText": [],
+    "sticky": {
+      "x": 48,
+      "y": 256.09375,
+      "w": 316.5,
+      "h": 405.65625,
+      "b": 661.75
+    },
+    "drift": [
+      {
+        "section": "hero",
+        "view": "front",
+        "dx": 0,
+        "dy": 0
+      },
+      {
+        "section": "hero",
+        "view": "profile",
+        "dx": 0,
+        "dy": 0
+      },
+      {
+        "section": "reading",
+        "dx": 0,
+        "dy": 0
+      },
+      {
+        "section": "choices",
+        "dx": 0,
+        "dy": 0
+      }
+    ],
+    "images": [
+      {
+        "src": "/sample/demo/person-002/front.jpg",
+        "loading": "auto",
+        "priority": "high",
+        "loaded": true
+      },
+      {
+        "src": "/sample/demo/person-002/profile90.jpg",
+        "loading": "auto",
+        "priority": "low",
+        "loaded": true
+      },
+      {
+        "src": "/sample/demo/person-002/front.jpg",
+        "loading": "lazy",
+        "priority": "auto",
+        "loaded": true
+      },
+      {
+        "src": "/sample/demo/person-001/front.jpg",
+        "loading": "lazy",
+        "priority": "auto",
+        "loaded": true
+      }
+    ],
+    "errors": []
+  },
+  {
+    "width": 760,
+    "height": 900,
+    "overflow": 0,
+    "clippedText": [],
+    "sticky": {
+      "x": 20,
+      "y": 70.828125,
+      "w": 720,
+      "h": 328,
+      "b": 398.828125
+    },
+    "drift": [
+      {
+        "section": "hero",
+        "view": "front",
+        "dx": 0,
+        "dy": 0
+      },
+      {
+        "section": "hero",
+        "view": "profile",
+        "dx": 0,
+        "dy": 0
+      },
+      {
+        "section": "reading",
+        "dx": 0,
+        "dy": 0
+      },
+      {
+        "section": "choices",
+        "dx": 0,
+        "dy": 0
+      }
+    ],
+    "images": [
+      {
+        "src": "/sample/demo/person-002/front.jpg",
+        "loading": "auto",
+        "priority": "high",
+        "loaded": true
+      },
+      {
+        "src": "/sample/demo/person-002/profile90.jpg",
+        "loading": "auto",
+        "priority": "low",
+        "loaded": true
+      },
+      {
+        "src": "/sample/demo/person-002/front.jpg",
+        "loading": "lazy",
+        "priority": "auto",
+        "loaded": true
+      },
+      {
+        "src": "/sample/demo/person-001/front.jpg",
+        "loading": "lazy",
+        "priority": "auto",
+        "loaded": true
+      }
+    ],
+    "errors": []
+  },
+  {
+    "width": 390,
+    "height": 844,
+    "overflow": 0,
+    "clippedText": [],
+    "sticky": {
+      "x": 20,
+      "y": 71.359375,
+      "w": 350,
+      "h": 318.078125,
+      "b": 389.4375
+    },
+    "drift": [
+      {
+        "section": "hero",
+        "view": "front",
+        "dx": 0,
+        "dy": 0
+      },
+      {
+        "section": "hero",
+        "view": "profile",
+        "dx": 0,
+        "dy": 0
+      },
+      {
+        "section": "reading",
+        "dx": 0,
+        "dy": 0
+      },
+      {
+        "section": "choices",
+        "dx": 0,
+        "dy": 0
+      }
+    ],
+    "images": [
+      {
+        "src": "/sample/demo/person-002/front.jpg",
+        "loading": "auto",
+        "priority": "high",
+        "loaded": true
+      },
+      {
+        "src": "/sample/demo/person-002/profile90.jpg",
+        "loading": "auto",
+        "priority": "low",
+        "loaded": true
+      },
+      {
+        "src": "/sample/demo/person-002/front.jpg",
+        "loading": "lazy",
+        "priority": "auto",
+        "loaded": true
+      },
+      {
+        "src": "/sample/demo/person-001/front.jpg",
+        "loading": "lazy",
+        "priority": "auto",
+        "loaded": true
+      }
+    ],
+    "errors": []
+  },
+  {
+    "width": 320,
+    "height": 568,
+    "overflow": 0,
+    "clippedText": [],
+    "sticky": {
+      "x": 20,
+      "y": 70.53125,
+      "w": 280,
+      "h": 229.75,
+      "b": 300.28125
+    },
+    "drift": [
+      {
+        "section": "hero",
+        "view": "front",
+        "dx": 0,
+        "dy": 0
+      },
+      {
+        "section": "hero",
+        "view": "profile",
+        "dx": 0,
+        "dy": 0
+      },
+      {
+        "section": "reading",
+        "dx": 0,
+        "dy": 0
+      },
+      {
+        "section": "choices",
+        "dx": 0,
+        "dy": 0
+      }
+    ],
+    "images": [
+      {
+        "src": "/sample/demo/person-002/front.jpg",
+        "loading": "auto",
+        "priority": "high",
+        "loaded": true
+      },
+      {
+        "src": "/sample/demo/person-002/profile90.jpg",
+        "loading": "auto",
+        "priority": "low",
+        "loaded": true
+      },
+      {
+        "src": "/sample/demo/person-002/front.jpg",
+        "loading": "lazy",
+        "priority": "auto",
+        "loaded": true
+      },
+      {
+        "src": "/sample/demo/person-001/front.jpg",
+        "loading": "lazy",
+        "priority": "auto",
+        "loaded": true
+      }
+    ],
+    "errors": []
+  }
+]

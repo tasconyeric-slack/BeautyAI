@@ -6,7 +6,7 @@ import { beforeAll, beforeEach, describe, expect, it, vi } from "vitest";
 const track = vi.fn((..._args: unknown[]) => Promise.resolve());
 const flagState = { useFixture: true };
 
-vi.mock("@/lib/api", () => ({ api: { track: (...args: unknown[]) => track(...args) } }));
+vi.mock("@/lib/landing-event", () => ({ trackLandingView: (...args: unknown[]) => track(...args) }));
 vi.mock("@/lib/flags", async (orig) => {
   const real = await orig<typeof import("@/lib/flags")>();
   return { ...real, flags: new Proxy({}, { get: (_t, k: string) => flagState[k as keyof typeof flagState] }) };
@@ -59,7 +59,7 @@ describe("Landing", () => {
 
   it("tracks landing_view with topic and ref", () => {
     render(<Landing topic="style" refCode="dy7" />);
-    expect(track).toHaveBeenCalledWith("landing_view", { topic: "style", ref: "dy7" });
+    expect(track).toHaveBeenCalledWith("style", "dy7");
   });
 
   it("shows the sample passport's computed score with four parts, strengths and a direction — no teaser", () => {

@@ -1,0 +1,122 @@
+[
+  {
+    "file": "person-001-frontal.webp",
+    "size": [
+      960,
+      1200
+    ],
+    "mode": "RGB",
+    "sha256": "10c57a6c7e51adc7300034e28891720f1f218e1cebea1cbc1c74224e157176c9",
+    "bytes": 73734
+  },
+  {
+    "file": "person-001-profile.webp",
+    "size": [
+      960,
+      1200
+    ],
+    "mode": "RGB",
+    "sha256": "6846be8c4aa5e65f2c6193a4a622f31bad227293e69f701cbd90b33b113318e5",
+    "bytes": 76196
+  },
+  {
+    "file": "person-002-frontal.webp",
+    "size": [
+      960,
+      1200
+    ],
+    "mode": "RGB",
+    "sha256": "7c2292e5130ef01aaea1b0c0f7b4ce9b2bae757b11c95b5316374a782ce27122",
+    "bytes": 80526
+  },
+  {
+    "file": "person-002-profile.webp",
+    "size": [
+      960,
+      1200
+    ],
+    "mode": "RGB",
+    "sha256": "7a9db84144fe08bdb94aa39f435229ea0da6628004b831f79ae5734702e4b8ab",
+    "bytes": 68144
+  },
+  {
+    "file": "person-003-frontal.webp",
+    "size": [
+      960,
+      1200
+    ],
+    "mode": "RGB",
+    "sha256": "33a62e8256147fa2b55179617c3fa3087e80cbbd433494225b7e8b75418f0666",
+    "bytes": 103690
+  },
+  {
+    "file": "person-003-profile.webp",
+    "size": [
+      960,
+      1200
+    ],
+    "mode": "RGB",
+    "sha256": "3a7c1a96f54572c9235f9a60a61a5bc037a69263928e37b9808faf8dd3ff9567",
+    "bytes": 87466
+  },
+  {
+    "file": "person-004-frontal.webp",
+    "size": [
+      960,
+      1200
+    ],
+    "mode": "RGB",
+    "sha256": "dd99acbc9982ad03949ee2a677d2286810688d601b1d2e2fe5074a301be930c8",
+    "bytes": 124068
+  },
+  {
+    "file": "person-004-profile.webp",
+    "size": [
+      960,
+      1200
+    ],
+    "mode": "RGB",
+    "sha256": "cabd3e2163b43faf383277463549183550386ce7892e754c1a0bfec3cfcbabba",
+    "bytes": 92978
+  },
+  {
+    "file": "person-005-frontal.webp",
+    "size": [
+      960,
+      1200
+    ],
+    "mode": "RGB",
+    "sha256": "ba23a3d0fed3b27b372768324cf9b00dce5facb3f59f997e0497560363f61445",
+    "bytes": 123908
+  },
+  {
+    "file": "person-005-profile.webp",
+    "size": [
+      960,
+      1200
+    ],
+    "mode": "RGB",
+    "sha256": "8a7f26f0d145064964502a0e3cdd16794ab796e26bd54791d398c52f4a98ae87",
+    "bytes": 96076
+  },
+  {
+    "file": "person-006-frontal.webp",
+    "size": [
+      960,
+      1200
+    ],
+    "mode": "RGB",
+    "sha256": "1b0b0e2377344d262d631c2ff79ef0325faae25c5a7585d459c829744b3593ab",
+    "bytes": 144140
+  },
+  {
+    "file": "person-006-profile.webp",
+    "size": [
+      960,
+      1200
+    ],
+    "mode": "RGB",
+    "sha256": "b8b1d575da4f09e4d9fc684b0cd8f0447a702cc2702e178df1a51d870ac308be",
+    "bytes": 123774
+  }
+]
