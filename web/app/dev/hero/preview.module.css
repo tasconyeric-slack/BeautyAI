@@ -1,0 +1,93 @@
+/* Only this development route replaces the inherited product shell. No shared layout edits. */
+:global(body):has(.preview) > :global(header), :global(body):has(.preview) > :global(footer) { display: none; }
+:global(body):has(.preview) > :global(nextjs-portal) { display: none; }
+.preview { background: var(--ap-reading); color: var(--ap-ink); font-family: var(--ap-font-body); min-height: 100svh; }
+.preview * { box-sizing: border-box; }
+.preview :is(h1,p,figure,blockquote) { margin: 0; }
+.header { height: 76px; display: flex; align-items: center; justify-content: space-between; padding: 0 44px; border-bottom: 1px solid var(--ap-rule); }
+.brand { display: flex; align-items: baseline; gap: 18px; font: 500 27px/1 var(--font-inter), sans-serif; letter-spacing: -1.5px; }
+.brand span { font: 11px var(--ap-font-body); color: var(--ap-muted); letter-spacing: .16em; }
+.header nav { display: flex; gap: 36px; font-size: 12px; }
+.header nav a { display: flex; gap: 12px; align-items: center; min-height: 44px; }
+.header nav a:last-child { border-bottom: 1px solid var(--ap-ink-soft); }
+.hero { display: grid; grid-template-columns: 30% 40% 30%; min-height: max(680px, calc(100svh - 136px)); }
+.intro, .insight { padding: 50px 44px; display: flex; flex-direction: column; justify-content: center; min-width: 0; }
+.eyebrow { color: var(--ap-muted); font-size: 10px; letter-spacing: .17em; line-height: 1.6; }
+.intro h1 { font-family: var(--ap-font-display); font-size: clamp(40px, 4.05vw, 64px); font-weight: 500; line-height: 1.45; letter-spacing: -.035em; margin: 30px 0 26px; white-space: nowrap; }
+.lead { font-size: 14px; line-height: 2; color: var(--ap-ink-soft); }
+.desktopActions { display: flex; flex-direction: column; align-items: flex-start; gap: 23px; margin-top: 38px; }
+.start { background: var(--ap-primary); color: var(--ap-on-primary); display: inline-flex; align-items: center; justify-content: space-between; gap: 48px; min-height: 52px; padding: 0 22px; font-size: 14px; border-radius: var(--ap-radius-sm); transition: background 180ms; }
+.start:hover { background: var(--ap-ink); }
+.textLink { display: inline-flex; align-items: center; gap: 14px; font-size: 12px; min-height: 44px; width: fit-content; }
+.textLink:hover { text-decoration: underline; text-underline-offset: 5px; }
+.introNote { color: var(--ap-muted); font-size: 11px; margin-top: 46px !important; }
+.figure { position: relative; display: flex; flex-direction: column; min-width: 0; }
+.photo { flex: 1; min-height: 0; position: relative; overflow: hidden; background: var(--ap-surface-muted); }
+.photo > img, .overlay { position: absolute; display: block; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: 50% 50%; }
+.overlay { pointer-events: none; opacity: 1; transition: opacity 220ms ease; }
+.overlay[data-hidden="true"] { opacity: 0; }
+.geometry { fill: none; stroke: #fafaf7; stroke-width: 1.2px; filter: drop-shadow(0 1px 1px #16181a40); }
+.geometry :is(line,path) { vector-effect: non-scaling-stroke; }
+.geometry .contour { stroke-opacity: .75; stroke-width: 1px; }
+.svgLabel { fill: #fafaf7; font: 20px var(--ap-font-body); paint-order: stroke; stroke: #16181a50; stroke-width: 2px; }
+.photoIndex { position: absolute; top: 22px; left: 22px; color: #fafaf7; font: 9px var(--ap-font-number); letter-spacing: .12em; text-shadow: 0 1px 2px #16181a90; }
+.caption { display: flex; align-items: center; justify-content: space-between; padding: 0 18px; min-height: 56px; background: var(--ap-surface-muted); color: var(--ap-ink-soft); gap: 12px; font-size: 10px; }
+.caption :global(.ap-hold-btn) { padding: 0; border: 0; background: transparent; min-height: 44px; font: 10px var(--ap-font-body); text-underline-offset: 4px; text-decoration: underline; }
+.insight { padding-left: 48px; padding-right: 46px; }
+.metricBlock { margin-top: 42px; }
+.metricName { color: var(--ap-ink-soft); font-size: 12px; letter-spacing: .04em; }
+.number { font: 400 92px/1.3 var(--font-inter), sans-serif; letter-spacing: -.065em; font-variant-numeric: tabular-nums; }
+.number span { font: 11px var(--ap-font-number); letter-spacing: 0; color: var(--ap-muted); margin-left: 14px; }
+.seen { font-size: 12px; color: var(--ap-ink-soft); }
+.meaning { font-size: 13px; line-height: 1.95; color: var(--ap-muted); margin-top: 20px !important; }
+.advice { border-top: 1px solid var(--ap-rule-strong); padding-top: 22px; margin-top: 28px; }
+.advice > p { font-size: 10px; letter-spacing: .12em; color: var(--ap-muted); }
+.advice blockquote { font-family: var(--ap-font-display); font-weight: 500; font-size: 18px; line-height: 1.9; margin-top: 12px; }
+.insight > .textLink { margin-top: 20px; }
+.caveat { color: var(--ap-muted); font-size: 10px; margin-top: 25px !important; }
+.footer { height: 60px; border-top: 1px solid var(--ap-rule); padding: 0 44px; display: flex; justify-content: space-between; align-items: center; color: var(--ap-muted); font-size: 11px; letter-spacing: .1em; }
+.footer > span:last-child { font: 9px var(--ap-font-number); letter-spacing: .16em; }
+.mobileActions { display: none; }
+@media (min-width: 1800px) { .intro, .insight { padding-inline: 64px; } }
+@media (min-width: 701px) and (max-width: 1100px) {
+  .intro, .insight { padding-inline: 24px; }
+  .intro h1 { font-size: 36px; }
+  .header { padding-inline: 24px; }
+  .lead { font-size: 12px; }
+  .number { font-size: 72px; }
+  .advice blockquote { font-size: 16px; }
+}
+@media (max-width: 700px) {
+  .header { height: 58px; padding: 0 20px; }
+  .brand { font-size: 24px; letter-spacing: -1px; }
+  .brand span, .header nav .desktopNav { display: none; }
+  .header nav { font-size: 11px; }
+  .header nav a:last-child { border: none; }
+  .hero { display: flex; flex-direction: column; min-height: 0; }
+  .intro { padding: 22px 20px 23px; }
+  .intro > .eyebrow { display: none; }
+  .intro h1 { font-size: 34px; line-height: 1.45; letter-spacing: -.025em; margin: 0; }
+  .lead { font-size: 12px; line-height: 1.9; margin-top: 14px !important; }
+  .desktopActions, .introNote { display: none; }
+  .figure { margin: 0 20px !important; }
+  .photo { flex: auto; height: 306px; }
+  .photoIndex { top: 12px; left: 12px; font-size: 8px; }
+  .caption { min-height: 44px; padding: 0 10px; font-size: 10px; }
+  .caption :global(.ap-hold-btn) { min-height: 44px; padding-inline: 3px; font-size: 10px; }
+  .svgLabel { font-size: 32px; }
+  .insight { display: block; padding: 16px 20px 0; }
+  .insight > .eyebrow, .seen, .meaning, .insight > .textLink, .caveat { display: none; }
+  .metricBlock { display: flex; align-items: baseline; justify-content: space-between; margin: 0; }
+  .metricName { font-size: 11px; }
+  .number { font-size: 28px; line-height: 1.2; letter-spacing: -.04em; }
+  .number span { font-size: 10px; margin-left: 8px; }
+  .advice { border: 0; padding: 0; margin: 6px 0 0; }
+  .advice > p { display: none; }
+  .advice blockquote { margin: 0; font-family: var(--ap-font-body); font-weight: 400; font-size: 12px; line-height: 1.9; color: var(--ap-ink-soft); }
+  .mobileActions { display: flex; flex-direction: column; padding: 18px 20px 14px; }
+  .mobileActions .start { min-height: 48px; width: 100%; }
+  .mobileActions > span { text-align: center; font-size: 9px; color: var(--ap-muted); margin-top: 9px; }
+  .footer { height: 44px; padding: 0 20px; font-size: 10px; }
+  .footer > span:last-child { display: none; }
+}
+@media (prefers-reduced-motion: reduce) { .overlay, .start { transition: none; } }
