@@ -61,9 +61,9 @@ export function Hero({ v }: { v: HeroView }) {
           <span className={s.brandSub}>形象护照</span>
         </Link>
         <div className={s.navLinks}>
-          <Link href={v.reportHref} className={s.navLink}>示例报告</Link>
+          <Link prefetch={false} href={v.reportHref} className={s.navLink}>示例报告</Link>
           <Link href="/about" className={s.navLink}>照片与数据</Link>
-          <Link href="/start" className={s.navCta}>开始分析</Link>
+          <Link prefetch={false} href="/start" className={s.navCta}>开始分析</Link>
         </div>
       </nav>
 
@@ -80,11 +80,11 @@ export function Hero({ v }: { v: HeroView }) {
           一张正脸照，读出轮廓、比例与五官间距。每一项观察都附上解读，并落到发型、眉形、眼镜与妆容的具体选择上。
         </p>
         <div className={s.ctaRow}>
-          <Link href="/start" className={s.cta}>
+          <Link prefetch={false} href="/start" className={s.cta}>
             上传正脸，开始分析
             <svg viewBox="0 0 16 16" aria-hidden className={s.ctaArrow}><path d="M3 8h10M9 4l4 4-4 4" /></svg>
           </Link>
-          <Link href={v.reportHref} className={s.ctaGhost}>先看一份示例报告</Link>
+          <Link prefetch={false} href={v.reportHref} className={s.ctaGhost}>先看一份示例报告</Link>
         </div>
       </div>
 

@@ -1,0 +1,22 @@
+{
+  "drift": [
+    {
+      "id": "hero",
+      "dx": 0,
+      "dy": 0
+    },
+    {
+      "id": "reading",
+      "dx": 0,
+      "dy": 0
+    },
+    {
+      "id": "choices",
+      "dx": 0,
+      "dy": 0
+    }
+  ],
+  "initialClientScriptBytes": 655203,
+  "fullFixturesInInitialClientChunks": false,
+  "errors": []
+}

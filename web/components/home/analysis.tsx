@@ -1,18 +1,17 @@
 "use client";
 import Link from "next/link";
 import { useId, useMemo, useState } from "react";
-import type { DemoCase } from "@/lib/fixtures/demo_cases";
-import { camera, chapters as buildChapters } from "./model";
+import { camera, focusBox, type Chapter, type Plate } from "./model";
 import { MetricLines } from "./overlay";
 import { useSize } from "./use-size";
 import s from "./home.module.css";
 
-/** One face, read four ways. The portrait "camera" frames whatever feature the open chapter measures; the chapter
+/** One face, three practical decisions. The portrait "camera" frames whatever feature the open chapter measures; the chapter
  *  discloses observation → interpretation → guidance, all verbatim from the same sample report. */
-export function Analysis({ c, reportHref }: { c: DemoCase; reportHref: string }) {
+export function Analysis({ plate, chapters, reportHref }: { plate: Plate; chapters: Chapter[]; reportHref: string }) {
   const [frameRef, box] = useSize<HTMLDivElement>();
   const aspect = box.w && box.h ? box.w / box.h : 0.82;
-  const list = useMemo(() => buildChapters(c, aspect), [c, aspect]);
+  const list = useMemo(() => chapters.map((ch) => ({ ...ch, focus: focusBox(ch.overlay, aspect) })), [chapters, aspect]);
   const [active, setActive] = useState(0);
   const [marks, setMarks] = useState(true);
   const uid = useId();
@@ -46,7 +45,7 @@ export function Analysis({ c, reportHref }: { c: DemoCase; reportHref: string })
           <div className={s.frame} ref={frameRef} data-ready={ready || undefined}>
             <div className={s.cam} style={{ width: W, height: H, transform: `translate(${cam.tx}px, ${cam.ty}px) scale(${cam.s})` }}>
               {/* overlay shares this exact intrinsic box */}
-              <img src={c.photos.front} width={W} height={H} alt="示例人物正脸照片，叠加了当前测量项的标注线" className={s.camImg} />
+              <img src={plate.src} width={W} height={H} alt="AI 合成示例人物正脸，当前测量项的标注与照片对齐" className={s.camImg} />
               <svg viewBox={`0 0 ${W} ${H}`} className={s.camSvg} data-marks={marks || undefined} aria-hidden>
                 <MetricLines key={ch.metricId} ov={ch.overlay} unit={cam.s} />
               </svg>
@@ -100,16 +99,21 @@ export function Analysis({ c, reportHref }: { c: DemoCase; reportHref: string })
                         <span className={s.tierLabel}>解读</span>
                         <p className={s.tierText}>{x.means}</p>
                       </li>
-                      {x.advice.length > 0 && (
+                      {x.action && (
                         <li className={`${s.tier} ${s.tierAdvice}`}>
                           <span className={s.tierLabel}>建议</span>
                           <ul className={s.adviceList}>
+                            <li>{x.action}</li>
                             {x.advice.map((a) => (
                               <li key={a.area + a.text}><span className={s.adviceArea}>{a.area}</span>{a.text}</li>
                             ))}
                           </ul>
                         </li>
                       )}
+                      {x.swatches && <li className={s.palette} aria-label="报告推荐近脸色">
+                        {x.swatches.map((color) => <span key={color.name}><i style={{ background: color.hex }} />{color.name}</span>)}
+                      </li>}
+                      {x.note && <li className={s.tierMeta}>{x.note}</li>}
                     </ol>
                   </div>
                 </div>
@@ -121,7 +125,7 @@ export function Analysis({ c, reportHref }: { c: DemoCase; reportHref: string })
 
       <footer className={s.readingFoot}>
         <p>示例人物由 AI 合成，并非真实个人。比例是线索，不是审美标准；同一张照片的光线和角度也会影响读数。</p>
-        <Link href={reportHref} className={s.footLink}>打开这份完整示例报告 <span aria-hidden>→</span></Link>
+        <Link prefetch={false} href={reportHref} className={s.footLink}>打开这份完整示例报告 <span aria-hidden>→</span></Link>
       </footer>
     </section>
   );

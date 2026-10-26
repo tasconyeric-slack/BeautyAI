@@ -1,7 +1,9 @@
-# Homepage art direction — Hero + facial-analysis section (preview)
+# Homepage art direction — approved baseline
 
-Dev-only route **`/dev/home`** (404 in production). Run `cd web && NEXT_PUBLIC_USE_FIXTURE=1 npm run dev`.
-Does not touch the production homepage, shared layout, tokens or report code. Separate from draft
+**Productized in draft PR #32:** `/` now uses these approved components plus the Person-001 decision section. See [productization notes](home-productization.md) and [screenshots](../screenshots/home-production/README.md). The notes below record the original approved baseline.
+
+Development route **`/dev/home`** (404 in production). Run `cd web && NEXT_PUBLIC_USE_FIXTURE=1 npm run dev`.
+The original proof of concept did not touch the production homepage, shared layout, tokens or report code. Separate from draft
 [tasconyeric-slack/BeautyAI#31](https://github.com/tasconyeric-slack/BeautyAI/pull/31) (`/dev/hero`), which it supersedes as a direction.
 The PR #68 named in the brief lives in the sibling `Stopped-Face-Assess` repo, outside this repo; nothing here imports
 from or overlaps with it.

@@ -1,4 +1,4 @@
-/** Homepage art-direction preview: sample report → view data. Pure, no React.
+/** Homepage: sample report → view data. Pure, no React.
  *
  *  Every number, landmark and sentence comes from one pipeline-backed sample (passport + geometry of the same
  *  person). Nothing is computed in the browser except layout: which chapter to show and where to point the camera.
@@ -42,18 +42,20 @@ export interface Chapter {
   means: string;
   confidence: string | null;
   advice: Advice[];
+  /** The same report's model recommendation, separate from the rules-layer advice. */
+  action: string;
+  note?: string;
+  swatches?: { name: string; hex: string }[];
   overlay: MetricOverlay;
   /** Normalized box the camera frames for this chapter. */
   focus: { x: number; y: number; w: number; h: number };
 }
 
-/** Chapters, in reading order: overall shape → vertical balance → eyes → lower face. One per styling area. */
-export const CHAPTER_PLAN: { metric: string; kicker: string }[] = [
-  { metric: "M001", kicker: "轮廓" },
-  { metric: "M017", kicker: "三庭" },
-  { metric: "M033", kicker: "眉眼" },
-  { metric: "M006", kicker: "下颌" },
-];
+/** Curated for Person-002's stated goals. The full report remains unchanged. */
+export const CHAPTER_PLAN = [
+  { metric: "M001", kicker: "眼镜", area: "glasses" },
+  { metric: "M017", kicker: "发型", area: "hair" },
+] as const;
 
 const CONFIDENCE: Record<string, string> = { high: "可信度高", medium: "可信度中", low: "可信度低" };
 
@@ -106,24 +108,62 @@ export function focusBox(ov: MetricOverlay, aspect: number, pad = 0.09): Chapter
   return { x: x0, y: y0, w: x1 - x0, h: y1 - y0 };
 }
 
+function finding(c: DemoCase, metric: string, kicker: string, area: string, aspect: number): Chapter | null {
+  if (!plateOf(c)) return null;
+  const m = metricById(c, metric);
+  const ins = c.passport.derived.measurement_insights?.items.find((i) => i.metric_id === metric);
+  if (!m || !ins || m.availability !== "measured" || m.value == null || m.source_photo !== "front") return null;
+  const advice = ins.advice.filter((a) => a.area === area);
+  const rec = c.passport.analysis.recommendations.find((r) => advice.some((a) => a.rec_id === r.id));
+  const overlay = metricOverlay(m, c.geometry);
+  if (!rec || !advice.length || !overlay || overlay.width !== c.geometry.width || overlay.height !== c.geometry.height) return null;
+  return {
+    metricId: metric, kicker, title: ins.label_zh, metricName: m.name_zh, value: display(m),
+    seen: ins.seen_zh, means: ins.means_zh, confidence: CONFIDENCE[ins.confidence] ?? null,
+    advice: advice.map((a) => ({ area: a.label_zh, text: a.text_zh })), action: rec.action,
+    overlay, focus: focusBox(overlay, aspect),
+  };
+}
+
 export function chapters(c: DemoCase, frameAspect: number): Chapter[] {
   if (!plateOf(c)) return [];
-  const items = c.passport.derived.measurement_insights?.items ?? [];
-  const out: Chapter[] = [];
-  for (const { metric, kicker } of CHAPTER_PLAN) {
-    const m = metricById(c, metric);
-    const ins = items.find((i) => i.metric_id === metric);
-    if (!m || !ins || m.availability !== "measured" || m.value == null) continue;
-    const overlay = metricOverlay(m, c.geometry);
-    if (!overlay || overlay.width !== c.geometry.width) continue;
-    out.push({
-      metricId: metric, kicker, title: ins.label_zh, metricName: m.name_zh, value: display(m),
-      seen: ins.seen_zh, means: ins.means_zh, confidence: CONFIDENCE[ins.confidence] ?? null,
-      advice: ins.advice.map((a) => ({ area: a.label_zh, text: a.text_zh })),
+  const out = CHAPTER_PLAN.flatMap(({ metric, kicker, area }) => {
+    const ch = finding(c, metric, kicker, area, frameAspect);
+    return ch ? [ch] : [];
+  });
+  // b* locates the photographed color samples; it does not determine the wardrobe palette.
+  // The interpretation, action and caveat below are the model report's own.
+  const m = metricById(c, "M139");
+  const rec = c.passport.analysis.recommendations.find((r) => r.category === "color_palette");
+  const profile = c.passport.analysis.color_profile;
+  const evidence = rec?.evidence.map((id) => c.passport.analysis.observations.find((o) => o.id === id));
+  const overlay = m?.source_photo === "front" ? metricOverlay(m, c.geometry) : null;
+  if (m && m.value != null && rec && evidence?.length && evidence.every(Boolean) && overlay && profile.lighting_caveat) {
+    const observations = evidence.filter((o) => o?.category === "color");
+    if (observations.length) out.push({
+      metricId: m.id, kicker: "配色", title: "近脸配色", metricName: m.name_zh, value: display(m),
+      seen: observations.map((o) => o!.text).join("；"), means: rec.why,
+      confidence: CONFIDENCE[m.confidence ?? ""] ?? null, advice: [], action: rec.action,
+      note: profile.lighting_caveat,
+      swatches: [...profile.favor_families, ...profile.neutral_families]
+        .filter((f) => ["深海军蓝", "炭灰", "米白", "驼色"].includes(f.name))
+        .map((f) => ({ name: f.name, hex: f.hex_examples[0] })),
       overlay, focus: focusBox(overlay, frameAspect),
     });
   }
   return out;
+}
+
+/** Person-001: only the relevant advice from each same-person insight. */
+export function decisions(c: DemoCase): Chapter[] {
+  return [
+    { metric: "M017", kicker: "发型", area: "hair" },
+    { metric: "M033", kicker: "眉形", area: "brows" },
+    { metric: "M001", kicker: "眼镜", area: "glasses" },
+  ].flatMap(({ metric, kicker, area }) => {
+    const ch = finding(c, metric, kicker, area, 0.85);
+    return ch ? [ch] : [];
+  });
 }
 
 /** Camera transform that fits `focus` inside a frame of fw × fh px showing a plate of pw × ph px (cover-fit at 1×).
