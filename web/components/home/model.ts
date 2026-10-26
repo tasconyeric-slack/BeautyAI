@@ -3,7 +3,7 @@
  *  Every number, landmark and sentence comes from one pipeline-backed sample (passport + geometry of the same
  *  person). Nothing is computed in the browser except layout: which chapter to show and where to point the camera.
  *  Anything missing (photo, geometry, metric, insight, overlay point) drops that piece instead of drawing a guess. */
-import { display, metricOverlay, type Metric, type MetricOverlay } from "@/components/face/measure-model";
+import { display, metricOverlay, viewGeometry, type Metric, type MetricOverlay } from "@/components/face/measure-model";
 import type { DemoCase } from "@/lib/fixtures/demo_cases";
 import type { Pt } from "@/lib/tint";
 
@@ -26,7 +26,33 @@ export interface HeroView {
   /** Outer eye corners, so the guide stops at the face instead of crossing it. */
   eyeOuter: Pt | null;
   reportHref: string;
+  /** The same person's accepted side photo with its own measurements; null drops the view switch entirely. */
+  profile: ProfileView | null;
 }
+
+/** A side-view measurement drawn on the profile photo, with the passport's own value. */
+export interface ProfileMark { id: string; name: string; value: string; overlay: MetricOverlay }
+
+export interface ProfileView {
+  plate: Plate;
+  /** CV facial-profile silhouette of the side photo (forehead → chin), drawn as one open line. */
+  silhouette: readonly Pt[];
+  marks: ProfileMark[];
+  /** Side metrics the pipeline measured on this photo. */
+  measured: number;
+  /** Display registration onto the front plate (layout only — nothing is computed from it).
+   *  `scale` = front px per profile px, from the nasion→subnasale height measured on each photo; `nasion` is the
+   *  profile nasion (pinned to the front nasion's screen height); `pivot` is the head's horizontal centre in the
+   *  profile frame, placed on the front face axis so the head turns in place. */
+  fit: { scale: number; nasion: Pt; frontNasion: Pt; pivot: number };
+}
+
+/** Hero side view: overall profile line first, then the nose–lip angle (both measured on profile90). */
+export const HERO_PROFILE = {
+  metrics: ["M131", "M117"],
+  /** Person-002's head in the published profile90 frame spans nose tip ≈0.19 → back of hair ≈0.87. Layout only. */
+  pivot: 0.53,
+} as const;
 
 export interface Advice { area: string; text: string }
 
@@ -87,6 +113,37 @@ export function heroView(c: DemoCase): HeroView | null {
     eyeLine: il && ir ? (il[1] + ir[1]) / 2 : null,
     eyeOuter: pts.eye_l_outer ?? null,
     reportHref: `/report/sample?v=${c.key}`,
+    profile: profileView(c),
+  };
+}
+
+/** Fails closed: QC-accepted side photo, published at exactly the size its landmarks were normalized to, and every
+ *  mark measured on that photo. Anything else → no side view (the hero stays the approved front composition). */
+export function profileView(c: DemoCase): ProfileView | null {
+  const img = c.provenance.published_images.profile90;
+  const src = c.photos.profile90;
+  const vg = viewGeometry(c.geometry, "profile90");
+  const fp = c.geometry.points;
+  if (!img || !src || !vg || !fp || !c.provenance.layers.cv.side_view.qc_accepted) return null;
+  if (img.width !== vg.width || img.height !== vg.height || !vg.silhouette?.length) return null;
+  const pn = vg.points.p_nasion, ps = vg.points.p_subnasale, fn = fp.nasion, fs = fp.subnasale;
+  if (!pn || !ps || !fn || !fs) return null;
+  const spanP = (ps[1] - pn[1]) * vg.height, spanF = (fs[1] - fn[1]) * c.geometry.height;
+  if (!(spanP > 0 && spanF > 0)) return null;
+  const marks: ProfileMark[] = [];
+  for (const id of HERO_PROFILE.metrics) {
+    const m = metricById(c, id);
+    if (!m || m.availability !== "measured" || m.value == null || m.source_photo !== "profile90" || m.view !== "side") return null;
+    const overlay = metricOverlay(m, c.geometry);
+    if (!overlay || overlay.width !== vg.width || overlay.height !== vg.height) return null;
+    marks.push({ id, name: m.name_zh, value: display(m), overlay });
+  }
+  const measured = (c.passport.measurement_profile?.metrics ?? [])
+    .filter((m) => m.view === "side" && m.availability === "measured").length;
+  return {
+    plate: { src, width: img.width, height: img.height },
+    silhouette: vg.silhouette, marks, measured,
+    fit: { scale: spanF / spanP, nasion: pn, frontNasion: fn, pivot: HERO_PROFILE.pivot },
   };
 }
 

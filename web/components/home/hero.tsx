@@ -1,59 +1,33 @@
 "use client";
 import Link from "next/link";
-import { useSize } from "./use-size";
-import { Bracket, smoothPath } from "./overlay";
+import { useRef } from "react";
+import { PortraitStage, ViewControls, profileVars, useSignature } from "./signature";
 import type { HeroView } from "./model";
 import s from "./home.module.css";
+import x from "./signature.module.css";
 
 /** Portrait-as-environment hero. The page field is the portrait's own backdrop tone; the plate has no frame.
- *  The headline sits on the subject's measured eye line, which continues across the page as a hairline. */
+ *  The headline sits on the subject's measured eye line, which continues across the page as a hairline.
+ *  Signature motion (signature.tsx): the same person's front and measured profile photos, each with its own landmarks. */
 export function Hero({ v }: { v: HeroView }) {
   const { plate } = v;
-  const [ref, box] = useSize<HTMLDivElement>();
-  const unit = box.h ? box.h / plate.height : 0.8;
+  const root = useRef<HTMLElement>(null);
+  const sig = useSignature(v.profile, root);
   const W = plate.width, H = plate.height;
   // Horizontal face axis: centre of the measured cheek width (falls back to the image centre).
   const axis = v.width ? (v.width.a[0] + v.width.b[0]) / 2 : 0.5;
-  const dim = v.width ? { x: Math.min(0.95, Math.max(v.width.a[0], v.width.b[0]) + 0.085) } : null;
   const vars = {
     "--aspect": `${W / H}`,
     "--axis": `${axis}`,
     "--eye": `${v.eyeLine ?? 0.4}`,
     "--eye-x": `${v.eyeOuter ? v.eyeOuter[0] : 0.37}`,
+    ...profileVars(v),
   } as React.CSSProperties;
 
   return (
-    <section className={s.hero} style={vars} aria-labelledby="home-title">
-      <div className={s.heroPlate} ref={ref} aria-hidden>
-        {/* exact intrinsic size; the overlay shares its box */}
-        <img src={plate.src} width={W} height={H} alt="" className={s.heroImg} fetchPriority="high" />
-        <svg viewBox={`0 0 ${W} ${H}`} className={s.heroSvg} preserveAspectRatio="none">
-          <path d={smoothPath(v.contour, W, H)} pathLength={1} className={`${s.lnContour} ${s.heroContour}`} />
-          {v.width && <Bracket a={v.width.a} b={v.width.b} W={W} H={H} unit={unit} className={s.heroWid} />}
-          {dim && v.length && (
-            // Face length drawn as an offset dimension line (same two heights, moved beside the face).
-            <g className={s.heroLen}>
-              <line x1={v.length.a[0] * W} y1={v.length.a[1] * H} x2={dim.x * W} y2={v.length.a[1] * H}
-                className={s.lnRef} strokeDasharray={`${3 / unit} ${5 / unit}`} />
-              <line x1={v.length.b[0] * W} y1={v.length.b[1] * H} x2={dim.x * W} y2={v.length.b[1] * H}
-                className={s.lnRef} strokeDasharray={`${3 / unit} ${5 / unit}`} />
-              <Bracket a={[dim.x, v.length.a[1]]} b={[dim.x, v.length.b[1]]} W={W} H={H} unit={unit} />
-            </g>
-          )}
-        </svg>
-        {dim && v.length && (
-          <span className={`${s.tag} ${s.heroTagLen}`}
-            style={{ left: `${dim.x * 100}%`, top: `${((v.length.a[1] + v.length.b[1]) / 2) * 100}%` }}>
-            面长
-          </span>
-        )}
-        {v.width && (
-          <span className={`${s.tag} ${s.heroTagWid}`}
-            style={{ left: `${Math.min(v.width.a[0], v.width.b[0]) * 100}%`, top: `${v.width.a[1] * 100}%` }}>
-            颧宽
-          </span>
-        )}
-      </div>
+    <section ref={root} className={`${s.hero} ${x.signature} ${sig.play === "paused" ? x.paused : ""}`} style={vars}
+      data-view={sig.view} aria-labelledby="home-title">
+      <PortraitStage v={v} view={sig.view} entry={sig.entry} onProfileLoad={sig.onProfileLoad} />
 
       <nav className={s.nav} aria-label="主导航">
         <Link href="/" className={s.brand}>
@@ -95,6 +69,11 @@ export function Hero({ v }: { v: HeroView }) {
         </a>
         <span className={s.heroNote}>只描述特点，不评判长相</span>
       </div>
+
+      {v.profile && (
+        <ViewControls p={v.profile} view={sig.view} play={sig.play} announce={sig.announce}
+          choose={sig.choose} toggle={sig.toggle} />
+      )}
     </section>
   );
 }

@@ -1,0 +1,243 @@
+/* Hero signature motion (Issue #35). Two original photo plates on one stage; each plate carries its own SVG
+   coordinate system and tags. Positions come from the hero's plate variables (home.module.css .hero) and, for the
+   profile, the registration variables set by profileVars(). */
+
+/* On the hero section: which profile pivot this layout uses (values set by profileVars()). */
+.signature { --pivot: var(--pivot-wide); }
+
+.stage {
+  /* One wipe: the clip edge, the scan hairline and the push share duration and easing so they stay locked. */
+  --wipe: 1.05s;
+  --wipe-ease: cubic-bezier(0.77, 0, 0.18, 1);
+  --push: 3%;
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+}
+
+.plate {
+  position: absolute;
+  overflow: hidden;
+  transition:
+    clip-path var(--wipe) var(--wipe-ease),
+    transform var(--wipe) var(--wipe-ease);
+}
+.front {
+  top: var(--pt);
+  left: var(--pl);
+  width: var(--pw);
+  height: var(--ph);
+  -webkit-mask-image: linear-gradient(to right, transparent 0, #000 24%, #000 84%, transparent 100%);
+  mask-image: linear-gradient(to right, transparent 0, #000 24%, #000 84%, transparent 100%);
+}
+.profile {
+  top: var(--pt2);
+  left: var(--pl2);
+  width: var(--pw2);
+  height: var(--ph2);
+  /* The face starts ~19% in, so the left feather is shorter than the front's; a top feather hides the frame edge. */
+  /* The turned head reaches higher on the right than the front portrait: soften its crown under the navigation
+     band (screen y 0 → 130 px) so the nav links stay legible. --pt2 is the plate's offset from the hero top. */
+  --crown: linear-gradient(to bottom, rgb(0 0 0 / 0.14) calc(-1 * var(--pt2) + 12px), #000 calc(-1 * var(--pt2) + 130px));
+  -webkit-mask-image:
+    linear-gradient(to right, transparent 0, #000 12%, #000 86%, transparent 100%),
+    var(--crown);
+  -webkit-mask-composite: source-in;
+  mask-image:
+    linear-gradient(to right, transparent 0, #000 12%, #000 86%, transparent 100%),
+    var(--crown);
+  mask-composite: intersect;
+}
+
+/* Incoming plate is on top and opens from the side the head turns towards; the outgoing one keeps moving with the
+   push underneath and is re-clipped only once covered. Front hides to the left, profile to the right. */
+.plate[data-state="in"] { z-index: 2; clip-path: inset(0 0 0 0); transform: none; }
+.plate[data-state="out"] {
+  z-index: 1;
+  transition:
+    clip-path 0s linear var(--wipe),
+    transform var(--wipe) var(--wipe-ease),
+    visibility 0s linear var(--wipe);
+  visibility: hidden;
+}
+.front[data-state="out"] { clip-path: inset(0 100% 0 0); transform: translateX(calc(-1 * var(--push))); }
+.profile[data-state="out"] { clip-path: inset(0 0 0 100%); transform: translateX(var(--push)); }
+
+.layer, .img, .svg, .marks { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
+.img { object-fit: fill; }
+/* First load only (not re-run when the front returns). */
+.front .img { animation: settle 1.6s var(--ease) both; }
+.svg { overflow: visible; filter: drop-shadow(0 0 1px rgb(0 0 0 / 0.28)); }
+/* Outgoing lines retract before the photo is covered. */
+.marks { transition: opacity 0.28s ease; }
+.plate[data-state="out"] .marks { opacity: 0; }
+
+/* The wipe's leading edge: one hairline, travelling with the clip. */
+.scan {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 1px;
+  z-index: 3;
+  background: linear-gradient(to bottom, transparent, rgb(255 255 255 / 0.85) 22%, rgb(255 255 255 / 0.85) 78%, transparent);
+  box-shadow: 0 0 14px rgb(255 255 255 / 0.35);
+  pointer-events: none;
+  animation: scan-fade var(--wipe) linear both;
+}
+.profile .scan { animation-name: scan-fade, scan-rtl; animation-duration: var(--wipe); animation-timing-function: linear, var(--wipe-ease); animation-fill-mode: both; }
+.front .scan { animation-name: scan-fade, scan-ltr; animation-duration: var(--wipe); animation-timing-function: linear, var(--wipe-ease); animation-fill-mode: both; }
+
+/* ── Front marks: the approved draw, offset by --t0 when the plate arrives through a wipe ── */
+.fContour { stroke: rgb(255 255 255 / 0.5); animation: draw 2.1s var(--ease) calc(var(--t0) + 0.5s) both; }
+.fLen > line { stroke: rgb(255 255 255 / 0.55); animation: fade 0.6s ease calc(var(--t0) + 1.4s) both; }
+.fLen g > line:first-child { animation: draw 0.9s var(--ease) calc(var(--t0) + 1.6s) both; }
+.fWid > line:first-child { stroke-width: 1.1; animation: draw 0.9s var(--ease) calc(var(--t0) + 1.9s) both; }
+.fLen g > line:not(:first-child) { animation: fade 0.4s ease calc(var(--t0) + 2.3s) both; }
+.fWid > line:not(:first-child) { animation: fade 0.4s ease calc(var(--t0) + 2.6s) both; }
+.fTagLen { animation: fade 0.6s ease calc(var(--t0) + 2.4s) both; transform: translate(-50%, -50%); }
+.fTagWid { animation: fade 0.6s ease calc(var(--t0) + 2.7s) both; transform: translate(10px, calc(-100% - 9px)); }
+
+/* ── Profile marks: silhouette first, then each measurement (segments → angle → point → value) ── */
+.pSil { stroke: rgb(255 255 255 / 0.5); animation: draw 1.15s var(--ease) calc(var(--t0) + 0.05s) both; }
+.pMark { --at: calc(var(--t0) + 0.55s + var(--m) * 0.5s); }
+.pSeg > line:first-child { animation: draw 0.7s var(--ease) calc(var(--at) + var(--j) * 0.14s) both; }
+.pSeg > line[stroke-dasharray] { animation: fade 0.5s ease calc(var(--at) + var(--j) * 0.14s) both; }
+.pSeg > line:not(:first-child) { animation: fade 0.35s ease calc(var(--at) + 0.45s + var(--j) * 0.14s) both; }
+.pArc { animation: draw 0.6s var(--ease) calc(var(--at) + 0.45s) both; }
+.pDot { animation: fade 0.4s ease calc(var(--at) + 0.6s) both; }
+.pTag {
+  --lift: 4px;
+  animation: tag-in 0.55s var(--ease) calc(var(--t0) + 1.05s + var(--m) * 0.5s) both;
+  transform: translate(14px, -50%);
+}
+.pTag[data-side="left"] { transform: translate(calc(-100% - 16px), -50%); }
+
+/* Pause freezes every line mid-draw (CSS transitions of an in-flight wipe still complete). */
+.paused .stage * { animation-play-state: paused !important; }
+
+/* ── Controls ── */
+.controls {
+  position: absolute;
+  right: var(--gutter);
+  bottom: 24px;
+  z-index: 3;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 10px;
+  animation: fade 0.8s ease 1.2s both;
+}
+.caption {
+  margin: 0;
+  padding: 0 14px 0 16px;
+  font-size: 11.5px;
+  letter-spacing: 0.12em;
+  color: var(--field-ink-3);
+  white-space: nowrap;
+}
+.count { margin-left: 8px; font-family: var(--mono); letter-spacing: 0.02em; color: var(--field-ink-2); }
+.pill {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px;
+  border-radius: 999px;
+  background: rgb(243 241 236 / 0.86);
+  -webkit-backdrop-filter: blur(10px);
+  backdrop-filter: blur(10px);
+  box-shadow: 0 1px 0 rgb(255 255 255 / 0.5) inset, 0 6px 24px rgb(0 0 0 / 0.18);
+}
+.seg { position: relative; display: flex; isolation: isolate; }
+.segBtn {
+  position: relative;
+  z-index: 1;
+  min-width: 68px;
+  height: 38px;
+  padding: 0 18px;
+  border: 0;
+  border-radius: 999px;
+  background: none;
+  color: var(--field-ink-2);
+  font: inherit;
+  font-size: 13.5px;
+  letter-spacing: 0.16em;
+  cursor: pointer;
+  transition: color 0.18s var(--ease);
+}
+.segBtn[aria-pressed="true"] { color: #f3f1ec; }
+.segThumb {
+  position: absolute;
+  z-index: 0;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  width: 50%;
+  border-radius: 999px;
+  background: var(--field-ink);
+  transition: transform 0.42s cubic-bezier(0.77, 0, 0.18, 1);
+}
+.segThumb[data-view="profile"] { transform: translateX(100%); }
+.playBtn {
+  display: grid;
+  place-items: center;
+  width: 38px;
+  height: 38px;
+  border: 0;
+  border-left: 1px solid rgb(17 20 23 / 0.14);
+  border-radius: 0 999px 999px 0;
+  background: none;
+  color: var(--field-ink);
+  cursor: pointer;
+}
+.playBtn svg { width: 14px; height: 14px; fill: none; stroke: currentColor; stroke-width: 1.5; stroke-linecap: round; stroke-linejoin: round; }
+.segBtn:focus-visible, .playBtn:focus-visible { outline: 2px solid var(--field-ink); outline-offset: 2px; }
+.segBtn:hover:not([aria-pressed="true"]), .playBtn:hover { color: #000; }
+.sr {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+  margin: 0;
+}
+
+@keyframes settle { from { opacity: 0; transform: scale(1.025); } to { opacity: 1; transform: none; } }
+@keyframes draw { from { stroke-dashoffset: 1; } to { stroke-dashoffset: 0; } }
+@keyframes fade { from { opacity: 0; } to { opacity: 1; } }
+@keyframes tag-in { from { opacity: 0; margin-top: var(--lift); } to { opacity: 1; margin-top: 0; } }
+@keyframes scan-rtl { from { left: 100%; } to { left: 0; } }
+@keyframes scan-ltr { from { left: 0; } to { left: calc(100% - 1px); } }
+@keyframes scan-fade { 0% { opacity: 0; } 12% { opacity: 1; } 82% { opacity: 1; } 100% { opacity: 0; } }
+
+@media (prefers-reduced-motion: reduce) {
+  .stage *, .stage, .controls, .controls * { animation: none !important; transition: none !important; }
+  .scan { display: none; }
+}
+
+/* Tablet and phone: the text column reaches the face, so the nose–lip tag sits on the cheek side, past both arcs. */
+@media (max-width: 1100px) and (min-width: 761px) {
+  .signature { --pivot: var(--pivot-narrow); }
+}
+@media (max-width: 1100px) {
+  .pTag[data-side="left"] { transform: translate(34px, -50%); }
+}
+@media (max-width: 900px) {
+  .caption { display: none; }
+}
+
+@media (max-width: 760px) {
+  .front { -webkit-mask-image: none; mask-image: none; }
+  .profile {
+    -webkit-mask-image: linear-gradient(to bottom, transparent 0, #000 9%);
+    mask-image: linear-gradient(to bottom, transparent 0, #000 9%);
+  }
+  /* Sits on the sweater just above the action row (CTA 54 px + link row), right-aligned. */
+  .controls { right: var(--gutter); bottom: 128px; gap: 0; }
+  .segBtn { min-width: 58px; height: 44px; padding: 0 14px; font-size: 13px; letter-spacing: 0.12em; }
+  .playBtn { width: 44px; height: 44px; }
+  .pTag { font-size: 10.5px; padding: 3px 6px 4px; gap: 6px; }
+  .fTagLen, .fTagWid { font-size: 10.5px; padding: 3px 6px 4px; }
+  .pTag { transform: translate(10px, -50%); }
+  .pTag[data-side="left"] { transform: translate(30px, -50%); }
+}
