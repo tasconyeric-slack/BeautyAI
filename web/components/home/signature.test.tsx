@@ -63,6 +63,8 @@ describe("hero signature interaction", () => {
     render(<Hero v={heroView(c)!} />);
     const group = screen.getByRole("group", { name: "示例照片视角" });
     const [front, profile] = within(group).getAllByRole("button");
+    // Public controls expose views and playback, never implementation counts.
+    expect(group.parentElement!.textContent).not.toMatch(/原始照片|实测|13|项/);
     expect(front.getAttribute("aria-pressed")).toBe("true");
     fireEvent.click(profile);
     expect(profile.getAttribute("aria-pressed")).toBe("true");

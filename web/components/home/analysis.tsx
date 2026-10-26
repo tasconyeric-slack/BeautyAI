@@ -11,7 +11,7 @@ import s from "./home.module.css";
 export function Analysis({ plate, chapters, reportHref }: { plate: Plate; chapters: Chapter[]; reportHref: string }) {
   const [frameRef, box] = useSize<HTMLDivElement>();
   const aspect = box.w && box.h ? box.w / box.h : 0.82;
-  const list = useMemo(() => chapters.map((ch) => ({ ...ch, focus: focusBox(ch.overlay, aspect) })), [chapters, aspect]);
+  const list = useMemo(() => chapters.map((ch) => ({ ...ch, focus: focusBox(ch.overlay, aspect, 0.16) })), [chapters, aspect]);
   const [active, setActive] = useState(0);
   const [marks, setMarks] = useState(true);
   const uid = useId();
@@ -19,7 +19,7 @@ export function Analysis({ plate, chapters, reportHref }: { plate: Plate; chapte
   const ch = list[Math.min(active, list.length - 1)];
   const W = ch.overlay.width, H = ch.overlay.height;
   const ready = box.w > 0 && box.h > 0;
-  const cam = ready ? camera(ch.focus, box.w, box.h, W, H) : { s: 0.5, tx: 0, ty: 0 };
+  const cam = ready ? camera(ch.focus, box.w, box.h, W, H, 1.35) : { s: 0.5, tx: 0, ty: 0 };
   const tag = ch.overlay.tag;
   const tagX = tag ? tag[0] * W * cam.s + cam.tx : 0;
   const tagY = tag ? tag[1] * H * cam.s + cam.ty : 0;
@@ -27,25 +27,30 @@ export function Analysis({ plate, chapters, reportHref }: { plate: Plate; chapte
 
   return (
     <section id="reading" className={s.reading} aria-labelledby="reading-title">
+      <div className={s.sectionIndex}>
+        <span><b>01</b> 读懂比例</span>
+        <span className={s.sectionPath}>观察 <i /> 解读 <i /> 建议</span>
+      </div>
       <header className={s.readingHead}>
         <div>
-          <p className={s.eyebrowDark}>示例分析</p>
+          <p className={s.eyebrowDark}>面部解读</p>
           <h2 id="reading-title" className={s.h2}>
-            <span>每一条建议，</span>
-            <span>都追溯到一处测量。</span>
+            <span>比例之间，</span>
+            <span>看见风格的线索。</span>
           </h2>
         </div>
         <p className={s.readingIntro}>
-          线条画在算法定位的面部关键点上；读数、解读与建议取自同一份示例报告。选择一项，看它如何从观察走到选择。
+          脸型、额头与肤色，各自影响着不同的选择。沿着面部标注，看懂一个特点，再找到适合的方向。
         </p>
       </header>
 
       <div className={s.readingBody}>
         <figure className={s.stage}>
           <div className={s.frame} ref={frameRef} data-ready={ready || undefined}>
+            <span className={s.portraitHeading}>面部结构 <span>／ {ch.kicker}</span></span>
             <div className={s.cam} style={{ width: W, height: H, transform: `translate(${cam.tx}px, ${cam.ty}px) scale(${cam.s})` }}>
               {/* overlay shares this exact intrinsic box */}
-              <img src={plate.src} width={W} height={H} alt="AI 合成示例人物正脸，当前测量项的标注与照片对齐" className={s.camImg} />
+              <img src={plate.src} width={W} height={H} alt="AI 合成示例人物正脸，当前测量项的标注与照片对齐" className={s.camImg} loading="lazy" />
               <svg viewBox={`0 0 ${W} ${H}`} className={s.camSvg} data-marks={marks || undefined} aria-hidden>
                 <MetricLines key={ch.metricId} ov={ch.overlay} unit={cam.s} />
               </svg>
@@ -83,7 +88,7 @@ export function Analysis({ plate, chapters, reportHref }: { plate: Plate; chapte
                   <span className={s.chIndex}>{n(i)}</span>
                   <span className={s.chKicker}>{x.kicker}</span>
                   <span className={s.chTitle}>{x.title}</span>
-                  <span className={s.chValue}>{x.value}</span>
+                  <span className={s.chValue}>{x.value}<span className={s.chapterIndicator} aria-hidden>{open ? "−" : "+"}</span></span>
                 </button>
                 <div id={pid} className={s.chBody} role="region" aria-label={`${x.kicker}：${x.title}`} hidden={!open}>
                   <div className={s.chInner}>
@@ -102,12 +107,18 @@ export function Analysis({ plate, chapters, reportHref }: { plate: Plate; chapte
                       {x.action && (
                         <li className={`${s.tier} ${s.tierAdvice}`}>
                           <span className={s.tierLabel}>建议</span>
-                          <ul className={s.adviceList}>
-                            <li>{x.action}</li>
-                            {x.advice.map((a) => (
-                              <li key={a.area + a.text}><span className={s.adviceArea}>{a.area}</span>{a.text}</li>
-                            ))}
-                          </ul>
+                          <div>
+                            <ul className={s.adviceList}>
+                              {!x.advice.length && <li>{x.action}</li>}
+                              {x.advice.map((a) => (
+                                <li key={a.area + a.text}><span className={s.adviceArea}>{a.area}</span>{a.text}</li>
+                              ))}
+                            </ul>
+                            {x.advice.length > 0 && <details className={s.consultNote}>
+                              <summary>{x.kicker === "发型" ? "剪发" : "配镜"}时参考 <span aria-hidden>↗</span></summary>
+                              <p>{x.action}</p>
+                            </details>}
+                          </div>
                         </li>
                       )}
                       {x.swatches && <li className={s.palette} aria-label="报告推荐近脸色">
@@ -124,7 +135,7 @@ export function Analysis({ plate, chapters, reportHref }: { plate: Plate; chapte
       </div>
 
       <footer className={s.readingFoot}>
-        <p>示例人物由 AI 合成，并非真实个人。比例是线索，不是审美标准；同一张照片的光线和角度也会影响读数。</p>
+        <p>示例人物由 AI 合成。测量取自对应照片，光线与拍摄角度会影响分析。<Link href="/about">方法与隐私 ↗</Link></p>
         <Link prefetch={false} href={reportHref} className={s.footLink}>打开这份完整示例报告 <span aria-hidden>→</span></Link>
       </footer>
     </section>

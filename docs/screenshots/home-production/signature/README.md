@@ -1,13 +1,12 @@
 # Hero signature motion (Issue #35)
 
-Recorded from the production build (`NEXT_PUBLIC_USE_FIXTURE=1 npm run build && next start`) in Chromium.
-Each clip: entrance (approved front draw → measured profile), rest, manual **正脸**, manual **侧脸**.
+The original production-build motion clips are preserved byte-for-byte. Each clip shows the approved front draw → measured profile, rest, manual **正脸**, and manual **侧脸**. They record the Issue #35 baseline before Issue #36's copy/control polish.
 
-| Viewport | Motion | Wipe keyframes (≈6 fps) | Rest |
-|---|---|---|---|
-| 1440 × 900 | [hero-signature-1440.mp4](hero-signature-1440.mp4) | [sequence-1440.jpg](sequence-1440.jpg) | [rest-profile-1440x900.png](rest-profile-1440x900.png) |
-| 390 × 844 (touch) | [hero-signature-390.mp4](hero-signature-390.mp4) | [sequence-390.jpg](sequence-390.jpg) | [rest-profile-390x844.png](rest-profile-390x844.png) |
+| Viewport | Approved motion | Current Hero still (Issue #36) |
+|---|---|---|
+| 1440 × 900 | [hero-signature-1440.mp4](hero-signature-1440.mp4) | [Desktop Hero](../final/hero-1440.png) |
+| 390 × 844 (touch) | [hero-signature-390.mp4](hero-signature-390.mp4) | [Mobile Hero](../final/hero-390.png) |
 
-Checks during recording: photo/SVG box drift **0 px** for both plates at both sizes, no page errors. Separately
-checked at 1024×768, 1100×800, 800×1000, 1280×720, 430×932 and 320×568: no horizontal overflow, controls never
-overlap the main CTA; reduced motion renders the static front with instant view switches and no autoplay/replay.
+The previous index linked keyframe files that were not committed. Those broken links now point to the current production stills; neither original clip was re-encoded or replaced.
+
+Issue #35 recording checks: photo/SVG box drift **0 px** for both plates, no page errors. Current Issue #36 responsive and reduced-motion checks are in the [final evidence index](../final/README.md).

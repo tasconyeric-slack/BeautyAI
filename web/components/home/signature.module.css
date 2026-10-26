@@ -127,15 +127,6 @@
   gap: 10px;
   animation: fade 0.8s ease 1.2s both;
 }
-.caption {
-  margin: 0;
-  padding: 0 14px 0 16px;
-  font-size: 11.5px;
-  letter-spacing: 0.12em;
-  color: var(--field-ink-3);
-  white-space: nowrap;
-}
-.count { margin-left: 8px; font-family: var(--mono); letter-spacing: 0.02em; color: var(--field-ink-2); }
 .pill {
   display: flex;
   align-items: center;
@@ -152,7 +143,7 @@
   position: relative;
   z-index: 1;
   min-width: 68px;
-  height: 38px;
+  height: 44px;
   padding: 0 18px;
   border: 0;
   border-radius: 999px;
@@ -180,8 +171,8 @@
 .playBtn {
   display: grid;
   place-items: center;
-  width: 38px;
-  height: 38px;
+  width: 44px;
+  height: 44px;
   border: 0;
   border-left: 1px solid rgb(17 20 23 / 0.14);
   border-radius: 0 999px 999px 0;
@@ -222,10 +213,6 @@
 @media (max-width: 1100px) {
   .pTag[data-side="left"] { transform: translate(34px, -50%); }
 }
-@media (max-width: 900px) {
-  .caption { display: none; }
-}
-
 @media (max-width: 760px) {
   .front { -webkit-mask-image: none; mask-image: none; }
   .profile {

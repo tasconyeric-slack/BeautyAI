@@ -26,8 +26,8 @@ export function HomePage() {
       <footer className={s.privacy} aria-label="照片与数据说明">
         <Link href="/" className={s.brandMark}>BeautyAI</Link>
         <ul>{privacy.facts.map((fact) => <li key={fact}>{fact}</li>)}</ul>
-        <p>只描述特点，不评判长相 · 不给医美建议 · 不推断敏感属性</p>
-        <Link href="/about">照片与数据说明 ↗</Link>
+        <p>造型建议供个人选择参考，不提供医疗建议。</p>
+        <Link href="/about">分析方法与照片隐私 ↗</Link>
       </footer>
     </div>
   );

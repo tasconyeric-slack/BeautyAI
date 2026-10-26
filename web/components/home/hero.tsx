@@ -51,7 +51,7 @@ export function Hero({ v }: { v: HeroView }) {
       <div className={s.eyeRule} aria-hidden><span className={s.eyeRuleLabel}>眼位线</span></div>
       <div className={s.heroBelow}>
         <p className={s.lead}>
-          一张正脸照，读出轮廓、比例与五官间距。每一项观察都附上解读，并落到发型、眉形、眼镜与妆容的具体选择上。
+          从一张肖像开始，解析面部结构与五官比例。将分析转化为发型、眉形、配镜与妆容的个性化建议。
         </p>
         <div className={s.ctaRow}>
           <Link prefetch={false} href="/start" className={s.cta}>
@@ -67,7 +67,7 @@ export function Hero({ v }: { v: HeroView }) {
           <span className={s.scrollLine} aria-hidden />
           观察 → 解读 → 建议
         </a>
-        <span className={s.heroNote}>只描述特点，不评判长相</span>
+        <span className={s.heroNote}>示例人物由 AI 合成</span>
       </div>
 
       {v.profile && (

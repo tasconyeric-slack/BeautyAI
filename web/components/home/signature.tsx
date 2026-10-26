@@ -330,9 +330,6 @@ export function ViewControls({ p, view, play, announce, choose, toggle }: {
   return (
     <div className={x.controls}>
       <div className={x.pill}>
-        <p className={x.caption}>
-          两张原始照片 · 各自实测<span className={x.count}>侧面 {p.measured} 项</span>
-        </p>
         <div role="group" aria-label="示例照片视角" className={x.seg} onKeyDown={onKey}>
           {options.map((o) => (
             <button key={o.key} type="button" ref={(el) => { btns.current[o.key] = el; }}
