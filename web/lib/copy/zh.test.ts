@@ -23,7 +23,7 @@ function strings(value: unknown, path = ""): Array<[string, string]> {
 const root = repositoryRoot();
 
 test("every configured QC reason and emitted issue has actionable Chinese copy", () => {
-  const yaml = readFileSync(join(root, "config/qc.yaml"), "utf8");
+  const yaml = readFileSync(join(root, "config/qc.yaml"), "utf8").replace(/\r\n/g, "\n");
   const messages = yaml.split("retake_messages_zh:\n")[1].split(/^\S/m)[0];
   const configured = [...messages.matchAll(/^  ([a-z_]+):/gm)].map((match) => match[1]);
   const source = readFileSync(join(root, "src/aesthetic_passport/qc.py"), "utf8");
@@ -85,7 +85,7 @@ test("all shipped strings use Chinese without untranslated UI words", () => {
 });
 
 test("safety terms are blocked except required consent text; the score copy never says attractiveness or rank", () => {
-  const rules = readFileSync(join(root, "config/rules.yaml"), "utf8");
+  const rules = readFileSync(join(root, "config/rules.yaml"), "utf8").replace(/\r\n/g, "\n");
   const safetySection = rules.split("safety_terms:\n")[1].split(/^\S/m)[0];
   const configured = [...safetySection.matchAll(/"([^"]+)"/g)].map((match) => match[1]);
   const terms = new Set([...configured, "完美", "标准脸", "遮肉", "显瘦", "变美", "逆袭"]);
