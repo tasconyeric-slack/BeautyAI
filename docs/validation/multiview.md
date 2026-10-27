@@ -173,3 +173,58 @@ Local validation for this follow-up: `make test` passed with **565 passed, 20 sk
 real-photo regressions; `make lint` and `git diff --check` passed. As with #15, this cloud image needed local
 `libgles2` through `LD_LIBRARY_PATH`; the existing CI installs that library. Real photos remain unavailable to CI,
 so its real-photo regressions skip while the non-person geometry/QC/negative controls run normally.
+
+## Remaining tight-crop detector failure (Issue #12 follow-up)
+
+Current main already includes #22's neck/shoulder fix. A focused check of its remaining crop failures found
+another reproducible cause: on two native-pixel crops of FEI `1-10.jpg` (margins 0.08 and 0.2), MediaPipe places
+a small frontal mesh on the **ear**, instead of the face. Local mesh/contour overlays show that its entire
+bounding box is behind the dominant face-skin centroid. Its erroneous low yaw triggers `wrong_angle_for_role`
+before the real profile outline is considered. This is a detector false positive, not a changed camera angle.
+
+When exactly one counted detection has its entire box posterior to the skin centroid, QC now confirms the
+independent silhouette-facing direction and discards that detection. The existing silhouette-only path then
+runs with no detected face, yaw, face box or nose-gap value; the false landmarks cannot reach measurements.
+`PhotoCheck.extra.landmark_face_discarded = "posterior_to_face_skin"` records this only in local diagnostics.
+Multiple counted faces still reject. A face-spanning frontal mesh and a detected three-quarter nose/outline
+mismatch still use the existing yaw and nose-gap gates. No thresholds, metric definitions, schema, optional
+profile behavior or provider runtime changed.
+
+One focused evaluator run used **16 original FEI images from four subjects** (`-01`, `-10`, `-03`, `-08`) and
+24 native-pixel profile crops at margins 0.08, 0.2 and 0.4, reproducing #22's crop construction. Original JPEGs
+were selectively read by HTTP ranges from the same FEI archive; Pointing'04's advertised Person01 archive
+still returned HTTP 404. Research portraits, crops, masks and overlays remain under ignored `data/` / `runs/`.
+
+| Same inputs | Before accepted / rejected | After accepted / rejected |
+| --- | --- | --- |
+| Original left profiles (4) | 4 / 0 | 4 / 0 |
+| Original right profiles (4) | 4 / 0 | 4 / 0 |
+| Native-pixel profile crops (24) | 19 / 5 | 21 / 3 |
+| Approximate 45° originals (8) | 0 / 8 | 0 / 8 |
+
+The three remaining crop rejections are nose/outline disagreements, with gaps approximately 0.051–0.057;
+those gates were preserved. None of these profile inputs produced `profile_unclear` on current main, consistent
+with #22 already fixing the demonstrated outline failure. The evaluator reports 15 per-metric `out_of_range`
+unavailabilities, with their numerical values withheld by existing registry gates; no metric-accuracy claim is
+made. These crops are correlated versions of eight original captures, not more people or independent repeats.
+Ignore repeat-consistency summaries for this manifest. Cohorts remain unknown; the exact product-owner photos
+were unavailable. There is no demographic, glasses, population-rate or calibrated 3D validation claim.
+
+Reproduce with the manifest format and evaluator command above, selecting the four subjects and suffixes just
+listed; use the native crop construction in `tests/test_multiview_real_profile_qc.py` for the three margins.
+The two ear failures are now opt-in real-photo regressions in that file. Non-person CI regressions cover both
+mirror directions, discarding unusable detector fields, retention of frontal/45° rejection and multiple faces.
+
+Local verification: the mirror regressions failed before the fix and passed afterward; baseline focused geometry
+checks passed (18 tests). The opt-in real-photo file passed its eight available cases, including both newly fixed
+crops; six cases requiring other subjects skipped explicitly. `make lint` and `git diff --check` passed. An initial
+full suite had 589 passed, 26 skipped and two unrelated keyless-provider failures because the managed environment's
+`DEEPSEEK_AUTH_VIA_PROXY` was enabled while those tests removed only the API key. The keyless rerun below disables
+that flag for the test command only; network proxy settings and credentials remain unchanged.
+
+```bash
+DEEPSEEK_AUTH_VIA_PROXY=0 LD_LIBRARY_PATH="$PWD/work/libgles2/usr/lib/x86_64-linux-gnu" make test
+```
+
+The keyless full suite passed: **591 passed, 26 skipped**. The cloud's missing `libgles2` was supplied locally
+as documented for #15/#22; CI already installs it. No research images or generated artifacts enter the PR.

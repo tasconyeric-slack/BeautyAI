@@ -24,6 +24,7 @@ def _photo(filename):
 
 
 @pytest.mark.parametrize("filename,pad,facing", [
+    ("1-10.jpg", 0.08, "right"), ("1-10.jpg", 0.2, "right"),
     ("2-01.jpg", 0.2, "left"), ("3-01.jpg", 0.2, "left"),
     ("3-10.jpg", 0.08, "right"), ("3-10.jpg", 0.2, "right"),
 ])
