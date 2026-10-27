@@ -1,0 +1,5 @@
+{
+  "registry_version": "attractiveness-reference-1",
+  "unavailable_reason": "No production-authorized model-matched adult reference cohort; activation depends on Issue #13 and explicit cohort ranking/aggregate-retention permission.",
+  "cohorts": []
+}
