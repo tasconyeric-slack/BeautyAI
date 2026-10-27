@@ -126,6 +126,7 @@ class EditPrompt:
     template: str
     negative: str
     hair_integration: str = ""
+    hair_constraints: tuple[tuple[str, str], ...] = ()
 
 
 @lru_cache(maxsize=2)
@@ -137,8 +138,10 @@ def load_edit_prompt(path: str | None = None) -> EditPrompt:
     if not (version and template and negative):
         raise ValueError(f"{PROMPT_PATH.name}: could not find version / Template / Negative prompt")
     hair = re.search(r"^## Hair integration\s*\n+```\s*\n(.*?)```", text, re.DOTALL | re.MULTILINE)
+    constraints = re.findall(r"^### Hair target: ([^\n]+)\n+```\s*\n(.*?)```", text, re.DOTALL | re.MULTILINE)
     return EditPrompt(version.group(1).strip(), template.group(1).strip(), negative.group(1).strip(),
-                      hair.group(1).strip() if hair else "")
+                      hair.group(1).strip() if hair else "",
+                      tuple((phrase.strip().casefold(), instruction.strip()) for phrase, instruction in constraints))
 
 
 def build_prompt(spec: dict[str, Any]) -> str:
@@ -147,10 +150,15 @@ def build_prompt(spec: dict[str, Any]) -> str:
     tpl = config.template
     fixed = tpl.split("{preserve_joined}", 1)[1].lower()  # words the template already guarantees
     preserve = [p.strip() for p in spec["preserve"] if p.strip() and p.strip().lower() not in fixed]
+    hair = ""
+    if spec["region"] == "hair":
+        description = spec["target_description"].casefold()
+        hair = " ".join([config.hair_integration, *(instruction for phrase, instruction in config.hair_constraints
+                                                  if phrase in description)])
     prompt = tpl.format(region_en=REGION_EN[spec["region"]], target_description=spec["target_description"].strip(),
                         preserve_joined=", ".join(dict.fromkeys(preserve)) or "the rest of the photo",
                         professional=PROFESSIONAL[spec["region"]],
-                        hair_integration=config.hair_integration if spec["region"] == "hair" else "")
+                        hair_integration=hair)
     return " ".join(prompt.split())  # one line, single spaces
 
 

@@ -8,7 +8,8 @@ run unless a real image provider is configured, so the result can never be fixtu
 Inputs are the published demo portraits and passports (`examples/demo_cases/`, `web/public/sample/demo/`): fully
 AI-synthesized fictional adults, owner-approved (D41). Do not point this at a real person's photo without consent.
 
-Writes under --out (default runs/live-hair-preview, git-ignored):
+Writes into a new run directory under runs/live-hair-preview (git-ignored); --out may name a new child there.
+Existing directories are never deleted or reused:
   summary.json                                   the facts above
   <passport id>/media/preview_hair_<target>.jpg  the labelled "AI 试看" result
   <passport id>/media/before_hair_<target>.jpg   the matched original crop
@@ -23,6 +24,7 @@ import argparse
 import json
 import shutil
 import sys
+import tempfile
 from pathlib import Path
 from typing import Any
 
@@ -37,6 +39,24 @@ from aesthetic_passport.providers.image import resolve_image_provider
 
 CALL_KEYS = ("attempt", "ok", "model", "latency_ms", "provider_latency_ms", "cost_usd_est", "error", "diag",
              "prompt_version")
+
+
+def prepare_output(out: Path | None) -> Path:
+    """Create an exclusive scratch run beneath the dedicated root; never clean a caller-supplied path."""
+    base = ROOT.resolve() / "runs" / "live-hair-preview"
+    if base.resolve() != base:
+        raise ValueError("the live-run root must not traverse a symlink")
+    if out is not None:
+        dest = out.resolve()
+        if dest == base or not dest.is_relative_to(base):
+            raise ValueError("--out must be a new directory beneath runs/live-hair-preview")
+        try:
+            dest.mkdir(parents=True, exist_ok=False)
+        except OSError as exc:
+            raise ValueError("--out must be new and writable; existing outputs are never removed") from exc
+        return dest
+    base.mkdir(parents=True, exist_ok=True)
+    return Path(tempfile.mkdtemp(prefix="run-", dir=base))
 
 
 def attempts_of(run_dir: Path, target: str) -> list[dict[str, Any]]:
@@ -55,8 +75,12 @@ def main() -> int:
     ap = argparse.ArgumentParser(description=__doc__.split("\n\n")[0])
     ap.add_argument("--person", default="person-001", choices=["person-001", "person-002"])
     ap.add_argument("--targets", nargs="+", default=["safe", "easy"], help="hair directions (safe | bold | easy | …)")
-    ap.add_argument("--out", type=Path, default=ROOT / "runs" / "live-hair-preview")
+    ap.add_argument("--out", type=Path, help="new directory beneath runs/live-hair-preview (default: unique run)")
     args = ap.parse_args()
+    try:
+        args.out = prepare_output(args.out)
+    except ValueError as exc:
+        ap.error(str(exc))
 
     provider = resolve_image_provider()
     if provider != "qwen":
@@ -66,7 +90,7 @@ def main() -> int:
 
     passport = json.loads((ROOT / "examples" / "demo_cases" / args.person / "passport.json").read_text("utf-8"))
     pid = passport["passport_id"]
-    shutil.rmtree(args.out, ignore_errors=True)
+    print(f"run directory: {args.out.relative_to(ROOT.resolve())}")
     settings = Settings(runs_dir=args.out, run_jobs_inline=True)
     store = Store(settings.db_path)
     store.create(pid, None, settings.media_ttl_hours)

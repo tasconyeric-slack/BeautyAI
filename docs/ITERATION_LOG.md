@@ -88,3 +88,8 @@
 - Prompt `preview-0.5` → `preview-0.6`: hair block states length as a hard limit and asks for a groomed finish (drops "ends fall around the neck and shoulders", "irregular fine strands… restrained flyaways"). On the `easy` (chin-length) target hair ended +0.38/+0.41/+0.43 cheek widths below the chin with v0.5 and +0.33/+0.35/+0.32 with v0.6 (3 seeds each; original +0.31): tidier, still not a chin bob. `safe` unchanged in length, tidier.
 - Two things tried and reverted: tone-matching revealed skin to the shadowed original (darker band), and a strand rule symmetric in original/generated (imported the model's strands).
 - Not claimed: real consented photos, a second seed per final run, a 7:3 part (centred in every sample), a crown free of clumped curls (seed-dependent), the faint strip above the brow inside the protected zone.
+
+### Issue #1 follow-up — target constraints (`preview-0.7`)
+- Reproduced the documented chin-length and 7:3 misses on approved synthetic Person-001, using the existing Qwen job/composite path. Add only matching `chin-length`, `7:3` and `no fringe` prompt blocks; keep original descriptions and identity gates. A broad conditional candidate was discarded.
+- Two-seed before/after evidence: `docs/demos/issue-1-style-adherence.md`. One seed improves length/part visibly; the second still misses exact length/part, and the crown remains overstyled. No reliable style or genuine-photo acceptance claim. Twelve paid images, USD 0.36 estimated; actual billing unavailable.
+- Acceptance script no longer recursively deletes CLI-selected output paths; every run uses a new directory confined beneath `runs/live-hair-preview`. No provider/auth/model runtime or homepage changes.

@@ -50,7 +50,7 @@ production:
     provider: qwen
     model: "qwen-image-2.0"
     seed: 1234                    # fixed seed: same input → as close to the same output as the API allows
-    prompt_version: preview-0.6   # prompts/image_edit.md
+    prompt_version: preview-0.7   # prompts/image_edit.md
 
 offline:
   evaluator:

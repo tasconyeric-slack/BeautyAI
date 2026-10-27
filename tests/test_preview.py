@@ -70,6 +70,50 @@ def test_prompt_names_each_region(region, phrase):
     assert f"Edit only the {phrase}" in build_prompt(spec)
 
 
+@pytest.mark.parametrize("region,target,want", [
+    ("hair", "Chin-length black hair, no fringe.", ["CUT_AT_JAW", "EXPOSE_FOREHEAD"]),
+    ("hair", "Long hair with a 7:3 side part.", ["ASYMMETRIC_PART"]),
+    ("hair", "Keep the current haircut and parting.", []),
+    ("glasses", "Chin-length 7:3 no fringe", []),
+])
+def test_hair_constraints_apply_only_to_the_selected_target(tmp_path, monkeypatch, region, target, want):
+    from aesthetic_passport import preview as pv
+
+    prompt_file = tmp_path / "prompt.md"
+    prompt_file.write_text('''`prompt_version: test`
+## Template
+```
+Edit only the {region_en}. Target: {target_description}. {hair_integration} Keep {preserve_joined}.
+```
+## Negative prompt
+```
+changed face
+```
+## Hair integration
+```
+natural hair
+```
+### Hair target: chin-length
+```
+CUT_AT_JAW
+```
+### Hair target: 7:3
+```
+ASYMMETRIC_PART
+```
+### Hair target: no fringe
+```
+EXPOSE_FOREHEAD
+```
+''')
+    config = pv.load_edit_prompt(str(prompt_file))
+    monkeypatch.setattr(pv, "load_edit_prompt", lambda: config)
+    prompt = pv.build_prompt({"region": region, "target_description": target, "preserve": ["identity"]})
+    got = [token for token in ["CUT_AT_JAW", "ASYMMETRIC_PART", "EXPOSE_FOREHEAD"] if token in prompt]
+    assert got == want
+    assert target in prompt
+
+
 def test_usable_preview_recs_respects_c7_and_exclusions():
     ids = usable_preview_recs(PASSPORT)
     assert ids[:1] == ["r1"] and "r5" not in ids     # r5 has no edit spec
