@@ -1,0 +1,9 @@
+# Ranking thresholds, independent of geometry / config/percentiles.yaml.
+policy_version: attractiveness-rank-1
+min_unique_subjects: 100
+min_tail_observations: 5
+min_distinct_scores: 2
+fine_precision_min_subjects: 1000
+coarse_step_percent: 10
+fine_step_percent: 5
+uncertainty_alpha: 0.05

@@ -1,0 +1,467 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Learned-attractiveness aggregate reference registry (no person records)",
+  "$ref": "#/$defs/registry",
+  "$defs": {
+    "identity": {
+      "type": "object",
+      "required": [
+        "model_id",
+        "checkpoint_id",
+        "preprocessing_version",
+        "crop_version",
+        "native_scale_id",
+        "calibration_version"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "model_id": {
+          "type": "string",
+          "minLength": 1,
+          "pattern": "\\S"
+        },
+        "checkpoint_id": {
+          "type": "string",
+          "minLength": 1,
+          "pattern": "\\S"
+        },
+        "preprocessing_version": {
+          "type": "string",
+          "minLength": 1,
+          "pattern": "\\S"
+        },
+        "crop_version": {
+          "type": "string",
+          "minLength": 1,
+          "pattern": "\\S"
+        },
+        "native_scale_id": {
+          "type": "string",
+          "minLength": 1,
+          "pattern": "\\S"
+        },
+        "calibration_version": {
+          "anyOf": [
+            {
+              "type": "string",
+              "minLength": 1,
+              "pattern": "\\S"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
+      }
+    },
+    "model_result": {
+      "type": "object",
+      "required": [
+        "model_id",
+        "checkpoint_id",
+        "preprocessing_version",
+        "crop_version",
+        "native_scale_id",
+        "calibration_version",
+        "contract_version",
+        "status",
+        "raw_score",
+        "production_authorized",
+        "quality_flags",
+        "unavailable_reason"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "model_id": {
+          "type": "string",
+          "minLength": 1,
+          "pattern": "\\S"
+        },
+        "checkpoint_id": {
+          "type": "string",
+          "minLength": 1,
+          "pattern": "\\S"
+        },
+        "preprocessing_version": {
+          "type": "string",
+          "minLength": 1,
+          "pattern": "\\S"
+        },
+        "crop_version": {
+          "type": "string",
+          "minLength": 1,
+          "pattern": "\\S"
+        },
+        "native_scale_id": {
+          "type": "string",
+          "minLength": 1,
+          "pattern": "\\S"
+        },
+        "calibration_version": {
+          "anyOf": [
+            {
+              "type": "string",
+              "minLength": 1,
+              "pattern": "\\S"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "contract_version": {
+          "const": "learned-attractiveness-1"
+        },
+        "status": {
+          "enum": [
+            "ok",
+            "unavailable",
+            "research_only"
+          ]
+        },
+        "raw_score": {
+          "type": [
+            "number",
+            "null"
+          ]
+        },
+        "production_authorized": {
+          "type": "boolean"
+        },
+        "quality_flags": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1,
+            "pattern": "\\S"
+          },
+          "uniqueItems": true
+        },
+        "unavailable_reason": {
+          "anyOf": [
+            {
+              "type": "string",
+              "minLength": 1,
+              "pattern": "\\S"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
+      }
+    },
+    "provenance": {
+      "type": "object",
+      "required": [
+        "data_kind",
+        "source_reference",
+        "license_id",
+        "permission_reference",
+        "ranking_authorized",
+        "aggregate_retention_authorized",
+        "model_production_authorized",
+        "adults_confirmed"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "data_kind": {
+          "enum": [
+            "real_adult",
+            "synthetic_test",
+            "research_only"
+          ]
+        },
+        "source_reference": {
+          "type": "string",
+          "minLength": 1,
+          "pattern": "\\S"
+        },
+        "license_id": {
+          "type": "string",
+          "minLength": 1,
+          "pattern": "\\S"
+        },
+        "permission_reference": {
+          "type": "string",
+          "minLength": 1,
+          "pattern": "\\S"
+        },
+        "ranking_authorized": {
+          "type": "boolean"
+        },
+        "aggregate_retention_authorized": {
+          "type": "boolean"
+        },
+        "model_production_authorized": {
+          "type": "boolean"
+        },
+        "adults_confirmed": {
+          "type": "boolean"
+        }
+      }
+    },
+    "qc": {
+      "type": "object",
+      "required": [
+        "status",
+        "evidence_reference",
+        "deduplication_version"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "status": {
+          "enum": [
+            "passed",
+            "pending",
+            "failed"
+          ]
+        },
+        "evidence_reference": {
+          "type": "string",
+          "minLength": 1,
+          "pattern": "\\S"
+        },
+        "deduplication_version": {
+          "type": "string",
+          "minLength": 1,
+          "pattern": "\\S"
+        }
+      }
+    },
+    "manifest": {
+      "type": "object",
+      "required": [
+        "cohort_id",
+        "cohort_label",
+        "distribution_version",
+        "definition",
+        "sampling",
+        "identity",
+        "native_score_bounds",
+        "provenance",
+        "qc"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "cohort_id": {
+          "type": "string",
+          "minLength": 1,
+          "pattern": "\\S"
+        },
+        "cohort_label": {
+          "type": "string",
+          "minLength": 1,
+          "pattern": "\\S"
+        },
+        "distribution_version": {
+          "type": "string",
+          "minLength": 1,
+          "pattern": "\\S"
+        },
+        "definition": {
+          "type": "string",
+          "minLength": 1,
+          "pattern": "\\S"
+        },
+        "sampling": {
+          "enum": [
+            "self_selected",
+            "convenience",
+            "probability_sample"
+          ]
+        },
+        "identity": {
+          "$ref": "#/$defs/identity"
+        },
+        "native_score_bounds": {
+          "type": "array",
+          "minItems": 2,
+          "maxItems": 2,
+          "items": {
+            "type": "number"
+          }
+        },
+        "provenance": {
+          "$ref": "#/$defs/provenance"
+        },
+        "qc": {
+          "$ref": "#/$defs/qc"
+        }
+      }
+    },
+    "cohort": {
+      "type": "object",
+      "required": [
+        "cohort_id",
+        "cohort_label",
+        "distribution_version",
+        "definition",
+        "sampling",
+        "identity",
+        "native_score_bounds",
+        "provenance",
+        "qc",
+        "n_unique_subjects",
+        "distribution",
+        "import_summary"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "cohort_id": {
+          "type": "string",
+          "minLength": 1,
+          "pattern": "\\S"
+        },
+        "cohort_label": {
+          "type": "string",
+          "minLength": 1,
+          "pattern": "\\S"
+        },
+        "distribution_version": {
+          "type": "string",
+          "minLength": 1,
+          "pattern": "\\S"
+        },
+        "definition": {
+          "type": "string",
+          "minLength": 1,
+          "pattern": "\\S"
+        },
+        "sampling": {
+          "enum": [
+            "self_selected",
+            "convenience",
+            "probability_sample"
+          ]
+        },
+        "identity": {
+          "$ref": "#/$defs/identity"
+        },
+        "native_score_bounds": {
+          "type": "array",
+          "minItems": 2,
+          "maxItems": 2,
+          "items": {
+            "type": "number"
+          }
+        },
+        "provenance": {
+          "$ref": "#/$defs/provenance"
+        },
+        "qc": {
+          "$ref": "#/$defs/qc"
+        },
+        "n_unique_subjects": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "distribution": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "object",
+            "required": [
+              "score",
+              "count"
+            ],
+            "additionalProperties": false,
+            "properties": {
+              "score": {
+                "type": "number"
+              },
+              "count": {
+                "type": "integer",
+                "minimum": 1
+              }
+            }
+          }
+        },
+        "import_summary": {
+          "type": "object",
+          "required": [
+            "records_received",
+            "duplicates_removed"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "records_received": {
+              "type": "integer",
+              "minimum": 1
+            },
+            "duplicates_removed": {
+              "type": "integer",
+              "minimum": 0
+            }
+          }
+        }
+      }
+    },
+    "observation": {
+      "type": "object",
+      "required": [
+        "subject_key",
+        "duplicate_cluster",
+        "observation_key",
+        "adult_confirmed",
+        "prediction"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "subject_key": {
+          "type": "string",
+          "minLength": 1,
+          "pattern": "\\S"
+        },
+        "duplicate_cluster": {
+          "type": "string",
+          "minLength": 1,
+          "pattern": "\\S"
+        },
+        "observation_key": {
+          "type": "string",
+          "minLength": 1,
+          "pattern": "\\S"
+        },
+        "adult_confirmed": {
+          "type": "boolean"
+        },
+        "prediction": {
+          "$ref": "#/$defs/model_result"
+        }
+      }
+    },
+    "registry": {
+      "type": "object",
+      "required": [
+        "registry_version",
+        "unavailable_reason",
+        "cohorts"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "registry_version": {
+          "const": "attractiveness-reference-1"
+        },
+        "unavailable_reason": {
+          "anyOf": [
+            {
+              "type": "string",
+              "minLength": 1,
+              "pattern": "\\S"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "cohorts": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/cohort"
+          }
+        }
+      }
+    }
+  }
+}
