@@ -244,17 +244,29 @@ def check_profile90(im: Image.Image | np.ndarray, cfg: dict | None = None) -> Ph
     if len(counted) > 1:
         pc.issues.append("multiple_faces")
         pc.rejects.add("multiple_faces")
-    if main is not None:
-        pc.yaw, pc.pitch, pc.roll = main.pose()
-        pc.face_box_px = main.box_short_side
-        if pc.yaw is not None and abs(pc.yaw) < pg["frontal_yaw_below"]:
-            pc.issues.append("wrong_angle_for_role")
-            pc.rejects.add("wrong_angle_for_role")
-            return _finish(pc)
     seg = MODELS.segment(rgb)
     pc.extra["seg"] = seg
     try:
         fg, skin = profile_masks(seg)
+        if main is not None and len(counted) == 1:
+            # A tight profile crop can produce a tiny frontal mesh on the ear. Such a box lies wholly
+            # behind the dominant face skin, rather than covering the face. Confirm the independent
+            # silhouette direction before using the existing no-landmarker path; never relax pose gates
+            # for a mesh that actually spans the face, and retain the multiple-face rejection above.
+            skin_x = float(np.nonzero(skin)[1].mean())
+            x0, _, x1, _ = main.box
+            if x1 < skin_x or x0 > skin_x:
+                sign, _, _ = profile_bounds(seg, fg, skin)
+                if (sign > 0 and x1 < skin_x) or (sign < 0 and x0 > skin_x):
+                    main = pc.face = None
+                    pc.extra["landmark_face_discarded"] = "posterior_to_face_skin"
+        if main is not None:
+            pc.yaw, pc.pitch, pc.roll = main.pose()
+            pc.face_box_px = main.box_short_side
+            if pc.yaw is not None and abs(pc.yaw) < pg["frontal_yaw_below"]:
+                pc.issues.append("wrong_angle_for_role")
+                pc.rejects.add("wrong_angle_for_role")
+                return _finish(pc)
         _, top, bottom = profile_bounds(seg, fg, skin, main)
     except ProfileUnavailable as e:
         reason = "no_face" if e.reason == "no_face" else "profile_unclear"
