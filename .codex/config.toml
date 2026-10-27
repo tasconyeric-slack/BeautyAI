@@ -1,0 +1,3 @@
+[mcp_servers.shadcn]
+command = "node"
+args = ["scripts/shadcn-mcp.mjs"]

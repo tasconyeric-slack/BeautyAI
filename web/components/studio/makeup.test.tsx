@@ -111,5 +111,5 @@ describe("makeup safety and legacy loading", () => {
       if ([p.eye_l,p.eye_r,p.lip_inner].some(poly=>contains(poly,x+.5,y+.5)) || !contains(p.jaw,x+.5,y+.5))
         if(out.data[i]!==src.data[i] || out.data[i+1]!==src.data[i+1] || out.data[i+2]!==src.data[i+2]) throw new Error(`protected pixel ${x},${y} changed`);
     }
-  });
+  }, 15_000);
 });

@@ -1,5 +1,7 @@
 # BeautyAI · Claude Design input pack
 
+For reusable component setup and agent tooling, see [Design component workflow](TOOLING.md).
+
 **Direction: a calm, portrait-led styling consultation.** Borrow QOVES’s visual hierarchy and spatial rhythm; use BeautyAI’s own portraits, findings, vocabulary, and interactions. This is design input, not a page redesign or an implementation plan.
 
 Inspected **2026-10-25**, against [`main@dc140cb`](https://github.com/tasconyeric-slack/BeautyAI/commit/dc140cb79dc8c80989ed44be379722118c82ef43). Start with the boards, then [reference observations](REFERENCE.md), [tokens and component inventory](INVENTORY.md), and [selective OSS sources](SOURCES.md).
