@@ -24,7 +24,7 @@
 - [x] 1. Add behavior tests for switching metrics and hairstyle, exact clipboard content, read-only samples, existing choice/plan persistence, expiry and missing/error states. Run red against a minimal component stub.
 - [x] 2. Add `web/app/dev/report-r1/page.tsx`, `web/components/report-slice/preview.tsx`, `report-slice.tsx`, `measurements.tsx`, `hair-section.tsx`, `model.ts`, `report-slice.module.css`, and `web/lib/copy/report-slice.ts`. Reuse the application interfaces; all new UI styles and copy stay scoped.
 - [x] 3. Verify component tests green, then critical browser paths including actual clipboard, pointer/key release/cancel/blur, P002 and action-plan navigation. Inspect 1440×900 / 390×844 and widths 320/768/1024, dark and reduced motion. Save evidence outside Git because screenshots contain photo-derived content.
-- [ ] 4. Run frontend typecheck, full tests and build; verify production 404. Record results in `docs/design/REPORT_S2.md`; commit and open a focused PR to main. Leave review/CI gates explicit and do not deploy.
+- [x] 4. Run frontend typecheck, full tests and build; verify production 404. Record results in `docs/design/REPORT_S2.md`; commit and open a focused PR to main. Leave review/CI gates explicit and do not deploy.
 
 ## Execution ledger
 
@@ -32,3 +32,4 @@
 - Ruling: execute the supplied approved direction without a new design approval round, as the user explicitly requested implementation and AGENTS.md disallows pauses between slices.
 - Initial tests went red against the component stub. The implementation and Escape/leave fix made the critical path green; follow-up unavailable/error checks bring this slice to 23 tests.
 - Final local verification: types, 365 Vitest tests + 60 module checks, default build and production HTTP 404 passed. Process-local Windows proxy configuration resolved font-fetch failures. Browser evidence and exact clipboard paste were saved outside Git; full acceptance is in `docs/design/REPORT_S2.md`.
+- Implementation pushed and [PR #50](https://github.com/tasconyeric-slack/BeautyAI/pull/50) opened against main. The PR is subject to CI and the current-head Codex review gate; no manual merge or deployment was performed.
