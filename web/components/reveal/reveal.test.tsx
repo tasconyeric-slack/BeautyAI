@@ -47,12 +47,13 @@ describe("Reveal screen", () => {
     expect(screen.getByRole("heading", { level: 1 }).textContent).toBe(copy.stages[2]);
   });
 
-  it("offers a retry when the analysis failed", () => {
+  it("offers a real restart instead of reading the same failed job again", () => {
     render(
       <StaticPassportProvider value={{ data: resp({ status: "analysis_failed", stage: "analysis", partial: { anchors: p.anchors } }) }}>
         <Reveal />
       </StaticPassportProvider>,
     );
-    expect(screen.getByRole("button", { name: "重试一次" })).toBeTruthy();
+    expect(screen.getByRole("link", { name: "重新开始分析" }).getAttribute("href")).toBe("/start");
+    expect(screen.queryByRole("button", { name: "重试一次" })).toBeNull();
   });
 });

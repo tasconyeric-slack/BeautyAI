@@ -77,8 +77,14 @@ export function FullReportContent({ data: source, geometry: rawGeometry, sample 
   const [selected, setSelected] = React.useState<Tier | null>(null);
   React.useEffect(() => {
     if (sample) return;
-    const tier = readChoices(source.id).hair?.tier;
-    if (tier && ["safe", "bold", "easy"].includes(tier)) setSelected(tier as Tier);
+    const sync = () => {
+      const tier = readChoices(source.id).hair?.tier;
+      if (tier && ["safe", "bold", "easy"].includes(tier)) setSelected(tier as Tier);
+    };
+    sync();
+    window.addEventListener("ap-choices", sync);
+    window.addEventListener("storage", sync);
+    return () => { window.removeEventListener("ap-choices", sync); window.removeEventListener("storage", sync); };
   }, [sample, source.id]);
   // Sanitize media at the presentation boundary, including PDF export and nested preview consumers.
   const data = React.useMemo(() => gone ? { ...source, media: { ...source.media, expired: photoExpired(source.media), front: null, photos: {}, thumb: null }, partial: { ...source.partial, previews: [] } } : source, [source, gone]);

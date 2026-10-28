@@ -9,6 +9,9 @@ import { ApiError, api, backendFor, type ExtraRole, type PhotoMeta, type PhotoRo
 import { consent as consentCopy, onboarding, photos as photoCopy, presentation as presCopy, privacy, topics, upload } from "@/lib/copy/zh";
 import { cn } from "@/lib/utils";
 import { PhotoSlot, usePhotoSlots } from "./photo-slot";
+import { journey } from "@/lib/copy/journey";
+import { PhotoGuide } from "./photo-guide";
+import s from "@/components/journey/journey.module.css";
 
 type Topic = keyof typeof topics;
 const TOPICS = Object.keys(topics) as Topic[];
@@ -57,7 +60,7 @@ export function StartFlow() {
   const restricted = eyewear || eyewearDetected;
 
   const submit = async () => {
-    if (!front || !pres) return;
+    if (!front || !pres || !qc || qc.status === "reject" || checking || submitting) return;
     setSubmitting(true);
     setSubmitError(null);
     try {
@@ -86,7 +89,7 @@ export function StartFlow() {
       } catch {
         /* storage full or blocked: the reveal shows the stage without the photo */
       }
-      router.push(`/p/${id}`);
+      router.push(`/p/${id}/report`);
     } catch (e) {
       setSubmitError(e instanceof ApiError ? e.body.detail : upload.uploadFailed);
       setSubmitting(false);
@@ -95,7 +98,7 @@ export function StartFlow() {
 
   const canUse = qc && qc.status !== "reject";
   return (
-    <div className={cn("mx-auto px-4 pb-16 pt-6 sm:px-6", step === "photo" ? "max-w-xl lg:max-w-4xl" : "max-w-xl")}>
+    <div data-step={step} className={cn("mx-auto px-4 pb-16 pt-6 sm:px-6", s.flow)}>
       {topic && <p className="mb-2 text-[12px] tracking-[0.14em] text-accent">{topics[topic].title}</p>}
       {step === "consent" ? (
         <section aria-labelledby="consent-title">
@@ -125,6 +128,7 @@ export function StartFlow() {
           <h1 id="photo-title" className="font-serif text-[22px] font-semibold leading-snug">{photoCopy.heading}</h1>
           <p className="mt-1 text-[13.5px] leading-6 text-ink-soft">{photoCopy.intro}</p>
           <p className="mt-1 text-[13.5px] font-medium text-accent">{photoCopy.frontOnly}</p>
+          <PhotoGuide />
           {/* Local files only (album or the system camera through the file picker, D20). Each role is independent. */}
           <div className="mt-5 grid gap-3 lg:grid-cols-2">
             <PhotoSlot role="front" state={front} required prominent onChoose={(f) => choose("front", f)}
@@ -214,9 +218,9 @@ export function StartFlow() {
           {submitError && <p className="mt-4 text-[13px] text-[#b4442f]">{submitError}</p>}
           {front && qc && (
             <div className="mt-6 flex flex-col gap-2">
-              <Button variant="accent" size="lg" className="w-full" disabled={!pres || submitting || checking} onClick={submit}>
+              <Button variant="accent" size="lg" className="w-full" disabled={!pres || submitting || checking || qc.status === "reject"} onClick={submit}>
                 {submitting ? <Loader2 className="animate-spin" /> : null}
-                {qc.status === "reject" ? upload.useAnyway : restricted ? "以受限模式开始" : onboarding.start}
+                {qc.status === "reject" ? journey.replaceFront : restricted ? "以受限模式开始" : onboarding.start}
               </Button>
               {!pres && <p className="text-center text-[12px] text-muted">选择一个表达方向后开始</p>}
             </div>

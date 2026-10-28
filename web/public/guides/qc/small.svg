@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 280" role="img" aria-labelledby="t d"><title id="t">靠近一点（拍照示意）</title><desc id="d">保留完整头部并减少多余背景，不用数码放大代替清晰原图。 原创示意，不是质检结果。</desc><defs><filter id="blur"><feGaussianBlur stdDeviation="4"/></filter></defs><rect width="320" height="280" rx="4" fill="#e8edeb"/><path d="M30 55V30H60M260 30H290V55M30 225V250H60M260 250H290V225" fill="none" stroke="#a1afa7" stroke-width="2"/><g transform="translate(85 86) scale(.46)"><path d="M78 261Q80 206 130 202H190Q240 206 242 261" fill="#8a9c96"/>
+<path d="M143 173H177V215Q160 231 143 215" fill="#c3b2a0"/>
+<ellipse cx="160" cy="125" rx="59" ry="75" fill="#d3c3ad"/>
+<path d="M102 127Q90 44 161 42Q229 45 218 126L206 99Q167 97 139 78L111 111Z" fill="#3e4a45"/>
+<g fill="none" stroke="#45544d" stroke-width="3.5" stroke-linecap="round"><path d="M125 116q10-5 20 0M176 116q10-5 20 0M127 130h15M178 130h15M160 131l-4 23h8M145 172q15 8 30 0"/></g></g></svg>

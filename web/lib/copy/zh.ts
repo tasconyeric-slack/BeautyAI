@@ -69,8 +69,8 @@ export const upload = {
 
 /** V3B (D35): role-based multi-photo upload. Only the front photo is required. */
 export const photos = {
-  heading: "补充更多照片，获得更完整的面部评估",
-  intro: "不同角度与状态的照片，有助于分析更多面部细节，提高个性化建议的针对性。",
+  heading: "从一张正脸，开始你的形象档案",
+  intro: "先看清自己的特点，再试适合你的发型、妆容和配色。想看更多细节，可以再补充其他照片。",
   frontOnly: "仅上传正脸照也可以开始，其他照片均为选填。",
   more: "更多补充照片（选填）",
   moreHint: "微笑、45° 半侧面和发型照，可以补充表情与发型相关的观察。",
