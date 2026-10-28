@@ -24,19 +24,18 @@ function Inner({ children }: { children: React.ReactNode }) {
   const { deletedAt, error, data, refresh } = usePassport();
   const [sheet, setSheet] = React.useState(false);
   if (deletedAt) return <Deleted at={deletedAt} />;
-  if (error && error.status === 404) {
-    return (
-      <div className="mx-auto max-w-md px-4 py-20 text-center">
-        <p className="font-serif text-[20px]">找不到这份护照</p>
-        <p className="mt-2 text-[13px] text-muted">链接可能已过期，或护照已被删除。</p>
-        <Link href="/start" className="mt-6 inline-block text-accent underline-offset-4 hover:underline">重新开始</Link>
-      </div>
-    );
-  }
+  // A 404 is not proof of intentional deletion: ephemeral storage may have
+  // disappeared after a backend restart. Preserve any already-loaded report.
   // Nothing loaded and the request keeps failing: say so and offer a retry, instead of a page that stays blank.
   if (error && !data) return <ErrorState error={error} onRetry={refresh} />;
   return (
     <>
+      {error?.status === 404 && data && (
+        <p role="alert" className="mx-auto max-w-5xl px-4 py-3 text-[13px] text-[#A33B28] sm:px-6">
+          服务端暂时找不到这份报告。下方保留当前页面已经加载的内容；请尽快导出文字报告，刷新后可能无法恢复。
+          <button type="button" onClick={() => void refresh()} className="ml-2 underline underline-offset-2">重试连接</button>
+        </p>
+      )}
       <DemoBanner />
       <JourneyBar />
       {children}
