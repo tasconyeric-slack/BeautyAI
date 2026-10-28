@@ -4,7 +4,10 @@ services:
     name: aesthetic-passport-api
     runtime: docker
     dockerfilePath: ./Dockerfile
-    plan: starter               # MediaPipe needs ~1 GB RAM; the free plan is too small
+    # Rendering real-photo AI previews and CV inference exceeded the Free 512 MiB limit (2026-10-28 OOM).
+    # Standard provides 2 GiB. The disk is essential for retaining SQLite and media after restarts.
+    # NOTE: Updating this file alone does NOT reconfigure an existing non-Blueprint Render service.
+    plan: standard              # legacy name for 1c-2g (2 GiB RAM)
     healthCheckPath: /api/health
     disk:
       name: runs
