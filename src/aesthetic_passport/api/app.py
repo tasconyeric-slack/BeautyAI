@@ -101,6 +101,10 @@ def create_app(settings: Settings | None = None) -> FastAPI:
 
     @contextlib.asynccontextmanager
     async def lifespan(_app: FastAPI):
+        # A killed background image job cannot resume in a new process. Preserve
+        # the report and paid entitlement, but let the user retry the preview.
+        for pid in await asyncio.to_thread(store.recover_pending_previews):
+            await asyncio.to_thread(preview_jobs._sync_passport, settings, store, pid)
         async def hourly() -> None:
             while True:
                 await asyncio.to_thread(purge_expired_media, store, settings.runs_dir)
