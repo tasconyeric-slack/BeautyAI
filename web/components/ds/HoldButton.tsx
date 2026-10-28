@@ -26,10 +26,12 @@ export function useHold() {
     },
     onPointerUp: stop,
     onPointerCancel: stop,
+    onPointerLeave: stop,
     onLostPointerCapture: stop,
     onBlur: stop,
     onContextMenu: (e) => e.preventDefault(),
     onKeyDown: (e) => {
+      if (e.key === "Escape") stop();
       if (e.key === " " || e.key === "Enter") {
         e.preventDefault();
         if (!e.repeat) start();
