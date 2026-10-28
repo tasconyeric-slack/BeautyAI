@@ -1,0 +1,79 @@
+import { act, fireEvent, render, screen, within } from "@testing-library/react";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import { sampleReportResponse } from "@/lib/fixture/backend";
+import { DEMO_CASES } from "@/lib/fixtures/demo_cases";
+import { readChoices } from "@/lib/state/choices";
+import { FullReportContent } from "./full-report";
+import { metricOverlay, metricRole, viewGeometry } from "@/components/face/measure-model";
+
+beforeEach(() => localStorage.clear());
+afterEach(() => { vi.useRealTimers(); vi.restoreAllMocks(); });
+const response = () => structuredClone(sampleReportResponse(DEMO_CASES[0].id));
+
+describe("ENG-02 full report critical path", () => {
+  it.each(DEMO_CASES)("uses $key data in all seven chapters, with no sample write routes", demo => {
+    const data = sampleReportResponse(demo.id);
+    const { container } = render(<FullReportContent data={data} geometry={demo.geometry} sample />);
+    expect(container.querySelectorAll("[data-chapter]")).toHaveLength(7);
+    expect(screen.getByTestId("score-value").textContent).toBe(String(demo.passport.aesthetic_score!.overall_score));
+    expect(container.querySelectorAll('a[href^="/p/"]')).toHaveLength(0);
+    expect(screen.queryByRole("button", { name: "加入我的方案" })).toBeNull();
+    expect(screen.getByTestId("preview-state").textContent).not.toContain("正在生成");
+  });
+
+  it("switches the current haircut, copies that exact brief and saves it through existing choices", async () => {
+    const data = response();
+    const analysis = JSON.stringify(data.passport!.analysis);
+    const writeText = vi.fn().mockResolvedValue(undefined);
+    Object.defineProperty(navigator, "clipboard", { configurable: true, value: { writeText } });
+    render(<FullReportContent data={data} geometry={DEMO_CASES[0].geometry} sample={false} />);
+    fireEvent.click(screen.getByRole("radio", { name: /省心/ }));
+    const current = screen.getByTestId("current-hair");
+    fireEvent.click(within(current).getByRole("button", { name: "复制当前剪发话术" }));
+    await act(async () => {});
+    expect(writeText.mock.calls[0][0]).toContain("齐颌直发低维护");
+    expect(writeText.mock.calls[0][0]).not.toMatch(/32mm|C卷|锁骨/);
+    fireEvent.click(within(current).getByRole("button", { name: "加入我的方案" }));
+    expect(readChoices(data.id).hair?.tier).toBe("easy");
+    expect(screen.getByTestId("report-current-plan").textContent).toContain("齐颌直发低维护");
+    expect(JSON.stringify(data.passport!.analysis)).toBe(analysis);
+  });
+
+  it("removes every media image and overlay at the deadline while retaining numbers and recovery", () => {
+    vi.useFakeTimers();
+    const data = response();
+    data.media.expires_at = new Date(Date.now() + 1000).toISOString();
+    const { container } = render(<FullReportContent data={data} geometry={DEMO_CASES[0].geometry} sample={false} />);
+    expect(container.querySelectorAll("img").length).toBeGreaterThan(1);
+    act(() => vi.advanceTimersByTime(1100));
+    expect(container.querySelectorAll("img, [data-measure-overlay]")).toHaveLength(0);
+    expect(screen.getByTestId("score-value").textContent).toBe("83.3");
+    expect(screen.getAllByRole("link", { name: /重新上传/ }).length).toBeGreaterThan(0);
+  });
+
+  it("uses the selected side metric's photo and native geometry, with no front-coordinate fallback", () => {
+    const data = response();
+    const demo = DEMO_CASES[0];
+    const metric = data.passport!.measurement_profile!.metrics.find(m => metricRole(m) === "profile90" && m.availability === "measured")!;
+    const { container, rerender } = render(<FullReportContent data={data} geometry={demo.geometry} sample />);
+    fireEvent.click(container.querySelector(`[data-metric-row="${metric.id}"] button`)!);
+    const figure = container.querySelector('[data-photo-role="profile90"]')!;
+    expect(figure.querySelector("img")!.getAttribute("src")).toBe(demo.photos.profile90);
+    const overlay = metricOverlay(metric, demo.geometry)!;
+    const native = viewGeometry(demo.geometry, "profile90")!;
+    if (overlay.segments.length) expect(figure.querySelector("line")!.getAttribute("x1")).toBe(String(overlay.segments[0].a[0] * native.width));
+    rerender(<FullReportContent data={data} geometry={null} sample />);
+    expect(container.querySelectorAll("[data-measure-overlay]")).toHaveLength(0);
+    expect(container.querySelector('[data-photo-role="profile90"] img')).toBeTruthy();
+  });
+
+  it.each(["limited", "unavailable"] as const)("preserves an honest %s score and unverified comparison", status => {
+    const data = response();
+    data.passport!.aesthetic_score!.status = status;
+    data.passport!.aesthetic_score!.overall_score = null;
+    render(<FullReportContent data={data} geometry={DEMO_CASES[0].geometry} sample />);
+    expect(screen.queryByTestId("score-value")).toBeNull();
+    expect(screen.getByTestId("rank-state").textContent).not.toMatch(/前\s*\d+%/);
+    expect(screen.getByTestId("region-reading-proportions").textContent).toContain("定义尚未验证");
+  });
+});

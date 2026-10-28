@@ -7,6 +7,7 @@ import { sampleReportResponse } from "@/lib/fixture/backend";
 import { DEMO_CASES, type DemoCase } from "@/lib/fixtures/demo_cases";
 import { StaticPassportProvider } from "@/lib/state/passport-store";
 import { cn } from "@/lib/utils";
+import s from "./full-report.module.css";
 import { EntitlementTable, FullReport } from "./full-report";
 
 export type SampleVariant = "female" | "male" | DemoCase["key"];
@@ -24,8 +25,7 @@ export function SampleReport({ variant }: { variant: SampleVariant }) {
       <p role="note" className="bg-amber-soft px-4 py-1.5 text-center text-[12px] text-amber">
         {demo ? `${copy.sampleKicker} · ${copy.demo.disclosureTitle}` : `${copy.sampleKicker} · 虚构档案，不代表任何真人`}
       </p>
-      <nav aria-label={copy.demo.selectorLabel} className="mx-auto flex max-w-6xl flex-wrap items-center justify-between gap-3 px-4 pt-4 sm:px-6">
-        <Link href="/" className="text-[13px] text-muted hover:text-ink">← 形象护照</Link>
+      <nav aria-label={copy.demo.selectorLabel} className={s.sampleNav}>
         <div className="flex flex-wrap items-center gap-2 text-[12.5px]">
           <div className="flex gap-1 rounded-full border border-rule p-0.5" data-testid="sample-person-selector">
             {DEMO_CASES.map((c) => (
@@ -35,17 +35,16 @@ export function SampleReport({ variant }: { variant: SampleVariant }) {
               </Link>
             ))}
           </div>
-          <span className="text-muted">{copy.demo.illustrated}：</span>
-          {(["female", "male"] as const).map((k) => (
+          <details className={s.sampleLegacy}><summary>{copy.demo.illustrated}</summary><div>{(["female", "male"] as const).map((k) => (
             <Link key={k} href={`/report/sample?v=${k}`} aria-current={k === variant ? "page" : undefined}
               className={cn("underline-offset-4 hover:underline", k === variant ? "text-ink" : "text-muted")}>
               {copy.sampleVariants[k]}
             </Link>
-          ))}
+          ))}</div></details>
         </div>
       </nav>
-      {demo && <DemoDisclosure c={demo} />}
       <FullReport sample />
+      {demo && <DemoDisclosure c={demo} />}
       <section className="mx-auto max-w-6xl px-4 pb-16 sm:px-6 lg:grid lg:grid-cols-[200px_minmax(0,1fr)] lg:gap-12">
         <div aria-hidden className="hidden lg:block" />
         <div className="max-w-3xl">

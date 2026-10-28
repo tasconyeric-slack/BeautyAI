@@ -6,6 +6,14 @@ import { buildPlan, buildPlanView, defaultPreferences } from "./engine";
 const fixture = () => structuredClone(sample) as unknown as Passport;
 
 describe("personal intervention decisions", () => {
+  it("rechecks hard limits before reusing a saved hairstyle", () => {
+    const p = fixture();
+    p.derived.hair_option_checks.find(h => h.tier === "bold")!.status = "excluded";
+    const before = JSON.stringify(p.analysis);
+    const view = buildPlanView(p, defaultPreferences(p), "bold");
+    expect(view.cards.some(c => c.id === "hair-bold")).toBe(false);
+    expect(JSON.stringify(p.analysis)).toBe(before);
+  });
   it("selects new actions for different declared goals on the same observations", () => {
     const p = fixture();
     const original = JSON.stringify(p);

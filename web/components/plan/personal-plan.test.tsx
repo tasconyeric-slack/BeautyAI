@@ -2,11 +2,19 @@ import { fireEvent, render, screen, within } from "@testing-library/react";
 import { beforeEach, describe, expect, it } from "vitest";
 import sample from "@/lib/fixtures/sample_passport.json";
 import type { Passport } from "@/lib/api";
-import { clearChoices, readChoices } from "@/lib/state/choices";
+import { choicesKey, clearChoices, readChoices } from "@/lib/state/choices";
 import { PersonalPlan } from "./personal-plan";
 
 beforeEach(() => localStorage.clear());
 describe("plan decision key path", () => {
+  it("reads the hairstyle saved by the full report before applying goal defaults", () => {
+    localStorage.setItem(choicesKey("report-handoff"), JSON.stringify({ hair: { tier: "easy", at: "2026-10-28" }, plan: { r1: { saved: true } }, looks: [] }));
+    render(<PersonalPlan id="report-handoff" passport={sample as unknown as Passport} />);
+    const card = screen.getByTestId("intervention-hair-easy");
+    expect(card.textContent).toContain("层次长发");
+    expect(within(card).getByRole("link", { name: /实验室/ }).getAttribute("href")).toBe("/p/report-handoff/studio?hair=easy");
+    expect(screen.queryByTestId("intervention-hair-safe")).toBeNull();
+  });
   it("changes candidates, opens the selected Studio action, and restores saved progress", () => {
     const passport = sample as unknown as Passport;
     const view = render(<PersonalPlan id="ap_sample_0001" passport={passport} />);

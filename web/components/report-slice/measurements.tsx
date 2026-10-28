@@ -11,10 +11,10 @@ import type { FaceGeometry } from "@/lib/tint";
 import { photoExpired } from "./model";
 import s from "./report-slice.module.css";
 
-export function MissingPhoto({ expired }: { expired: boolean }) {
+export function MissingPhoto({ expired, recoveryHref = "/start", recoveryLabel = c.reupload }: { expired: boolean; recoveryHref?: string; recoveryLabel?: string }) {
   return <div className={s.missing} role="note">
     <h3>{expired ? c.expired : c.noPhoto}</h3><p>{expired ? c.expiredNote : c.noPhotoNote}</p>
-    <Link href="/start" className={s.textLink}>{c.reupload}</Link>
+    <Link href={recoveryHref} className={s.textLink}>{recoveryLabel}</Link>
   </div>;
 }
 

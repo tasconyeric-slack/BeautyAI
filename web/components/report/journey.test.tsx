@@ -77,14 +77,14 @@ describe("reading position", () => {
 });
 
 describe("the full report as a document", () => {
-  it("opens with four facts that each link into the chapter behind them", () => {
+  it("opens with source facts and direct links to their methods and measurements", () => {
     const { container } = renderReport(true);
     const strip = screen.getByTestId("report-glance");
     const items = within(strip).getAllByRole("link");
-    expect(items.map((a) => a.getAttribute("data-glance"))).toEqual(["score", "strength", "first", "coverage"]);
+    expect(items.map((a) => a.getAttribute("href"))).toEqual(["#methods", "#area-proportions"]);
     for (const a of items) expect(container.querySelector(a.getAttribute("href")!), a.getAttribute("href")!).not.toBeNull();
-    expect(strip.textContent).toContain(String(Math.round(passport.aesthetic_score!.overall_score!)));
-    expect(strip.textContent).toContain("合成人脸"); // the sample says whose number this is
+    expect(strip.textContent).toContain(String(passport.aesthetic_score!.overall_score));
+    expect(screen.getByTestId("full-report").dataset.sample).toBe("1");
   });
 
   it("every in-page link — contents, region jumps, evidence and recommendation chips — lands on an element that exists", () => {
@@ -105,7 +105,7 @@ describe("the full report as a document", () => {
   it("keeps the how-to, caveats and quoted evidence one click away rather than in the way", () => {
     const { container } = renderReport(true);
     const first = container.querySelector("#rec-" + passport.derived.ranked_recommendations[0].rec_id)!;
-    const details = first.querySelector("details")!;
+    const details = first.querySelector<HTMLDetailsElement>("details[data-rec-howto]")!;
     expect(details.open).toBe(false);
     expect(within(first as HTMLElement).getByText(/为什么/)).toBeTruthy(); // the reason stays visible
     expect(details.textContent).toContain("怎么做");

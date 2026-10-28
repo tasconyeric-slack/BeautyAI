@@ -17,7 +17,7 @@ export const otherConstraint = (p: Passport) => p.user_context.constraints.other
 const KIND_OF = (id: string) => id.startsWith("hair-") ? "hair" : id.startsWith("lip-") ? "lip" : id.startsWith("near-face-") ? "drape"
   : id.startsWith("brow-") ? "brow" : "photo";
 
-function candidatesFor(p: Passport, preferences: PlanPreferences, goal: Goal, declined: ReadonlySet<string>): Intervention[] {
+function candidatesFor(p: Passport, preferences: PlanPreferences, goal: Goal, declined: ReadonlySet<string>, selectedHair?: string | null): Intervention[] {
   const constraints = p.user_context.constraints;
   const budget = Math.min(costOrder[preferences.budget], costOrder[constraints.budget_level]);
   const minutes = Math.min(preferences.minutes, constraints.daily_minutes);
@@ -30,7 +30,8 @@ function candidatesFor(p: Passport, preferences: PlanPreferences, goal: Goal, de
   const candidates: Intervention[] = [];
   const cp = p.analysis.color_profile;
 
-  const preferred = goal === "bold" ? ["bold", "safe", "easy"] : goal === "relaxed" ? ["easy", "safe", "bold"] : ["safe", "easy", "bold"];
+  const goalPreferred = goal === "bold" ? ["bold", "safe", "easy"] : goal === "relaxed" ? ["easy", "safe", "bold"] : ["safe", "easy", "bold"];
+  const preferred = [...new Set([...(selectedHair ? [selectedHair] : []), ...goalPreferred])];
   const hair = preferred.map(t => p.analysis.hair_options.find(h => h.tier === t)).find(h => {
     if (!h || declined.has(`hair-${h.tier}`) || blockedCategory.has("hairstyle")) return false;
     if (p.derived.hair_option_checks.some(c => c.tier === h.tier && c.status === "excluded")) return false;
@@ -44,7 +45,7 @@ function candidatesFor(p: Passport, preferences: PlanPreferences, goal: Goal, de
     const evidence = p.analysis.observations.filter(o => hair.evidence.includes(o.id));
     const params = hair.params;
     candidates.push({
-      id: `hair-${hair.tier}`, category: "发型", purpose: evidence.some(o => o.polarity === "strength") ? "enhance" : "express", evidence, goalReason,
+      id: `hair-${hair.tier}`, category: "发型", purpose: evidence.some(o => o.polarity === "strength") ? "enhance" : "express", evidence, goalReason: selectedHair === hair.tier ? `沿用你已选定的「${hair.name_zh}」。${goalReason}` : goalReason,
       action: `与发型师讨论「${hair.name_zh}」：${LENGTH_ZH[params.length]}、${FRINGE_ZH[params.fringe]}${params.part ? `、${PART_ZH[params.part]}` : ""}`,
       mechanism: "长度、分线和刘海改变脸周留白与线条方向；实际效果取决于发质与剪裁。",
       effect: goal === "bold" ? "通过脸周轮廓表达更鲜明的风格" : goal === "relaxed" ? "用易打理的脸周线条表达自然亲近感" : "用有序的脸周线条表达利落感",
@@ -92,17 +93,17 @@ export interface PlanView { cards: Intervention[]; replacements: Replacement[]; 
 
 /** Cards for the chosen goal, plus a supported alternative (or a truthful "none") for every declined card.
  * Alternatives only come from observed evidence under the same hard limits; nothing is generated or scored. */
-export function buildPlanView(p: Passport, preferences: PlanPreferences): PlanView {
+export function buildPlanView(p: Passport, preferences: PlanPreferences, selectedHair?: string | null): PlanView {
   const goal = preferences.goal;
   const declined = new Set(preferences.declined ?? []);
   const constraintText = otherConstraint(p);
   const needsCheck = constraintText !== "" && preferences.confirmedOther !== constraintText;
   const mark = (c: Intervention): Intervention => needsCheck && KIND_OF(c.id) !== "photo" ? { ...c, needsCheck: true } : c;
-  const baseline = candidatesFor(p, preferences, goal, new Set());
-  const cards = candidatesFor(p, preferences, goal, declined);
+  const baseline = candidatesFor(p, preferences, goal, new Set(), selectedHair);
+  const cards = candidatesFor(p, preferences, goal, declined, selectedHair);
   const replacements: Replacement[] = [];
   const elsewhere = (Object.keys(GOALS) as Goal[]).filter(g => g !== goal)
-    .flatMap(g => candidatesFor(p, preferences, g, declined)).map(c => ({ ...c, outOfGoal: true }));
+    .flatMap(g => candidatesFor(p, preferences, g, declined, selectedHair)).map(c => ({ ...c, outOfGoal: true }));
   const taken = new Set(cards.map(c => c.id));
   for (const d of baseline.filter(c => declined.has(c.id))) {
     // A declined hair tier is already replaced by the next permitted tier inside `cards`; look for a different kind.
