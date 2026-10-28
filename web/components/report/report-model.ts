@@ -55,6 +55,7 @@ export interface RegionView {
   key: string;
   title: string;
   rows: RegionRow[];
+  additionalRows: RegionRow[];
   /** Measured, visible metrics beyond the rows shown here (all are in the workbench). */
   more: number;
   /** Measured metrics whose values the free view withholds. */
@@ -86,7 +87,7 @@ export function regionViews(p: Passport, v: MeasureView): RegionView[] {
     const metrics = v.profile.metrics.filter((m) => r.groups.includes(m.group));
     const shown = metrics.filter(visible);
     const sorted = [...shown].sort((a, b) => rowOrder(a, v) - rowOrder(b, v));
-    const rows: RegionRow[] = sorted.slice(0, MAX_ROWS).map((m) => ({
+    const allRows: RegionRow[] = sorted.map((m) => ({
       id: m.id, name: m.name_zh, value: display(m), definition: m.definition_zh, assessment: v.assessments[m.id] ?? null,
       metric: m, confidence: m.confidence,
     }));
@@ -97,8 +98,8 @@ export function regionViews(p: Passport, v: MeasureView): RegionView[] {
       missingMap.set(reason, (missingMap.get(reason) ?? 0) + 1);
     }
     return {
-      key: r.key, title: r.title, rows,
-      more: Math.max(0, shown.length - rows.length),
+      key: r.key, title: r.title, rows: allRows.slice(0, MAX_ROWS), additionalRows: allRows.slice(MAX_ROWS),
+      more: Math.max(0, shown.length - MAX_ROWS),
       locked: metrics.filter((m) => m.locked && m.availability === "measured").length,
       measured: metrics.filter((m) => m.availability === "measured").length,
       total: metrics.length,
@@ -181,20 +182,21 @@ export function pickActive(tops: number[], line: number): number {
 // --- region crop -----------------------------------------------------------------------------------------------
 
 export interface RegionCrop {
-  /** Normalized crop box on the front photo: [x0, y0, x1, y1]. */
+  /** Normalized crop box on the metric's source photo: [x0, y0, x1, y1]. */
   box: [number, number, number, number];
-  /** Native pixel size of the front photo (the coordinates' reference). */
+  /** Native pixel size of the source photo (the coordinates' reference). */
   width: number;
   height: number;
   overlays: MetricOverlay[];
 }
 
-/** A tight crop around the region's own measurement points (front photo only), with the lines that were measured.
+/** A tight crop around measurement points from one registered source view, with the lines that were measured.
  *  Null when the photo has no geometry (expired, pre-V3 passport) or none of the region's metrics can be drawn. */
 export function regionCrop(metrics: Metric[], g: FaceGeometry | null, pad = 0.45, minSide = 0.22): RegionCrop | null {
-  const vg = viewGeometry(g, "front");
+  const role = metrics[0] ? metricRole(metrics[0]) : "front";
+  const vg = viewGeometry(g, role);
   if (!vg) return null;
-  const overlays = metrics.map((m) => metricOverlay(m, g)).filter((o): o is MetricOverlay => Boolean(o));
+  const overlays = metrics.filter(m => metricRole(m) === role).map((m) => metricOverlay(m, g)).filter((o): o is MetricOverlay => Boolean(o));
   const pts: Pt[] = overlays.flatMap((o) => [...o.segments.flatMap((s) => [s.a, s.b]), ...o.arcs.flatMap((a) => [a.a, a.vertex, a.b]), ...o.dots]);
   if (!pts.length) return null;
   let x0 = Math.min(...pts.map((q) => q[0])), x1 = Math.max(...pts.map((q) => q[0]));

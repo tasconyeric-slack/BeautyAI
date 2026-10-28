@@ -8,7 +8,7 @@ const nextConfig: NextConfig = {
     return [
       { source: "/analyze", destination: "/start", permanent: false },
       { source: "/passport/:id", destination: "/p/:id", permanent: false },
-      { source: "/sample", destination: "/p/ap_sample_0001", permanent: false },
+      { source: "/sample", destination: "/report/sample", permanent: false },
     ];
   },
 };

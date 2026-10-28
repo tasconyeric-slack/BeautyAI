@@ -36,7 +36,6 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             </Link>
             <nav className="flex items-center gap-4 text-[13px]">
               <Link href="/report/sample" className="text-muted hover:text-ink">示例报告</Link>
-              <Link href="/p/ap_sample_0001" className="hidden text-muted hover:text-ink sm:inline">示例档案</Link>
               <Link href="/start" className="rounded-full bg-accent px-3.5 py-1.5 font-medium text-[var(--ap-on-primary)] hover:opacity-90">
                 开始
               </Link>

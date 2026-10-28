@@ -47,7 +47,7 @@ describe("full report — public synthetic sample (full entitlement)", () => {
     expect(chapters).toEqual(CHAPTER_KEYS);
 
     // overall: the scoring layer's number, labeled as a synthetic sample
-    expect(screen.getByTestId("score-value").textContent).toBe(String(Math.round(p.aesthetic_score!.overall_score!)));
+    expect(screen.getByTestId("score-value").textContent).toBe(String(p.aesthetic_score!.overall_score));
     expect(report.textContent).toContain("合成人脸");
 
     // findings: six region chapters with measured values straight from measurement_profile
@@ -62,8 +62,8 @@ describe("full report — public synthetic sample (full entitlement)", () => {
     expect(within(screen.getByTestId("report-improvements")).getAllByRole("listitem").length).toBeGreaterThanOrEqual(5);
     const hair = container.querySelectorAll("[data-hair]");
     expect(hair.length).toBe(3);
-    // the sample's hair images are drawn illustrations and say so; never labeled as an AI photo edit
-    for (const h of hair) expect(h.getAttribute("data-preview")).toBe("illustration");
+    // Public examples do not present illustrative previews as a generated photo edit.
+    for (const h of hair) expect(h.getAttribute("data-preview")).toBe("not_yet");
     expect(screen.getByTestId("report-plan-full")).toBeTruthy();
     expect(screen.queryByTestId("report-free-scope")).toBeNull();
     expect(screen.queryAllByTestId("locked-line")).toHaveLength(0);

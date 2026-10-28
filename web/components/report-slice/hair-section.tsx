@@ -12,18 +12,20 @@ import { reportSlice as c } from "@/lib/copy/report-slice";
 import { useChoices } from "@/lib/state/choices";
 import { MissingPhoto } from "./measurements";
 import { photoExpired } from "./model";
+import { previewNote } from "@/components/report/report-model";
 import s from "./report-slice.module.css";
 
 /** Photo errors do not turn a broken or missing generated image into a successful comparison. */
 function Preview({ data, sample, tier, gone }: { data: PassportResponse; sample: boolean; tier: Tier; gone: boolean }) {
   const pv = sample ? null : data.partial.previews.find(p => p.kind === "hair" && p.target_id === tier);
   const [failed, setFailed] = React.useState(false);
+  const [originalFailed, setOriginalFailed] = React.useState(false);
   if (gone) return <div data-testid="preview-state"><MissingPhoto expired={photoExpired(data.media)} /></div>;
   const pair = pv?.status === "succeeded" && pv.before_url && pv.after_url && !failed;
   const text = failed ? c.previewUnavailable : sample ? c.noPreview : pv?.status === "pending" ? c.previewPending
     : pv && ["failed", "fallback", "skipped"].includes(pv.status) ? c.previewFailed : c.previewMissing;
   return <div className={s.preview} data-testid="preview-state" onErrorCapture={() => setFailed(true)}>
-    {pair ? <CompareView beforeSrc={pv.before_url!} afterSrc={pv.after_url!} label={c.selected} aiLabel={pv.image_model?.startsWith("fixture") ? c.previewIllustration : pv.ai_label} /> : <p role="status">{text}</p>}
+    {pair ? <CompareView beforeSrc={pv.before_url!} afterSrc={pv.after_url!} label={c.selected} aiLabel={pv.image_model?.startsWith("fixture") ? c.previewIllustration : pv.ai_label} /> : <>{data.media.front && !originalFailed && !failed && <img src={data.media.front} alt="当前方向的原始正脸照片" className="w-full object-cover" onError={() => setOriginalFailed(true)} />}<p role="status">{text}</p></>}
   </div>;
 }
 
@@ -38,26 +40,28 @@ function HairActions({ id, tier, recId }: { id: string; tier: Tier; recId: strin
   </div>;
 }
 
-export function HairSection({ p, data, gone, sample }: { p: Passport; data: PassportResponse; gone: boolean; sample: boolean }) {
+export function HairSection({ p, data, gone, sample, embedded = false, selectedTier, onSelect }: { p: Passport; data: PassportResponse; gone: boolean; sample: boolean; embedded?: boolean; selectedTier?: Tier | null; onSelect?: (tier: Tier) => void }) {
   const options = hairOptions(p, data.partial.previews);
   const [selected, setSelected] = React.useState<Tier | null>(null);
-  const current = options.find(o => o.tier === selected && o.status !== "excluded") ?? options.find(o => o.status !== "excluded");
+  const tier = selectedTier === undefined ? selected : selectedTier;
+  const current = options.find(o => o.tier === tier && o.status !== "excluded") ?? options.find(o => o.status !== "excluded");
   const brief = current ? stylistBrief(p, current.tier) : null;
   const rec = rankedRecs(p).find(r => r.page === "hair");
-  return <section id="advice" data-slice-section className={`${s.section} ${s.advice}`} aria-labelledby="advice-title">
-    <header className={s.sectionHead}><div><p className={s.kicker}>{c.hair}</p><h2 id="advice-title">{c.hairTitle}</h2></div></header>
+  return <section id={embedded ? "current-hair-choice" : "advice"} data-embedded-hair={embedded || undefined} data-slice-section={!embedded || undefined} className={embedded ? s.advice : `${s.section} ${s.advice}`} aria-label={embedded ? c.selectHair : undefined} aria-labelledby={embedded ? undefined : "advice-title"}>
+    {!embedded && <header className={s.sectionHead}><div><p className={s.kicker}>{c.hair}</p><h2 id="advice-title">{c.hairTitle}</h2></div></header>}
     <div className={s.hairGrid}>
       <div>
-        <RadioGroup.Root className={s.hairOptions} aria-label={c.selectHair} value={current?.tier ?? ""} onValueChange={value => setSelected(value as Tier)}>
-          {options.map(o => <RadioGroup.Item key={o.tier} value={o.tier} disabled={o.status === "excluded"} className={s.hairOption} aria-label={`${o.tierZh} · ${o.name}${o.status === "excluded" ? ` · ${c.excluded}` : ""}`}>
+        <RadioGroup.Root className={s.hairOptions} aria-label={c.selectHair} value={current?.tier ?? ""} onValueChange={value => { setSelected(value as Tier); onSelect?.(value as Tier); }}>
+          {options.map(o => <RadioGroup.Item key={o.tier} data-hair={o.tier} data-preview={gone ? "expired" : sample ? "not_yet" : previewNote({ status: o.preview?.status ?? null, imageModel: o.preview?.image_model ?? null, paid: data.entitlement.paid, expired: false })} value={o.tier} disabled={o.status === "excluded"} className={s.hairOption} aria-label={`${o.tierZh} · ${o.name}${o.status === "excluded" ? ` · ${c.excluded}` : ""}`}>
             <span>{o.tierZh}</span><span><strong>{o.name}</strong><small>{o.status === "excluded" ? [c.excluded, ...o.issues].join(" · ") : `${o.minutes} ${c.minutes} · ${o.role}`}</small></span>
             <span className={s.radioMark} aria-hidden><RadioGroup.Indicator /></span>
           </RadioGroup.Item>)}
         </RadioGroup.Root>
         {current && brief ? <div key={current.tier} data-testid="current-hair" className={s.currentHair} aria-live="polite">
           <p className={s.kicker}>{c.selected} · {current.tierZh}</p><h3>{brief.name}</h3>
+          {embedded && <CopyButton key={current.tier} text={brief.text} label={c.copy} className={`${s.button} ${s.copyButton}`} />}
           <div className={s.brief}><h4>{c.currentSteps}</h4><ol>{brief.scripts.map((text, i) => <li key={i}>{text}</li>)}</ol><p>{c.avoid}：{current.avoid}</p></div>
-          <CopyButton key={current.tier} text={brief.text} label={c.copy} className={`${s.button} ${s.copyButton}`} />
+          {!embedded && <CopyButton key={current.tier} text={brief.text} label={c.copy} className={`${s.button} ${s.copyButton}`} />}
           {sample ? <p className={s.caption}>{c.readOnly}</p> : <HairActions id={data.id} tier={current.tier} recId={rec?.id ?? null} />}
           <details className={s.details}><summary>{c.params}</summary><dl className={s.params}>{current.params.map(param => <div key={param.label}><dt>{param.label}</dt><dd>{param.value}</dd></div>)}</dl>
             <p>{c.upkeep}：{current.minutes} {c.minutes} · {current.trimWeeks} {c.trim}</p>

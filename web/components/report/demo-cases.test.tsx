@@ -67,7 +67,7 @@ describe("pipeline-backed demo cases (Issue #14)", () => {
 
     // the scoring layer's real number and the real measurements
     const report = screen.getByTestId("full-report");
-    expect(screen.getByTestId("score-value").textContent).toBe(String(Math.round(p.aesthetic_score!.overall_score!)));
+    expect(screen.getByTestId("score-value").textContent).toBe(String(p.aesthetic_score!.overall_score));
     const m001 = p.measurement_profile!.metrics.find((m) => m.id === "M001")!;
     expect(container.querySelector('[data-metric-row="M001"] [data-testid="metric-value"]')?.textContent)
       .toBe(m001.value!.toFixed(m001.decimals));

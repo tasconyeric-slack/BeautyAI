@@ -24,8 +24,10 @@ function PlanSurface({ id, passport }: { id: string; passport: Passport }) {
     setPreferences(next); setMore(false);
     setPersistent(writePreferences(id, next));
   };
-  const { cards, replacements, needsCheck, constraintText } = buildPlanView(passport, preferences);
-  const progress = (c: Intervention) => choices.plan[progressKey(preferences.goal, c)] ?? {};
+  const { cards, replacements, needsCheck, constraintText } = buildPlanView(passport, preferences, choices.hair?.tier);
+  const hairRecId = passport.analysis.recommendations.find(r => r.category === "hairstyle")?.id;
+  const progress = (c: Intervention) => choices.plan[progressKey(preferences.goal, c)] ??
+    (c.id === `hair-${choices.hair?.tier}` && hairRecId && choices.plan[hairRecId]?.saved ? { saved: true } : {});
   const decline = (cid: string) => update({ declined: [...new Set([...(preferences.declined ?? []), cid])] });
   const restore = (cid: string) => update({ declined: (preferences.declined ?? []).filter(x => x !== cid) });
   const visible = more ? cards : cards.slice(0, 3);
