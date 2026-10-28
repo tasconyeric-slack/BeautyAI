@@ -1,0 +1,20 @@
+/** Copy for the isolated S2 report; existing model/rules prose is displayed verbatim. */
+export const reportSlice = {
+  title: "形象护照", start: "开始我的分析", sample: "AI 合成示例人物 · 报告只读", fixture: "开发用虚构护照 · 可验证本设备的行动保存",
+  nav: [["overview", "概览"], ["structure", "面部结构"], ["advice", "形象建议"]] as const,
+  overview: "概览 · 形象护照", priorities: "优先建议", generic: "通用分析建议", photo: "正脸 · 测量原图", original: "原图",
+  scoreBoundary: "仅为面部几何协调度参考，不代表整体外貌评价", scoreAbout: "怎么算的", scoreMissing: "暂不能给出参考分", scoreLimited: "部分测量可用",
+  rank: "参考人群位置", rankMissing: "暂不可用", rankCalibrating: "校准中", highlight: "结构特点", noHighlight: "查看具体测量", measureLink: "看测量",
+  structure: "面部结构 · 看到的与意味着", structureTitle: "看懂比例，再决定怎么调整。", structureAbout: "选择一项测量，照片上的线、数值与解读一起切换。比例用于理解特点，不表示好坏。",
+  selectMetric: "切换测量", seen: "看到的", means: "意味着", definition: "怎么测", comparison: "参考对照", advice: "所以建议",
+  unverified: "此项暂无可比对照", noComparison: "这项测量暂没有可用的参考对照。", missingMeasurement: "本项未测量；补充合适的照片后可重新分析。", locked: "本项详细测量未开放。", noProfile: "这份报告暂没有可用的面部测量。",
+  noPhoto: "这张测量照片暂不可用", noPhotoNote: "保留文字测量与建议；补充照片后可重新分析。", expired: "原图已超过保存期限", expiredNote: "照片与测量线不再显示，文字测量与建议仍然保留。", reupload: "重新上传正脸",
+  hair: "形象建议 · 发型", hairTitle: "选一个方向，把话术带到发型店。", selectHair: "选择发型方向", excluded: "已排除", selected: "当前方向", noHair: "当前条件下没有可选的发型方向。",
+  currentSteps: "给发型师看的话", params: "当前方案参数", upkeep: "日常打理", avoid: "请避免", requires: "需要", minutes: "分钟 / 天", trim: "周修剪", copy: "复制当前剪发话术",
+  genericDetails: "查看通用分析依据", conflict: "通用分析与当前方向的长度表述可能不同。两者不合并为剪发步骤；剪前请与发型师确认最终长度。", sourceDirection: "完整造型方向",
+  save: "加入我的方案", saved: "已加入我的方案", openPlan: "查看我的行动方案", openStudio: "去实验室查看当前方向", readOnly: "示例不保存选择。你可以复制话术，或开始自己的分析。",
+  noPreview: "本示例未生成试看图，先查看原图与剪发建议。", previewMissing: "当前方向尚未生成试看图，照片上仍是现在的发型。", previewPending: "当前方向正在生成，完成前先查看原图与剪发建议。", previewFailed: "当前方向生成失败，暂时没有可用的试看图。可在实验室查看并重试。", previewUnavailable: "试看图暂不可用，先查看文字建议。", previewIllustration: "虚构护照示意图",
+  generalPhoto: "分析原图", savedNote: "当前方向与这条通用建议已加入本设备的方案。", methods: "计算说明", noPassport: "报告尚未准备好。", fullReport: "查看现有完整报告",
+  review: "切片评审", reviewOnly: "以下仅为开发评审工具，状态演示不会修改报告来源。", person: "样例与行动验证", state: "状态演示", normal: "真实样例状态", pending: "任务生成中（模拟）", failed: "任务失败（模拟）", needsPhoto: "测量缺照片", noGeometry: "几何缺失", limited: "部分参考分", unavailable: "参考分不可用", expireSoon: "照片在 5 秒后过期", expiredDemo: "照片已过期（模拟）",
+  theme: "评审配色", systemTheme: "跟随系统", lightTheme: "浅色", darkTheme: "深色",
+} as const;
