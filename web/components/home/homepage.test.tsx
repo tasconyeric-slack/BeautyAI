@@ -10,6 +10,21 @@ beforeAll(() => {
 });
 
 describe("production homepage", () => {
+  it("connects the seven real report chapters, Studio handoff and existing QC guide", () => {
+    render(<HomePage />);
+    const contents = screen.getByRole("list", { name: "示例报告七章目录" });
+    expect(within(contents).getAllByRole("link").map(a => a.getAttribute("href"))).toEqual(
+      ["overview", "findings", "interpretation", "improvements", "options", "plan", "methods"].map(key => `/report/sample?v=p001#${key}`),
+    );
+    expect(screen.getByRole("link", { name: "上传照片，开始自己的造型" }).getAttribute("href")).toBe("/start");
+    expect(screen.getByRole("link", { name: "开始我的分析" }).getAttribute("href")).toBe("/start");
+    const guide = screen.getByRole("complementary", { name: "拍照指引" });
+    fireEvent.click(within(guide).getByRole("button", { name: "角度" }));
+    expect(within(guide).getByRole("heading", { name: "正脸平视，侧脸选填" })).toBeTruthy();
+    expect(screen.getByText(/原始分析照与推荐色卡/)).toBeTruthy();
+    expect(screen.getByText(/公开示例只供浏览/)).toBeTruthy();
+    expect(screen.getByText(/其余照片在任务结束后立即删除。随时在护照底部选择/)).toBeTruthy();
+  });
   it("keeps the homepage usable when an optional sample's geometry is unavailable", () => {
     const original = samples.demoCaseByKey;
     const female = original("p001")!;
