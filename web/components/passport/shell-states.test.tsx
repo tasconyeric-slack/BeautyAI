@@ -43,10 +43,16 @@ describe("passport shell when the passport cannot be loaded", () => {
     expect((await screen.findByTestId("passport-error")).textContent).toContain("服务暂时没有响应");
   });
 
-  it("a passport that no longer exists keeps its own, clearer message", async () => {
+  it("a missing report explains the server-side failure and recovers on retry", async () => {
     get.mockRejectedValue(new ApiError(404, { code: "not_found", detail: "no such passport" }));
     page();
-    expect(await screen.findByText("找不到这份护照")).toBeTruthy();
+    expect(await screen.findByText("服务器暂时找不到这份报告")).toBeTruthy();
+    expect((await screen.findByRole("alert")).textContent).toContain("这不一定是链接过期或你主动删除了报告");
+    expect(screen.queryByText("PAGE CONTENT")).toBeNull();
+
+    get.mockResolvedValue(sampleReportResponse("female"));
+    fireEvent.click(screen.getByRole("button", { name: "重试一次" }));
+    expect(await screen.findByText("PAGE CONTENT")).toBeTruthy();
     expect(screen.queryByTestId("passport-error")).toBeNull();
   });
 

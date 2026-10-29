@@ -43,7 +43,7 @@ const normHex = (v: string | null) => (v && /^#?[0-9a-fA-F]{6}$/.test(v) ? `#${v
 export function LookStudio() {
   const { id } = usePassport();
   if (isSampleId(id)) return <Page><p role="note">{journey.sampleReadOnly}</p><Link href="/start">开始自己的分析</Link><Link href="/report/sample" className="ml-4">返回示例报告</Link></Page>;
-  return <div className={s.surface}><StudioEditor key={id} /></div>;
+  return <div className={`${s.surface} ${s.studioSurface}`}><StudioEditor key={id} /></div>;
 }
 
 function StudioEditor() {
@@ -162,14 +162,18 @@ function StudioEditor() {
   };
   const save = () => {
     const saved = { name: summary === "原图" ? (look.eyewear ? "眼镜设置（未叠加预览）" : "眼妆设置（未叠加预览）") : summary, ...look, hairHex, hairStrength: look.hairStrength ?? 0.8 };
-    saveLook(saved);
+    const savedId = saveLook(saved);
+    if (!readChoices(id).looks.some(item => item.id === savedId)) {
+      toast.error("浏览器未能保存造型，请允许本地存储后重试");
+      return;
+    }
     if (look.hair) {
       chooseHair(look.hair);
       const rec = rankedRecs(passport).find(r => r.page === "hair");
       if (rec) setPlan(rec.id, { saved: true });
       sendFeedback({ target_type: "hair_option", target_id: look.hair, reaction: "like", reason_tags: [] });
     }
-    toast.success("已保存这个造型，可以在行动方案里找到");
+    toast.success("造型选项已保存在此设备，可在行动方案中继续");
   };
   const apply = (saved: SavedLook) => {
     const {id: _savedId, name: _savedName, savedAt: _savedAt, ...selection} = saved;
@@ -188,11 +192,12 @@ function StudioEditor() {
 
   return (
     <Page wide>
-      <PageHeader kicker="形象实验室 · Look Studio" title="把变化放在同一张脸上看"
-        sub="发型、发色、眼影、眼线、腮红、唇色、眉形、眼镜和近脸色叠加成同一个造型。颜色即时在本地计算；发型需要点“生成”。" />
-      <div className="md:grid md:grid-cols-[minmax(0,420px)_minmax(0,1fr)] md:items-start md:gap-8">
+      <PageHeader kicker="形象实验室 · Look Studio" title="留住自己，试一点不同。"
+        sub="先选一个方向，在同一张照片里比较。颜色即时呈现；发型由你点击生成。" />
+      <div className={s.studioWorkspace}>
         {/* Stage: sticky under the site header on phones, so controls scroll beneath it. */}
-        <div className="sticky top-12 z-20 -mx-4 bg-paper px-4 pb-3 pt-1 md:top-16 md:mx-0 md:px-0">
+        <div className={s.studioPortrait}>
+          <div className={s.studioStageHeading}><span>Look Studio</span><span>{hold.holding ? "正在比较原图" : "你的照片 · 你的选择"}</span></div>
           <details className="mb-3 rounded-[4px] border border-rule p-3">
           <summary className="min-h-8 cursor-pointer text-[13px] text-ink-soft">照片来源 · {source.role === "glasses" ? "日常眼镜参考照" : source.role === "noglasses" ? "无眼镜补充照" : "分析正脸照"}</summary>
           <fieldset className="mt-3 border-t border-rule pt-3">
@@ -211,7 +216,7 @@ function StudioEditor() {
             {!data.media.photos?.glasses && !expired && <p className="mt-1 text-[12px] text-muted">未提供可用的日常眼镜参考照，仍可使用分析正脸照。</p>}
           </fieldset>
           </details>
-          <Stage className="relative mx-auto w-full max-w-[min(100%,calc(32dvh*0.8))] overflow-hidden rounded-[14px] md:max-w-none">
+          <Stage className={`${s.studioImage} relative mx-auto w-full max-w-[min(100%,calc(32dvh*0.8))] overflow-hidden rounded-[14px] md:max-w-none`}>
             <div className="relative aspect-[4/5] w-full">
               {status === "ready" ? (
                 <canvas ref={canvas} className="absolute inset-0 size-full object-cover" role="img"
@@ -246,7 +251,7 @@ function StudioEditor() {
         </div>
 
         {/* scroll-margin: anything scrolled into view (keyboard focus) lands below the sticky portrait on phones */}
-        <Tabs.Root value={panel} onValueChange={setPanel} className="mt-2 space-y-6 md:mt-0 [&_section]:scroll-mt-[calc(32dvh+9rem)] [&_button]:scroll-mt-[calc(32dvh+9rem)] [&_a]:scroll-mt-[calc(32dvh+9rem)] md:[&_section]:scroll-mt-20 md:[&_button]:scroll-mt-20 md:[&_a]:scroll-mt-20">
+        <Tabs.Root data-studio-controls value={panel} onValueChange={setPanel} className="mt-2 space-y-6 md:mt-0 [&_section]:scroll-mt-[calc(32dvh+9rem)] [&_button]:scroll-mt-[calc(32dvh+9rem)] [&_a]:scroll-mt-[calc(32dvh+9rem)] md:[&_section]:scroll-mt-20 md:[&_button]:scroll-mt-20 md:[&_a]:scroll-mt-20">
           <Tabs.List aria-label="造型工具" className={s.studioNav}>
             {[["hair", "发型与发色"], ["makeup", "妆容与配色"], ["eyewear", "眼镜"], ["saved", "我的造型"]].map(([key, label]) => <Tabs.Trigger key={key} value={key}>{label}</Tabs.Trigger>)}
           </Tabs.List>
@@ -301,6 +306,7 @@ function StudioEditor() {
               warning={look.eyewear && eyewearReason ? "当前调整超出照片或可靠定位范围，请缩小镜框或调回高低；也可重置眼镜。" : null} />
           </Tabs.Content>
 
+          <div className={s.studioDecision} aria-live="polite"><span>{hairStatus.tone === "busy" ? "正在生成，仍可调整本地颜色" : hairStatus.tone === "ok" ? "结果已到达，按住原图再比较" : "先探索，再决定"}</span><p>保存的是此设备上的造型选项；生成图随照片到期删除。</p></div>
           <div className="flex gap-2">
             <Button variant="outline" disabled={!history.current.length} onClick={() => { lastEdit.current={key:"",at:0}; const previous = history.current.pop(); if (previous) setLook(previous); }}>撤销</Button>
             <Button variant="outline" disabled={!hasEdits} onClick={() => set({ ...EMPTY_LOOK, hairHex: null, hairStrength: 0.8 })}><RotateCcw />重置全部</Button>
@@ -309,7 +315,7 @@ function StudioEditor() {
             <p className="mb-2 text-[12px] text-muted">{journey.savedSettings}</p>
             <div className="flex flex-wrap items-center justify-between gap-2">
               <div className="min-w-0">
-                <h2 className="font-serif text-[17px] font-semibold">保存这个造型</h2>
+                <h2 className="font-serif text-[17px] font-semibold">保存造型选项</h2>
                 <p className="truncate text-[12px] text-muted">{summary}</p>
               </div>
               <Button variant="outline" onClick={save} disabled={!hasEdits}><Bookmark />保存</Button>

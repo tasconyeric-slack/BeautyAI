@@ -134,3 +134,8 @@ html { scroll-padding-top: 4.5rem; }
 @media (prefers-reduced-motion: reduce) { .ap-draw, .ap-rise, .ap-scan, .ap-pulse { animation: none; } }
 .scrollbar-none { scrollbar-width: none; }
 .scrollbar-none::-webkit-scrollbar { display: none; }
+
+/* Shared R3.1 navigation keeps the same identity throughout the journey. */
+.site-header { background:#f3f1ecf5; border-color:#c9ceca; color:#172125; }
+.site-header > div { max-width:1240px; }
+.site-header nav a:last-child { background:#3f625e; color:#f3f1ec; }
