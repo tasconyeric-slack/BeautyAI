@@ -189,7 +189,7 @@ preview_masks:
   # regeneration, then status `fallback` (the UI shows the style illustration instead).
   min_hair_change: 3.0           # mean |Δ| (0–255) over the edit mask; catches "nothing changed". Tune in I1 on real photos
   max_attempts: 2
-  concurrency: 3
+  concurrency: 1              # keep CV + Qwen composite from running multiple memory-heavy jobs at once
   # Issue #56: image-edit models can move, zoom or tilt the head. The generated face's rigid landmarks register it
   # back onto the original before compositing; anything not a small rigid move is rejected (retry, then fallback).
   # Fractions are × cheekbone width. Landmark jitter on an unmoved edit measured ≈ 0.01. Calibrated on live

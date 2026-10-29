@@ -101,6 +101,7 @@ describe("loading and error states", () => {
   it("explains offline, server and other failures differently and never echoes raw error text", () => {
     expect(errorCopy({ status: 0, offline: true }).title).toBe("网络不稳定");
     expect(errorCopy({ status: 503, offline: false }).title).toBe("服务暂时没有响应");
+    expect(errorCopy({ status: 404, offline: false }).title).toBe("服务器暂时找不到这份报告");
     expect(errorCopy({ status: 422, offline: false }).title).toBe("这份档案暂时打不开");
     expect(errorCopy(null).title).toBe("这份档案暂时打不开");
   });
