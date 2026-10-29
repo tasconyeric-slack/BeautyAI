@@ -673,7 +673,9 @@ def test_preview_trace_reaches_served_image_without_photo_data(api, synthetic, m
     edit = next(c for c in calls if c["kind"] == "image_edit")
     trace = edit["trace"]
     assert [s["stage"] for s in trace] == ["input_ready", "provider_request", "provider_completed",
-                                         "registration_completed", "composite_completed", "quality_passed", "preview_saved"]
+                                         "crop_restore_started", "registration_started", "registration_completed",
+                                         "composite_completed", "composite_verification_started", "quality_passed",
+                                         "preview_saved"]
     times = [s["elapsed_ms"] for s in trace]
     assert times == sorted(times) and edit["latency_ms"] >= times[-1]
     assert edit["provider_latency_ms"] >= 0 and edit["cost_usd_est"] == 0.03
@@ -721,7 +723,7 @@ def test_reframed_qwen_output_gets_one_quality_retry(api, synthetic, monkeypatch
     edits = [c for c in calls if c["kind"] == "image_edit"]
     assert len(edits) == 2 and all(c["cost_usd_est"] == 0.03 for c in edits)
     assert edits[0]["error"] == "MisalignedEdit" and edits[0]["ok"] is False
-    assert edits[0]["trace"][-1]["stage"] == "provider_completed"
+    assert edits[0]["trace"][-1]["stage"] == "crop_restore_started"
     assert "Signature" not in json.dumps(edits)
     if recover:
         assert edits[1]["ok"] is True
