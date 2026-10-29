@@ -1,0 +1,26 @@
+{
+  "assets": [
+    {
+      "file": "p001-b-easy.png",
+      "sha256": "b2afaf46e59fe6e69a80ebc1e940f4778c34a7f837ad531c1e6abe4aed28d1d1",
+      "source": "Claude_Design_BeautyAI/BeautyAI_R3_Home_Studio/assets/previews/p001-b-easy.png",
+      "use": "AI synthetic P001 design example; not a new live generation",
+      "batch": "AD3611 / 2026-10-29; separate from public P001 report snapshot"
+    },
+    {
+      "file": "p001-b-orig.png",
+      "sha256": "73e9b77e41f27fd085df217dd39267c3c27738f930e862efb17910c94abc0be8",
+      "source": "Claude_Design_BeautyAI/BeautyAI_R3_Home_Studio/assets/previews/p001-b-orig.png",
+      "use": "AI synthetic P001 design example; not a new live generation",
+      "batch": "AD3611 / 2026-10-29; separate from public P001 report snapshot"
+    },
+    {
+      "file": "p001-b-safe.png",
+      "sha256": "8136a929ba3f5391b5f618b0d7c455c16782c9228a62e878034ea958630b6d2f",
+      "source": "Claude_Design_BeautyAI/BeautyAI_R3_Home_Studio/assets/previews/p001-b-safe.png",
+      "use": "AI synthetic P001 design example; not a new live generation",
+      "batch": "AD3611 / 2026-10-29; separate from public P001 report snapshot"
+    }
+  ],
+  "notes": "Copied unchanged from the supplied Claude R3 deliverable. Original alignment is supplied by that deliverable. No measurement geometry is placed on edited images. Owner commercial-use authorization recorded in PR55; this branch reuses only P001 original/safe/easy."
+}
