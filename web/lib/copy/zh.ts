@@ -343,6 +343,10 @@ export const paywall = {
   invitationPlaceholder: "输入邀请码",
   invitationInvalid: "邀请码暂不可用，请检查后再试。",
   pending: "正在确认解锁结果",
+  paymentChecking: "正在读取支付可用状态",
+  paymentUnavailable: "支付暂未开放，可以使用邀请码解锁。",
+  freeStatus: "当前为免费护照",
+  fullStatus: "当前为完整护照",
   unlocked: "完整护照已解锁",
   failed: "解锁暂未完成，请查看订单状态后再试。",
 } as const;

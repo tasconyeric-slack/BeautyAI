@@ -9,6 +9,7 @@ import { Button } from "@/components/ui/button";
 import { ApiError, api, backendFor, type Health } from "@/lib/api";
 import { paywall } from "@/lib/copy/zh";
 import { usePassport } from "@/lib/state/passport-store";
+import s from "@/components/journey/journey.module.css";
 
 /** Single purchase (D27). PAYMENT_PROVIDER=fake settles at once; invite codes unlock without payment. */
 export default function UnlockPage() {
@@ -30,24 +31,29 @@ export default function UnlockPage() {
     }
   };
   return (
-    <Page>
+    <div className={s.surface}><Page wide><div className={s.unlock}>
       <PageHeader kicker="完整护照" title={paid ? paywall.unlocked : paywall.title} />
-      <Card>
+      <div className={s.unlockGrid}>
+      <div className={s.unlockDetails}>
+      <Card className={s.unlockBenefits}>
         <ul className="space-y-2 text-[14px] leading-7">
           {paywall.bullets.map((b) => <li key={b} className="flex gap-2"><Check className="mt-1.5 size-4 shrink-0 text-accent" />{b}</li>)}
         </ul>
         <p className="mt-4 text-[12px] leading-5 text-muted" data-testid="free-scope">{paywall.freeScope}</p>
       </Card>
       <EntitlementTable className="mt-4" />
+      </div>
+      <aside className={s.unlockAction} aria-label={paywall.onUnlock}>
+      <p className={s.unlockStatus}>{paid ? paywall.fullStatus : paywall.freeStatus}</p>
       {paid ? (
-        <div className="mt-6 flex flex-wrap gap-3">
-          <Link href={`/p/${id}/report`} className="inline-block rounded-full bg-accent px-5 py-2.5 text-[14px] text-[var(--ap-on-primary)]">{paywall.readReport}</Link>
-          <Link href={`/p/${id}/studio`} className="inline-block rounded-full border border-rule-strong px-5 py-2.5 text-[14px]">去实验室生成发型试看</Link>
+        <div className={s.unlockLinks}>
+          <Link href={`/p/${id}/report`} className="rounded-full bg-accent px-5 py-2.5 text-[14px] text-[var(--ap-on-primary)]">{paywall.readReport}</Link>
+          <Link href={`/p/${id}/studio`} className="rounded-full border border-rule-strong px-5 py-2.5 text-[14px]">去实验室生成发型试看</Link>
         </div>
       ) : (
         <>
           {payMode === "unavailable" ? (
-            <p className="mt-6 rounded-[12px] bg-paper-sunk p-4 text-center text-[14px]">支付暂未开放，可以使用邀请码解锁。</p>
+            <p className="mt-6 bg-paper-sunk p-4 text-[14px] leading-7">{paywall.paymentUnavailable}</p>
           ) : (
             <>
               <Button variant="accent" size="lg" className="mt-6 w-full" disabled={busy || !data || payMode === "unknown"} onClick={() => go()}>
@@ -56,19 +62,23 @@ export default function UnlockPage() {
               <p className="mt-2 text-center text-[12px] text-muted">
                 {paywall.noSubscription}{payMode === "fake" ? "（演示环境：模拟支付，不会扣款）" : ""}
               </p>
+              {payMode === "unknown" && <p role="status" className="mt-3 text-[13px] text-muted">{paywall.paymentChecking}</p>}
             </>
           )}
           <p className="mt-4 text-center text-[13px]">
             <Link href="/report/sample" className="text-accent underline-offset-4 hover:underline" data-testid="paywall-sample-report">{paywall.sampleReport} →</Link>
           </p>
-          <form className="mt-6 flex gap-2" onSubmit={(e) => { e.preventDefault(); if (code.trim()) go(code.trim()); }}>
+          <form className={s.unlockInvite} onSubmit={(e) => { e.preventDefault(); if (code.trim()) go(code.trim()); }}>
             <input value={code} onChange={(e) => setCode(e.target.value)} placeholder={paywall.invitationPlaceholder} aria-label={paywall.invitation}
-              className="h-10 flex-1 rounded-full border border-rule-strong bg-paper-raised px-4 text-[14px]" />
+              className="min-w-0 rounded-full border border-rule-strong bg-paper-raised px-4 text-[14px]" />
             <Button type="submit" variant="outline" disabled={busy || !code.trim()}>{paywall.invitation}</Button>
           </form>
-          {err && <p className="mt-3 text-[13px] text-[#b4442f]">{err}</p>}
+          {busy && <p role="status" className="mt-3 text-[13px] text-muted">{paywall.pending}</p>}
+          {err && <p role="alert" className={s.unlockError}>{err}</p>}
         </>
       )}
-    </Page>
+      </aside>
+      </div>
+    </div></Page></div>
   );
 }

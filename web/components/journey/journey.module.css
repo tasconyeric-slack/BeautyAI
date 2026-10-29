@@ -40,6 +40,20 @@
 .studioFooter { border-top:1px solid var(--rule); padding-top:24px; }
 .plan :global([data-testid^=intervention-]) { border-radius:4px; background:var(--paper-raised); border:1px solid var(--rule); box-shadow:none; padding:28px; }
 .plan :global([data-testid^=intervention-]) h3 { font-family:var(--ap-font-display),serif; font-size:24px; font-weight:500; }
+.unlock { padding-top:32px; }
+.unlockGrid { display:grid; grid-template-columns:minmax(0,1.5fr) minmax(280px,1fr); gap:32px; align-items:start; }
+.unlockDetails { min-width:0; }
+.unlockBenefits, .unlockDetails :global([data-testid=entitlement-table]) { border-radius:4px; }
+.unlockBenefits { padding:24px; }
+.unlockAction { padding:28px; border:1px solid var(--rule); border-radius:4px; background:var(--paper-raised); }
+.unlockStatus { padding-bottom:16px; border-bottom:1px solid var(--rule); font-family:var(--ap-font-display),serif; font-size:23px; }
+.unlockAction :is(button,input,a) { min-height:44px; }
+.unlockAction a { display:inline-flex; align-items:center; justify-content:center; }
+.unlockLinks { display:grid; gap:12px; margin-top:24px; }
+.unlockInvite { display:flex; flex-wrap:wrap; gap:8px; margin-top:24px; }
+.unlockInvite input { flex:1 1 140px; width:140px; }
+.unlockInvite button { flex:1 0 auto; }
+.unlockError { margin-top:12px; font-size:13px; line-height:1.8; color:#a03424; }
 @keyframes enter { from { opacity:.45; transform:translateY(5px); } to { opacity:1; transform:translateY(0); } }
 @media(max-width:767px) {
   .surface { padding-bottom:80px; }
@@ -57,6 +71,11 @@
   .studioNav { margin-bottom:20px; gap:2px; }
   .studioNav button { font-size:13px; }
   .plan :global([data-testid^=intervention-]) { padding:20px; }
+  .unlock { padding-top:12px; }
+  .unlockGrid { grid-template-columns:minmax(0,1fr); gap:24px; }
+  .unlockBenefits, .unlockAction { padding:20px; }
+  .unlockDetails :global([data-testid=entitlement-table]) :is(th,td) { padding:10px 8px; overflow-wrap:anywhere; }
 }
 @media(prefers-reduced-motion:reduce) { .surface *, .studioPanel { animation:none!important; transition:none!important; scroll-behavior:auto!important; } }
 :global([data-theme=dark]) .surface { --paper:#191f1b; --paper-raised:#222c26; --paper-sunk:#2c3931; --ink:#edf1ea; --ink-soft:#b7c6ba; --muted:#a7b6ab; --rule:#46524a; --rule-strong:#637469; --accent:#b0cebd; --accent-soft:#2c3931; --ap-ink:var(--ink); --ap-muted:var(--muted); --ap-primary:var(--accent); --ap-on-primary:#191f1b; }
+:global([data-theme=dark]) .unlockError { color:#ffb8a9; }

@@ -72,7 +72,14 @@ try {
     await page.getByRole('radio', { name: /省心/ }).waitFor();
     assert.equal(await page.getByRole('radio', { name: /省心/ }).getAttribute('aria-checked'), 'true');
     await page.goto(`${base}/p/${id}/unlock`);
+    await page.getByText('当前为免费护照', { exact: true }).waitFor();
+    await page.getByText(/模拟支付，不会扣款/).waitFor();
+    await shot('unlock-free');
+    assert.ok(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth));
     await page.getByRole('button', { name: /¥39/ }).click(); // existing fake checkout, no charge
+    await page.getByRole('heading', { name: '完整护照已解锁', exact: true }).waitFor();
+    assert.equal(await page.getByRole('button', { name: /¥39/ }).count(), 0);
+    await shot('unlock-paid');
     await page.getByRole('link', { name: '去实验室生成发型试看', exact: true }).click();
     await page.getByRole('radio', { name: /省心/ }).click();
     await page.getByRole('button', { name: '生成这个造型', exact: true }).click();
