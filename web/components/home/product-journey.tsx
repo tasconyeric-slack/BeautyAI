@@ -3,7 +3,7 @@ import { Stage, SwatchRow } from "@/components/ds";
 import { CHAPTER_KEYS, chapterNo } from "@/components/report/report-model";
 import { PhotoGuide } from "@/components/upload/photo-guide";
 import { colorGroups } from "@/lib/adapters";
-import { privacy, report } from "@/lib/copy/zh";
+import { consent, report } from "@/lib/copy/zh";
 import type { DemoCase } from "@/lib/fixtures/demo_cases";
 import s from "./product-journey.module.css";
 
@@ -60,7 +60,7 @@ export function ProductJourney({ sample }: { sample: DemoCase }) {
     <section id="start-analysis" className={`${s.section} ${s.closing}`} aria-labelledby="start-title">
       <div className={s.intro}><h2 id="start-title">下一次改变，<br />从了解自己开始。</h2><p>先看懂，再决定。把建议当作选择的参考，保留自己的偏好。</p><Link prefetch={false} href="/start" className={s.primary}>开始我的分析</Link><Link href="/about" className={s.textLink}>了解分析方法与照片隐私</Link></div>
       <div className={s.faq}>
-        <details><summary>照片会保存多久？</summary><p>{privacy.retention}{privacy.deleteInstruction}裁剪编辑器中最初选择的原文件不会离开浏览器。</p></details>
+        <details><summary>照片会保存多久？</summary><p>{consent.retention}{consent.deleteInstruction}裁剪编辑器中最初选择的原文件不会离开浏览器。</p></details>
         <details><summary>参考分能说明什么？</summary><p>AI 面部美学参考分来自照片中的几何比例，只提供有限的测量参考，不是吸引力定论。光线、角度和测量可用性都会影响结果。</p></details>
         <details><summary>哪些功能需要完整护照？</summary><p>免费与完整护照的范围可在报告中查看。AI 发型生成需要完整护照，且可能失败；即时试色和外观模拟不等同于真实染发、化妆或配镜效果。</p></details>
       </div>

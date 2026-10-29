@@ -23,6 +23,7 @@ describe("production homepage", () => {
     expect(within(guide).getByRole("heading", { name: "正脸平视，侧脸选填" })).toBeTruthy();
     expect(screen.getByText(/原始分析照与推荐色卡/)).toBeTruthy();
     expect(screen.getByText(/公开示例只供浏览/)).toBeTruthy();
+    expect(screen.getByText(/其余照片在任务结束后立即删除。随时在护照底部选择/)).toBeTruthy();
   });
   it("keeps the homepage usable when an optional sample's geometry is unavailable", () => {
     const original = samples.demoCaseByKey;
