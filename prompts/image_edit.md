@@ -1,6 +1,6 @@
-# Image Edit Prompt Builder — v0.6
+# Image Edit Prompt Builder — v0.7
 
-`prompt_version: preview-0.6`
+`prompt_version: preview-0.7`
 
 The preview never lets a model free-write the edit. It is built deterministically from the
 top-ranked recommendation that has a non-null `visual_edit_spec`, or the one the user picked
@@ -142,6 +142,32 @@ coherent photograph with the requested haircut clearly visible.
 
 This block is inserted only for `region=hair`; the target description is kept verbatim, including deliberate
 `current_hc<i>` cut-preservation instructions. No additional model call or inferred facial metric is used.
+
+### Hair target: chin-length
+
+```
+Cut a SHORT jaw-length bob. The lower edge of every hanging section must be level with the chin, leaving a clear
+bare gap between hair and shoulders. No strand may extend below the jaw. Remove the source hair from the lower
+neck and replace it with matching skin or background, not longer hair.
+```
+
+### Hair target: 7:3
+
+```
+Place the visible scalp part clearly to one side, above an inner eyebrow, with an asymmetric 70/30 sweep.
+The part must not be centred; do not substitute symmetric curtain bangs. Keep the roots and midlengths straight
+when the target asks for straight hair; an inward curl at the ends does not mean a curled crown.
+```
+
+### Hair target: no fringe
+
+```
+Keep the forehead exposed: no bangs, no strands draped over the eyebrows or eyes. Any swept front section must
+lie beside the face, not across the forehead.
+```
+
+v0.7 appends these blocks only when their heading phrase occurs in the selected hair target (case-insensitive).
+Unrelated length/part examples never enter the request. Non-hair and `current_hc<i>` targets receive none of them.
 
 ## Negative prompt
 
