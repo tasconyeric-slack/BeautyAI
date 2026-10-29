@@ -48,9 +48,9 @@ production:
     # D17: Qwen first; identity is guaranteed by the mask composite in preview.py, not by the model.
     # Same API also serves qwen-image-edit, qwen-image-edit-max and the newer qwen-image-2.0 family.
     provider: qwen
-    model: "qwen-image-2.0"
+    model: "qwen-image-3.0-pro"
     seed: 1234                    # fixed seed: same input → as close to the same output as the API allows
-    prompt_version: preview-0.7   # prompts/image_edit.md
+    prompt_version: preview-0.8   # prompts/image_edit.md
 
 offline:
   evaluator:
@@ -68,3 +68,5 @@ pricing:
     output: 1.20
   qwen-image-2.0:
     per_image: 0.03               # estimated USD per generated image (official Beijing price: CNY 0.20/image)
+  qwen-image-3.0-pro:
+    per_image: 0.08               # conservative input + 2K output estimate; Beijing list $0.002750 + $0.068761

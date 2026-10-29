@@ -42,14 +42,18 @@ Do not lower thresholds based on the reported message. Existing candidates show 
 over-curled ends instead of a restrained inward C bend; no prompt/model change is justified as validated without
 paired live output.
 
-Compare the existing OpenCV registration/composite path, a prompt-only adjustment and replacing the image provider.
-The existing path is the smallest compatible choice: no new dependency, licence, model or deployment cost. Defer
-prompt/provider changes until an authorized same-source run demonstrates the actual failure. References:
+Live comparisons retained the existing OpenCV registration/composite path. Prompt-only changes on Qwen 2.0 still
+produced piled crown loops and over-curled ends. Qwen 2.0 Pro improved the crown but left flared ends; Qwen 3.0 Pro
+gave a visibly smoother crown and restrained inward ends on the same source/target. The configuration now selects
+3.0 Pro, with prompt 0.8's affirmative root-lift/inward-tip constraints only on matching targets. The old edit-plus
+endpoint returned a deterministic 404 and was not retried. No new dependency or registration threshold is needed.
+The conservative $0.08/image estimate includes input and 2K output; actual billing may differ. See
+[official pricing](https://www.alibabacloud.com/help/en/model-studio/model-pricing). References:
 [PR #49](https://github.com/tasconyeric-slack/BeautyAI/pull/49),
 [prior target-adherence work #43](https://github.com/tasconyeric-slack/BeautyAI/pull/43),
 [quality acceptance #1](https://github.com/tasconyeric-slack/BeautyAI/issues/1).
 
-Live verification requires `DASHSCOPE_API_KEY` and, when required by the account, `DASHSCOPE_BASE_URL` in the local
+Live verification uses `DASHSCOPE_API_KEY` and, when required by the account, `DASHSCOPE_BASE_URL` in the local
 environment. Use the same `request_previews` → `run_preview_job` path as the website, original source and exact
 matching passport, first safe/easy, then the reported failed targets. Keep attempt logs operational only, and all
 photos/results under ignored `runs/` or authorized external review storage; preserve the production 24h TTL.

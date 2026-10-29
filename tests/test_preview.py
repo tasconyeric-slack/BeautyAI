@@ -63,6 +63,14 @@ def test_prompt_content():
     assert "\n" not in p and "  " not in p
 
 
+def test_everyday_straight_cut_does_not_request_roller_styling():
+    prompt = build_prompt(dict(SPEC, target_description="Black straight hair with moderate root lift and ends softly curled inward."))
+    assert "smooth rounded crown following the original head silhouette" in prompt
+    assert "one shallow C bend" in prompt
+    curly = build_prompt(dict(SPEC, target_description="Short curly hair with tight ringlets."))
+    assert "one shallow C bend" not in curly and "smooth rounded crown" not in curly
+
+
 @pytest.mark.parametrize("region,phrase", [("brows", "eyebrows"), ("glasses", "eyeglasses"),
                                            ("facial_hair", "facial hair"), ("clothing_top", "top (shirt")])
 def test_prompt_names_each_region(region, phrase):
