@@ -9,6 +9,7 @@ import { api, backendFor, type PassportResponse } from "@/lib/api";
 import { reveal as copy } from "@/lib/copy/zh";
 import type { FaceGeometry } from "@/lib/tint";
 import { usePassport } from "@/lib/state/passport-store";
+import s from "@/components/journey/journey.module.css";
 import { cn } from "@/lib/utils";
 
 export const localPhotoKey = (id: string) => `ap_local_photo:${id}`;
@@ -50,13 +51,12 @@ export function revealStage(r: PassportResponse | null): number {
   return 0;
 }
 
-/** Amber measurement lines (thirds, eye fifths, face outline) drawn over the photo — the visual, never the numbers. */
+/** Only trace measured geometry. Older geometry without named points keeps its actual polygon bounds. */
 function MeasureOverlay({ g }: { g: FaceGeometry }) {
   const ys = (pts: readonly (readonly [number, number])[]) => pts.map((p) => p[1]);
   const xs = (pts: readonly (readonly [number, number])[]) => pts.map((p) => p[0]);
   const brow = Math.min(...ys(g.brow_l), ...ys(g.brow_r));
-  const lipTop = Math.min(...ys(g.lip_outer));
-  const nose = brow + (lipTop - brow) * 0.78;
+  const lower = g.points?.subnasale?.[1] ?? Math.max(...ys(g.eye_l), ...ys(g.eye_r));
   const chin = Math.max(...ys(g.jaw));
   const top = Math.min(...ys(g.jaw));
   const eyeX = [Math.min(...xs(g.eye_l)), Math.max(...xs(g.eye_l)), Math.min(...xs(g.eye_r)), Math.max(...xs(g.eye_r))];
@@ -68,12 +68,12 @@ function MeasureOverlay({ g }: { g: FaceGeometry }) {
     <svg viewBox="0 0 100 125" preserveAspectRatio="none" className="pointer-events-none absolute inset-0 size-full" aria-hidden>
       <g stroke="var(--ap-amber)" strokeWidth="0.35" fill="none" vectorEffect="non-scaling-stroke">
         <polygon points={outline} pathLength={1} className="ap-draw" opacity="0.9" />
-        {[top, brow, nose, chin].map((y, i) => (
+        {[top, brow, ...(g.points?.subnasale ? [lower] : []), chin].map((y, i) => (
           <line key={i} x1={faceL * 100 - 4} x2={faceR * 100 + 4} y1={y * 125} y2={y * 125} pathLength={1} className="ap-draw"
             style={{ animationDelay: `${0.15 * i}s` }} strokeDasharray="1.5 1" />
         ))}
         {[faceL, ...eyeX, faceR].map((x, i) => (
-          <line key={`v${i}`} x1={x * 100} x2={x * 100} y1={brow * 125 - 3} y2={nose * 125} pathLength={1} className="ap-draw"
+          <line key={`v${i}`} x1={x * 100} x2={x * 100} y1={brow * 125 - 3} y2={lower * 125} pathLength={1} className="ap-draw"
             style={{ animationDelay: `${0.5 + 0.08 * i}s` }} opacity="0.7" />
         ))}
       </g>
@@ -103,14 +103,14 @@ export function Reveal() {
   const current = revealStage(data);
   const title = failed ? copy.failed : copy.stages[Math.min(current, copy.stages.length - 1)];
   return (
-    <div className="mx-auto max-w-5xl px-4 pb-10 pt-5 sm:px-6 md:grid md:grid-cols-[minmax(0,420px)_1fr] md:gap-10">
+    <div className={`${s.surface} ${s.revealSurface}`}><div className={s.revealLayout}>
       <Stage className="relative mx-auto w-full max-w-[min(100%,calc(44dvh*0.8))] overflow-hidden rounded-[14px] md:max-w-none">
         {photo ? (
           // eslint-disable-next-line @next/next/no-img-element
           <img src={photo} alt="你上传的正脸照片" className="block aspect-[4/5] w-full object-cover" />
         ) : <div className="aspect-[4/5] w-full" />}
         {geometry ? <MeasureOverlay g={geometry} /> : !failed && (
-          <span aria-hidden className="ap-scan pointer-events-none absolute inset-x-0 top-0 h-[10%] bg-gradient-to-b from-transparent via-[color-mix(in_srgb,var(--ap-amber)_35%,transparent)] to-transparent" />
+          <span aria-hidden className={s.waitingLight} />
         )}
       </Stage>
       <div className="mt-6 md:mt-2">
@@ -139,7 +139,8 @@ export function Reveal() {
           <p className="mt-5 text-[13px] leading-6 text-ink-soft">{copy.readyNote}</p>
         )}
         <p className="mt-2 text-[12px] leading-6 text-muted">{copy.privacyNote}</p>
+        {!failed && <p className={s.waitingNote}>{geometry ? "正在沿照片中的真实关键区域建立解读。" : "照片准备好后，测量会从可识别的区域开始。"}</p>}
       </div>
-    </div>
+    </div></div>
   );
 }

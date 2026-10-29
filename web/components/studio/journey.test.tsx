@@ -4,6 +4,7 @@ import { sampleReportResponse } from "@/lib/fixture/backend";
 import { httpBackend } from "@/lib/api";
 import { StaticPassportProvider } from "@/lib/state/passport-store";
 import { readChoices } from "@/lib/state/choices";
+import { toast } from "sonner";
 import { NO_MAKEUP } from "@/lib/tint/makeup";
 import { useStudioCanvas } from "./use-studio-canvas";
 import { LookStudio } from "./look-studio";
@@ -28,6 +29,16 @@ describe("ENG-03 Studio journey", () => {
     const choices = readChoices("ap_journey");
     expect(choices.looks[0].hair).toBe("easy");
     expect(choices.hair?.tier).toBe("easy");
+  });
+  it("does not claim a durable save or select a hairstyle when device storage rejects the write", () => {
+    const failure = vi.spyOn(toast, "error");
+    const success = vi.spyOn(toast, "success");
+    vi.spyOn(Storage.prototype, "setItem").mockImplementation(() => { throw new Error("storage blocked"); });
+    studio();
+    fireEvent.click(screen.getByRole("button", { name: "保存这个造型" }));
+    expect(failure).toHaveBeenCalledWith("浏览器未能保存造型，请允许本地存储后重试");
+    expect(success).not.toHaveBeenCalled();
+    expect(readChoices("ap_journey").hair).toBeNull();
   });
   it("a request for easy does not invent a pending task for safe after switching", async () => {
     let finish!: () => void;

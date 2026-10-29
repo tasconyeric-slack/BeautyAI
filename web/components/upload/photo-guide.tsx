@@ -11,10 +11,27 @@ const GUIDES = [
 ] as const;
 export function PhotoGuide() {
   const [selected, setSelected] = React.useState(0);
+  const [touched, setTouched] = React.useState(false);
+  const root = React.useRef<HTMLElement>(null);
+  React.useEffect(() => {
+    if (!window.matchMedia || typeof IntersectionObserver === "undefined" || touched || window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+    let visible = false;
+    let timer: ReturnType<typeof setTimeout> | undefined;
+    let step = 0;
+    const schedule = () => {
+      clearTimeout(timer);
+      if (!visible || document.hidden || step >= 2) return;
+      timer = setTimeout(() => { step += 1; setSelected(step === 1 ? 3 : 0); schedule(); }, 5000);
+    };
+    const observer = new IntersectionObserver(([entry]) => { visible = entry.isIntersecting; schedule(); }, { threshold: 0.5 });
+    if (root.current) observer.observe(root.current);
+    document.addEventListener("visibilitychange", schedule);
+    return () => { clearTimeout(timer); observer.disconnect(); document.removeEventListener("visibilitychange", schedule); };
+  }, [touched]);
   const current = GUIDES[selected];
-  return <aside className={s.guide} aria-label="拍照指引">
+  return <aside ref={root} onPointerDown={() => setTouched(true)} onFocusCapture={() => setTouched(true)} className={s.guide} aria-label="拍照指引">
     <img key={current.id} src={`/guides/qc/${current.id}.svg`} alt={`${current.title}，拍照示意图`} width={320} height={280} />
-    <div className={s.guideContent}><div aria-live="polite"><h2>{current.title}</h2><p>{current.text}</p></div>
+    <div className={s.guideContent}><div><h2>{current.title}</h2><p>{current.text}</p></div>
       <div className={s.guideChoices} aria-label="切换拍照提示">{GUIDES.map((g, i) => <button key={g.id} type="button" aria-pressed={i === selected} onClick={() => setSelected(i)}>{g.tab}</button>)}</div>
     </div>
   </aside>;

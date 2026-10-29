@@ -27,6 +27,7 @@ export function LoadingState({ label = "正在读取你的档案…" }: { label?
 export function errorCopy(error: Pick<ApiError, "status" | "offline"> | null): { title: string; body: string } {
   if (error?.offline) return { title: "网络不稳定", body: "没能连上服务。你的档案没有丢，网络恢复后重试即可。" };
   if (error && error.status >= 500) return { title: "服务暂时没有响应", body: "这是服务端的问题，不是你的照片的问题。稍等片刻再试一次。" };
+  if (error?.status === 404) return { title: "服务器暂时找不到这份报告", body: "这不一定是链接过期或你主动删除了报告。服务重启后可能丢失未持久化的记录；请重试一次，若仍无法打开，请保留原链接以便排查。" };
   return { title: "这份档案暂时打不开", body: "可以重试一次；如果一直这样，回到首页重新开始。" };
 }
 

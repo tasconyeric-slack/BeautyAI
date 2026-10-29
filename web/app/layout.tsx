@@ -28,11 +28,11 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html lang="zh-CN" className={`${serif.variable} ${sans.variable} ${inter.variable} ${mono.variable}`}>
       <body className="min-h-dvh bg-paper text-ink antialiased">
-        <header className="no-print sticky top-0 z-40 border-b border-rule bg-paper/90 backdrop-blur-sm">
+        <header className="site-header no-print sticky top-0 z-40 border-b border-rule bg-paper/90 backdrop-blur-sm">
           <div className="mx-auto flex h-12 max-w-5xl items-center justify-between px-4 sm:px-6">
             <Link href="/" className="flex items-baseline gap-2">
-              <span className="font-serif text-[16px] font-semibold tracking-[0.14em]">形象护照</span>
-              <span className="hidden text-[10px] uppercase tracking-[0.28em] text-muted sm:inline">Aesthetic Passport</span>
+              <span className="text-[17px] font-semibold tracking-[-0.04em]">BeautyAI</span>
+              <span className="text-[10px] tracking-[0.16em] text-muted">形象护照</span>
             </Link>
             <nav className="flex items-center gap-4 text-[13px]">
               <Link href="/report/sample" className="text-muted hover:text-ink">示例报告</Link>

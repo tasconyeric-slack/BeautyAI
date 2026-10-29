@@ -1,4 +1,6 @@
 "use client";
+import Link from "next/link";
+import s from "@/components/journey/journey.module.css";
 import * as React from "react";
 import type { Passport } from "@/lib/api";
 import { GOALS, type Goal, type Intervention, type PlanPreferences } from "@/lib/plan/catalog";
@@ -35,6 +37,10 @@ function PlanSurface({ id, passport }: { id: string; passport: Passport }) {
   const budgets = ["low", "medium", "high"] as const;
   const maxBudget = budgets.indexOf(passport.user_context.constraints.budget_level);
   return <section aria-label="个性化行动方案">
+    <div className={s.planIntroduction}>
+      <div><span>从选择到日常</span><h2>今天，先试一件小事。</h2><p>保留自己的特点，把喜欢的方向慢慢变成习惯。</p></div>
+      <Link href={`/p/${id}/studio`}><span>{choices.looks.length ? `已保存 ${choices.looks.length} 个造型选项` : "还没有保存造型"}</span><b>{choices.looks.length ? "回到 Studio 继续比较" : "先在自己的照片上试试"}</b></Link>
+    </div>
     <h2 className="font-serif text-[22px]">从你想表达的印象出发</h2>
     <p className="mt-2 text-[13px] leading-6 text-ink-soft">面部特点不是待修正的缺点。选一个目标，先试可恢复的搭配，再决定是否投入。</p>
     <div role="radiogroup" aria-label="造型目标" className="mt-3 flex flex-wrap gap-2">
