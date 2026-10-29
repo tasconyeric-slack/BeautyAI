@@ -3,7 +3,8 @@
 import { Check } from "lucide-react";
 import * as React from "react";
 import { Stage } from "@/components/ds";
-import { Button } from "@/components/ui/button";
+import Link from "next/link";
+import { journey } from "@/lib/copy/journey";
 import { api, backendFor, type PassportResponse } from "@/lib/api";
 import { reveal as copy } from "@/lib/copy/zh";
 import type { FaceGeometry } from "@/lib/tint";
@@ -86,7 +87,7 @@ function MeasureOverlay({ g }: { g: FaceGeometry }) {
 }
 
 export function Reveal() {
-  const { id, data, refresh } = usePassport();
+  const { id, data } = usePassport();
   const local = useLocalPhoto(id);
   const anchorsReady = Boolean(data?.partial.anchors || data?.partial.input_quality);
   const geometry = useGeometry(id, anchorsReady);
@@ -133,7 +134,7 @@ export function Reveal() {
           })}
         </ol>
         {failed ? (
-          <Button size="sm" variant="outline" className="mt-5" onClick={() => refresh()}>重试一次</Button>
+          <div className="mt-5"><p className="text-[13px] leading-6">{journey.failedAnalysis}</p><Link className="mt-3 inline-flex min-h-11 items-center rounded-full border border-rule-strong px-5 text-[14px]" href="/start">{journey.restartAnalysis}</Link></div>
         ) : (
           <p className="mt-5 text-[13px] leading-6 text-ink-soft">{copy.readyNote}</p>
         )}

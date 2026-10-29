@@ -1,0 +1,107 @@
+{
+  "purpose": "upload teaching only",
+  "source": "original code-native SVG diagrams, not portraits",
+  "license": "project-original",
+  "config_sha256": "dc40f6ab2e0785000549049f59c2e5652f9229194254007195ab99f4940c41c2",
+  "cv_validation": "not_run_schematic_not_a_test_photo",
+  "assets": [
+    {
+      "id": "ready",
+      "path": "web/public/guides/qc/ready.svg",
+      "issue": null,
+      "title": "这样拍就好",
+      "use": "单人平视镜头，五官完整；用自然光，保留清晰原图。",
+      "gate": "enabled",
+      "sha256": "abaa15be8fcaa1c7037b1e356a0e30124b6730a842995bf9008e3893cde49552",
+      "review": {
+        "rule_mapping": "passed",
+        "basis": "config/qc.yaml + qc.py",
+        "visual": "passed: Codex reviewed QC_TEACHING.html screenshot 2026-10-28"
+      }
+    },
+    {
+      "id": "blur",
+      "path": "web/public/guides/qc/blur.svg",
+      "issue": "blurry",
+      "title": "保留五官细节",
+      "use": "擦净镜头并对焦，避免晃动、压缩或放大小图。",
+      "gate": "enabled",
+      "sha256": "3ca9a6d8fbfc98bc99f0f4a389409f0983c6f3364c5075cd7af37b1d77e93086",
+      "review": {
+        "rule_mapping": "passed",
+        "basis": "config/qc.yaml + qc.py",
+        "visual": "passed: Codex reviewed QC_TEACHING.html screenshot 2026-10-28"
+      }
+    },
+    {
+      "id": "angle",
+      "path": "web/public/guides/qc/angle.svg",
+      "issue": "pose_off_axis",
+      "title": "正脸平视",
+      "use": "拍正脸时面向镜头，下巴放平；侧脸照放在对应位置。",
+      "gate": "enabled",
+      "sha256": "faf7ecc48eae81b88af195a2e72254b3174fb44b2b5264d182b97db569ee5018",
+      "review": {
+        "rule_mapping": "passed",
+        "basis": "config/qc.yaml + qc.py",
+        "visual": "passed: Codex reviewed QC_TEACHING.html screenshot 2026-10-28"
+      }
+    },
+    {
+      "id": "dark",
+      "path": "web/public/guides/qc/dark.svg",
+      "issue": "underexposed",
+      "title": "面向柔和光线",
+      "use": "面向窗户，让脸部明亮；避免背光。",
+      "gate": "enabled",
+      "sha256": "56687c482c288d5df1d83c7d0920d26685f9b5c5832a093dc0afe16540cd2a71",
+      "review": {
+        "rule_mapping": "passed",
+        "basis": "config/qc.yaml + qc.py",
+        "visual": "passed: Codex reviewed QC_TEACHING.html screenshot 2026-10-28"
+      }
+    },
+    {
+      "id": "bright",
+      "path": "web/public/guides/qc/bright.svg",
+      "issue": "overexposed",
+      "title": "避开强光",
+      "use": "避开直射阳光或强闪光，保留眼睛和脸部细节。",
+      "gate": "enabled",
+      "sha256": "27655a5813eef4f7f59d5a26c4eb657930dee1612859f882f6473322ea4b9567",
+      "review": {
+        "rule_mapping": "passed",
+        "basis": "config/qc.yaml + qc.py",
+        "visual": "passed: Codex reviewed QC_TEACHING.html screenshot 2026-10-28"
+      }
+    },
+    {
+      "id": "covered",
+      "path": "web/public/guides/qc/covered.svg",
+      "issue": "occluded_eyes",
+      "title": "露出眼睛与眉毛",
+      "use": "撩开遮眼头发、摘下墨镜；日常眼镜照可放在选填位置。",
+      "gate": "guidance_only",
+      "sha256": "2d1e5c4244ec5fe287b6d0338ae5d52b613b65dc35aa7e28c0f368bf913bcc9d",
+      "review": {
+        "rule_mapping": "passed",
+        "basis": "config/qc.yaml + qc.py",
+        "visual": "passed: Codex reviewed QC_TEACHING.html screenshot 2026-10-28"
+      }
+    },
+    {
+      "id": "small",
+      "path": "web/public/guides/qc/small.svg",
+      "issue": "face_too_small",
+      "title": "靠近一点",
+      "use": "保留完整头部并减少多余背景，不用数码放大代替清晰原图。",
+      "gate": "enabled",
+      "sha256": "ef348b148e6c38b9f896f4397527c46fc22e8d6563f442aab196ea90b751cc2a",
+      "review": {
+        "rule_mapping": "passed",
+        "basis": "config/qc.yaml + qc.py",
+        "visual": "passed: Codex reviewed QC_TEACHING.html screenshot 2026-10-28"
+      }
+    }
+  ]
+}

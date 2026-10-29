@@ -12,13 +12,17 @@ import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import * as React from "react";
 import { toast } from "sonner";
+import { Tabs } from "radix-ui";
 import { HoldButton, Stage, useHold } from "@/components/ds";
 import { NotReady, Page, PageHeader } from "@/components/passport/ui";
 import { Button } from "@/components/ui/button";
-import { colorGroups, hairOptions, TIER_ZH } from "@/lib/adapters";
+import { colorGroups, hairOptions, rankedRecs, TIER_ZH } from "@/lib/adapters";
 import { ApiError, backendFor, type PreviewState } from "@/lib/api";
 import type { BlushPlacement, FaceGeometry } from "@/lib/tint";
-import { useChoices, type SavedLook } from "@/lib/state/choices";
+import { readChoices, useChoices, type SavedLook } from "@/lib/state/choices";
+import { journey } from "@/lib/copy/journey";
+import { isSampleId } from "@/lib/flags";
+import s from "@/components/journey/journey.module.css";
 import { usePassport } from "@/lib/state/passport-store";
 import { HAIR_SHADES } from "@/lib/tint/hair-palette";
 import { EyewearControls } from "./eyewear-controls";
@@ -37,15 +41,23 @@ const TIERS: HairTier[] = ["safe", "bold", "easy"];
 const normHex = (v: string | null) => (v && /^#?[0-9a-fA-F]{6}$/.test(v) ? `#${v.replace("#", "").toUpperCase()}` : null);
 
 export function LookStudio() {
+  const { id } = usePassport();
+  if (isSampleId(id)) return <Page><p role="note">{journey.sampleReadOnly}</p><Link href="/start">开始自己的分析</Link><Link href="/report/sample" className="ml-4">返回示例报告</Link></Page>;
+  return <div className={s.surface}><StudioEditor key={id} /></div>;
+}
+
+function StudioEditor() {
+  const [panel, setPanel] = React.useState("hair");
   const { id, passport, data, requestPreviews, sendFeedback } = usePassport();
   const params = useSearchParams();
   const hold = useHold();
-  const { choices, saveLook, removeLook } = useChoices(id);
+  const { choices, saveLook, removeLook, chooseHair, setPlan } = useChoices(id);
   const [measured, setMeasured] = React.useState<{ key: string; value: FaceGeometry | null } | null>(null);
   const [portrait, setPortrait] = React.useState<PortraitChoice>("front");
   const [look, setLook] = React.useState<LookSelection>(EMPTY_LOOK);
   const [err, setErr] = React.useState<string | null>(null);
-  const [requesting, setRequesting] = React.useState(false);
+  const [requestedTarget, setRequestedTarget] = React.useState<string | null>(null);
+  const [reload, setReload] = React.useState(0);
   const [ttlExpired, setTtlExpired] = React.useState(false);
   const expired = Boolean(data?.media.expired) || ttlExpired;
   React.useEffect(() => {
@@ -78,6 +90,8 @@ export function LookStudio() {
   React.useEffect(() => {
     if (seeded.current || !passport) return;
     seeded.current = true;
+    const saved = readChoices(id).looks.find(l => l.id === params.get("look"));
+    if (saved) { setLook(restoreLook({ ...saved, hair: saved.hair as HairTier | null })); return; }
     const h = params.get("hair");
     const hc = params.get("hc");
     setLook({
@@ -87,13 +101,14 @@ export function LookStudio() {
       lip: normHex(params.get("lip")),
       drape: normHex(params.get("drape")),
     });
-  }, [params, passport]);
+  }, [params, passport, id]);
 
   const hairTarget = hairTargetId(look.hair, look.hairColor, source.role);
+  const requesting = Boolean(hairTarget && requestedTarget === hairTarget);
   const previews = React.useMemo(() => data?.partial.previews ?? [], [data?.partial.previews]);
   const pv: PreviewState | null = hairTarget ? previews.find((p) => p.kind === "hair" && p.target_id === hairTarget) ?? null : null;
-  const hairReady = React.useMemo(() => pv?.status === "succeeded" && pv.after_url
-    ? { src: pv.after_url, box: pv.crop_box ?? null, target: pv.target_id } : null, [pv]);
+  const hairReady = React.useMemo(() => !expired && pv?.status === "succeeded" && pv.after_url
+    ? { src: reload ? `${pv.after_url}${pv.after_url.includes("?") ? "&" : "?"}reload=${reload}` : pv.after_url, box: pv.crop_box ?? null, target: pv.target_id } : null, [pv, reload, expired]);
   const colorDir = look.hairColor !== null ? passport?.analysis.color_profile.hair_color_directions[look.hairColor] : null;
   const hairHex = look.hairHex ?? colorDir?.hex ?? null;
   const md = passport?.analysis.makeup_direction;
@@ -136,19 +151,24 @@ export function LookStudio() {
   const generate = async () => {
     if (!hairTarget) return;
     setErr(null);
-    setRequesting(true);
+    setRequestedTarget(hairTarget);
     try {
       await requestPreviews("hair", [hairTarget]);
     } catch (e) {
       setErr(e instanceof ApiError ? e.body.detail : "生成暂时没有成功，请稍后再试");
     } finally {
-      setRequesting(false);
+      setRequestedTarget(current => current === hairTarget ? null : current);
     }
   };
   const save = () => {
     const saved = { name: summary === "原图" ? (look.eyewear ? "眼镜设置（未叠加预览）" : "眼妆设置（未叠加预览）") : summary, ...look, hairHex, hairStrength: look.hairStrength ?? 0.8 };
     saveLook(saved);
-    if (look.hair) sendFeedback({ target_type: "hair_option", target_id: look.hair, reaction: "like", reason_tags: [] });
+    if (look.hair) {
+      chooseHair(look.hair);
+      const rec = rankedRecs(passport).find(r => r.page === "hair");
+      if (rec) setPlan(rec.id, { saved: true });
+      sendFeedback({ target_type: "hair_option", target_id: look.hair, reaction: "like", reason_tags: [] });
+    }
     toast.success("已保存这个造型，可以在行动方案里找到");
   };
   const apply = (saved: SavedLook) => {
@@ -159,10 +179,10 @@ export function LookStudio() {
   // What the hair layer is doing right now (state machine shown under the stage).
   const hairStatus: { tone: "muted" | "busy" | "ok" | "warn"; text: string } =
     !hairTarget ? { tone: "muted", text: "现在的发型与发色" }
-    : pv?.status === "pending" || requesting ? { tone: "busy", text: "正在生成这个发型，约 20 秒；可以先调颜色" }
+    : pv?.status === "pending" || requesting ? { tone: "busy", text: journey.generating }
     : hairReady && hairState === "loading" ? { tone: "busy", text: "正在载入生成结果" }
-    : hairReady && hairState === "error" ? { tone: "warn", text: "生成结果载入失败，请重新打开页面" }
-    : hairReady ? { tone: "ok", text: "AI 发型模拟已叠加" }
+    : hairReady && hairState === "error" ? { tone: "warn", text: journey.brokenResult }
+    : hairReady && hairState === "ready" ? { tone: "ok", text: "AI 发型模拟已叠加" }
     : pv?.status === "fallback" || pv?.status === "failed" ? { tone: "warn", text: `这次没有生成成功${pv.error ? `：${pv.error}` : ""}` }
     : { tone: "muted", text: "发型尚未生成，照片上仍是现在的发型" };
 
@@ -173,7 +193,9 @@ export function LookStudio() {
       <div className="md:grid md:grid-cols-[minmax(0,420px)_minmax(0,1fr)] md:items-start md:gap-8">
         {/* Stage: sticky under the site header on phones, so controls scroll beneath it. */}
         <div className="sticky top-12 z-20 -mx-4 bg-paper px-4 pb-3 pt-1 md:top-16 md:mx-0 md:px-0">
-          <fieldset className="mb-3 rounded-[12px] border border-rule p-3">
+          <details className="mb-3 rounded-[4px] border border-rule p-3">
+          <summary className="min-h-8 cursor-pointer text-[13px] text-ink-soft">照片来源 · {source.role === "glasses" ? "日常眼镜参考照" : source.role === "noglasses" ? "无眼镜补充照" : "分析正脸照"}</summary>
+          <fieldset className="mt-3 border-t border-rule pt-3">
             <legend className="px-1 text-[13px] font-medium">照片来源</legend>
             <div className="flex flex-wrap gap-2" role="radiogroup" aria-label="照片来源">
               <Choice on={portrait === "front"} onClick={() => setPortrait("front")}>分析正脸照</Choice>
@@ -188,7 +210,8 @@ export function LookStudio() {
             </p>
             {!data.media.photos?.glasses && !expired && <p className="mt-1 text-[12px] text-muted">未提供可用的日常眼镜参考照，仍可使用分析正脸照。</p>}
           </fieldset>
-          <Stage className="relative mx-auto w-full max-w-[min(100%,calc(40dvh*0.8))] overflow-hidden rounded-[14px] md:max-w-none">
+          </details>
+          <Stage className="relative mx-auto w-full max-w-[min(100%,calc(32dvh*0.8))] overflow-hidden rounded-[14px] md:max-w-none">
             <div className="relative aspect-[4/5] w-full">
               {status === "ready" ? (
                 <canvas ref={canvas} className="absolute inset-0 size-full object-cover" role="img"
@@ -223,7 +246,11 @@ export function LookStudio() {
         </div>
 
         {/* scroll-margin: anything scrolled into view (keyboard focus) lands below the sticky portrait on phones */}
-        <div className="mt-2 space-y-6 md:mt-0 [&_section]:scroll-mt-[calc(32dvh+9rem)] [&_button]:scroll-mt-[calc(32dvh+9rem)] [&_a]:scroll-mt-[calc(32dvh+9rem)] md:[&_section]:scroll-mt-20 md:[&_button]:scroll-mt-20 md:[&_a]:scroll-mt-20">
+        <Tabs.Root value={panel} onValueChange={setPanel} className="mt-2 space-y-6 md:mt-0 [&_section]:scroll-mt-[calc(32dvh+9rem)] [&_button]:scroll-mt-[calc(32dvh+9rem)] [&_a]:scroll-mt-[calc(32dvh+9rem)] md:[&_section]:scroll-mt-20 md:[&_button]:scroll-mt-20 md:[&_a]:scroll-mt-20">
+          <Tabs.List aria-label="造型工具" className={s.studioNav}>
+            {[["hair", "发型与发色"], ["makeup", "妆容与配色"], ["eyewear", "眼镜"], ["saved", "我的造型"]].map(([key, label]) => <Tabs.Trigger key={key} value={key}>{label}</Tabs.Trigger>)}
+          </Tabs.List>
+          <Tabs.Content value="hair" forceMount hidden={panel !== "hair"} className={s.studioPanel}>
           {/* Hair shape only → explicit generation */}
           <Group title="发型" hint="三个推荐方向，或保持现在">
             <div className="flex flex-wrap gap-2" role="radiogroup" aria-label="发型">
@@ -243,7 +270,11 @@ export function LookStudio() {
 
           <HairAction target={hairTarget} paid={paid} status={hairStatus} ready={Boolean(hairReady)} expired={expired}
             busy={requesting || pv?.status === "pending"} onGenerate={generate} unlockHref={`/p/${id}/unlock`} error={err} />
+          {hairReady && hairState === "error" && <Button variant="outline" onClick={() => setReload(n => n + 1)}>{journey.reloadResult}</Button>}
+          {(expired || !source.url || status === "unavailable") && <Link href="/start" className="inline-flex min-h-11 items-center text-accent underline">{journey.reupload}</Link>}
+          </Tabs.Content>
 
+          <Tabs.Content value="makeup" forceMount hidden={panel !== "makeup"} className={s.studioPanel}>
           {!layersOk && status === "ready" && geometry === null && (
             <p className="rounded-[12px] bg-paper-sunk px-4 py-3 text-[13px] leading-6 text-ink-soft">
               这张照片没有可用的唇部与下颌测量，唇色、腮红、眉形和近脸色暂时不能叠加；发色识别与发型生成不受影响。
@@ -253,9 +284,6 @@ export function LookStudio() {
           <MakeupPresets look={look} set={set} availability={makeup} />
           <EyeMakeupControls look={look} set={set} availability={makeup} />
           <MakeupControls look={look} set={set} availability={makeup} recommendedBlush={recommendedBlush} recommendedLips={cp.lip_families} />
-
-          <EyewearControls look={look} set={set} reason={expired ? "照片已过期，请重新上传后试戴。" : status !== "ready" ? "照片载入后才能试戴眼镜。" : frontEyewear && !data.media.photos?.noglasses ? "没有无眼镜来源，不能在已有眼镜上叠加新镜框。" : (source.role === "glasses" || (frontEyewear && data.media.photos?.noglasses && !look.eyewear)) ? null : eyewearControlsReason}
-            warning={look.eyewear && eyewearReason ? "当前调整超出照片或可靠定位范围，请缩小镜框或调回高低；也可重置眼镜。" : null} />
 
           <Group title="近脸色" hint="衣领或围巾的颜色，看它对气色的影响">
             <div className="flex flex-wrap gap-2" role="radiogroup" aria-label="近脸色">
@@ -267,13 +295,18 @@ export function LookStudio() {
               ))}
             </div>
           </Group>
+          </Tabs.Content>
+          <Tabs.Content value="eyewear" forceMount hidden={panel !== "eyewear"} className={s.studioPanel}>
+            <EyewearControls look={look} set={set} reason={expired ? "照片已过期，请重新上传后试戴。" : status !== "ready" ? "照片载入后才能试戴眼镜。" : frontEyewear && !data.media.photos?.noglasses ? "没有无眼镜来源，不能在已有眼镜上叠加新镜框。" : (source.role === "glasses" || (frontEyewear && data.media.photos?.noglasses && !look.eyewear)) ? null : eyewearControlsReason}
+              warning={look.eyewear && eyewearReason ? "当前调整超出照片或可靠定位范围，请缩小镜框或调回高低；也可重置眼镜。" : null} />
+          </Tabs.Content>
 
           <div className="flex gap-2">
             <Button variant="outline" disabled={!history.current.length} onClick={() => { lastEdit.current={key:"",at:0}; const previous = history.current.pop(); if (previous) setLook(previous); }}>撤销</Button>
             <Button variant="outline" disabled={!hasEdits} onClick={() => set({ ...EMPTY_LOOK, hairHex: null, hairStrength: 0.8 })}><RotateCcw />重置全部</Button>
           </div>
-          <section className="rounded-[14px] border border-rule bg-paper-raised p-4">
-            <p className="mb-2 text-[12px] text-muted">保存的是造型选项；比较页仍使用分析正脸照。</p>
+          <Tabs.Content value="saved" forceMount hidden={panel !== "saved"} className={cn(s.studioPanel, "rounded-[14px] border border-rule bg-paper-raised p-5")}>
+            <p className="mb-2 text-[12px] text-muted">{journey.savedSettings}</p>
             <div className="flex flex-wrap items-center justify-between gap-2">
               <div className="min-w-0">
                 <h2 className="font-serif text-[17px] font-semibold">保存这个造型</h2>
@@ -291,9 +324,10 @@ export function LookStudio() {
                 ))}
               </ul>
             )}
-          </section>
+          </Tabs.Content>
+          {panel !== "saved" && <Button variant="accent" className="w-full" onClick={() => { save(); setPanel("saved"); }} disabled={!hasEdits}><Bookmark />保存这个造型</Button>}
 
-          <p className="text-[12px] leading-6 text-muted">
+          <p className={cn(s.studioFooter, "text-[12px] leading-6 text-muted")}>
             发型是 AI 近似模拟；发色、眼影、眼线、唇色、腮红、眉形、眼镜和近脸色在本地计算。试色不会调用 AI 生成或产生生成费用。
             每次生成都从你的原照片出发，照片、生成图和头发蒙版 24 小时后自动删除；浏览器仅在当前页面内存保留像素，保存造型只记录选项。
           </p>
@@ -303,7 +337,7 @@ export function LookStudio() {
             <Link href={`/p/${id}/plan`} className="text-accent underline-offset-4 hover:underline">我的行动方案 →</Link>
             <Link href={`/p/${id}/compare`} className="text-accent underline-offset-4 hover:underline">比较两个造型 →</Link>
           </div>
-        </div>
+        </Tabs.Root>
       </div>
     </Page>
   );

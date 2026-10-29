@@ -7,14 +7,25 @@ import { cn } from "@/lib/utils";
 
 export function CopyButton({ text, label = "复制", className }: { text: string; label?: string; className?: string }) {
   const [done, setDone] = React.useState(false);
+  const resetTimer = React.useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
+  const mounted = React.useRef(false);
+  React.useEffect(() => {
+    mounted.current = true;
+    return () => {
+      mounted.current = false;
+      clearTimeout(resetTimer.current);
+    };
+  }, []);
   async function copy() {
     try {
       await navigator.clipboard.writeText(text);
+      if (!mounted.current) return;
       setDone(true);
       toast.success("已复制");
-      setTimeout(() => setDone(false), 1600);
+      clearTimeout(resetTimer.current);
+      resetTimer.current = setTimeout(() => setDone(false), 1600);
     } catch {
-      toast.error("复制失败，请长按文字手动复制");
+      if (mounted.current) toast.error("复制失败，请长按文字手动复制");
     }
   }
   return (

@@ -69,8 +69,8 @@ export const upload = {
 
 /** V3B (D35): role-based multi-photo upload. Only the front photo is required. */
 export const photos = {
-  heading: "补充更多照片，获得更完整的面部评估",
-  intro: "不同角度与状态的照片，有助于分析更多面部细节，提高个性化建议的针对性。",
+  heading: "从一张正脸，开始你的形象档案",
+  intro: "先看清自己的特点，再试适合你的发型、妆容和配色。想看更多细节，可以再补充其他照片。",
   frontOnly: "仅上传正脸照也可以开始，其他照片均为选填。",
   more: "更多补充照片（选填）",
   moreHint: "微笑、45° 半侧面和发型照，可以补充表情与发型相关的观察。",
@@ -343,6 +343,10 @@ export const paywall = {
   invitationPlaceholder: "输入邀请码",
   invitationInvalid: "邀请码暂不可用，请检查后再试。",
   pending: "正在确认解锁结果",
+  paymentChecking: "正在读取支付可用状态",
+  paymentUnavailable: "支付暂未开放，可以使用邀请码解锁。",
+  freeStatus: "当前为免费护照",
+  fullStatus: "当前为完整护照",
   unlocked: "完整护照已解锁",
   failed: "解锁暂未完成，请查看订单状态后再试。",
 } as const;

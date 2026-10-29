@@ -56,8 +56,26 @@ describe("StartFlow (V3B multi-photo upload)", () => {
     expect(sent!.extra?.profile90).toBeUndefined();                             // rejected optional photo not sent
     expect(sent!.photoMeta?.front?.eyewear).toBe(true);
     // navigation follows create() and the thumbnail read (FileReader), so it lands a task or two later
-    await waitFor(() => expect(push).toHaveBeenCalledWith("/p/ap_0123456789ab"));
+    await waitFor(() => expect(push).toHaveBeenCalledWith("/p/ap_0123456789ab/report"));
   });
+});
+
+it("requires replacing a rejected front before creating a job", async () => {
+  vi.spyOn(httpBackend, "event").mockResolvedValue();
+  vi.spyOn(httpBackend, "qc").mockResolvedValue(verdict("front", "reject", ["blurry"], ["照片模糊，请重拍。"]));
+  const create = vi.spyOn(httpBackend, "create");
+  render(<StartFlow />);
+  for (const cb of screen.getAllByRole("checkbox")) fireEvent.click(cb);
+  fireEvent.click(screen.getByRole("button", { name: /继续|同意/ }));
+  await act(async () => fireEvent.change(screen.getByLabelText("选择照片 · 正脸照"), {
+    target: { files: [new File(["synthetic"], "front.jpg", { type: "image/jpeg" })] },
+  }));
+  await waitFor(() => expect(document.querySelector('[data-slot="front"] [data-qc="reject"]')).toBeTruthy());
+  fireEvent.click(screen.getByRole("button", { name: /女性化/ }));
+  const submit = screen.getByRole("button", { name: "请更换正脸照片" }) as HTMLButtonElement;
+  expect(submit.disabled).toBe(true);
+  fireEvent.click(submit);
+  expect(create).not.toHaveBeenCalled();
 });
 
 

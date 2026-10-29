@@ -13,11 +13,20 @@ import { rankedRecs, TIER_ZH, type Tier } from "@/lib/adapters";
 import { useChoices, type SavedLook } from "@/lib/state/choices";
 import { usePassport } from "@/lib/state/passport-store";
 import { cn } from "@/lib/utils";
+import { isSampleId } from "@/lib/flags";
+import { journey } from "@/lib/copy/journey";
+import s from "@/components/journey/journey.module.css";
 
 const COLS = [["today", "今天就能做"], ["next_haircut", "下次剪发"], ["invest", "值得投入"]] as const;
 const TOP_N = 3;
 
 export default function PlanPage() {
+  const { id } = usePassport();
+  if (isSampleId(id)) return <Page><p role="note">{journey.sampleReadOnly}</p><Link href="/report/sample">返回示例报告</Link><Link href="/start" className="ml-4">开始自己的分析</Link></Page>;
+  return <div className={`${s.surface} ${s.plan}`}><PlanEditor key={id} /></div>;
+}
+
+function PlanEditor() {
   const { id, passport, data } = usePassport();
   const { choices, setPlan } = useChoices(id);
   const [brief, setBrief] = React.useState<Tier | null>(null);
@@ -150,6 +159,7 @@ export default function PlanPage() {
 
 function lookQuery(l: SavedLook): string {
   const q = new URLSearchParams();
+  q.set("look", l.id);
   if (l.hair) q.set("hair", l.hair);
   if (l.hairColor !== null) q.set("hc", String(l.hairColor));
   if (l.lip) q.set("lip", l.lip.replace("#", ""));

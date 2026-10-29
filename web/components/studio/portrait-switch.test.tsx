@@ -25,6 +25,7 @@ it('can switch from an unfit legacy front to its independently measured glasses-
     makeup: NO_MAKEUP, eyewearReason: opts.geometry ? null : '无法定位', eyewearControlsReason: opts.geometry ? null : '无法定位',
   }));
   render(<LookStudio />);
+  fireEvent.mouseDown(screen.getByRole('tab', { name: '眼镜' }), { button: 0, ctrlKey: false });
   const round = screen.getByRole('radio', { name: '圆框' }) as HTMLButtonElement;
   expect(round.disabled).toBe(false);
   fireEvent.click(round);
