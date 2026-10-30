@@ -31,6 +31,8 @@ it("shows only the ten-point score and computed reference rank", () => {
   expect(screen.getByTestId("learned-score").textContent).toContain("5.5");
   expect(screen.getByTestId("score-value").textContent).toMatch(/5.5\s*\/\s*10/);
   expect(screen.getByTestId("learned-rank").textContent).toBe("前 35%");
+  // Position comes from the server percentile (65), not a 5.5/10 → 55 shortcut.
+  expect(screen.getByTestId("rank-position").getAttribute("data-percentile")).toBe("65");
   expect(screen.getByTestId("learned-score").textContent).not.toMatch(/SCUT|原生|照片质量|同模型|研究预览|校准|示意|常见区间|评分与样本说明|test-only-ridge/);
   expect(screen.getByTestId("learned-score").querySelector("details")).toBeNull();
 });
@@ -40,6 +42,7 @@ it("missing model never falls back to a geometric or fake predicted number", () 
   } })!} />);
   expect(screen.queryByTestId("score-value")).toBeNull();
   expect(screen.queryByTestId("learned-rank")).toBeNull();
+  expect(screen.queryByTestId("rank-position")).toBeNull();
   expect(screen.getByText("暂不可用")).toBeTruthy();
   expect(screen.getByText("暂无排名")).toBeTruthy();
 });

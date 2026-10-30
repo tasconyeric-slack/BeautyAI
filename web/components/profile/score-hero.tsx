@@ -171,9 +171,17 @@ export function PredictedScoreHero({ view }: { view: LearnedScoreView }) {
     </div>
     <div className="min-w-0 px-4 sm:px-6" aria-label={learnedCopy.rankAccessible}>
       <h2 className="text-[13px] font-medium text-ink-soft">{learnedCopy.rank}</h2>
-      {view.available && view.rank ? <p data-testid="learned-rank" className="mt-3 whitespace-nowrap font-serif text-[36px] font-semibold leading-none tabular-nums sm:text-[44px]">
-        <span className="mr-1 font-sans text-[16px] font-normal">前 </span>{view.rank.top}%
-      </p> : <p data-testid="learned-rank-unavailable" className="mt-3 text-[20px] text-muted">{learnedCopy.rankMissing}</p>}
+      {view.available && view.rank ? <>
+        <p data-testid="learned-rank" className="mt-3 whitespace-nowrap font-serif text-[36px] font-semibold leading-none tabular-nums sm:text-[44px]">
+          <span className="mr-1 font-sans text-[16px] font-normal">前 </span>{view.rank.top}%
+        </p>
+        <svg viewBox="0 0 160 20" aria-hidden="true" data-testid="rank-position" data-percentile={view.rank.percentile}
+          className="mt-3 h-5 w-full max-w-[220px] overflow-visible">
+          <path d="M8 10H152" fill="none" strokeWidth="3" strokeLinecap="round" className="stroke-rule" />
+          <path d={`M8 10H${8 + 1.44 * view.rank.percentile!}`} fill="none" strokeWidth="3" strokeLinecap="round" className="stroke-accent/40" />
+          <circle cx={8 + 1.44 * view.rank.percentile!} cy="10" r="5" strokeWidth="2" className="fill-paper-raised stroke-accent" />
+        </svg>
+      </> : <p data-testid="learned-rank-unavailable" className="mt-3 text-[20px] text-muted">{learnedCopy.rankMissing}</p>}
     </div>
   </section>;
 }
