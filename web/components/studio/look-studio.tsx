@@ -14,7 +14,7 @@ import * as React from "react";
 import { toast } from "sonner";
 import { Tabs } from "radix-ui";
 import { HoldButton, Stage, useHold } from "@/components/ds";
-import { NotReady, Page, PageHeader } from "@/components/passport/ui";
+import { NotReady, Page } from "@/components/passport/ui";
 import { Button } from "@/components/ui/button";
 import { colorGroups, hairOptions, rankedRecs, TIER_ZH } from "@/lib/adapters";
 import { ApiError, backendFor, type PreviewState } from "@/lib/api";
@@ -173,7 +173,7 @@ function StudioEditor() {
       if (rec) setPlan(rec.id, { saved: true });
       sendFeedback({ target_type: "hair_option", target_id: look.hair, reaction: "like", reason_tags: [] });
     }
-    toast.success("造型选项已保存在此设备，可在行动方案中继续");
+    toast.success("造型已保存，在行动方案中继续");
   };
   const apply = (saved: SavedLook) => {
     const {id: _savedId, name: _savedName, savedAt: _savedAt, ...selection} = saved;
@@ -192,8 +192,7 @@ function StudioEditor() {
 
   return (
     <Page wide>
-      <PageHeader kicker="形象实验室 · Look Studio" title="留住自己，试一点不同。"
-        sub="先选一个方向，在同一张照片里比较。颜色即时呈现；发型由你点击生成。" />
+      <div className={s.studioHeading}><div><p>Look Studio</p><h1>留住自己，试一点不同。</h1><span>从发型到配色，找到你喜欢的表达。</span></div><Link href={`/p/${id}/report`}>返回我的报告 <span aria-hidden>↗</span></Link></div>
       <div className={s.studioWorkspace}>
         {/* Stage: sticky under the site header on phones, so controls scroll beneath it. */}
         <div className={s.studioPortrait}>
@@ -251,19 +250,19 @@ function StudioEditor() {
         </div>
 
         {/* scroll-margin: anything scrolled into view (keyboard focus) lands below the sticky portrait on phones */}
-        <Tabs.Root data-studio-controls value={panel} onValueChange={setPanel} className="mt-2 space-y-6 md:mt-0 [&_section]:scroll-mt-[calc(32dvh+9rem)] [&_button]:scroll-mt-[calc(32dvh+9rem)] [&_a]:scroll-mt-[calc(32dvh+9rem)] md:[&_section]:scroll-mt-20 md:[&_button]:scroll-mt-20 md:[&_a]:scroll-mt-20">
+        <Tabs.Root data-studio-controls value={panel} onValueChange={setPanel} className={cn(s.studioControls, "mt-2 space-y-6 md:mt-0 [&_section]:scroll-mt-[calc(32dvh+9rem)] [&_button]:scroll-mt-[calc(32dvh+9rem)] [&_a]:scroll-mt-[calc(32dvh+9rem)] md:[&_section]:scroll-mt-20 md:[&_button]:scroll-mt-20 md:[&_a]:scroll-mt-20")}>
           <Tabs.List aria-label="造型工具" className={s.studioNav}>
             {[["hair", "发型与发色"], ["makeup", "妆容与配色"], ["eyewear", "眼镜"], ["saved", "我的造型"]].map(([key, label]) => <Tabs.Trigger key={key} value={key}>{label}</Tabs.Trigger>)}
           </Tabs.List>
           <Tabs.Content value="hair" forceMount hidden={panel !== "hair"} className={s.studioPanel}>
           {/* Hair shape only → explicit generation */}
-          <Group title="发型" hint="三个推荐方向，或保持现在">
-            <div className="flex flex-wrap gap-2" role="radiogroup" aria-label="发型">
-              <Choice on={look.hair === null} onClick={() => set({ hair: null })}>现在的发型</Choice>
+          <Group title="从发型开始" hint="选一个方向，看看轮廓如何变化。">
+            <div className={s.hairDirections} role="radiogroup" aria-label="发型">
+              <Choice on={look.hair === null} onClick={() => set({ hair: null })}><span>保持现在</span><small>从熟悉的样子开始</small></Choice>
               {options.map((o) => (
                 <Choice key={o.tier} on={look.hair === o.tier} disabled={o.status === "excluded"} onClick={() => set({ hair: o.tier as HairTier })}
                   title={o.status === "excluded" ? o.issues.join("；") : undefined}>
-                  {TIER_ZH[o.tier]} · {o.name}
+                  <span>{TIER_ZH[o.tier]}</span><strong>{o.name}</strong><small>{o.tier === "safe" ? "沿着你的特点，做一点调整" : o.tier === "bold" ? "换一种表达，探索更多可能" : "更少打理，也有自己的风格"}</small>
                 </Choice>
               ))}
             </div>
@@ -306,7 +305,7 @@ function StudioEditor() {
               warning={look.eyewear && eyewearReason ? "当前调整超出照片或可靠定位范围，请缩小镜框或调回高低；也可重置眼镜。" : null} />
           </Tabs.Content>
 
-          <div className={s.studioDecision} aria-live="polite"><span>{hairStatus.tone === "busy" ? "正在生成，仍可调整本地颜色" : hairStatus.tone === "ok" ? "结果已到达，按住原图再比较" : "先探索，再决定"}</span><p>保存的是此设备上的造型选项；生成图随照片到期删除。</p></div>
+          <div className={s.studioDecision} aria-live="polite"><span>{hairStatus.tone === "busy" ? "发型生成中，可以继续探索配色" : hairStatus.tone === "ok" ? "新造型已就绪，按住看原图" : "先探索，再决定"}</span><p>{summary === "原图" ? "选一个喜欢的方向，随时可以回到现在。" : summary}</p></div>
           <div className="flex gap-2">
             <Button variant="outline" disabled={!history.current.length} onClick={() => { lastEdit.current={key:"",at:0}; const previous = history.current.pop(); if (previous) setLook(previous); }}>撤销</Button>
             <Button variant="outline" disabled={!hasEdits} onClick={() => set({ ...EMPTY_LOOK, hairHex: null, hairStrength: 0.8 })}><RotateCcw />重置全部</Button>
@@ -315,7 +314,7 @@ function StudioEditor() {
             <p className="mb-2 text-[12px] text-muted">{journey.savedSettings}</p>
             <div className="flex flex-wrap items-center justify-between gap-2">
               <div className="min-w-0">
-                <h2 className="font-serif text-[17px] font-semibold">保存造型选项</h2>
+                <h2 className="font-serif text-[17px] font-semibold">我的造型</h2>
                 <p className="truncate text-[12px] text-muted">{summary}</p>
               </div>
               <Button variant="outline" onClick={save} disabled={!hasEdits}><Bookmark />保存</Button>
@@ -331,12 +330,10 @@ function StudioEditor() {
               </ul>
             )}
           </Tabs.Content>
-          {panel !== "saved" && <Button variant="accent" className="w-full" onClick={() => { save(); setPanel("saved"); }} disabled={!hasEdits}><Bookmark />保存这个造型</Button>}
+          {panel !== "saved" && <div className={s.studioSaveAction}><Button variant="accent" className="w-full" onClick={() => { save(); setPanel("saved"); }} disabled={!hasEdits}><Bookmark />保存这个造型</Button></div>}
 
-          <p className={cn(s.studioFooter, "text-[12px] leading-6 text-muted")}>
-            发型是 AI 近似模拟；发色、眼影、眼线、唇色、腮红、眉形、眼镜和近脸色在本地计算。试色不会调用 AI 生成或产生生成费用。
-            每次生成都从你的原照片出发，照片、生成图和头发蒙版 24 小时后自动删除；浏览器仅在当前页面内存保留像素，保存造型只记录选项。
-          </p>
+          <div className={s.studioHandoff}><span>{choices.looks.length ? `已收藏 ${choices.looks.length} 个方向` : "把喜欢的选择，带进日常。"}</span><Link href={`/p/${id}/plan`}>查看我的行动方案 ↗</Link></div>
+          <details className={cn(s.studioFooter, "text-[12px] leading-6 text-muted")}><summary>关于预览与照片</summary><p>发型为 AI 预览，试色基于当前照片光线。每次生成从原照片开始；照片与生成图保留 24 小时，造型选项保存在此设备。</p></details>
           <div className="flex flex-wrap gap-3 text-[13px]">
             <Link href={`/p/${id}/hair`} className="text-accent underline-offset-4 hover:underline">发型建议 →</Link>
             <Link href={`/p/${id}/color`} className="text-accent underline-offset-4 hover:underline">个人色彩 →</Link>

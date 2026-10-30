@@ -67,7 +67,7 @@ export function Hero({ v }: { v: HeroView }) {
           <span className={s.scrollLine} aria-hidden />
           观察 → 解读 → 建议
         </a>
-        <span className={s.heroNote}>示例人物由 AI 合成</span>
+
       </div>
 
       {v.profile && (

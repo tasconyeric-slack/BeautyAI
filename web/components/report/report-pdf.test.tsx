@@ -64,7 +64,7 @@ describe("PDF report export", () => {
     expect(all).toContain(squash(copy.planFull));
     expect(all).toContain(squash(p.derived.plan.invest[0].action).slice(0, 12));
     // marked as a sample on every page after the cover, and paginated
-    for (const t of r.pages.slice(1)) expect(squash(t)).toContain("示例报告");
+    for (const t of r.pages.slice(1)) expect(squash(t)).toContain(squash(copy.sampleKicker));
     expect(squash(r.pages.at(-1)!)).toContain(`第${r.totalPages}/${r.totalPages}页`);
   }, 60_000);
 

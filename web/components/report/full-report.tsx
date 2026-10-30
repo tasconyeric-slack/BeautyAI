@@ -109,7 +109,7 @@ export function FullReportContent({ data: source, geometry: rawGeometry, sample 
   const order: ChapterKey[] = mobile ? ["overview", "improvements", "options", "plan", "findings", "interpretation", "methods"] : CHAPTER_KEYS;
   return <SampleContext.Provider value={sample}><article className={s.root} aria-label={copy.title} data-testid="full-report" data-report-layout={mobile ? "mobile" : "desktop"} data-paid={data.entitlement.paid ? "1" : "0"} data-sample={sample ? "1" : "0"}>
     {!data.entitlement.paid && <FreeScope id={data.id} sample={sample} price={data.entitlement.price_cny} />}
-    <div className={s.frame}><Toc sample={sample} regions={regions} order={order} /><div className={s.chapters}>{order.map(k => <React.Fragment key={k}>{chapters[k]}</React.Fragment>)}{!sample && <ReportNext id={data.id} />}<details className="mt-8 border-t border-rule"><summary>导出 PDF 报告</summary><ReportPdfExport data={data} sample={sample} geometry={geometry} demo={sample || !isMockPassport(kind, p) ? null : kind === "fixture" ? "fixture" : "mock"} /></details></div></div>
+    <div className={s.reportCover}>{chapters.overview}</div><div className={s.frame}><Toc sample={sample} regions={regions} order={order} /><div className={s.chapters}>{order.filter(k => k !== "overview").map(k => <React.Fragment key={k}>{chapters[k]}</React.Fragment>)}{!sample && <ReportNext id={data.id} />}<details className="mt-8 border-t border-rule"><summary>导出 PDF 报告</summary><ReportPdfExport data={data} sample={sample} geometry={geometry} demo={sample || !isMockPassport(kind, p) ? null : kind === "fixture" ? "fixture" : "mock"} /></details></div></div>
   </article></SampleContext.Provider>;
 }
 
@@ -264,7 +264,7 @@ function Findings({ p, mv, geometry, data, gone, sample, base, regions, links }:
   return (
     <Chapter k="findings">
       <div className="rounded-[16px] border border-rule bg-paper-raised p-5">
-        <p className="text-[12px] text-muted">模型判断 · 候选概率，不是测量值，也不是人群排名</p>
+        <p className="text-[12px] text-muted">轮廓特征</p>
         <h3 className="font-serif text-[17px] font-semibold">脸型：{shape.title}</h3>
         <ul className="mt-3 space-y-2" aria-label="脸型候选">
           {shape.candidates.map((c) => (
@@ -304,7 +304,7 @@ function Region({ r, geometry, data, gone, sample, recs }: {
         <div className="mt-4 grid gap-4 md:grid-cols-2">
           {r.insights.length > 0 && (
             <div>
-              <h4 className="text-[12px] tracking-[0.12em] text-muted">规则解读 · {copy.regionInsights}</h4>
+              <h4 className="text-[12px] tracking-[0.12em] text-muted">{copy.regionInsights}</h4>
               <ul className="mt-2 space-y-2">
                 {r.insights.map((i) => (
                   <li key={i.metricId} className="rounded-[12px] bg-paper-sunk px-3.5 py-2.5 text-[13.5px] leading-6">
@@ -317,7 +317,7 @@ function Region({ r, geometry, data, gone, sample, recs }: {
           )}
           {r.observations.length > 0 && (
             <div>
-              <h4 className="text-[12px] tracking-[0.12em] text-muted">模型观察 · {copy.regionObservations}</h4>
+              <h4 className="text-[12px] tracking-[0.12em] text-muted">{copy.regionObservations}</h4>
               <ul className="mt-2 space-y-1.5">
                 {r.observations.map((o) => (
                   <li key={o.text} className="flex gap-2 text-[13.5px] leading-6">
@@ -352,7 +352,7 @@ function Interpretation({ p, base }: { p: Passport; base: string }) {
   const color = p.derived.display_labels.color;
   return (
     <Chapter k="interpretation">
-      <p className="mb-4 text-[12px] text-muted">来自模型分析的造型解读，与 CV 测量分开呈现；不用于推断性格、身份或人群位置。</p>
+
       <div className="grid gap-4 md:grid-cols-2">
         <div className="rounded-[16px] border border-rule bg-paper-raised p-5">
           <h3 className="text-[13px] font-medium text-ink-soft">{copy.works}</h3>
@@ -370,7 +370,7 @@ function Interpretation({ p, base }: { p: Passport; base: string }) {
               </li>
             ))}
           </ul>
-          <p className="mt-3 text-[12px] leading-5 text-muted">这些都是发型、配色、光线等可以改变的搭配，不是对五官的评价。</p>
+          <p className="mt-3 text-[12px] leading-5 text-muted">从发型、配色与光线入手，让视觉重心更清晰。</p>
         </div>
       </div>
       <Sub title={copy.signature} className="mt-8">
@@ -596,7 +596,7 @@ function Plan({ p, data, sample, currentName }: { p: Passport; data: PassportRes
   return (
     <Chapter k="plan">
       <p data-testid="report-current-plan">当前发型方向：{currentName ?? "暂无可选方向"}。通用分析计划保留原文；剪发请使用当前方案话术。</p>
-      {sample && <p className="text-[12px] text-muted">示例只读，不保存选择或勾选。可以复制清单供参考。</p>}
+      {sample && <p className="text-[12px] text-muted">复制这份清单，找到适合自己的第一步。</p>}
       <CopyButton label="复制行动清单" text={top.map((r, i) => `${i + 1}. ${r.action}\n怎么检查：${r.successCheck}`).join("\n\n")} />
       <Sub title={copy.planTop}>
         <ol className="grid gap-3 md:grid-cols-3" data-testid="report-plan-top">
@@ -659,7 +659,7 @@ function Methods({ p, data, mv, sample }: { p: Passport; data: PassportResponse;
           </p>
         </div>
         <div className="rounded-[14px] border border-rule bg-paper-raised p-4 text-[13px] leading-6 text-ink-soft">
-          <h3 className="mb-1 text-[14px] font-medium text-ink">{copy.limitations}</h3><p>以下为模型分析局限原文，可能与后续 CV 实测视角不同。视角覆盖以测量层登记为准，不改写分析原文。</p>
+          <h3 className="mb-1 text-[14px] font-medium text-ink">{copy.limitations}</h3><p>分析时的照片条件：</p>
           <ul className="list-disc space-y-0.5 pl-5" data-testid="report-limitations">
             {p.analysis.limitations.map((l) => <li key={l}>{l}</li>)}
           </ul>
@@ -667,7 +667,7 @@ function Methods({ p, data, mv, sample }: { p: Passport; data: PassportResponse;
         <div className="rounded-[14px] border border-rule bg-paper-raised p-4 text-[13px] leading-6 text-ink-soft">
           <h3 className="mb-1 text-[14px] font-medium text-ink">{copy.methodPrivacy}</h3>
           {sample ? (
-            <p>示例使用 AI 生成或程序绘制的合成人脸，不含真人照片。示例媒体为已登记的公开样例，不受私人护照的临时展示期限影响。</p>
+            <p>你可以自由浏览这份报告。建立个人护照后，照片保留 24 小时。</p>
           ) : data.media.expired ? (
             <p>{copy.photoExpired}</p>
           ) : expires && !Number.isNaN(expires.getTime()) ? (

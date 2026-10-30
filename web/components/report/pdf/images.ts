@@ -102,7 +102,7 @@ export async function collectImages(data: PassportResponse, geometry: FaceGeomet
       const crop = regionCrop(r.drawable, geometry);
       if (!crop) continue;
       const names = r.drawable.slice(0, crop.overlays.length).map((m) => m.name_zh).join("、");
-      images.regions[r.key] = { ...regionImage(front, crop), caption: `${sample ? "合成人脸" : "正脸照"}局部 · 线条是 ${names} 的测量位置` };
+      images.regions[r.key] = { ...regionImage(front, crop), caption: `正脸照局部 · 线条是 ${names} 的测量位置` };
     }
   }
 

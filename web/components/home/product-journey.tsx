@@ -17,7 +17,7 @@ export function ProductJourney({ sample }: { sample: DemoCase }) {
         <header className={s.intro}>
           <h2 id="passport-title">把线索，整理成<br />一份形象护照。</h2>
           <p>从照片里的发现，到下一次剪发前的准备。七章报告把依据、建议和行动放在一起，可以随时回看。</p>
-          <p className={s.note}>公开示例来自 AI 合成的虚构人物，经真实分析流程生成。这里展示同一人的完整报告。</p>
+          <p className={s.note}>从面部特点到造型选择，完整读懂一份形象护照。</p>
           <Link prefetch={false} href={sampleHref} className={s.primary}>阅读完整示例报告</Link>
         </header>
         <ol className={s.contents} aria-label="示例报告七章目录">
@@ -30,7 +30,7 @@ export function ProductJourney({ sample }: { sample: DemoCase }) {
     <section id="studio" className={`${s.section} ${s.studio}`} aria-labelledby="studio-title">
       <div className={s.studioGrid}>
         <div className={s.palette}>
-          <Stage className={s.portrait}><img src={sample.photos.front} alt="AI 合成示例人物原始分析照，未添加造型效果" width={960} height={1200} loading="lazy" /></Stage>
+          <Stage className={s.portrait}><img src={sample.photos.front} alt="造型探索原图" width={960} height={1200} loading="lazy" /></Stage>
           <div className={s.paletteText}><p>她的报告推荐近脸色</p><SwatchRow colors={colors} /><p className={s.note}>原始分析照与推荐色卡，未作试色或发型编辑。</p></div>
         </div>
         <div className={s.intro}>

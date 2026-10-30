@@ -245,10 +245,10 @@ export function ReportDocument({ data, sample, demo = null, images, photoMode, n
         <View fixed style={[s.rule, { top: 40 }]} />
         <Text fixed style={[s.running, { top: 27 }]} render={({ pageNumber }) => (pageNumber === 1 ? "" : prepare(`形象护照 · ${copy.title} · ${meta.edition}`))} />
         <Text fixed style={[s.running, { top: 27, textAlign: "right" }, sample || demo ? s.sampleBand : {}]}
-          render={({ pageNumber }) => (pageNumber === 1 ? "" : prepare(sample ? `${copy.sampleKicker} · 虚构档案，不代表任何真人`
+          render={({ pageNumber }) => (pageNumber === 1 ? "" : prepare(sample ? copy.sampleKicker
             : demo ? `${copy.pdf.demoBand[demo]} · No.${no}` : `No.${no}`))} />
         <View fixed style={[s.rule, { top: 801 }]} />
-        <Text fixed style={[s.running, { top: 805 }]}>{prepare(sample ? "示例 · 合成人脸，不含任何真人照片" : "仅描述照片上可测量、可观察的特点，不判断长相好坏，不提供医疗建议")}</Text>
+        <Text fixed style={[s.running, { top: 805 }]}>{prepare(sample ? "形象护照 · 风格与行动" : "仅描述照片上可测量、可观察的特点，不判断长相好坏，不提供医疗建议")}</Text>
         <Text fixed style={[s.running, { top: 805, textAlign: "right" }]} render={({ pageNumber, totalPages }) => prepare(`第 ${pageNumber} / ${totalPages} 页`)} />
 
         <Cover data={data} sample={sample} demo={demo} images={images} photoMode={photoMode} now={now} />
@@ -306,7 +306,7 @@ function Cover({ data, sample, demo, images, photoMode, now }: {
         {portrait && (
           <View style={{ width: 150 }}>
             <Image src={portrait} style={{ width: 150, height: 187.5, borderRadius: 6, objectFit: "cover" }} />
-            <T style={[s.small, { marginTop: 3 }]}>{sample ? "合成人脸 · 不是真人照片" : "你的正脸照片（按你的选择加入）"}</T>
+            <T style={[s.small, { marginTop: 3 }]}>{sample ? "面部细节" : "你的正脸照片（按你的选择加入）"}</T>
           </View>
         )}
       </View>
@@ -891,7 +891,7 @@ function Methods({ p, data, mv, sample, demo, paid, photoMode }: {
         </View>
         <View style={[s.box, cell]} wrap={false}>
           <T style={s.bold}>{copy.methodPrivacy}</T>
-          {sample ? <T style={s.soft}>示例使用程序绘制的合成人脸，不含任何真人照片。</T>
+          {sample ? <T style={s.soft}>从照片中的轮廓与色彩，探索适合的造型方向。</T>
             : data.media.expired ? <T style={s.soft}>{copy.photoExpired}</T>
               : expires && !Number.isNaN(expires.getTime()) ? <T style={s.soft}>{copy.photoExpires}：{expires.toLocaleString("zh-CN")}。之后报告中的文字与数字仍然保留。</T> : null}
           <T style={s.soft}>{PHOTO_NOTE[photoMode]}</T>

@@ -81,9 +81,9 @@ describe("the full report as a document", () => {
     const { container } = renderReport(true);
     const strip = screen.getByTestId("report-glance");
     const items = within(strip).getAllByRole("link");
-    expect(items.map((a) => a.getAttribute("href"))).toEqual(["#methods", "#area-proportions"]);
+    expect(items.map((a) => a.getAttribute("href"))).toEqual(["#findings", "#options", "#rec-r1"]);
     for (const a of items) expect(container.querySelector(a.getAttribute("href")!), a.getAttribute("href")!).not.toBeNull();
-    expect(strip.textContent).toContain(String(passport.aesthetic_score!.overall_score));
+    expect(screen.getByTestId("score-value").textContent).toContain(String(passport.aesthetic_score!.overall_score));
     expect(screen.getByTestId("full-report").dataset.sample).toBe("1");
   });
 
@@ -125,7 +125,7 @@ describe("the full report as a document", () => {
     await waitFor(() => expect(within(nav).getByRole("link", { current: "location" }).getAttribute("data-toc")).toBe("improvements"));
     expect(within(nav).getAllByRole("link", { current: "location" })).toHaveLength(1);
 
-    fireEvent.click(within(nav).getByRole("link", { name: /方法、局限与隐私/ }));
+    fireEvent.click(within(nav).getByRole("link", { name: /关于这份报告/ }));
     expect(scrollIntoView).toHaveBeenCalledTimes(1);
     expect(document.activeElement?.id).toBe("methods-title");
   });

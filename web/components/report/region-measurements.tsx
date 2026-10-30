@@ -31,7 +31,7 @@ export function RegionMeasurements({ r, data, geometry, gone, sample }: { r: Reg
         <div className={s.crop} data-testid="region-figure" data-photo-role={role} style={{ aspectRatio: crop ? ((crop.box[2] - crop.box[0]) * crop.width) / ((crop.box[3] - crop.box[1]) * crop.height) : "1" }}>
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img src={src} alt={`${VIEW_ZH[role]} · ${r.title}测量原图`} onError={() => setFailed(src)} style={crop ? { width: `${100 / (crop.box[2] - crop.box[0])}%`, height: `${100 / (crop.box[3] - crop.box[1])}%`, left: `${-crop.box[0] / (crop.box[2] - crop.box[0]) * 100}%`, top: `${-crop.box[1] / (crop.box[3] - crop.box[1]) * 100}%` } : undefined} />
-          {crop && !hold.holding && <svg data-measure-overlay={row?.name} viewBox={`${crop.box[0] * crop.width} ${crop.box[1] * crop.height} ${(crop.box[2] - crop.box[0]) * crop.width} ${(crop.box[3] - crop.box[1]) * crop.height}`} aria-hidden>
+          {crop && !hold.holding && <svg key={row?.id} data-measure-overlay={row?.name} viewBox={`${crop.box[0] * crop.width} ${crop.box[1] * crop.height} ${(crop.box[2] - crop.box[0]) * crop.width} ${(crop.box[3] - crop.box[1]) * crop.height}`} aria-hidden>
             {crop.overlays.flatMap((o, k) => <g key={k}>
               {o.segments.map((line, i) => <line key={i} x1={line.a[0] * crop.width} y1={line.a[1] * crop.height} x2={line.b[0] * crop.width} y2={line.b[1] * crop.height} stroke={line.role === "measure" ? "var(--ap-amber)" : "white"} strokeWidth={2} strokeDasharray={line.role === "measure" ? undefined : "5 4"} vectorEffect="non-scaling-stroke" />)}
               {o.arcs.map((a, i) => <path key={i} d={arcPath(a, crop.width, crop.height)} fill="none" stroke="var(--ap-amber)" strokeWidth={2} vectorEffect="non-scaling-stroke" />)}
@@ -39,18 +39,18 @@ export function RegionMeasurements({ r, data, geometry, gone, sample }: { r: Reg
             </g>)}
           </svg>}
         </div>
-        <figcaption className={s.caption}>{VIEW_ZH[role]} · {crop ? `正在显示：${row?.name}` : "本项没有可用的测量线，保留测量数字"}</figcaption>
+        <figcaption className={s.caption}>{VIEW_ZH[role]} · {crop ? `正在显示：${row?.name}` : "查看照片细节"}</figcaption>
         {crop && <HoldButton {...hold} />}
       </> : <MissingPhoto expired={photoExpired(data.media)} recoveryHref={!sample && !photoExpired(data.media) && role !== "front" ? `/p/${data.id}/more` : "/start"} recoveryLabel={!sample && !photoExpired(data.media) && role !== "front" ? `补充${VIEW_ZH[role]}照片` : "重新上传正脸"} />}
     </figure>
     <div>
       <ul className={s.metricRows} data-testid={`region-rows-${r.key}`}>{r.rows.map(m => <li key={m.id} data-metric-row={m.id}>
-        <button type="button" aria-pressed={row?.id === m.id} onClick={() => setSelected(m.id)}><span><small>{m.id}</small>{m.name}</span><b data-testid="metric-value">{m.value}</b></button>
+        <button type="button" aria-pressed={row?.id === m.id} onClick={() => setSelected(m.id)}><span>{m.name}</span><b data-testid="metric-value">{m.value}</b></button>
       </li>)}</ul>
-      {r.additionalRows.length > 0 && <details><summary>其余 {r.additionalRows.length} 项测量（含已测视角）</summary><ul className={s.metricRows}>{r.additionalRows.map(m => <li key={m.id} data-metric-row={m.id}><button type="button" aria-pressed={row?.id === m.id} onClick={() => setSelected(m.id)}><span><small>{m.id} · {VIEW_ZH[metricRole(m.metric)]}</small>{m.name}</span><b data-testid="metric-value">{m.value}</b></button></li>)}</ul></details>}
+      {r.additionalRows.length > 0 && <details><summary>展开 {r.additionalRows.length} 项测量</summary><ul className={s.metricRows}>{r.additionalRows.map(m => <li key={m.id} data-metric-row={m.id}><button type="button" aria-pressed={row?.id === m.id} onClick={() => setSelected(m.id)}><span><small>{VIEW_ZH[metricRole(m.metric)]}</small>{m.name}</span><b data-testid="metric-value">{m.value}</b></button></li>)}</ul></details>}
       {row && <div className={s.reading} aria-live="polite" data-testid={`region-reading-${r.key}`}>
         <h4>{row.name} <strong>{row.value}</strong></h4>
-        <p>{row.definition} · {row.confidence && CONFIDENCE_ZH[row.confidence]}</p>
+        <details><summary>测量说明</summary><p>{row.definition} · {row.confidence && CONFIDENCE_ZH[row.confidence]}</p></details>
         {row.assessment && <><RangeBar a={row.assessment} m={row.metric} /><p>{row.assessment.label_zh} · {BASIS_ZH[row.assessment.basis]}</p></>}
         <p>{rawRail && !rawRail.definition_verified ? "此项定义尚未验证，暂无可比对照。" : rail?.text ?? "此项暂无可比对照。"}</p>
       </div>}
