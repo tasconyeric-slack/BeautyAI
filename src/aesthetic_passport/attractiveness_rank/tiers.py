@@ -6,6 +6,7 @@ This module does not produce or authorize a rank: the rank engine owns that gate
 
 from __future__ import annotations
 
+import itertools
 import math
 from dataclasses import dataclass
 from pathlib import Path
@@ -58,7 +59,7 @@ def tier_for_rank(
             cuts.append(cut)
             if result is None and p >= cut:
                 result = RelativeTier(entry["id"], entry["label_zh"], cut)
-        if cuts[-1] != 0 or any(a <= b for a, b in zip(cuts, cuts[1:])):
+        if cuts[-1] != 0 or any(a <= b for a, b in itertools.pairwise(cuts)):
             raise ValueError
         if len({entry["id"] for entry in tiers}) != len(tiers):
             raise ValueError
