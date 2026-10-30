@@ -93,7 +93,7 @@ export function ScoreHero({ view, rank = null, workbenchHref, retakeHref, sample
           {rank?.state === "ranked" && rank.note && <p className="mt-1">{rank.note}</p>}
           {rank?.cohort && (
             <p className="mt-1">{rankCopy.cohort}：<a href={rank.cohort.url} target="_blank" rel="noreferrer" className="underline underline-offset-2">{rank.cohort.publisher}</a>
-              {" "}· {rank.cohort.n.toLocaleString("en-US")} 份自愿扫描 · {rank.cohort.date}</p>
+              {" "}· {rank.cohort.n.toLocaleString("en-US")} {rank.cohort.kind === "academic_published_images" ? "张学术参考图片" : "份自愿扫描"} · {rank.cohort.date}</p>
           )}
         </details>
         {link && (
