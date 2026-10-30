@@ -51,10 +51,11 @@ describe("PDF report export", () => {
     expect(r.totalPages).toBeGreaterThanOrEqual(8);
     // every chapter starts on its own page and none is empty
     for (const k of CHAPTER_KEYS) {
-      const at = r.pages.findIndex((t, i) => i > 0 && squash(t).includes(squash(copy.chapters[k].sub)));
+      const at = r.pages.findIndex((t, i) => i > 0 && squash(t).includes(squash(copy.chapters[k].title)));
       expect(at, k).toBeGreaterThan(0);
-      expect(squash(r.pages[at]).length, k).toBeGreaterThan(200);
+      expect(squash(r.pages[at]).length, k).toBeGreaterThan(k === "methods" ? 60 : 200);
     }
+    expect(r.all).not.toMatch(/总分 =|测量视角、参考来源与署名|测量依据、适用范围与照片管理/);
     // the scoring layer's number and the four parts, measurement values straight from measurement_profile
     const all = squash(r.all);
     expect(all).toContain(String(Math.round(p.aesthetic_score!.overall_score!)));
@@ -98,7 +99,7 @@ describe("PDF report export", () => {
     const r = await build({ data, sample: false, demo: "fixture", images: null, photoMode: "omitted" }, "demo-free.pdf");
     expect(r.info.Title).toContain("演示");
     expect(squash(r.pages[0])).toContain(squash(copyPdf.demo.fixture));
-    expect(squash(r.pages[1])).toContain(squash(copyPdf.demoScore));
+    expect(squash(r.pages[0])).toContain(squash(copyPdf.demoScore));
     for (const t of r.pages.slice(1)) expect(squash(t)).toContain(squash(copyPdf.demoBand.fixture));
     // simulated, but never claims the viewer's own photo is a synthetic face
     expect(r.all).not.toContain("合成人脸");

@@ -165,7 +165,7 @@ function StudioEditor() {
     const savedId = saveLook(saved);
     if (!readChoices(id).looks.some(item => item.id === savedId)) {
       toast.error("浏览器未能保存造型，请允许本地存储后重试");
-      return;
+      return false;
     }
     if (look.hair) {
       chooseHair(look.hair);
@@ -174,6 +174,7 @@ function StudioEditor() {
       sendFeedback({ target_type: "hair_option", target_id: look.hair, reaction: "like", reason_tags: [] });
     }
     toast.success("造型已保存，在行动方案中继续");
+    return true;
   };
   const apply = (saved: SavedLook) => {
     const {id: _savedId, name: _savedName, savedAt: _savedAt, ...selection} = saved;
@@ -286,8 +287,8 @@ function StudioEditor() {
           )}
 
           <MakeupPresets look={look} set={set} availability={makeup} />
-          <EyeMakeupControls look={look} set={set} availability={makeup} />
-          <MakeupControls look={look} set={set} availability={makeup} recommendedBlush={recommendedBlush} recommendedLips={cp.lip_families} />
+          <details className={s.studioAdvanced}><summary>精细调整眼妆</summary><EyeMakeupControls look={look} set={set} availability={makeup} /></details>
+          <details className={s.studioAdvanced}><summary>调整唇色、腮红与眉形</summary><MakeupControls look={look} set={set} availability={makeup} recommendedBlush={recommendedBlush} recommendedLips={cp.lip_families} /></details>
 
           <Group title="近脸色" hint="衣领或围巾的颜色，看它对气色的影响">
             <div className="flex flex-wrap gap-2" role="radiogroup" aria-label="近脸色">
@@ -330,7 +331,7 @@ function StudioEditor() {
               </ul>
             )}
           </Tabs.Content>
-          {panel !== "saved" && <div className={s.studioSaveAction}><Button variant="accent" className="w-full" onClick={() => { save(); setPanel("saved"); }} disabled={!hasEdits}><Bookmark />保存这个造型</Button></div>}
+          {panel !== "saved" && <div className={s.studioSaveAction}><Button variant="accent" className="w-full" onClick={() => { if (save()) setPanel("saved"); }} disabled={!hasEdits}><Bookmark />保存这个造型</Button></div>}
 
           <div className={s.studioHandoff}><span>{choices.looks.length ? `已收藏 ${choices.looks.length} 个方向` : "把喜欢的选择，带进日常。"}</span><Link href={`/p/${id}/plan`}>查看我的行动方案 ↗</Link></div>
           <details className={cn(s.studioFooter, "text-[12px] leading-6 text-muted")}><summary>关于预览与照片</summary><p>发型为 AI 预览，试色基于当前照片光线。每次生成从原照片开始；照片与生成图保留 24 小时，造型选项保存在此设备。</p></details>

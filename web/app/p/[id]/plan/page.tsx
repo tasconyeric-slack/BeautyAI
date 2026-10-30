@@ -41,8 +41,8 @@ function PlanEditor() {
   const done = top.filter((r) => choices.plan[r.id]?.done).length;
   return (
     <Page>
-      <PageHeader kicker="我的行动方案" title="把目标变成可尝试的行动"
-        sub="从你的报告观察与造型目标出发，了解变化的理由、替代方案和实际投入。" />
+      <PageHeader kicker="我的行动方案" title="让喜欢的方向，成为日常。"
+        sub="你的造型选择，与可以开始的下一步。" />
       <PersonalPlan id={id} passport={passport} />
       <details className="mt-8 rounded-xl border border-rule p-4">
         <summary className="cursor-pointer text-[14px] text-ink-soft">报告原始建议与反馈</summary>

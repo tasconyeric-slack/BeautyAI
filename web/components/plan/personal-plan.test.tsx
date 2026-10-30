@@ -22,7 +22,7 @@ describe("plan decision key path", () => {
     const card = screen.getByTestId("intervention-lip-statement");
     const link = within(card).getByRole("link", { name: /实验室/ });
     expect(link.getAttribute("href")).toBe("/p/ap_sample_0001/studio?lip=A3263F");
-    expect(card.textContent).toContain("o6");
+    expect(card.querySelector('[data-observation="o6"]')).toBeTruthy();
     expect(card.textContent).toContain("替代");
     fireEvent.click(within(card).getByRole("button", { name: "加入我的方案" }));
     fireEvent.click(within(card).getByRole("button", { name: "标记完成" }));

@@ -12,7 +12,7 @@ import { photoExpired } from "@/components/report-slice/model";
 import s from "./full-report.module.css";
 
 /** Shared public/personal cover; every personal finding comes from this passport. */
-export function ReportOverview({ data, mv, sample, gone, geometry }: { data: PassportResponse; mv: MeasureView | null; sample: boolean; gone: boolean; geometry: FaceGeometry | null }) {
+export function ReportOverview({ data, mv, sample, gone, geometry, exportAction }: { data: PassportResponse; mv: MeasureView | null; sample: boolean; gone: boolean; geometry: FaceGeometry | null; exportAction?: React.ReactNode }) {
   const p = data.passport!;
   const score = aestheticScore(p), rank = referenceRank(p);
   const highlight = p.derived.measurement_insights?.items.find(i => i.highlight);
@@ -32,13 +32,13 @@ export function ReportOverview({ data, mv, sample, gone, geometry }: { data: Pas
         <p className={s.lead}>{p.analysis.profile_summary.one_liner}</p>
         <p className={s.bestDirection}>{p.analysis.profile_summary.best_direction}</p>
         <div className={s.coverActions}><a href="#improvements">找到适合的改变 <ArrowDown size={16} /></a>{sample ? <Link href="/start">建立我的护照 <ArrowUpRight size={16} /></Link> : <Link href={`/p/${data.id}/studio`}>在照片上试试 <ArrowUpRight size={16} /></Link>}</div>
-        <details className={s.scoreDetails}>
-          <summary><span>{score?.name ?? "AI 面部美学参考分"}</span><b data-testid={score?.state === "scored" && score.score !== null ? "score-value" : undefined}>{score?.state === "scored" && score.score !== null ? p.aesthetic_score!.overall_score : score?.state === "limited" ? "部分可用" : "暂不可用"}</b>{score?.state === "scored" && <small>/ 100</small>}<span className={s.scoreExpand}>查看构成 +</span></summary>
-          <p className={s.caption}>仅为面部几何协调度参考，不代表整体外貌评价。</p>
-          <ul>{score?.components.map(c => <li key={c.key}><span>{c.name}</span><small>{c.weightPct}%</small><meter min={0} max={100} value={c.score ?? 0} aria-label={`${c.name} ${c.score ?? "未测得"}`} /><span>{p.aesthetic_score?.components.find(x => x.key === c.key)?.score?.toFixed(1) ?? "—"}</span></li>)}</ul>
-          <div data-testid="rank-state"><p>{rank?.title ?? "参考扫描人群中的位置"}：{rank?.state === "ranked" ? rank.label : p.reference_percentiles?.rank.reason === "score_scale_unverified" ? "校准中" : "暂不可用"}</p><p>{rank?.reason ?? rank?.note}</p></div>
-          <p className={s.caption}>测量覆盖 {mv ? `${mv.totalMeasured} / ${mv.totalDefined}` : "不可用"}{geometry ? " · 正脸测量已就绪" : ""}</p><a href="#methods">了解测量方法</a>
-        </details>
+        <div className={s.scoreSummary}>
+          <div className={s.scoreHeadline}><span>{score?.name ?? "AI 面部美学参考分"}</span><strong data-testid={score?.state === "scored" && score.score !== null ? "score-value" : undefined}>{score?.state === "scored" && score.score !== null ? p.aesthetic_score!.overall_score : score?.state === "limited" ? "部分可用" : "暂不可用"}</strong>{score?.state === "scored" && <small>/ 100</small>}</div>
+          <p data-testid="rank-state" className={s.rankLine}>{rank?.state === "ranked" ? <>{rank.label} <span>{rank.note}</span></> : score?.state === "scored" ? "参考人群位置校准中" : "当前照片暂无参考位置"}</p>
+          <div className={s.harmonyChart} aria-label="面部几何参考"><span className={s.caption}>几何协调度参考</span>{score?.components.map(c => <div key={c.key}><span>{c.name}</span>{c.score === null ? <small>未测得</small> : <meter min={0} max={100} value={c.score} aria-label={`${c.name} ${c.score}`} />}<small>{c.score ?? "—"}</small></div>)}</div>
+        </div>
+        {exportAction}
+
       </div>
     </div>
     <div className={s.glance} data-testid="report-glance">

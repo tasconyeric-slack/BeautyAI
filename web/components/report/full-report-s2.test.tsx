@@ -21,6 +21,19 @@ describe("ENG-02 full report critical path", () => {
     expect(screen.getByTestId("preview-state").textContent).not.toContain("正在生成");
   });
 
+  it("places the compact export after score/rank, keeps private photos opt-in and disables expired images", () => {
+    const data = response();
+    const view = render(<FullReportContent data={data} geometry={DEMO_CASES[0].geometry} />);
+    const rank = screen.getByTestId("rank-state"), action = screen.getByTestId("report-pdf");
+    expect(rank.compareDocumentPosition(action) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+    expect(action.compareDocumentPosition(screen.getByTestId("report-glance")) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+    expect(screen.getAllByTestId("report-pdf")).toHaveLength(1);
+    expect((screen.getByTestId("report-pdf-photos") as HTMLInputElement).checked).toBe(false);
+    expect(view.container.textContent).not.toMatch(/总分 =|测量视角、参考来源与署名|查看测量方法与局限/);
+    view.rerender(<FullReportContent data={{...data, media:{...data.media,expired:true}}} geometry={null} />);
+    expect((screen.getByTestId("report-pdf-photos") as HTMLInputElement).disabled).toBe(true);
+  });
+
   it("switches the current haircut, copies that exact brief and saves it through existing choices", async () => {
     const data = response();
     const analysis = JSON.stringify(data.passport!.analysis);

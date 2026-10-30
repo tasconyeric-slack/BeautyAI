@@ -125,7 +125,7 @@ describe("the full report as a document", () => {
     await waitFor(() => expect(within(nav).getByRole("link", { current: "location" }).getAttribute("data-toc")).toBe("improvements"));
     expect(within(nav).getAllByRole("link", { current: "location" })).toHaveLength(1);
 
-    fireEvent.click(within(nav).getByRole("link", { name: /关于这份报告/ }));
+    fireEvent.click(within(nav).getByRole("link", { name: /这次分析的局限/ }));
     expect(scrollIntoView).toHaveBeenCalledTimes(1);
     expect(document.activeElement?.id).toBe("methods-title");
   });
