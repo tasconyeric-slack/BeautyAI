@@ -1,6 +1,6 @@
 # Percentile engine settings (Issue #41). Data lives in config/reference_distributions.json; this file holds the
 # gates and display rules. See docs/scoring/REFERENCE_DISTRIBUTIONS.md.
-version: "percentiles-0.1"
+version: "percentiles-0.2"
 
 # ---- Overall score → reference-cohort percentile -------------------------------------------------------------------
 # A score is only placed in the reference cohort when its scoring_version is listed here. Unlisted versions return
@@ -9,7 +9,7 @@ version: "percentiles-0.1"
 #   mode: crosswalk  → monotonic piecewise-linear map from our score to the reference scale; knots [[ours, ref], ...]
 #                      (fit with percentiles.fit_crosswalk on a consented sample, or set by hand from published bins).
 # Every entry records how compatibility was checked.
-# aes-geo-1.0 (#31) is NOT registered: its symmetry and fifths penalties are product constants tuned so a typical face
+# Academic estimated position is now independently provided from config/academic_rank.yaml (no calibration).\n# It is not a TFR crosswalk. The TFR cohort scale gate below remains unchanged.\n# aes-geo-1.0 (#31) is NOT registered: its symmetry and fifths penalties are product constants tuned so a typical face
 # lands near the published medians (docs/scoring/COMPETITOR_FORMULA.md). That is not evidence of scale equivalence,
 # and no consented real-score sample exists yet to run check_scale_compatibility or fit_crosswalk. Until then the
 # rank shows "unavailable / score_scale_unverified" (docs/scoring/REFERENCE_DISTRIBUTIONS.md, "Calibration gap").
