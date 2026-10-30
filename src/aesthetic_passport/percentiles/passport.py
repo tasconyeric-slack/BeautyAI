@@ -29,14 +29,14 @@ def reference_percentiles(aesthetic_score: dict[str, Any] | None, landmarks: Any
             rank = provisional
     if rank["status"] == "unavailable":
         rank["reason_zh"] = cfg["copy_zh"]["unavailable"].get(rank["reason"], cfg["copy_zh"]["unavailable"]["no_score"])
-    academic = rank.get("method") == "published_score_bins_uniform_with_fixed_geometry_bridge_v1"
+    academic = rank.get("method") == "tfr_harmony_quantile_to_hayden_semantic_normal_v1"
     copy = cfg["copy_zh"]
     return {
         "engine_version": cfg["version"],
         "reference_distribution_version": rank["reference_distribution_version"],
         "rank": rank,
         "ratios": ratio_rails(landmarks, yaw=yaw, pitch=pitch, data=data, cfg=cfg),
-        "copy_zh": {"rank_title": "学术颜值参考估计（试行）" if academic else copy["rank_title"], "ratios_title": copy["ratios_title"],
+        "copy_zh": {"rank_title": "AI颜值参考分（试行）" if academic else copy["rank_title"], "ratios_title": copy["ratios_title"],
                     "ratios_unverified_note": copy["ratios_unverified_note"]},
         "provenance": {"layer": "rules", "inputs": ["aesthetic_score", "front_photo_landmarks"],
                        "data": "config/academic_rank.yaml; config/reference_distributions.json" if academic else "config/reference_distributions.json",
