@@ -317,9 +317,10 @@ function Cover({ data, sample, demo, images, photoMode, now }: {
           <View style={{ width: 110, alignItems: "center" }}>
             <T style={s.small}>{score.name}</T>
             <Text style={{ fontSize: 34, fontWeight: 700, lineHeight: 1.15, color: C.primary }}>{score.score}</Text>
-            <T style={s.small}>{scoreCopy.outOf}{score.tier ? ` · ${score.tier}` : ""}</T>
+            <T style={s.small}>{scoreCopy.outOf}{score.state === "scored" && score.tier ? ` · ${score.tier}` : ""}</T>
           </View>
           <View style={{ flex: 1, paddingLeft: 12, borderLeftWidth: 0.5, borderLeftColor: C.rule }}>
+            {score.state === "limited" && <T style={[s.small, { marginBottom: 5 }]}>{scoreCopy.limited} · {score.statusText}{score.flags.length ? ` · ${score.flags.join("；")}` : ""}</T>}
             {score.components.map((x) => (
               <View key={x.key} style={[s.row, { alignItems: "center", marginBottom: 3 }]}>
                 <T style={{ width: 70, fontSize: 8.5 }}>{x.name}</T>
@@ -333,6 +334,7 @@ function Cover({ data, sample, demo, images, photoMode, now }: {
         </View>
       )}
 
+      {(!score || score.score === null) && <View style={[s.panel, { marginTop: 10 }]}><T style={s.bold}>{scoreCopy.unavailable}</T><T style={s.small}>{score?.statusText}{score?.flags.length ? ` · ${score.flags.join("；")}` : ""}</T><T style={s.small}>{scoreCopy.retake}</T></View>}
       {demo && <View style={[s.note, { marginTop: 10 }]}><T>{copy.pdf.demo[demo]}</T></View>}
       {!data.entitlement.paid && <T style={[s.small, { marginTop: 12 }]}>免费版报告</T>}
       <View style={{ marginTop: 16 }}>

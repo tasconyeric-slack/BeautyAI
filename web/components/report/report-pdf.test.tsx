@@ -105,6 +105,20 @@ describe("PDF report export", () => {
     expect(r.all).not.toContain("合成人脸");
   }, 60_000);
 
+  it.each(["limited", "unavailable"] as const)("keeps %s score quality visible on the cover", async status => {
+    const data = structuredClone(sampleReportResponse("female"));
+    const score = data.passport!.aesthetic_score!;
+    score.status = status;
+    score.quality_flags = ["pose_off_axis"];
+    score.copy_zh.status = "当前照片姿态影响参考";
+    score.copy_zh.flags.pose_off_axis = "头部转动或俯仰过大";
+    if (status === "unavailable") score.overall_score = null;
+    const result = await build({ data, sample: true, images: null, photoMode: "omitted" }, `quality-${status}.pdf`);
+    expect(squash(result.pages[0])).toContain("头部转动或俯仰过大");
+    expect(squash(result.pages[0])).toContain(status === "limited" ? "参考有限" : "这张照片暂时给不出总分");
+    if (status === "unavailable") expect(squash(result.pages[0])).toContain("换一张正脸、平视、自然表情的照片");
+  }, 60_000);
+
   it("treats photos as gone once the TTL has passed, even if the page still holds expired: false", () => {
     const now = Date.parse("2026-10-24T12:00:00Z");
     const media = { expired: false, front: "/api/media/ap_x/front.jpg" };
