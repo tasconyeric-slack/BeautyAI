@@ -1,20 +1,22 @@
-# First-release research-based relative position, without collecting/calibrating new photos.
-# Published counts: Yang et al., Diagnostics 2023, §2.1; SCUT-FBP5500 (Liang et al., 2018).
-# This is a PRODUCT-ASSUMED transfer from the geometric 0-100 index, NOT a validated equivalence.
-version: academic-geometry-rank-v1
+# D42: first release quantile-mapped 1-10 attractiveness *reference* score.
+# No new labels, ratings, images or calibration. Two explicit proxy assumptions:
+# 1. aes-geo-1.0 has approximately the SAME SCORE-TO-QUANTILE SCALE as TFR harmony scores.
+# 2. The shared quantile corresponds to the same position in human-attractiveness ratings.
+# Neither assumption was empirically validated for BeautyAI. This is not a human rating.
+version: academic-quantile-human-v1
 enabled: true
-source_url: https://pmc.ncbi.nlm.nih.gov/articles/PMC10093501/
-source_date: "2023-03-29"
-source_title: "Yang et al. (2023) / SCUT-FBP5500"
-reference_n: 5500
-native_rating_bins:
-  # [lower_inclusive, upper_exclusive, published_image_count]
-  - [1, 2, 265]
-  - [2, 3, 3011]
-  - [3, 4, 1582]
-  - [4, 5, 642]
 source_scoring_version: aes-geo-1.0
-geometry_score_center: 75.0
-academic_rating_center: 2.8
-rating_per_geometry_point: 0.14
+geometry_distribution_id: tfr-harmony-2026-08-19
+human_reference_url: https://pmc.ncbi.nlm.nih.gov/articles/PMC2493582/
+human_reference_title: Hayden et al. (2007), Economic principles motivating social attention in humans
+human_reference_n: 4000
+# Hayden 2007: middle 200/2000 mean rating 5.44 (female photographs) and 4.47 (male photographs).
+# Top 100/2000 (5%) mean 7.40 and 6.89. Simple pooled surrogate (two groups equally weighted).
+# For Normal(mu, sigma), expected mean above p95 is mu + 2.063*sigma.
+# Thus mu=(5.44+4.47)/2=4.955, sigma=(((7.40+6.89)/2)-mu)/2.063 ~=1.062.
+# These are INFERRED MODEL PARAMETERS, not published population means/SDs.
+human_rating_mu: 4.955
+human_rating_sigma: 1.062
+normality_context_url: https://pmc.ncbi.nlm.nih.gov/articles/PMC3214014/
+# Never give exact tail probabilities beyond TFR's published extreme anchors.
 display_step_percent: 5
