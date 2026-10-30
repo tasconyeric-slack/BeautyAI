@@ -157,8 +157,9 @@ def test_passport_block_follows_the_scorer_and_the_gate():
     s = score_face(face.landmarks, yaw=0.0, pitch=0.0)
     assert s["status"] == "full" and s["scoring_version"] == "aes-geo-1.0"
     shipped = reference_percentiles(s, face.landmarks, yaw=0.0, pitch=0.0)
-    assert shipped["rank"]["reason"] == "score_scale_unverified" and "校准" in shipped["rank"]["reason_zh"]
-    assert "percentile_estimate" not in shipped["rank"] and shipped["ratios"]["measured"] == 2
+    assert shipped["rank"]["status"] == "ok" and shipped["rank"]["method"] == \
+        "published_score_bins_uniform_with_fixed_geometry_bridge_v1"
+    assert "percentile_estimate" in shipped["rank"] and shipped["ratios"]["measured"] == 2
     cfg = _cfg(**{"aes-geo-1.0": {"mode": "direct", "checked": "test"}})
     ranked = reference_percentiles(s, face.landmarks, cfg=cfg)["rank"]
     assert ranked["status"] == "ok" and ranked["score"] == s["overall_score"]
