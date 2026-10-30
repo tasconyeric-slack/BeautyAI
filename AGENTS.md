@@ -26,6 +26,13 @@ You are building **Aesthetic Passport V2**. The governing documents are **`docs/
    `config/percentiles.yaml` and show ratio rails only for verified definitions. No medical/surgical/
    dermatology advice, no inference of ethnicity, age, gender identity, health, weight or body shape.
    `presentation` and body frame are user-selected or user-entered.
+   **D42 product-authorized provisional exception (2026-10-30):** for a `full` `aes-geo-1.0` result, the separate
+   `percentiles/academic.py` module may display an explicitly labeled **estimated academic reference position** using
+   published SCUT-FBP5500 score-bin aggregates and a versioned, uncalibrated product-defined bridge
+   (`config/academic_rank.yaml`). It is NOT a validated human-attractiveness score, a direct TFR-cohort comparison,
+   or a population rank. Preserve the original TFR `score_mappings` scale gate and the independent #33 learned-model
+   rank gate; never silently promote this estimate into either one.
+
 6. **Validate everything that crosses a boundary.** Model output → `validate_analysis` + `check_output_contract`;
    one repair retry in the same conversation, then fail loudly. Never retry on rules-layer outcomes.
    Assembled passport → `validate_passport`.
