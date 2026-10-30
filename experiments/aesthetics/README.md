@@ -180,4 +180,3 @@ a tiny NumPy matrix-vector operation and requires no Render memory upgrade.
 See [Ridge path delivery](../../docs/experiments/aesthetics/RIDGE_PATH.md) for the
 2026-10-30 actual coefficient export, reproduced SCUT metrics, single-path memory
 measurement, commands and the remaining production-contract integration boundary.
-
