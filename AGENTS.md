@@ -28,7 +28,8 @@ You are building **Aesthetic Passport V2**. The governing documents are **`docs/
    `presentation` and body frame are user-selected or user-entered.
    **D42 product-authorized provisional exception (2026-10-30):** for a `full` `aes-geo-1.0` result, the separate
    `percentiles/academic.py` module may display an explicitly labeled **estimated academic reference position** using
-   published SCUT-FBP5500 score-bin aggregates and a versioned, uncalibrated product-defined bridge
+   published TFR geometry-score quantiles and a Hayden et al. (2007) human-rating surrogate with explicit
+   quantile matching; parameters and assumptions are versioned
    (`config/academic_rank.yaml`). It is NOT a validated human-attractiveness score, a direct TFR-cohort comparison,
    or a population rank. Preserve the original TFR `score_mappings` scale gate and the independent #33 learned-model
    rank gate; never silently promote this estimate into either one.
