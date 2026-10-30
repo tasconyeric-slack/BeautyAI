@@ -1,58 +1,75 @@
-# D42 — Provisional academic-reference attractiveness position (2026-10-30)
+# D42 — V1 quantile mapping from geometry score to human-semantic reference rating (2026-10-30)
 
-Product-owner decision: **ship a score-to-relative-position formula now**, without collecting or calibrating new faces. Keep the real learned-model rank path (#13/#33/#34) independent; this version uses the **existing geometric 0–100 score** as input and is **not** a learned predictor of human attractiveness.
+**Product decision:** ship now without new face annotation, human-rater recruitment or new data collection. This is a transparent mathematical display transform of the existing `aes-geo-1.0` score, not a validated predictor of perceived attractiveness.
 
-## Published distribution: SCUT-FBP5500
+## Why not divide the score by ten?
 
-Yang et al. (2023), *Implementation of an Attention Mechanism Model for Facial Beauty Assessment Using Transfer Learning*, Diagnostics 13(7), 1291, §2.1, https://doi.org/10.3390/diagnostics13071291, reports the 5,500-face SCUT-FBP5500 score-bin frequencies from the 1–5 human rating scale:
+An existing geometric harmony score near 75/100 does **not** imply that human raters would give a face 7.5/10. The scales have different meanings and central tendencies. Kramer et al. (2024), https://doi.org/10.1177/03010066241256221, discusses the dependence of facial attractiveness ratings on response scales.
 
-| Human mean rating bin | Images | Cumulative images below upper bound |
-|---|---:|---:|
-| 1–2 | 265 | 265 |
-| 2–3 | 3,011 | 3,276 |
-| 3–4 | 1,582 | 4,858 |
-| 4–5 | 642 | 5,500 |
+We adopt the **rank equivalence assumption** instead: preserve the BeautyAI geometry ordering, but change the numeric 1–10 display to a model of human ratings at the same relative quantile. This assumption is necessary and **not proven** by the papers.
 
-Original benchmark: Liang et al. (2018), SCUT-FBP5500, https://arxiv.org/abs/1801.06345. It uses multiple ratings per image. This published histogram is a distribution of **curated benchmark images and their human ratings**, not a census of all people. No image or checkpoint is copied, and the summary is attributed.
+## 1. Geometry percentile: existing TFR aggregate reference
 
-## Executable V1 formula
+`config/reference_distributions.json` includes previously attributed public summary facts from The Face Report's 15,429 voluntarily submitted scans (not population representative), with CDF anchors:
 
-Let `s` be BeautyAI's existing `aes-geo-1.0` geometric harmony score in [0, 100], with `status=full`. Transfer it to the academic dataset's 1–5 rating scale using a **fixed, uncalibrated product convention**:
+| Geometry score | CDF (= share lower scoring) |
+|---:|---:|
+| 50 | 0.074 |
+| 60 | 0.153 |
+| 70 | 0.319 |
+| 75 | 0.500 |
+| 80 | 0.701 |
+| 84 | 0.900 |
+| 89 | 0.990 |
+| 91 | 0.999 |
+
+Source: https://thefacereport.com/guides/face-analysis-study .
+
+For `S` between two consecutive anchors, set `p=linear_interpolate(S, anchors)`; tails are **bounds**, not invented exact quantiles. **Crucial assumption:** `aes-geo-1.0` geometry scoring behaves like the separate TFR geometry-score scale at equal score values. BeautyAI has not checked this with paired faces. Retain the TFR score gate in `config/percentiles.yaml`; this is separately labeled an exploratory estimate.
+
+## 2. Human rating target: Hayden 2007 + Rhodes 2011
+
+Hayden et al. (2007), *Economic principles motivating social attention in humans*, Proceedings of the Royal Society B, DOI https://doi.org/10.1098/rspb.2007.0368 (https://pmc.ncbi.nlm.nih.gov/articles/PMC2493582/), re-rated 2,000 female and 2,000 male photographs on a native **1–10 attractiveness scale**.
+
+Published raw-rating group means:
+- central 200/2000: 5.44 for female photographs (male raters); 4.47 for male photographs (female raters)
+- top 100/2000 (5%): 7.40 for female photographs; 6.89 for male photographs
+
+**These are group means, not population means or precise top-five-percent thresholds.** For a single V1 model, give both study categories equal weight: approximate central reference `mu=(5.44+4.47)/2=4.955` and upper-tail group mean `m_top=(7.40+6.89)/2=7.145`.
+
+As a *further modeling approximation*, posit a Normal(mu,sigma) 1–10 rating distribution. Under this assumption, the conditional mean of the top 5% is `mu + 2.063*sigma`. Therefore `sigma=(7.145-4.955)/2.063≈1.062`.
+
+Rhodes et al. (2011), https://doi.org/10.1371/journal.pone.0026653, found approximately normally distributed 1–10 attractiveness rating averages among 60 male images (`mean=4.1, SD=1.1`). This supports trying a Normal model but does **not** confirm the Hayden distribution is Normal, or that the pooled coefficients are population parameters. Hayden's 4,000 photographs and Rhodes's 60 men are *different* datasets, not interchangeable validation.
+
+## 3. Human-semantic display
 
 ```text
-r(s) = clamp(2.8 + 0.14 * (s - 75), 1, 5)
+p(S)    = interpolate TFR geometry CDF at S
+H(S)    = clamp(4.955 + 1.062 * inverse_standard_normal_cdf(p(S)), 1, 10)
+Top(S)  = 100 * (1 - p(S))
 ```
 
-The constants **2.8, 0.14 and 75 are BeautyAI product defaults** chosen to give a useful spread around the existing score midpoint. They were **not measured or validated by Yang, Liang, or BeautyAI**. They are versioned in `config/academic_rank.yaml` for straightforward replacement. They do not assert that facial geometry predicts human preferences accurately.
+The same p drives H and Top. Never calculate Top by dividing the 0–100 geometric score by 10. Semantics are **model-based** and not a newly collected human score.
 
-Within each published rating interval [k, k+1] with count `n_k` and total `N=5500`, take a piecewise-uniform interpolation:
-
-```text
-CDF(r) = (sum(n_j for j<k) + n_k*(r-k)) / N       where k<=r<k+1
-estimated_percentile = 100 * CDF(r(s))
-estimated_top = 100 - estimated_percentile
-```
-
-Round ordinary top estimates to the nearest 5%; extreme tails to whole percentages (bounded at 1–99%). The *published four bin counts* are empirical; both **uniformity within each bin and the geometry-to-rating bridge** are product assumptions. This is a simple baseline that can later be replaced with real paired-label data, without changing the report's display layout.
-
-Example approximate outputs for the versioned V1 defaults:
-
-| BeautyAI geometry score | Converted academic rating | Model-estimated top share displayed |
+| BeautyAI geometry score | TFR model Top (%) | Human-semantic rating (1–10) |
 |---:|---:|---:|
-| 75 | 2.80 | 50% |
-| 78 | 3.22 | 35% |
-| 83 | 3.92 | 15% |
-| 87 | 4.48 | 5% |
+| 70 | ~68 | 4.5 |
+| 75 | 50 | 5.0 |
+| 78 | ~38 | 5.3 |
+| 80 | ~30 | 5.5 |
+| 83 | ~15 | 6.1 |
+| 87 | ~4.6 | 6.7 |
+| 89 | ~1 | 7.4 |
 
-These align broadly with The Face Report's *presentation tiers*, but they are not independent proof of BeautyAI's human-rating accuracy. The Face Report itself uses a different geometric scoring implementation and a different scan distribution.
+Display percent rank coarsely, usually nearest 5%; reserve whole-% or 0.1% for the extreme tails. Outside published anchor range (below 50 and at/above 91), mark outputs as **one-sided bounds**, rather than falsely precise point scores.
 
-## Product integration / limitations
+## 4. Implementation
 
-- Engine: `src/aesthetic_passport/percentiles/academic.py`, activated as an explicit fallback ONLY when the existing geometry rank returns `score_scale_unverified` and `aes-geo-1.0` has `status=full`. The original TFR percentiles and their scale gate remain unchanged.
-- Output: the existing `reference_percentiles.rank` Passport schema shape, with `mapping_mode=crosswalk`, `method=published_score_bins_uniform_with_fixed_geometry_bridge_v1`, `reference_distribution_version=academic-geometry-rank-v1`, `cohort.kind=academic_published_images`, and mandatory approximate text/attribution.
-- UI: "学术颜值参考估计（试行）", "按学术分布模型估计约前 X%" and a short method/source disclosure. Never use "真实人群前 X%" or "全球人口前 X%".
-- Unusable/limited score, unknown scorer version or disabled academic config => unchanged unavailable behavior, no fake rank.
-- Existing saved passports do not mutate automatically. New valid Passport calculations receive the result; old sample passports need regeneration to reflect the new method.
-- Do not import/use the research-only SCUT or MEBeauty photo dataset and model weights in production. The quoted four published aggregate bin counts are not deployment of licensed research assets.
+- Policy `config/academic_rank.yaml` contains the two paper sources and `mu`/`sigma`. No photos, checkpoints or paid inference.
+- `src/aesthetic_passport/percentiles/academic.py` reads the geometry score and published TFR anchors, computes `p` and `H`, and returns the existing `reference_percentiles.rank` schema. `reference_score` carries the derived 1–10 human semantic rating **only under method** `tfr_harmony_quantile_to_hayden_semantic_normal_v1`; other methods retain their prior meaning.
+- The report labels `AI颜值参考分（试行）` and `颜值参考分约 H/10 · 参考样本前 X%`. Expandable methodology distinguishes TFR scan rank, Hayden human ratings, and assumptions.
+- Only `full`, valid `aes-geo-1.0` scores qualify, without affecting the existing TFR calibrated rank path or #33 learned-model ECDF.
+- No new face/rating data; no representative-population rank; no commercial reuse of research-only face images or model weights.
+- Existing snapshots are immutable until separately regenerated; the new calculation applies to newly issued reports.
 
-This satisfies the product owner's immediate rank-function objective without waiting for new calibration data; continue #13/#33 as an *improvement path*, not as a blocker for this explicitly modeled, approximate V1.
+**Scope:** quantile normalization is a valid mathematical transformation, but its use as a proxy for human attractiveness is an explicitly unverified product hypothesis. Its purpose is a legible V1 scale, not proof that geometry predicts human judgments.
