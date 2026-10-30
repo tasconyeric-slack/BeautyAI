@@ -1,0 +1,20 @@
+# First-release research-based relative position, without collecting/calibrating new photos.
+# Published counts: Yang et al., Diagnostics 2023, §2.1; SCUT-FBP5500 (Liang et al., 2018).
+# This is a PRODUCT-ASSUMED transfer from the geometric 0-100 index, NOT a validated equivalence.
+version: academic-geometry-rank-v1
+enabled: true
+source_url: https://pmc.ncbi.nlm.nih.gov/articles/PMC10093501/
+source_date: "2023-03-29"
+source_title: "Yang et al. (2023) / SCUT-FBP5500"
+reference_n: 5500
+native_rating_bins:
+  # [lower_inclusive, upper_exclusive, published_image_count]
+  - [1, 2, 265]
+  - [2, 3, 3011]
+  - [3, 4, 1582]
+  - [4, 5, 642]
+source_scoring_version: aes-geo-1.0
+geometry_score_center: 75.0
+academic_rating_center: 2.8
+rating_per_geometry_point: 0.14
+display_step_percent: 5
