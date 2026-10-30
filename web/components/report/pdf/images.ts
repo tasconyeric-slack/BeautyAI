@@ -3,11 +3,11 @@
  *  Only URLs this viewer is already served (the passport's own front photo and succeeded previews, or the sample's
  *  drawn illustrations) are read, and only after the viewer asked for photos in the PDF. Each image is drawn on a
  *  canvas in memory and handed to the PDF as a data URL; nothing is uploaded, cached or stored. */
-import { measureView } from "@/components/face/measure-model";
+import { arcPath, measureView } from "@/components/face/measure-model";
 import { hairOptions, type Tier } from "@/lib/adapters";
 import type { PassportResponse } from "@/lib/api";
 import type { FaceGeometry } from "@/lib/tint";
-import { photosGone, previewNote, regionCrop, regionViews } from "../report-model";
+import { photosGone, previewNote, regionPhoto, regionViews } from "../report-model";
 import type { PhotoMode, ReportImages } from "./document";
 
 const JPEG_Q = 0.86;
@@ -53,14 +53,13 @@ function cover(img: HTMLImageElement, aspect: number, outW: number): string {
   return c.toDataURL("image/jpeg", JPEG_Q);
 }
 
-function regionImage(img: HTMLImageElement, crop: NonNullable<ReturnType<typeof regionCrop>>, outW = 420) {
+function regionImage(img: HTMLImageElement, crop: NonNullable<ReturnType<typeof regionPhoto>>, outW = 420) {
   const iw = img.naturalWidth, ih = img.naturalHeight;
-  const [x0, y0, x1, y1] = crop.box;
-  const sw = (x1 - x0) * iw, sh = (y1 - y0) * ih;
-  const [c, ctx] = canvas(outW, (outW * sh) / sw);
-  ctx.drawImage(img, x0 * iw, y0 * ih, sw, sh, 0, 0, c.width, c.height);
-  const k = c.width / ((x1 - x0) * crop.width);
-  const at = (q: readonly number[]) => [(q[0] - x0) * crop.width * k, (q[1] - y0) * crop.height * k] as const;
+  const [c, ctx] = canvas(outW, outW / (4 / 5));
+  const scale = Math.min(c.width / iw, c.height / ih);
+  const dw = iw * scale, dh = ih * scale, dx = (c.width - dw) / 2, dy = (c.height - dh) / 2;
+  ctx.drawImage(img, dx, dy, dw, dh);
+  const at = (q: readonly number[]) => [dx + q[0] * dw, dy + q[1] * dh] as const;
   ctx.lineCap = "round";
   ctx.shadowColor = "rgba(0,0,0,.6)";
   ctx.shadowBlur = 2;
@@ -73,6 +72,13 @@ function regionImage(img: HTMLImageElement, crop: NonNullable<ReturnType<typeof 
       ctx.beginPath(); ctx.moveTo(ax, ay); ctx.lineTo(bx, by); ctx.stroke();
     }
     ctx.setLineDash([]);
+    for (const arc of o.arcs) {
+      ctx.save();
+      ctx.translate(dx, dy); ctx.scale(dw / crop.width, dh / crop.height);
+      ctx.strokeStyle = "#e2b27f"; ctx.lineWidth = 2.4 * crop.width / dw;
+      ctx.stroke(new Path2D(arcPath(arc, crop.width, crop.height)));
+      ctx.restore();
+    }
     const dots = [...o.segments.flatMap((sg) => (sg.role === "measure" ? [sg.a, sg.b] : [])), ...o.dots];
     for (const d of dots) {
       const [x, y] = at(d);
@@ -99,10 +105,10 @@ export async function collectImages(data: PassportResponse, geometry: FaceGeomet
   const mv = measureView(p, data.id, data.entitlement.locked);
   if (mv && geometry) {
     for (const r of regionViews(p, mv)) {
-      const crop = regionCrop(r.drawable, geometry);
+      const crop = regionPhoto(r.drawable, geometry);
       if (!crop) continue;
       const names = r.drawable.slice(0, crop.overlays.length).map((m) => m.name_zh).join("、");
-      images.regions[r.key] = { ...regionImage(front, crop), caption: `正脸照局部 · 线条是 ${names} 的测量位置` };
+      images.regions[r.key] = { ...regionImage(front, crop), caption: names };
     }
   }
 

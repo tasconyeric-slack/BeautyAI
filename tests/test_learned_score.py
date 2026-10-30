@@ -42,6 +42,7 @@ def test_verified_artifact_and_missing_model(configured):
     assert score["raw_score"] is None
     assert score["unavailable_reason"] == "model_missing"
     assert rank["percentile"] is None
+    assert rank["distribution"] is None
 
 
 def test_wrong_hash_and_order_rejected(configured):
@@ -81,6 +82,7 @@ def test_research_never_runs_on_production(configured, monkeypatch):
     score, rank = service.evaluate(None, None)
     assert score["unavailable_reason"] == "research_disabled_in_production"
     assert score["raw_score"] is rank["percentile"] is None
+    assert rank["distribution"] is None
     monkeypatch.setenv("BEAUTYAI_RIDGE_MODE", "production")
     score, _ = service.evaluate(None, None)
     assert score["unavailable_reason"] == "model_not_authorized"

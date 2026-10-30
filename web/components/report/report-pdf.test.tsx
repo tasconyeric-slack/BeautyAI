@@ -55,11 +55,15 @@ describe("PDF report export", () => {
       distribution_version: "test", n_reference: 1000, n_unique_subjects: null, reference_unit: "image",
       method: "empirical_cdf_midrank_v1", limitations: [], unavailable_reason: null,
       percentile_interval: [60, 70], display_step_percent: 5, research_only: true, tier: null,
+      distribution: { method: "gaussian_kde_scott_v1", n: 1000, bounds: [1, 10], mean: 5.2, points: [[1, 0.01], [5, 0.3], [10, 0.01]] },
     };
     const r = await build({ data, sample: false, images: null, photoMode: "omitted" }, "learned-summary.pdf");
     const cover = squash(r.pages[0]);
     expect(cover).toContain("颜值分5.5/10");
     expect(cover).toContain("参考排名前35%");
+    expect(cover).toContain("均值5.2");
+    expect(squash(r.all)).toContain("几何协调度/100");
+    expect(r.all).not.toContain("比例参考：");
     expect(cover).not.toMatch(/SCUT|原生|照片质量|研究预览|校准|评分与样本说明|test-model|AI面部美学参考分/);
   }, 60_000);
 

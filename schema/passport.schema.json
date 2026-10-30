@@ -1,7 +1,7 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://aesthetic-passport.local/schema/passport.schema.json",
-  "title": "Aesthetic Passport v0.8",
+  "title": "Aesthetic Passport v0.9",
   "description": "The assembled product object. Every downstream surface (web report, share card, PDF, image preview, eval, future history/A-B) reads this. Provenance is explicit: `analysis` = what the model said; `derived` = what the rules layer computed; `input_quality`/`anchors`/`color_measurements` = what CV measured.",
   "type": "object",
   "additionalProperties": false,
@@ -28,7 +28,8 @@
         "0.5",
         "0.6",
         "0.7",
-        "0.8"
+        "0.8",
+        "0.9"
       ],
       "description": "0.7 (Issue #41): optional reference_percentiles (rules layer) — additive, so 0.3–0.6 documents stay valid. 0.6 (Issue #31, D36): optional aesthetic_score (scoring layer) — additive, so 0.3–0.5 documents stay valid. 0.5 (V3B, D35): photo roles profile90 / noglasses, measurement_profile views, side and smile metrics, catalog counts, per-metric source photo, derived.measurement_insights.assessments — all additive, so 0.3–0.4 documents stay valid. 0.4 (V3A, D34): adds measurement_profile (CV) and derived.measurement_insights (rules), both optional so 0.3 / 0.3.1 documents stay valid. 0.3.1 (V2.1): adds beauty_filter_suspect to input_quality issues."
     },
@@ -4122,6 +4123,16 @@
         },
         "method": {
           "const": "empirical_cdf_midrank_v1"
+        },
+        "distribution": {
+          "anyOf": [
+            {
+              "type": "null"
+            },
+            {
+              "$ref": "#/$defs/reference_density"
+            }
+          ]
         }
       },
       "additionalProperties": false,
@@ -4144,11 +4155,68 @@
               },
               "tier": {
                 "type": "null"
+              },
+              "distribution": {
+                "type": "null"
               }
             }
           }
         }
       ]
+    },
+    "reference_density": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "method",
+        "n",
+        "bounds",
+        "mean",
+        "points"
+      ],
+      "properties": {
+        "method": {
+          "const": "gaussian_kde_scott_v1"
+        },
+        "n": {
+          "type": "integer",
+          "minimum": 2
+        },
+        "bounds": {
+          "const": [
+            1,
+            10
+          ]
+        },
+        "mean": {
+          "type": "number",
+          "minimum": 1,
+          "maximum": 10
+        },
+        "points": {
+          "type": "array",
+          "minItems": 3,
+          "maxItems": 129,
+          "items": {
+            "type": "array",
+            "minItems": 2,
+            "maxItems": 2,
+            "prefixItems": [
+              {
+                "type": "number",
+                "minimum": 1,
+                "maximum": 10
+              },
+              {
+                "type": "number",
+                "minimum": 0
+              }
+            ],
+            "items": false,
+            "tsType": "[number, number]"
+          }
+        }
+      }
     }
   }
 }

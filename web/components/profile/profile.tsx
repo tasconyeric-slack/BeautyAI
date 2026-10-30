@@ -15,13 +15,14 @@ import { ResembleFor } from "@/components/adjust/feedback-for";
 import { measureView } from "@/components/face/measure-model";
 import { JOURNEY, journeyHref, type JourneyKey } from "@/components/passport/journey";
 import { Portrait } from "@/components/passport/portrait";
-import { aestheticScore, cover, firstThing, learnedScore, referenceRank, triptych } from "@/lib/adapters";
+import { aestheticScore, cover, firstThing, harmonyRadar, learnedScore, referenceRank, triptych } from "@/lib/adapters";
 import { api, backendFor } from "@/lib/api";
 import { guidance, paywall, profile as copy } from "@/lib/copy/zh";
 import { usePassport } from "@/lib/state/passport-store";
 import { atlasKeyFor, availability, type Availability } from "./overview-model";
 import { ScoreGlance } from "./score-glance";
 import { PredictedScoreHero, ScoreHero } from "./score-hero";
+import { HarmonyRadar } from "./score-charts";
 
 export function Profile() {
   const { id, data, passport } = usePassport();
@@ -40,6 +41,7 @@ export function Profile() {
   const first = firstThing(passport);
   const score = aestheticScore(passport);
   const predicted = learnedScore(passport);
+  const harmony = harmonyRadar(passport);
   const avail = availability(mv);
   const paid = data.entitlement.paid;
   const base = `/p/${id}`;
@@ -103,6 +105,7 @@ export function Profile() {
       </section>
 
       {/* 2 · the score's parts and method, the archive cards, what the evidence covers */}
+      {predicted && harmony && <div className="mt-8"><HarmonyRadar axes={harmony} /></div>}
       {!predicted && score && (
         <section id="score" className="mt-10 scroll-mt-28">
           <ScoreHero view={score} rank={referenceRank(passport)} workbenchHref={`${base}/face`} retakeHref="/start" sample={synthetic} />

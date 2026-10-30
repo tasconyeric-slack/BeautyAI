@@ -8,20 +8,21 @@
  *  Images are optional and come only from `images`, which the caller fills from photos the viewer is already
  *  allowed to see, and only when they asked for a photo-inclusive export. Without them the PDF is complete: every
  *  number and text stays, region crops and try-on images are simply omitted. */
-import { Document, Font, Image, Link, Page, StyleSheet, Text, View } from "@react-pdf/renderer";
+import { Circle, Document, Font, Image, Line, Link, Page, Path, Polygon, StyleSheet, Svg, Text, View } from "@react-pdf/renderer";
 import type { Style } from "@react-pdf/types";
 import * as React from "react";
 import { adviceGroups } from "@/components/advice/advice-page";
 import { faceShape } from "@/components/face/face-model";
 import { CONFIDENCE_ZH, measureView, type Assessment, type MeasureView } from "@/components/face/measure-model";
 import {
-  aestheticScore, colorGroups, cover, hairOptions, learnedScore, rankedRecs, referenceRank, referenceRatios, stripRefs,
+  aestheticScore, colorGroups, cover, hairOptions, harmonyRadar, learnedScore, rankedRecs, referenceRank, stripRefs,
   type HairOptionView, type ScoreView, type Tier,
 } from "@/lib/adapters";
 import type { Passport, PassportResponse } from "@/lib/api";
 import { aestheticScore as scoreCopy, entitlements, guidance, learnedAttractiveness as learnedCopy, report as copy } from "@/lib/copy/zh";
 import { CHAPTER_KEYS, chapterNo, previewNote, regionViews, type ChapterKey, type PreviewNote, type RegionView } from "../report-model";
 import { cjkPieces, prepare } from "./text";
+import { densityPaths, radarPoint, radarPolygon, type Density } from "@/components/profile/score-chart-geometry";
 
 // --- fonts -----------------------------------------------------------------------------------------------------
 
@@ -313,7 +314,8 @@ function Cover({ data, sample, demo, images, photoMode, now }: {
         )}
       </View>
 
-      {predicted && <View style={[s.box, s.row, { marginTop: 10 }]} wrap={false}>
+      {predicted && <View style={[s.box, { marginTop: 10 }]} wrap={false}>
+        <View style={s.row}>
         <View style={{ width: "50%" }}>
           <T style={s.small}>{learnedCopy.title}</T>
           <T style={{ fontSize: 24 }}>{predicted.available ? `${predicted.score} /10` : learnedCopy.unavailable}</T>
@@ -322,6 +324,8 @@ function Cover({ data, sample, demo, images, photoMode, now }: {
           <T style={s.small}>{learnedCopy.rank}</T>
           <T style={{ fontSize: 24 }}>{predicted.available && predicted.rank ? `前 ${predicted.rank.top}%` : learnedCopy.rankMissing}</T>
         </View>
+        </View>
+        {predicted.available && predicted.rank?.distribution && <DensityChart curve={predicted.rank.distribution} score={predicted.score!} />}
       </View>}
       {!predicted && score && score.score != null && (
         <View style={[s.box, s.row, { marginTop: 10, alignItems: "center" }]} wrap={false}>
@@ -505,10 +509,46 @@ function Region({ r, crop }: { r: RegionView; crop: ReportImages["regions"][stri
 
 const SEVERITY: Record<string, string> = { high: "影响较大", medium: "影响中等", low: "影响较小" };
 
+function DensityChart({ curve, score }: { curve: Density; score: number }) {
+  const d = densityPaths(curve, score);
+  return <View style={{ alignItems: "center", marginTop: 8 }}>
+    <Svg width={300} height={130} viewBox="0 0 320 150">
+      <Path d={d.area} fill="#edf2f1" />
+      <Path d={d.rightArea} fill="#c8d8d5" />
+      <Path d={d.line} fill="none" stroke={C.primary} strokeWidth={1.8} />
+      <Line x1={d.left} x2={d.right} y1={d.baseline} y2={d.baseline} stroke={C.rule} />
+      <Line x1={d.markerX} x2={d.markerX} y1={d.top} y2={d.baseline} stroke={C.primary} strokeWidth={1.5} />
+      <Circle cx={d.markerX} cy={d.markerY} r={3.5} fill="#ffffff" stroke={C.primary} />
+      <Line x1={d.meanX} x2={d.meanX} y1={d.baseline} y2={d.baseline + 5} stroke={C.muted} />
+      <Text x={d.left} y={138} style={{ fontSize: 10 }}>1</Text><Text x={d.right - 12} y={138} style={{ fontSize: 10 }}>10</Text>
+      <Text x={d.meanX} y={138} textAnchor="middle" style={{ fontFamily: FONT, fontSize: 10 }}>{`均值 ${curve.mean.toFixed(1)}`}</Text>
+    </Svg>
+  </View>;
+}
+
+function RadarChart({ p }: { p: Passport }) {
+  const axes = harmonyRadar(p);
+  if (!axes) return null;
+  return <View style={{ alignItems: "center", marginBottom: 12 }} wrap={false}>
+    <T style={s.h4}>几何协调度 /100</T>
+    <Svg width={300} height={258} viewBox="0 0 360 310">
+      {[22, 44, 66, 88].map(r => <Polygon key={r} points={axes.map((_, i) => { const q = radarPoint(i, axes.length, r); return `${q.x},${q.y}`; }).join(" ")} fill="none" stroke={C.rule} strokeWidth={0.8} />)}
+      {axes.map((a, i) => { const q = radarPoint(i, axes.length, 88); return <Line key={a.id} x1={180} y1={150} x2={q.x} y2={q.y} stroke={C.rule} strokeWidth={0.8} />; })}
+      {axes.every(a => a.value !== null) && <Polygon points={radarPolygon(axes)} fill="#c8d8d5" stroke={C.primary} strokeWidth={1.6} />}
+      {axes.map((a, i) => { const q = radarPoint(i, axes.length, 119), dot = radarPoint(i, axes.length, 88 * (a.value ?? 0) / 100); return <React.Fragment key={a.id}>
+        {a.value !== null && <Circle cx={dot.x} cy={dot.y} r={2.5} fill={C.primary} />}
+        <Text x={q.x} y={q.y - 3} textAnchor="middle" style={{ fontSize: 11, fontFamily: FONT }} fill={C.soft}>{a.label}</Text>
+        <Text x={q.x} y={q.y + 12} textAnchor="middle" style={{ fontSize: 12, fontFamily: FONT }} fill={C.ink}>{a.value ?? "—"}</Text>
+      </React.Fragment>; })}
+    </Svg>
+  </View>;
+}
+
 function Interpretation({ p }: { p: Passport }) {
   const an = p.analysis;
   return (
     <Chapter k="interpretation">
+      <RadarChart p={p} />
       <View style={s.row}>
         <View style={[s.box, { flex: 1, marginRight: 6 }]}>
           <T style={s.h4}>{copy.works}</T>
@@ -796,10 +836,9 @@ function Plan({ p, data }: { p: Passport; data: PassportResponse }) {
 function Methods({ p, demo }: {
   p: Passport; data: PassportResponse; mv: MeasureView | null; sample: boolean; demo: DemoKind; paid: boolean; photoMode: PhotoMode;
 }) {
-  const ratios = referenceRatios(p);
   return <Chapter k="methods">
     <View style={s.panel}>{p.analysis.limitations.length ? p.analysis.limitations.map(l => <Bullet key={l}>{l}</Bullet>) : <T style={s.soft}>这次没有额外的局限说明。</T>}</View>
     {demo && <T style={[s.small, { marginTop: 10 }]}>{copy.pdf.demo[demo]}</T>}
-    {ratios && <T style={[s.small, { marginTop: 14 }]}>比例参考：The Face Report · CC BY 4.0 · 关键点定义经适配。{ratios.sourceUrl}</T>}
+    <Link src="https://github.com/tasconyeric-slack/BeautyAI/blob/main/THIRD_PARTY.md" style={[s.small, { marginTop: 14 }]}>数据来源</Link>
   </Chapter>;
 }

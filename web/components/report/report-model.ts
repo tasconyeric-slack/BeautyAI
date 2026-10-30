@@ -190,6 +190,16 @@ export interface RegionCrop {
   overlays: MetricOverlay[];
 }
 
+/** Stable full-source canvas; changing measurements changes only the native overlay. */
+export function regionPhoto(metrics: Metric[], g: FaceGeometry | null): RegionCrop | null {
+  const role = metrics[0] ? metricRole(metrics[0]) : "front";
+  const vg = viewGeometry(g, role);
+  if (!vg) return null;
+  const overlays = metrics.filter(m => metricRole(m) === role).map(m => metricOverlay(m, g))
+    .filter((o): o is MetricOverlay => Boolean(o));
+  return { box: [0, 0, 1, 1], width: vg.width, height: vg.height, overlays };
+}
+
 /** A tight crop around measurement points from one registered source view, with the lines that were measured.
  *  Null when the photo has no geometry (expired, pre-V3 passport) or none of the region's metrics can be drawn. */
 export function regionCrop(metrics: Metric[], g: FaceGeometry | null, pad = 0.45, minSide = 0.22): RegionCrop | null {

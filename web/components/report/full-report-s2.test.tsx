@@ -80,6 +80,25 @@ describe("ENG-02 full report critical path", () => {
     expect(container.querySelector('[data-photo-role="profile90"] img')).toBeTruthy();
   });
 
+  it("keeps the whole photo and native overlay canvas fixed when switching measured rows", () => {
+    const data = response(), demo = DEMO_CASES[0];
+    const { container } = render(<FullReportContent data={data} geometry={demo.geometry} sample />);
+    const section = container.querySelector('[data-testid="region-rows-eyes"]')!.parentElement!.parentElement!;
+    const canvas = section.querySelector<HTMLElement>('[data-testid="region-figure"]')!;
+    const image = canvas.querySelector("img")!;
+    const before = { style: canvas.getAttribute("style"), src: image.getAttribute("src"), viewBox: canvas.querySelector("svg")!.getAttribute("viewBox") };
+    const buttons = section.querySelectorAll<HTMLButtonElement>('[data-metric-row] button');
+    fireEvent.click(buttons[1]);
+    expect(canvas.getAttribute("style")).toBe(before.style);
+    expect(canvas.style.aspectRatio).toBe("4 / 5");
+    expect(image.getAttribute("src")).toBe(before.src);
+    expect(image.getAttribute("style")).toBeNull();
+    expect(canvas.querySelector("svg")!.getAttribute("viewBox")).toBe(before.viewBox);
+    expect(canvas.querySelector("svg")!.getAttribute("preserveAspectRatio")).toBe("xMidYMid meet");
+    expect(container.textContent).not.toContain("比例参考：");
+    expect(container.querySelector('[data-testid^="region-reading-"]')).toBeNull();
+  });
+
   it.each(["limited", "unavailable"] as const)("preserves an honest %s score and unverified comparison", status => {
     const data = response();
     data.passport!.aesthetic_score!.status = status;
@@ -87,6 +106,6 @@ describe("ENG-02 full report critical path", () => {
     render(<FullReportContent data={data} geometry={DEMO_CASES[0].geometry} sample />);
     expect(screen.queryByTestId("score-value")).toBeNull();
     expect(screen.getByTestId("rank-state").textContent).not.toMatch(/前\s*\d+%/);
-    expect(screen.getByTestId("region-reading-proportions").textContent).toContain("定义尚未验证");
+    expect(screen.queryByTestId("region-reading-proportions")).toBeNull();
   });
 });

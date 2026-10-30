@@ -15,6 +15,7 @@ from ..attractiveness_rank import rank_prediction, validate_registry
 from ..attractiveness_rank.tiers import tier_for_rank
 from ..runtime import is_production
 from .artifact import predict_features, validate_artifact
+from .distribution import density_curve
 from .features import from_geometry
 
 ROOT = Path(__file__).resolve().parents[3]
@@ -83,7 +84,7 @@ def evaluate(front: Any, geometry: dict[str, Any] | None) -> tuple[dict[str, Any
                 "n_unique_subjects": None, "distribution_version": None, "method": "empirical_cdf_midrank_v1",
                 "limitations": ["not_a_population_rank"], "unavailable_reason": "score_unavailable",
                 "percentile_interval": None, "display_step_percent": None, "reference_unit": "subject",
-                "n_reference": None, "research_only": research, "tier": None}
+                "n_reference": None, "research_only": research, "tier": None, "distribution": None}
 
     def unavailable(reason: str):
         score["unavailable_reason"] = reason
@@ -128,4 +129,12 @@ def evaluate(front: Any, geometry: dict[str, Any] | None) -> tuple[dict[str, Any
     rank = json.loads(json.dumps(asdict(result)))
     tier = tier_for_rank(result)
     rank["tier"] = asdict(tier) if tier else None
+    rank["distribution"] = None
+    if result.status == "available":
+        cohort = next(c for c in registry["cohorts"] if c["cohort_id"] == result.cohort_id
+                      and c["distribution_version"] == result.distribution_version)
+        curve_cfg = cfg["reference_curve"]
+        rank["distribution"] = density_curve(cohort["distribution"], native=cfg["native_bounds"],
+                                              display=cfg["display_bounds"], points=curve_cfg["points"],
+                                              min_bandwidth=curve_cfg["min_bandwidth_native"])
     return score | detail, rank

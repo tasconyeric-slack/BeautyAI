@@ -3,8 +3,9 @@
 import * as React from "react";
 import Link from "next/link";
 import { ArrowDown, ArrowUpRight } from "lucide-react";
-import { aestheticScore, learnedScore, rankedRecs, referenceRank } from "@/lib/adapters";
+import { aestheticScore, harmonyRadar, learnedScore, rankedRecs, referenceRank } from "@/lib/adapters";
 import { PredictedScoreHero } from "@/components/profile/score-hero";
+import { HarmonyRadar } from "@/components/profile/score-charts";
 import type { PassportResponse } from "@/lib/api";
 import type { FaceGeometry } from "@/lib/tint";
 import type { MeasureView } from "@/components/face/measure-model";
@@ -17,6 +18,7 @@ export function ReportOverview({ data, mv, sample, gone, geometry, exportAction 
   const p = data.passport!;
   const score = aestheticScore(p), rank = referenceRank(p);
   const predicted = learnedScore(p);
+  const harmony = harmonyRadar(p);
   const highlight = p.derived.measurement_insights?.items.find(i => i.highlight);
   const first = rankedRecs(p)[0];
   const [failed, setFailed] = React.useState<string | null>(null);
@@ -44,6 +46,7 @@ export function ReportOverview({ data, mv, sample, gone, geometry, exportAction 
 
       </div>
     </div>
+    {harmony && <div className={s.harmonySummary}><HarmonyRadar axes={harmony} /></div>}
     <div className={s.glance} data-testid="report-glance">
       <div><span>值得保留</span><h2>{highlight?.label_zh ?? "看见自己的特点"}</h2><p>{highlight?.seen_zh ?? p.analysis.profile_summary.one_liner}</p><a href="#findings">读懂面部特点 <ArrowUpRight size={14} /></a></div>
       <div><span>风格方向</span><h2>{p.analysis.profile_summary.best_direction}</h2><a href="#options">探索发型与配色 <ArrowUpRight size={14} /></a></div>

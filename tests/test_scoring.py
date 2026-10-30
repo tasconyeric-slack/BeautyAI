@@ -190,7 +190,7 @@ def test_pipeline_scores_the_front_landmarks(monkeypatch, tmp_path):
     p = run_pipeline({"front": photo}, ctx, run_dir=tmp_path / "run")
     s = p["aesthetic_score"]
     assert s == score_face(face.landmarks, yaw=1.0, pitch=2.0, flags=p["measurement_profile"]["flags"])
-    assert s["status"] == "full" and s["overall_score"] is not None and p["schema_version"] == "0.8"
+    assert s["status"] == "full" and s["overall_score"] is not None and p["schema_version"] == "0.9"
     log = (tmp_path / "run" / "cv.json").read_text(encoding="utf-8")
     assert str(s["overall_score"]) not in log                 # no photo-derived numbers in the logs
     assert "aesthetic_score" not in json.loads(log)           # nor photo-derived status / flags (PR #46 review)

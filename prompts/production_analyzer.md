@@ -1,6 +1,6 @@
-# Production Analyzer Prompt — v0.3.1
+# Production Analyzer Prompt — v0.3.2
 
-`prompt_version: analyzer-0.3.1`
+`prompt_version: analyzer-0.3.2`
 
 v0.3 (schema v0.3, V2): front photo only is required (D20); adds `observations[].region`, `feature_signature`,
 `hair_options` (safe / bold / easy, replaces `hair_direction.named_styles`), color `combos` / hair color directions /

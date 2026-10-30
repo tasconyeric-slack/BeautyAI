@@ -14,3 +14,6 @@ reference_id: scut-heldout-ridge17-research
 reference_version: scut-heldout-ridge17-ecdf-v1
 reference_sha256: 7eed142fa39242905ecb097c2abacddcf6ad1582998868b71e66c721aa501826
 research_permission: user-authorized-research-2026-10-30
+reference_curve:
+  points: 65
+  min_bandwidth_native: 0.03

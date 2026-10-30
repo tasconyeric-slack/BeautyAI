@@ -134,6 +134,7 @@ export type LearnedReferenceRank = {
   distribution_version: string | null;
   unavailable_reason: string | null;
   method: "empirical_cdf_midrank_v1";
+  distribution?: null | ReferenceDensity;
 };
 
 /**
@@ -143,7 +144,7 @@ export interface Passport {
   /**
    * 0.7 (Issue #41): optional reference_percentiles (rules layer) — additive, so 0.3–0.6 documents stay valid. 0.6 (Issue #31, D36): optional aesthetic_score (scoring layer) — additive, so 0.3–0.5 documents stay valid. 0.5 (V3B, D35): photo roles profile90 / noglasses, measurement_profile views, side and smile metrics, catalog counts, per-metric source photo, derived.measurement_insights.assessments — all additive, so 0.3–0.4 documents stay valid. 0.4 (V3A, D34): adds measurement_profile (CV) and derived.measurement_insights (rules), both optional so 0.3 / 0.3.1 documents stay valid. 0.3.1 (V2.1): adds beauty_filter_suspect to input_quality issues.
    */
-  schema_version: "0.3" | "0.3.1" | "0.4" | "0.5" | "0.6" | "0.7" | "0.8";
+  schema_version: "0.3" | "0.3.1" | "0.4" | "0.5" | "0.6" | "0.7" | "0.8" | "0.9";
   passport_id: string;
   created_at: string;
   locale: "zh-CN" | "en";
@@ -1556,6 +1557,21 @@ export interface HairOption {
   visual_edit_spec: EditSpec;
   evidence: Evidence;
   confidence: Confidence;
+}
+/**
+ * This interface was referenced by `Passport`'s JSON-Schema
+ * via the `definition` "reference_density".
+ */
+export interface ReferenceDensity {
+  method: "gaussian_kde_scott_v1";
+  n: number;
+  bounds: [1, 10];
+  mean: number;
+  /**
+   * @minItems 3
+   * @maxItems 129
+   */
+  points: [number, number][];
 }
 
 /* quick.schema.json */

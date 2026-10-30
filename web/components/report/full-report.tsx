@@ -20,7 +20,7 @@ import { journeyHref } from "@/components/passport/journey";
 import { Locked, Pill } from "@/components/passport/ui";
 import { isMockPassport } from "@/components/passport/shell";
 import {
-  colorGroups, cover, hairOptions, rankedRecs, referenceRank, referenceRatios, stripRefs, stylePlane,
+  colorGroups, cover, hairOptions, rankedRecs, referenceRank, stripRefs, stylePlane,
   type Tier,
 } from "@/lib/adapters";
 import { backendFor, type Passport, type PassportResponse } from "@/lib/api";
@@ -606,10 +606,9 @@ function Plan({ p, data, sample, currentName }: { p: Passport; data: PassportRes
 // --- 07 methods ------------------------------------------------------------------------------------------------
 
 function Methods({ p }: { p: Passport; data: PassportResponse; mv: MeasureView | null; sample: boolean }) {
-  const ratios = referenceRatios(p);
   return <Chapter k="methods">
     <ul className={s.limitations} data-testid="report-limitations">{p.analysis.limitations.map(l => <li key={l}>{l}</li>)}</ul>
-    {ratios && <p className={s.credits}>比例参考：<a href={ratios.sourceUrl}>The Face Report</a> · <a href="https://creativecommons.org/licenses/by/4.0/">CC BY 4.0</a> · 关键点定义经适配</p>}
+    <p className={s.credits}><Link href="/about#data-sources">数据来源</Link></p>
   </Chapter>;
 }
 

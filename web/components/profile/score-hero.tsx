@@ -3,6 +3,7 @@ import Link from "next/link";
 import type { LearnedScoreView, RankView, ScoreComponentView, ScoreView } from "@/lib/adapters";
 import { learnedAttractiveness as learnedCopy } from "@/lib/copy/zh";
 import { aestheticScore as copy, referenceRank as rankCopy } from "@/lib/copy/zh";
+import { ReferenceDensity } from "./score-charts";
 
 /** AI 面部美学参考分 hero (Issue #31, D36): the number, its four parts, 2 strengths, 1 direction, and the way into the
  * measurement workbench. Renders only what the passport's scoring layer computed — never a placeholder number. */
@@ -162,26 +163,29 @@ function Gauge({ value, maximum = 100 }: { value: number; maximum?: number }) {
 /** Two user-facing results; calculation provenance stays in the Passport data. */
 export function PredictedScoreHero({ view }: { view: LearnedScoreView }) {
   return <section data-testid="learned-score" data-state={view.available ? "available" : "unavailable"}
-    aria-label={learnedCopy.title} className="grid grid-cols-2 divide-x divide-rule rounded-[18px] border border-rule bg-paper-raised py-6">
+    aria-label={learnedCopy.title} className="grid grid-cols-2 rounded-[18px] border border-rule bg-paper-raised py-6">
     <div className="min-w-0 px-4 sm:px-6">
       <h2 className="text-[13px] font-medium text-ink-soft">{learnedCopy.title}</h2>
       {view.available ? <p data-testid="score-value" className="mt-3 whitespace-nowrap font-serif text-[40px] font-semibold leading-none tabular-nums sm:text-[48px]">
         {view.score}<span className="ml-1 font-sans text-[16px] font-normal text-muted">/10</span>
       </p> : <p className="mt-3 text-[20px] text-muted">{learnedCopy.unavailable}</p>}
     </div>
-    <div className="min-w-0 px-4 sm:px-6" aria-label={learnedCopy.rankAccessible}>
+    <div className="min-w-0 border-l border-rule px-4 sm:px-6" aria-label={learnedCopy.rankAccessible}>
       <h2 className="text-[13px] font-medium text-ink-soft">{learnedCopy.rank}</h2>
       {view.available && view.rank ? <>
         <p data-testid="learned-rank" className="mt-3 whitespace-nowrap font-serif text-[36px] font-semibold leading-none tabular-nums sm:text-[44px]">
           <span className="mr-1 font-sans text-[16px] font-normal">前 </span>{view.rank.top}%
         </p>
-        <svg viewBox="0 0 160 20" aria-hidden="true" data-testid="rank-position" data-percentile={view.rank.percentile}
+        {!view.rank.distribution && <svg viewBox="0 0 160 20" aria-hidden="true" data-testid="rank-position" data-percentile={view.rank.percentile}
           className="mt-3 h-5 w-full max-w-[220px] overflow-visible">
           <path d="M8 10H152" fill="none" strokeWidth="3" strokeLinecap="round" className="stroke-rule" />
           <path d={`M8 10H${8 + 1.44 * view.rank.percentile!}`} fill="none" strokeWidth="3" strokeLinecap="round" className="stroke-accent/40" />
           <circle cx={8 + 1.44 * view.rank.percentile!} cy="10" r="5" strokeWidth="2" className="fill-paper-raised stroke-accent" />
-        </svg>
+        </svg>}
       </> : <p data-testid="learned-rank-unavailable" className="mt-3 text-[20px] text-muted">{learnedCopy.rankMissing}</p>}
     </div>
+    {view.available && view.rank?.distribution && <div className="col-span-2 mt-4 px-4 sm:px-6">
+      <ReferenceDensity curve={view.rank.distribution} score={view.score!} />
+    </div>}
   </section>;
 }

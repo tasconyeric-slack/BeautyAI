@@ -19,7 +19,7 @@ from typing import Any
 from .rules import derive, free_preview_targets, load_rules
 from .schema_io import validate_analysis, validate_passport
 
-SCHEMA_VERSION = "0.8"
+SCHEMA_VERSION = "0.9"
 AI_LABEL = "AI 试看"
 
 # V2 onboarding asks only for the presentation (D20); everything else starts from these defaults and is refined later
