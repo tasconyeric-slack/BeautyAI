@@ -128,10 +128,13 @@ def evaluate(ds: EvalSet, *, methods: tuple[str, ...] = METHODS, weights: str | 
              max_test: int | None = None, max_train: int | None = None, calibration_n: int = 500,
              bootstrap: int = 1000, min_group: int = 30, seed: int = 0,
              reference_predictions: str | None = None,
-             parity_tolerance: float = PARITY_TOLERANCE) -> tuple[dict[str, Any], list[dict[str, Any]]]:
+             parity_tolerance: float = PARITY_TOLERANCE,
+             ridge_artifact_out: str | None = None) -> tuple[dict[str, Any], list[dict[str, Any]]]:
     unknown = set(methods) - set(METHODS)
     if unknown:
         raise ValueError(f"unknown method(s) {sorted(unknown)}; choose from {METHODS}")
+    if ridge_artifact_out and "geometry_ridge" not in methods:
+        raise ValueError("Ridge artifact export requires geometry_ridge in --methods")
     ds.check_disjoint()
     test = _subsample(ds.test, max_test, seed)
     train = _subsample(ds.train, max_train, seed)
@@ -206,6 +209,13 @@ def evaluate(ds: EvalSet, *, methods: tuple[str, ...] = METHODS, weights: str | 
                     r.pred.pop(m, None)
             else:
                 fit = ridge_fit(np.array([r.features for r in rows]), np.array([r.item.label for r in rows]))
+                if ridge_artifact_out:
+                    from .ridge_artifact import make_artifact, save_artifact
+
+                    artifact = make_artifact(fit, dataset=ds.name, label_name=ds.label,
+                                             label_range=ds.label_range)
+                    save_artifact(ridge_artifact_out, artifact)
+                    info["research_artifact_written"] = True
                 for r in test_recs:
                     if r.features is not None:
                         r.pred[m] = float(np.clip(ridge_predict(fit, np.array([r.features]))[0], lo, hi))
