@@ -13,7 +13,7 @@ import {
 } from "@/components/face/measure-model";
 
 export type ChapterKey = keyof typeof copy.chapters;
-export const CHAPTER_KEYS: ChapterKey[] = ["overview", "findings", "interpretation", "improvements", "options", "plan", "methods"];
+export const CHAPTER_KEYS: ChapterKey[] = ["overview", "interpretation", "findings", "improvements", "options", "plan", "methods"];
 export const chapterNo = (k: ChapterKey) => String(CHAPTER_KEYS.indexOf(k) + 1).padStart(2, "0");
 
 // --- regions ---------------------------------------------------------------------------------------------------

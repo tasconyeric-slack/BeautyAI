@@ -1,5 +1,6 @@
 "use client";
 import Link from "next/link";
+import { CopyButton } from "@/components/ui/copy-button";
 import s from "@/components/journey/journey.module.css";
 import * as React from "react";
 import type { Passport } from "@/lib/api";
@@ -41,8 +42,9 @@ function PlanSurface({ id, passport }: { id: string; passport: Passport }) {
       <div><span>从选择到日常</span><h2>今天，先试一件小事。</h2><p>保留自己的特点，把喜欢的方向慢慢变成习惯。</p></div>
       <Link href={`/p/${id}/studio`}><span>{choices.looks.length ? `已保存 ${choices.looks.length} 个造型选项` : "还没有保存造型"}</span><b>{choices.looks.length ? "回到 Studio 继续比较" : "先在自己的照片上试试"}</b></Link>
     </div>
+    <div className={s.planActions}><CopyButton label="复制我的行动清单" text={[...cards.slice(0, 3).map((c, i) => `${i + 1}. ${c.needsCheck ? "[待核对] " : ""}${c.action}\n${c.steps.join("；")}`), ...choices.looks.map(l => `已保存造型：${l.name}`)].join("\n\n")} /><Link href={`/p/${id}/report#report-download`}>下载完整报告 ↗</Link></div>
     <h2 className="font-serif text-[22px]">从你想表达的印象出发</h2>
-    <p className="mt-2 text-[13px] leading-6 text-ink-soft">面部特点不是待修正的缺点。选一个目标，先试可恢复的搭配，再决定是否投入。</p>
+    <p className="mt-2 text-[13px] leading-6 text-ink-soft">选一个想表达的方向，先从最容易开始的行动做起。</p>
     <div role="radiogroup" aria-label="造型目标" className="mt-3 flex flex-wrap gap-2">
       {(Object.keys(GOALS) as Goal[]).map(goal => <label key={goal}
         className={`inline-flex min-h-11 cursor-pointer items-center gap-2 rounded-full border px-4 text-[14px] focus-within:outline focus-within:outline-2 focus-within:outline-accent ${preferences.goal === goal ? "border-accent bg-accent-soft text-accent" : "border-rule-strong"}`}>
@@ -50,7 +52,7 @@ function PlanSurface({ id, passport }: { id: string; passport: Passport }) {
           onChange={() => update({ goal })} className="accent-[var(--color-accent)]" />{GOALS[goal].label}
       </label>)}
     </div>
-    <div className="my-4 grid gap-3 rounded-xl bg-paper-sunk p-4 sm:grid-cols-2">
+    <details className={s.planPreferences}><summary>调整时间与预算</summary><div className="my-4 grid gap-3 rounded-xl bg-paper-sunk p-4 sm:grid-cols-2">
       <label className="grid gap-1 text-[13px]">每项花费上限
         <select aria-label="每项花费上限" value={budgets[Math.min(budgets.indexOf(preferences.budget), maxBudget)]}
           onChange={e => update({ budget: e.target.value as PlanPreferences["budget"] })} className="min-h-10 rounded-lg border border-rule bg-paper px-2">
@@ -61,8 +63,9 @@ function PlanSurface({ id, passport }: { id: string; passport: Passport }) {
         <input aria-label="每项每天最多分钟" type="range" min={0} max={passport.user_context.constraints.daily_minutes} step={1}
           value={Math.min(preferences.minutes, passport.user_context.constraints.daily_minutes)} onChange={e => update({ minutes: Number(e.target.value) })} className="w-full accent-[var(--color-accent)]" />
       </label>
-      <p className="text-[12px] leading-5 text-muted sm:col-span-2">每项分别估算，不代表整套合计。沿用你已声明的烫染、留长、预算和时间条件；切换目标不调用分析或生成。</p>
+      <p className="text-[12px] leading-5 text-muted sm:col-span-2">每项分别估算，沿用你已填写的打理与预算条件。</p>
     </div>
+    </details>
     {constraintText && <div className="mb-3 rounded-xl border border-rule p-3 text-[13px] leading-6">
       <p>你写的额外限制：「{constraintText}」。我们不会替你解读它，所以涉及发型、妆容和穿搭的项目会标为待核对；拍照比较类建议不受影响。</p>
       <label className="mt-2 flex min-h-10 items-center gap-2"><input type="checkbox" checked={!needsCheck}

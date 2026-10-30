@@ -18,22 +18,18 @@ export function InterventionCard({ id, card, rank, state, setPlan, onDecline, no
       {note && <p className="mt-1 text-[12px] leading-5 text-accent">{note}</p>}
       {locked && <p role="note" className="mt-1 text-[12px] leading-5 text-muted">待核对：你写的额外限制可能与这一项冲突，确认前不加入方案。</p>}
       <p className="mt-2 text-[13px] leading-6 text-ink-soft">{card.goalReason}</p>
-      <dl className="mt-3 space-y-2 text-[14px] leading-7">
-        <div><dt className="text-muted">为什么与你有关 · 报告观察</dt><dd><ul>{card.evidence.map(o => <li key={o.id}>
-          <span className="mr-1 text-[12px] text-muted">{o.id}</span>{o.text}
-          {o.polarity === "strength" && <span className="ml-1 text-[12px] text-accent">已有特点，值得保留</span>}
-        </li>)}</ul></dd></div>
-        <div><dt className="inline text-muted">视觉机制 · </dt><dd className="inline">{card.mechanism}</dd></div>
-        <div><dt className="inline text-muted">想尝试的变化 · </dt><dd className="inline">{card.effect}</dd></div>
-        <div><dt className="inline text-muted">每项投入参考 · </dt><dd className="inline">{COST_LABEL[card.cost]} · 每天约 {card.minutes} 分钟；实际价格以店家或产品为准</dd></div>
-        <div><dt className="inline text-muted">维护 · </dt><dd className="inline">{card.upkeep}</dd></div>
-        <div><dt className="text-muted">怎么做</dt><dd><ol className="list-decimal pl-5">{card.steps.map(s => <li key={s}>{s}</li>)}</ol></dd></div>
-        <div className="rounded-xl bg-paper-sunk px-3 py-2"><dt className="text-muted">更轻量的替代</dt>
-          <dd>{card.alternative.action}<span className="block text-[12px] text-muted">{COST_LABEL[card.alternative.cost]} · 约 {card.alternative.minutes} 分钟 · {card.alternative.upkeep}</span></dd></div>
-        <div><dt className="inline text-muted">怎么验证 · </dt><dd className="inline">{card.successCheck}</dd></div>
-        <div><dt className="inline text-muted">可恢复程度 · </dt><dd className="inline">{card.reversibility}</dd></div>
-        <div><dt className="inline text-muted">局限与条件 · </dt><dd className="inline">{card.limitation}</dd></div>
+      <dl className="mt-4 grid grid-cols-3 gap-3 border-y border-rule py-3 text-[12px] leading-6">
+        <div><dt className="text-muted">投入</dt><dd>{COST_LABEL[card.cost]}</dd></div>
+        <div><dt className="text-muted">每天</dt><dd>约 {card.minutes} 分钟</dd></div>
+        <div><dt className="text-muted">维护</dt><dd>{card.upkeep}</dd></div>
       </dl>
+      <ol className="my-4 list-decimal space-y-2 pl-5 text-[14px] leading-7">{card.steps.map(step => <li key={step}>{step}</li>)}</ol>
+      <p className="text-[12px] leading-6 text-ink-soft">怎么验证 · {card.successCheck}</p>
+      <details className="mt-3 text-[12px] leading-6 text-ink-soft"><summary className="min-h-11 cursor-pointer py-2">为什么适合我 · 替代选择</summary>
+        <p>{card.mechanism}</p><p>{card.effect}</p><ul className="my-3">{card.evidence.map(o => <li key={o.id} data-observation={o.id}>{o.text}</li>)}</ul>
+        <p>更轻量的替代：{card.alternative.action}</p><p>{COST_LABEL[card.alternative.cost]} · 约 {card.alternative.minutes} 分钟 · {card.alternative.upkeep}</p>
+        <p>可恢复程度：{card.reversibility}</p><p>局限与条件：{card.limitation}</p>
+      </details>
       <div className="mt-4 flex flex-wrap gap-2 border-t border-rule pt-3 text-[13px]">
         <button type="button" disabled={locked} aria-pressed={Boolean(state.saved)} onClick={() => setPlan({ saved: !state.saved })}
           className="min-h-10 rounded-full border border-rule-strong px-3 text-accent">{state.saved ? "已加入我的方案" : "加入我的方案"}</button>

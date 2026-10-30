@@ -52,10 +52,10 @@ export function RegionMeasurements({ r, data, geometry, gone, sample }: { r: Reg
         <h4>{row.name} <strong>{row.value}</strong></h4>
         <details><summary>测量说明</summary><p>{row.definition} · {row.confidence && CONFIDENCE_ZH[row.confidence]}</p></details>
         {row.assessment && <><RangeBar a={row.assessment} m={row.metric} /><p>{row.assessment.label_zh} · {BASIS_ZH[row.assessment.basis]}</p></>}
-        <p>{rawRail && !rawRail.definition_verified ? "此项定义尚未验证，暂无可比对照。" : rail?.text ?? "此项暂无可比对照。"}</p>
+        {rail ? <p>{rail.text}</p> : rawRail && !rawRail.definition_verified ? <details><summary>对照说明</summary><p>此项定义尚未验证，暂无可比对照。</p></details> : null}
       </div>}
-      <p className={s.caption}>{r.more > 0 && `另有 ${r.more} 项；`}{r.locked > 0 && <span data-testid={`region-locked-${r.key}`}>{r.locked} 项详细测量未开放；</span>}{r.missing.map(m => <span key={m.reason}>未测 {m.count} 项：{m.reason}；</span>)}</p>
-      {sample ? <a href="#methods">查看测量方法与局限</a> : <Link href={`/p/${data.id}/face`}>在测量台查看全部指标 →</Link>}
+      <p className={s.caption}>{r.locked > 0 && <span data-testid={`region-locked-${r.key}`}>{r.locked} 项详细测量未开放；</span>}{r.missing.map(m => <span key={m.reason}>未测 {m.count} 项：{m.reason}；</span>)}</p>
+
       {r.missing.length > 0 && !sample && <p><Link href={`/p/${data.id}/more`}>补充视角或重新分析 →</Link></p>}
     </div>
   </div>;

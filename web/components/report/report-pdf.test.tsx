@@ -51,10 +51,11 @@ describe("PDF report export", () => {
     expect(r.totalPages).toBeGreaterThanOrEqual(8);
     // every chapter starts on its own page and none is empty
     for (const k of CHAPTER_KEYS) {
-      const at = r.pages.findIndex((t, i) => i > 0 && squash(t).includes(squash(copy.chapters[k].sub)));
+      const at = r.pages.findIndex((t, i) => i > 0 && squash(t).includes(squash(copy.chapters[k].title)));
       expect(at, k).toBeGreaterThan(0);
-      expect(squash(r.pages[at]).length, k).toBeGreaterThan(200);
+      expect(squash(r.pages[at]).length, k).toBeGreaterThan(k === "methods" ? 60 : 200);
     }
+    expect(r.all).not.toMatch(/总分 =|测量视角、参考来源与署名|测量依据、适用范围与照片管理/);
     // the scoring layer's number and the four parts, measurement values straight from measurement_profile
     const all = squash(r.all);
     expect(all).toContain(String(Math.round(p.aesthetic_score!.overall_score!)));
@@ -98,10 +99,24 @@ describe("PDF report export", () => {
     const r = await build({ data, sample: false, demo: "fixture", images: null, photoMode: "omitted" }, "demo-free.pdf");
     expect(r.info.Title).toContain("演示");
     expect(squash(r.pages[0])).toContain(squash(copyPdf.demo.fixture));
-    expect(squash(r.pages[1])).toContain(squash(copyPdf.demoScore));
+    expect(squash(r.pages[0])).toContain(squash(copyPdf.demoScore));
     for (const t of r.pages.slice(1)) expect(squash(t)).toContain(squash(copyPdf.demoBand.fixture));
     // simulated, but never claims the viewer's own photo is a synthetic face
     expect(r.all).not.toContain("合成人脸");
+  }, 60_000);
+
+  it.each(["limited", "unavailable"] as const)("keeps %s score quality visible on the cover", async status => {
+    const data = structuredClone(sampleReportResponse("female"));
+    const score = data.passport!.aesthetic_score!;
+    score.status = status;
+    score.quality_flags = ["pose_off_axis"];
+    score.copy_zh.status = "当前照片姿态影响参考";
+    score.copy_zh.flags.pose_off_axis = "头部转动或俯仰过大";
+    if (status === "unavailable") score.overall_score = null;
+    const result = await build({ data, sample: true, images: null, photoMode: "omitted" }, `quality-${status}.pdf`);
+    expect(squash(result.pages[0])).toContain("头部转动或俯仰过大");
+    expect(squash(result.pages[0])).toContain(status === "limited" ? "参考有限" : "这张照片暂时给不出总分");
+    if (status === "unavailable") expect(squash(result.pages[0])).toContain("换一张正脸、平视、自然表情的照片");
   }, 60_000);
 
   it("treats photos as gone once the TTL has passed, even if the page still holds expired: false", () => {

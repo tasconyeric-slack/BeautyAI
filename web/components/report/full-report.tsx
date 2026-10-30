@@ -98,7 +98,7 @@ export function FullReportContent({ data: source, geometry: rawGeometry, sample 
   const base = `/p/${data.id}`;
   const current = hairOptions(p, data.partial.previews).find(o => o.tier === selected && o.status !== "excluded") ?? hairOptions(p, data.partial.previews).find(o => o.status !== "excluded");
   const chapters = {
-    overview: <Chapter k="overview"><ReportOverview data={data} mv={mv} sample={sample} gone={gone} geometry={geometry} /></Chapter>,
+    overview: <Chapter k="overview"><ReportOverview data={data} mv={mv} sample={sample} gone={gone} geometry={geometry} exportAction={<ReportPdfExport data={data} sample={sample} geometry={geometry} compact demo={sample || !isMockPassport(kind, p) ? null : kind === "fixture" ? "fixture" : "mock"} />} /></Chapter>,
     findings: <Findings p={p} mv={mv} geometry={geometry} data={data} gone={gone} sample={sample} base={base} regions={regions} links={links} />,
     interpretation: <Interpretation p={p} base={base} />,
     improvements: <Improvements p={p} base={base} links={links} hair={<HairSection p={p} data={data} gone={gone} sample={sample} embedded selectedTier={selected} onSelect={setSelected} />} />,
@@ -106,10 +106,10 @@ export function FullReportContent({ data: source, geometry: rawGeometry, sample 
     plan: <Plan p={p} data={data} sample={sample} currentName={current?.name ?? null} />,
     methods: <Methods p={p} data={data} mv={mv} sample={sample} />,
   };
-  const order: ChapterKey[] = mobile ? ["overview", "improvements", "options", "plan", "findings", "interpretation", "methods"] : CHAPTER_KEYS;
+  const order: ChapterKey[] = CHAPTER_KEYS;
   return <SampleContext.Provider value={sample}><article className={s.root} aria-label={copy.title} data-testid="full-report" data-report-layout={mobile ? "mobile" : "desktop"} data-paid={data.entitlement.paid ? "1" : "0"} data-sample={sample ? "1" : "0"}>
     {!data.entitlement.paid && <FreeScope id={data.id} sample={sample} price={data.entitlement.price_cny} />}
-    <div className={s.reportCover}>{chapters.overview}</div><div className={s.frame}><Toc sample={sample} regions={regions} order={order} /><div className={s.chapters}>{order.filter(k => k !== "overview").map(k => <React.Fragment key={k}>{chapters[k]}</React.Fragment>)}{!sample && <ReportNext id={data.id} />}<details className="mt-8 border-t border-rule"><summary>导出 PDF 报告</summary><ReportPdfExport data={data} sample={sample} geometry={geometry} demo={sample || !isMockPassport(kind, p) ? null : kind === "fixture" ? "fixture" : "mock"} /></details></div></div>
+    <div className={s.reportCover}>{chapters.overview}</div><div className={s.frame}><Toc sample={sample} regions={regions} order={order} /><div className={s.chapters}>{order.filter(k => k !== "overview").map(k => <React.Fragment key={k}>{chapters[k]}</React.Fragment>)}{!sample && <ReportNext id={data.id} />}</div></div>
   </article></SampleContext.Provider>;
 }
 
@@ -300,39 +300,11 @@ function Region({ r, geometry, data, gone, sample, recs }: {
         <span className="tnum text-[12px] text-muted">{copy.measuredOf} {r.measured} / {r.total}</span>
       </div>
       <RegionMeasurements r={r} geometry={geometry} data={data} gone={gone} sample={sample} />
-      {(r.insights.length > 0 || r.observations.length > 0) && (
-        <div className="mt-4 grid gap-4 md:grid-cols-2">
-          {r.insights.length > 0 && (
-            <div>
-              <h4 className="text-[12px] tracking-[0.12em] text-muted">{copy.regionInsights}</h4>
-              <ul className="mt-2 space-y-2">
-                {r.insights.map((i) => (
-                  <li key={i.metricId} className="rounded-[12px] bg-paper-sunk px-3.5 py-2.5 text-[13.5px] leading-6">
-                    <b className="font-medium">{i.label}</b>：{i.seen}
-                    <span className="block text-ink-soft">{i.means}</span>
-                  </li>
-                ))}
-              </ul>
-            </div>
-          )}
-          {r.observations.length > 0 && (
-            <div>
-              <h4 className="text-[12px] tracking-[0.12em] text-muted">{copy.regionObservations}</h4>
-              <ul className="mt-2 space-y-1.5">
-                {r.observations.map((o) => (
-                  <li key={o.text} className="flex gap-2 text-[13.5px] leading-6">
-                    {o.polarity === "strength" ? <Check className="mt-1 size-3.5 shrink-0 text-accent" /> : <Minus className="mt-1 size-3.5 shrink-0 text-muted" />}
-                    {o.text}
-                  </li>
-                ))}
-              </ul>
-            </div>
-          )}
-        </div>
-      )}
+      {r.insights.length > 0 && <table className={s.insightTable}><thead><tr><th>面部特点</th><th>造型启发</th></tr></thead><tbody>{r.insights.map(i => <tr key={i.metricId}><th scope="row">{i.label}<small>{i.seen}</small></th><td>{i.means}</td></tr>)}</tbody></table>}
+      {r.observations.length > 0 && <details className={s.observationDetails}><summary>照片细节</summary><ul>{r.observations.map(o => <li key={o.text}>{o.text}</li>)}</ul></details>}
       {recs.length > 0 && (
         <p className="mt-4 flex flex-wrap items-center gap-x-2 gap-y-1.5 text-[12.5px]" data-testid={`region-recs-${r.key}`}>
-          <span className="text-muted">这些发现支撑的建议</span>
+          <span className="text-muted">相关造型建议</span>
           {recs.map((x) => (
             <a key={x.recId} href={`#rec-${x.recId}`} onClick={(e) => goTo(e, `rec-${x.recId}`)} title={x.action}
               className="inline-flex max-w-full items-center gap-1.5 rounded-full bg-accent-soft px-2.5 py-0.5 text-accent hover:underline">
@@ -417,7 +389,7 @@ function Improvements({ p, base, links, hair }: { p: Passport; base: string; lin
                 <span className="tnum mt-0.5 font-serif text-[22px] leading-none text-amber" aria-label={`优先级 ${i + 1}`}>{i + 1}</span>
                 <div className="min-w-0 flex-1">
                   <div className="flex flex-wrap gap-1.5"><Pill tone="accent">{r.categoryZh}</Pill>{r.time && <Pill>{r.time}</Pill>}{r.cost && <Pill>{r.cost}</Pill>}<Pill>{r.effort}</Pill></div>
-                  <h3 className="mt-1.5 font-serif text-[21px] font-medium leading-8">{r.page === "hair" && <small className="block font-sans text-[11px] text-muted">分析建议原文</small>}{r.action}</h3>
+                  <h3 className="mt-1.5 font-serif text-[21px] font-medium leading-8">{r.page === "hair" && <small className="block font-sans text-[11px] text-muted">优先方向</small>}{r.action}</h3>
                   {r.page === "hair" && hair}
                   <dl className="mt-2 grid gap-1.5 text-[13.5px] leading-6">
                     <div><dt className="inline text-muted">为什么 · </dt><dd className="inline text-ink-soft">{r.why}</dd></div>
@@ -426,7 +398,7 @@ function Improvements({ p, base, links, hair }: { p: Passport; base: string; lin
                   </dl>
                   {ev && ev.regions.length > 0 && (
                     <p className="mt-2.5 flex flex-wrap items-center gap-x-1.5 gap-y-1.5 text-[12.5px]" data-testid={`rec-evidence-${r.id}`}>
-                      <span className="text-muted">依据来自</span>
+                      <span className="text-muted">相关特点</span>
                       {ev.regions.map((g) => (
                         <a key={g.key} href={`#area-${g.key}`} onClick={(e) => goTo(e, `area-${g.key}`)}
                           className="rounded-full border border-rule px-2.5 py-0.5 text-ink-soft hover:border-accent hover:text-accent">{g.title}</a>
@@ -436,7 +408,7 @@ function Improvements({ p, base, links, hair }: { p: Passport; base: string; lin
                   )}
                   {(r.howTo.length > 0 || r.avoid || r.evidence.length > 0) && (
                     <details data-rec-howto className="mt-2 text-[13.5px] leading-6">
-                      <summary className="inline-flex min-h-8 cursor-pointer items-center text-[13px] text-accent">怎么做、避免什么、依据原文</summary>
+                      <summary className="inline-flex min-h-8 cursor-pointer items-center text-[13px] text-accent">具体做法</summary>
                       <dl className="mt-1 grid gap-1.5">
                         {r.howTo.length > 0 && <div><dt className="text-muted">怎么做</dt><dd><ol className="mt-0.5 list-decimal space-y-0.5 pl-5">{r.howTo.map((h) => <li key={h}>{h}</li>)}</ol></dd></div>}
                         {r.avoid && <div><dt className="inline text-muted">避免 · </dt><dd className="inline text-ink-soft">{r.avoid}</dd></div>}
@@ -483,7 +455,7 @@ function Options({ p, data, base }: { p: Passport; data: PassportResponse; base:
               {hairColors.map((h) => <span key={h.hex} className="inline-flex items-center gap-1"><span className="size-3.5 rounded-full border border-black/10" style={{ background: h.hex }} />{h.name}</span>)}
             </p>
           )}
-          <p className="mt-3 text-[12px] leading-5 text-muted">色彩判断受拍摄光线影响，可信度 {Math.round(dl.color.confidence * 100)}%。
+          <p className="mt-3 text-[12px] leading-5 text-muted">自然光下比较，更容易找到适合的颜色。
             <ReportLink href={`${base}/color`} className="ml-1 text-accent underline-offset-4 hover:underline">数字披布 →</ReportLink></p>
         </div>
       </Sub>
@@ -494,15 +466,10 @@ function Options({ p, data, base }: { p: Passport; data: PassportResponse; base:
           <div className="text-[14px] leading-7">
             <p className="font-serif text-[18px]">{cover(p).styleLine}</p>
             <p className="mt-1 text-ink-soft">{p.analysis.profile_summary.best_direction}</p>
-            <p className="mt-2 text-[12px] text-muted">风格描述的是视觉印象（量感与线条），不是性格或身份。</p>
+
             <ReportLink href={`${base}/style`} className="mt-1 inline-block text-[13px] text-accent underline-offset-4 hover:underline">风格详情 →</ReportLink>
           </div>
         </div>
-      </Sub>
-
-      <Sub title={copy.hairTitle}>
-        <a href="#current-hair-choice">返回当前发型方案与剪发话术 ↑</a>
-        <details><summary>发型分析原文（不替代当前方案）</summary><p>{p.analysis.hair_direction.texture_approach}</p></details>
       </Sub>
 
       <Sub title={copy.makeoverTitle}>
@@ -595,7 +562,7 @@ function Plan({ p, data, sample, currentName }: { p: Passport; data: PassportRes
   const cols = (["today", "next_haircut", "invest"] as const);
   return (
     <Chapter k="plan">
-      <p data-testid="report-current-plan">当前发型方向：{currentName ?? "暂无可选方向"}。通用分析计划保留原文；剪发请使用当前方案话术。</p>
+      <p data-testid="report-current-plan">当前发型方向：{currentName ?? "暂无可选方向"}。</p>
       {sample && <p className="text-[12px] text-muted">复制这份清单，找到适合自己的第一步。</p>}
       <CopyButton label="复制行动清单" text={top.map((r, i) => `${i + 1}. ${r.action}\n怎么检查：${r.successCheck}`).join("\n\n")} />
       <Sub title={copy.planTop}>
@@ -638,53 +605,12 @@ function Plan({ p, data, sample, currentName }: { p: Passport; data: PassportRes
 
 // --- 07 methods ------------------------------------------------------------------------------------------------
 
-function Methods({ p, data, mv, sample }: { p: Passport; data: PassportResponse; mv: MeasureView | null; sample: boolean }) {
-  const s = p.aesthetic_score;
+function Methods({ p }: { p: Passport; data: PassportResponse; mv: MeasureView | null; sample: boolean }) {
   const ratios = referenceRatios(p);
-  const expires = data.media.expires_at ? new Date(data.media.expires_at) : null;
-  return (
-    <Chapter k="methods">
-      <div className="grid gap-4 md:grid-cols-2">
-        <div className="rounded-[14px] border border-rule bg-paper-raised p-4 text-[13px] leading-6 text-ink-soft">
-          <h3 className="mb-1 text-[14px] font-medium text-ink">{copy.methodScore}</h3>
-          <p>{scoreCopy.method}</p>
-          <p className="mt-1">{scoreCopy.notRank}</p><p>{referenceRank(p)?.reason ?? referenceRank(p)?.note}</p><p>参考对照只用于定义已验证的比例，不表示整体外貌好坏。</p>
-          {mv && <p className="mt-1">本次共测得 {mv.totalMeasured} / {mv.totalDefined} 项面部测量；比例是照片上的相对值，不是毫米。</p>}
-        </div>
-        <div className="rounded-[14px] border border-rule bg-paper-raised p-4 text-[13px] leading-6 text-ink-soft">
-          <h3 className="mb-1 text-[14px] font-medium text-ink">{copy.methodModel}</h3>
-          <p>测量来自照片关键点；文字观察来自一次图像分析；排序与计划由固定规则计算，你的反馈只改变建议顺序，不改变观察。</p>
-          <p className="tnum mt-1 text-[12px] text-muted">
-            版本：分析 {p.meta.prompt_version} · 规则 {p.meta.rules_version}{s ? ` · 参考分 ${s.scoring_version}` : ""}
-          </p>
-        </div>
-        <div className="rounded-[14px] border border-rule bg-paper-raised p-4 text-[13px] leading-6 text-ink-soft">
-          <h3 className="mb-1 text-[14px] font-medium text-ink">{copy.limitations}</h3><p>分析时的照片条件：</p>
-          <ul className="list-disc space-y-0.5 pl-5" data-testid="report-limitations">
-            {p.analysis.limitations.map((l) => <li key={l}>{l}</li>)}
-          </ul>
-        </div>
-        <div className="rounded-[14px] border border-rule bg-paper-raised p-4 text-[13px] leading-6 text-ink-soft">
-          <h3 className="mb-1 text-[14px] font-medium text-ink">{copy.methodPrivacy}</h3>
-          {sample ? (
-            <p>你可以自由浏览这份报告。建立个人护照后，照片保留 24 小时。</p>
-          ) : data.media.expired ? (
-            <p>{copy.photoExpired}</p>
-          ) : expires && !Number.isNaN(expires.getTime()) ? (
-            <p>{copy.photoExpires}：<time dateTime={data.media.expires_at!} className="tnum">{expires.toLocaleString("zh-CN")}</time>。之后报告中的文字与数字仍然保留，局部图与测量线不再显示。</p>
-          ) : null}
-          <p className="mt-1">{copy.exportNote}</p>
-          {!sample && <p className="mt-1">需要立即删除时，在页面底部的“我的选择与数据”里操作。</p>}
-        </div>
-      </div>
-      <details className="mt-6"><summary>测量视角、参考来源与署名</summary>
-        <ul>{p.measurement_profile?.views?.map(v => <li key={v.role}>{({ front: "正脸", profile90: "标准侧脸", noglasses: "无眼镜正脸", smile: "微笑" } as Record<string, string>)[v.role] ?? v.role} · {({ measured: "已实测", unavailable: "暂不可用", missing: "缺照片", rejected: "未通过质检" } as Record<string, string>)[v.status] ?? "未实测"}</li>)}</ul>
-        <p>测量数字来自与所示原图匹配的 CV 关键点；文字观察来自分析层，建议与计划来自规则层。</p>
-        {ratios && <><p>{ratios.note}</p><p>{ratios.attribution}</p><ReportLink href={ratios.sourceUrl}>查看公开参考数据来源</ReportLink></>}
-      </details>
-      {!sample && <p className="mt-6 text-center text-[13px]"><ReportLink href={`/p/${data.id}`} className="text-accent underline-offset-4 hover:underline">{copy.backToProfile}</ReportLink></p>}
-    </Chapter>
-  );
+  return <Chapter k="methods">
+    <ul className={s.limitations} data-testid="report-limitations">{p.analysis.limitations.map(l => <li key={l}>{l}</li>)}</ul>
+    {ratios && <p className={s.credits}>比例参考：<a href={ratios.sourceUrl}>The Face Report</a> · <a href="https://creativecommons.org/licenses/by/4.0/">CC BY 4.0</a> · 关键点定义经适配</p>}
+  </Chapter>;
 }
 
 // --- after the last chapter ------------------------------------------------------------------------------------

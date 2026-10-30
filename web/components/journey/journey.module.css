@@ -159,3 +159,11 @@
  .studioSaveAction { position:fixed; bottom:57px; inset-inline:0; margin:0!important; padding:10px 20px; border-top:1px solid #455356; }
  .studioControls { padding-bottom:100px; }
 }
+
+.studioAdvanced { border-top:1px solid var(--rule); padding-top:10px; }
+.studioAdvanced > summary { min-height:48px; cursor:pointer; font-size:14px; padding:10px 0; }
+.studioAdvanced[open] > :not(summary) { margin-top:18px; }
+.planPreferences { margin:20px 0; border-block:1px solid var(--rule); }
+.planPreferences > summary { padding:14px 0; cursor:pointer; font-size:13px; }
+.planActions { display:flex; flex-wrap:wrap; align-items:center; gap:16px; margin:24px 0; font-size:13px; }
+.planActions a { min-height:44px; display:inline-flex; align-items:center; }

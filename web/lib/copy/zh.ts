@@ -422,11 +422,11 @@ export const report = {
   chapters: {
     overview: { title: "风格概览", sub: "你的特点，与你值得尝试的方向。" },
     findings: { title: "面部解读", sub: "从整体比例到五官细节，看见风格的线索。" },
-    interpretation: { title: "解读", sub: "保留优势，调整视觉重心。" },
+    interpretation: { title: "你的风格特征", sub: "保留优势，调整视觉重心。" },
     improvements: { title: "适合的改变", sub: "从最值得尝试的一步开始。" },
     options: { title: "形象方案", sub: "让发型、色彩与气质相互呼应。" },
     plan: { title: "行动计划", sub: "把喜欢的方向，带进日常。" },
-    methods: { title: "关于这份报告", sub: "测量依据、适用范围与照片管理。" },
+    methods: { title: "这次分析的局限", sub: "结合照片条件理解结果。" },
   },
   strengths: "相对突出的特点",
   leverage: "最值得先做的一件事",

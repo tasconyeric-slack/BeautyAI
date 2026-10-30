@@ -15,7 +15,7 @@ import { adviceGroups } from "@/components/advice/advice-page";
 import { faceShape } from "@/components/face/face-model";
 import { CONFIDENCE_ZH, measureView, type Assessment, type MeasureView } from "@/components/face/measure-model";
 import {
-  aestheticScore, colorGroups, cover, hairOptions, rankedRecs, referenceRank, stripRefs,
+  aestheticScore, colorGroups, cover, hairOptions, rankedRecs, referenceRank, referenceRatios, stripRefs,
   type HairOptionView, type ScoreView, type Tier,
 } from "@/lib/adapters";
 import type { Passport, PassportResponse } from "@/lib/api";
@@ -99,8 +99,8 @@ export function reportPdfMeta(data: PassportResponse, sample: boolean, demo: Dem
 // --- styles ----------------------------------------------------------------------------------------------------
 
 const C = {
-  ink: "#16181a", soft: "#454b4e", muted: "#646c6e", primary: "#1f4e5f", primarySoft: "#e0e8e9",
-  amber: "#9a5b1f", amberSoft: "#f1e8da", rule: "#d8d8d2", ruleStrong: "#b6bab5", panel: "#f6f5f1", stage: "#141618",
+  ink: "#172125", soft: "#46565d", muted: "#53636b", primary: "#3f625e", primarySoft: "#e0e7e7",
+  amber: "#3f625e", amberSoft: "#e6ebed", rule: "#ccd2d3", ruleStrong: "#aab6b9", panel: "#f1f1ee", stage: "#d7dde0",
 };
 
 const s = StyleSheet.create({
@@ -113,13 +113,13 @@ const s = StyleSheet.create({
   chapterSub: { fontSize: 9.5, color: C.soft, marginTop: 3, marginBottom: 14 },
   h3: { fontSize: 12.5, fontWeight: 700, lineHeight: 1.4, marginBottom: 6 },
   h4: { fontSize: 8.5, color: C.muted, letterSpacing: 1, lineHeight: 1.4, marginBottom: 4 },
-  panel: { backgroundColor: C.panel, borderRadius: 6, padding: 10 },
-  box: { borderWidth: 0.75, borderColor: C.rule, borderRadius: 6, padding: 10 },
+  panel: { backgroundColor: C.panel, borderRadius: 2, padding: 10 },
+  box: { borderWidth: 0.75, borderColor: C.rule, borderRadius: 2, padding: 10 },
   small: { fontSize: 8, color: C.muted, lineHeight: 1.5 },
   soft: { color: C.soft },
   bold: { fontWeight: 700 },
   row: { flexDirection: "row" },
-  note: { backgroundColor: C.amberSoft, borderRadius: 6, padding: 8, fontSize: 8.5 },
+  note: { backgroundColor: C.amberSoft, borderRadius: 2, padding: 8, fontSize: 8.5 },
   pill: { fontSize: 7.5, borderRadius: 8, paddingHorizontal: 5, paddingVertical: 1, backgroundColor: C.panel, color: C.soft, marginRight: 4, lineHeight: 1.4 },
 });
 
@@ -253,8 +253,8 @@ export function ReportDocument({ data, sample, demo = null, images, photoMode, n
 
         <Cover data={data} sample={sample} demo={demo} images={images} photoMode={photoMode} now={now} />
         <Overview p={p} sample={sample} demo={demo} />
-        <Findings p={p} mv={mv} images={images} photoMode={photoMode} />
         <Interpretation p={p} />
+        <Findings p={p} mv={mv} images={images} photoMode={photoMode} />
         <Improvements p={p} />
         <Options p={p} data={data} images={images} photoMode={photoMode} />
         <Plan p={p} data={data} />
@@ -279,11 +279,12 @@ function Cover({ data, sample, demo, images, photoMode, now }: {
   const c = cover(p);
   const shape = faceShape(p);
   const score = aestheticScore(p);
+  const rank = referenceRank(p);
   const created = new Date(data.created_at);
   const fmt = (d: Date) => (Number.isNaN(d.getTime()) ? "—" : d.toLocaleDateString("zh-CN"));
   const facts: [string, string][] = [
     ["脸型", shape.title], ["色彩倾向", p.derived.display_labels.color.summary_zh], ["风格方向", c.styleLine],
-    ["档案编号", `No.${passportNo(p)}`], ["分析时间", sample ? "示例" : fmt(created)], ["导出时间", fmt(now)],
+    ...(!sample ? [["档案编号", `No.${passportNo(p)}`], ["分析时间", fmt(created)]] as [string, string][] : []), ["导出时间", fmt(now)],
   ];
   const portrait = images?.portrait ?? null;
   return (
@@ -291,7 +292,7 @@ function Cover({ data, sample, demo, images, photoMode, now }: {
       <Text style={{ fontSize: 9, color: sample ? C.amber : C.muted, letterSpacing: 2, lineHeight: 1.3 }}>{prepare(sample ? copy.sampleKicker : `形象护照 · ${copy.kicker}`)}</Text>
       <View style={[s.row, { marginTop: 10 }]}>
         <View style={{ flex: 1, paddingRight: portrait ? 18 : 0 }}>
-          <T style={{ fontSize: 28, fontWeight: 700, lineHeight: 1.25 }}>{copy.title}</T>
+          <T style={{ fontSize: 28, fontWeight: 700, lineHeight: 1.25 }}>你的形象护照</T>
           <T style={{ fontSize: 10, color: C.muted, marginTop: 4 }}>{reportPdfMeta(data, sample, demo).edition}{sample ? " · 示例" : demo ? " · 演示" : ""}</T>
           <T style={{ fontSize: 12, lineHeight: 1.7, color: C.soft, marginTop: 12 }}>{c.oneLiner}</T>
           <View style={{ flexDirection: "row", flexWrap: "wrap", marginTop: 14 }}>
@@ -304,8 +305,8 @@ function Cover({ data, sample, demo, images, photoMode, now }: {
           </View>
         </View>
         {portrait && (
-          <View style={{ width: 150 }}>
-            <Image src={portrait} style={{ width: 150, height: 187.5, borderRadius: 6, objectFit: "cover" }} />
+          <View style={{ width: 190 }}>
+            <Image src={portrait} style={{ width: 190, height: 237.5, borderRadius: 2, objectFit: "cover" }} />
             <T style={[s.small, { marginTop: 3 }]}>{sample ? "面部细节" : "你的正脸照片（按你的选择加入）"}</T>
           </View>
         )}
@@ -316,9 +317,10 @@ function Cover({ data, sample, demo, images, photoMode, now }: {
           <View style={{ width: 110, alignItems: "center" }}>
             <T style={s.small}>{score.name}</T>
             <Text style={{ fontSize: 34, fontWeight: 700, lineHeight: 1.15, color: C.primary }}>{score.score}</Text>
-            <T style={s.small}>{scoreCopy.outOf}{score.tier ? ` · ${score.tier}` : ""}</T>
+            <T style={s.small}>{scoreCopy.outOf}{score.state === "scored" && score.tier ? ` · ${score.tier}` : ""}</T>
           </View>
           <View style={{ flex: 1, paddingLeft: 12, borderLeftWidth: 0.5, borderLeftColor: C.rule }}>
+            {score.state === "limited" && <T style={[s.small, { marginBottom: 5 }]}>{scoreCopy.limited} · {score.statusText}{score.flags.length ? ` · ${score.flags.join("；")}` : ""}</T>}
             {score.components.map((x) => (
               <View key={x.key} style={[s.row, { alignItems: "center", marginBottom: 3 }]}>
                 <T style={{ width: 70, fontSize: 8.5 }}>{x.name}</T>
@@ -326,20 +328,15 @@ function Cover({ data, sample, demo, images, photoMode, now }: {
                 <Text style={{ width: 28, textAlign: "right", fontSize: 8.5 }}>{x.score ?? "—"}</Text>
               </View>
             ))}
-            {sample && <T style={[s.small, { marginTop: 2 }]}>{scoreCopy.sample}</T>}
+            {rank && <T style={[s.small, { marginTop: 4 }]}>{rank.state === "ranked" ? `${rank.title}：${rank.label}（约）` : "参考人群位置校准中"}</T>}
             {demo && <T style={[s.small, { marginTop: 2, color: C.amber }]}>{copy.pdf.demoScore}</T>}
           </View>
         </View>
       )}
 
-      {sample && <View style={[s.note, { marginTop: 10 }]}><T>{copy.sampleNote}</T></View>}
-      {demo && <View style={[s.note, { marginTop: 10 }]}><T style={s.bold}>{copy.pdf.demo[demo]}</T></View>}
-      <View style={[s.panel, { marginTop: 10 }]}>
-        <T style={{ fontSize: 8.5, color: C.soft }}>{copy.scopeNote}</T>
-        <T style={[s.small, { marginTop: 3 }]}>{PHOTO_NOTE[photoMode]}</T>
-        {!data.entitlement.paid && <T style={[s.small, { marginTop: 3 }]}>这是免费版报告：完整护照才有的内容不包含在本文件中，相应位置标注为“[完整护照]”。</T>}
-      </View>
-
+      {(!score || score.score === null) && <View style={[s.panel, { marginTop: 10 }]}><T style={s.bold}>{scoreCopy.unavailable}</T><T style={s.small}>{score?.statusText}{score?.flags.length ? ` · ${score.flags.join("；")}` : ""}</T><T style={s.small}>{scoreCopy.retake}</T></View>}
+      {demo && <View style={[s.note, { marginTop: 10 }]}><T>{copy.pdf.demo[demo]}</T></View>}
+      {!data.entitlement.paid && <T style={[s.small, { marginTop: 12 }]}>免费版报告</T>}
       <View style={{ marginTop: 16 }}>
         <T style={s.h4}>{copy.toc}</T>
         {CHAPTER_KEYS.map((k) => (
@@ -359,14 +356,9 @@ function Cover({ data, sample, demo, images, photoMode, now }: {
 // --- 01 overview -----------------------------------------------------------------------------------------------
 
 function Overview({ p, sample, demo }: { p: Passport; sample: boolean; demo: DemoKind }) {
-  const score = aestheticScore(p);
-  const rank = referenceRank(p);
   const first = rankedRecs(p)[0];
   return (
     <Chapter k="overview">
-      {score ? <ScoreBlock view={score} rank={rank} sample={sample} demo={demo} /> : (
-        <View style={s.panel}><T>这份档案生成于{scoreCopy.title}上线之前，所以没有参考分；重新上传一张正脸照即可获得。</T></View>
-      )}
       <View style={[s.row, { marginTop: 12 }]}>
         <View style={[s.box, { flex: 1, marginRight: 6 }]}>
           <T style={s.h4}>{copy.strengths}</T>
@@ -378,7 +370,7 @@ function Overview({ p, sample, demo }: { p: Passport; sample: boolean; demo: Dem
           ))}
         </View>
         {first && (
-          <View style={{ flex: 1, marginLeft: 6, backgroundColor: C.ink, borderRadius: 6, padding: 10 }} wrap={false}>
+          <View style={{ flex: 1, marginLeft: 6, backgroundColor: C.ink, borderRadius: 2, padding: 10 }} wrap={false}>
             <T style={[s.h4, { color: "#c1c7c7" }]}>{copy.leverage}</T>
             <T style={{ color: "#fff", fontSize: 12, fontWeight: 700, lineHeight: 1.55 }}>{first.action}</T>
             <T style={{ color: "#e6e6e2", fontSize: 8.5, marginTop: 5 }}>{first.why}</T>
@@ -387,74 +379,6 @@ function Overview({ p, sample, demo }: { p: Passport; sample: boolean; demo: Dem
         )}
       </View>
     </Chapter>
-  );
-}
-
-function ScoreBlock({ view, rank, sample, demo }: { view: ScoreView; rank: ReturnType<typeof referenceRank>; sample: boolean; demo: DemoKind }) {
-  const has = view.score != null;
-  return (
-    <View style={s.box}>
-      <View style={s.row} wrap={false}>
-        <View style={{ width: 140, paddingRight: 12 }}>
-          <T style={s.small}>{view.name}</T>
-          {sample && <T style={s.small}>{scoreCopy.sample}</T>}
-          {demo && <T style={[s.small, { color: C.amber }]}>{copy.pdf.demoScore}</T>}
-          {has ? (
-            <>
-              <Text style={{ fontSize: 40, fontWeight: 700, color: C.primary, lineHeight: 1.15, marginTop: 4 }}>{view.score}</Text>
-              <T style={s.small}>{scoreCopy.outOf}</T>
-              {view.tier && <T style={{ fontSize: 12, fontWeight: 700, marginTop: 2 }}>{view.tier}</T>}
-            </>
-          ) : <T style={{ fontSize: 12, fontWeight: 700, marginTop: 6 }}>{scoreCopy.notMeasured}</T>}
-          <T style={[s.small, { marginTop: 4 }]}>{view.state === "limited" ? `${scoreCopy.limited} · ` : ""}{view.statusText}</T>
-          {view.flags.map((f) => <T key={f} style={s.small}>· {f}</T>)}
-          {rank && has && (
-            <View style={[s.panel, { marginTop: 6, padding: 6 }]}>
-              <T style={s.small}>{rank.title}</T>
-              {rank.state === "ranked" ? (
-                <>
-                  <T style={s.bold}>{rank.label}（约）</T>
-                  {rank.higherThan && <T style={s.small}>{rank.higherThan}</T>}
-                </>
-              ) : <T style={s.small}>{rank.reason}</T>}
-            </View>
-          )}
-        </View>
-        <View style={{ flex: 1 }}>
-          {!has && (
-            <View style={[s.panel, { marginBottom: 6 }]}>
-              <T style={s.bold}>{scoreCopy.unavailable}</T>
-              <T style={s.soft}>{scoreCopy.retake}</T>
-            </View>
-          )}
-          <T style={s.h4}>{copy.harmony}</T>
-          {view.components.map((c) => (
-            <View key={c.key} style={{ marginBottom: 5 }}>
-              <View style={[s.row, { justifyContent: "space-between" }]}>
-                <T style={s.bold}>{c.name} <Text style={{ fontWeight: 400, color: C.muted, fontSize: 7.5 }}>{c.weightPct}%</Text></T>
-                <T style={{ fontSize: 11, fontWeight: 700 }}>{c.score == null ? scoreCopy.notMeasured : String(c.score)}</T>
-              </View>
-              <Bar pct={c.score ?? 0} />
-              <T style={s.small}>{c.about} · {c.detail}</T>
-            </View>
-          ))}
-        </View>
-      </View>
-      {has && (view.strengths.length > 0 || view.improvement) && (
-        <View style={[s.row, { marginTop: 6, paddingTop: 6, borderTopWidth: 0.5, borderTopColor: C.rule }]} wrap={false}>
-          <View style={{ flex: 1, paddingRight: 8 }}>
-            <T style={s.h4}>{scoreCopy.strengths}</T>
-            {view.strengths.map((x) => <Bullet key={x} mark="—" color={C.amber}>{x}</Bullet>)}
-          </View>
-          {view.improvement && (
-            <View style={{ flex: 1, paddingLeft: 8 }}>
-              <T style={s.h4}>{scoreCopy.improvement} · {view.improvement.component}</T>
-              <T>{view.improvement.text}</T>
-            </View>
-          )}
-        </View>
-      )}
-    </View>
   );
 }
 
@@ -517,7 +441,7 @@ function MetricRow({ row }: { row: RegionView["rows"][number] }) {
           <T style={{ width: 70, textAlign: "right", fontSize: 8, color: row.assessment.band === "typical" ? C.muted : C.amber }}>{row.assessment.label_zh}</T>
         </View>
       )}
-      <T style={s.small}>{row.definition}{row.confidence ? ` · ${CONFIDENCE_ZH[row.confidence]}` : ""}</T>
+
     </View>
   );
 }
@@ -554,15 +478,14 @@ function Region({ r, crop }: { r: RegionView; crop: ReportImages["regions"][stri
           {r.missing.map((m) => <T key={m.reason} style={s.small}>{copy.regionMissing} {m.count} 项：{m.reason}</T>)}
         </View>
       </View>
-      <Labeled label={copy.regionInsights} style={{ marginTop: 6 }} items={r.insights.map((i) => (
-        <View key={i.metricId} style={[s.panel, { marginBottom: 4, padding: 7 }]} wrap={false}>
-          <T><Text style={s.bold}>{prepare(i.label)}</Text>：{i.seen}</T>
-          <T style={s.soft}>{i.means}</T>
-        </View>
-      ))} />
-      <Labeled label={copy.regionObservations} style={{ marginTop: 4 }} items={r.observations.map((o) => (
-        <Bullet key={o.text} mark={o.polarity === "strength" ? "✓" : "–"} color={o.polarity === "strength" ? C.primary : C.muted}>{o.text}</Bullet>
-      ))} />
+      {r.insights.length > 0 && <View style={{ marginTop: 12 }}>
+        <View style={[s.row, { borderBottomWidth: 0.5, borderBottomColor: C.rule, paddingBottom: 5 }]}><T style={[s.small, { width: "42%" }]}>面部特点</T><T style={s.small}>造型启发</T></View>
+        {r.insights.map(i => <View key={i.metricId} style={[s.row, { borderBottomWidth: 0.5, borderBottomColor: C.rule }]} wrap={false}>
+          <View style={{ width:"42%", padding:8, backgroundColor:C.panel }}><T style={s.bold}>{i.label}</T><T style={s.small}>{i.seen}</T></View>
+          <View style={{ flex:1,padding:8 }}><T>{i.means}</T></View>
+        </View>)}
+      </View>}
+      {!r.insights.length && r.observations.length > 0 && <Labeled label={copy.regionObservations} style={{ marginTop: 6 }} items={r.observations.map(o => <Bullet key={o.text}>{o.text}</Bullet>)} />}
     </View>
   );
 }
@@ -588,7 +511,7 @@ function Interpretation({ p }: { p: Passport }) {
               <T>{stripRefs(w.text)}</T>
             </View>
           ))}
-          <T style={[s.small, { marginTop: 3 }]}>这些都是发型、配色、光线等可以改变的搭配，不是对五官的评价。</T>
+          <T style={[s.small, { marginTop: 3 }]}>从发型、配色与光线入手，调整视觉重心。</T>
         </View>
       </View>
       <Sub title={copy.signature}>
@@ -859,61 +782,13 @@ function Plan({ p, data }: { p: Passport; data: PassportResponse }) {
 
 // --- 07 methods ------------------------------------------------------------------------------------------------
 
-function Methods({ p, data, mv, sample, demo, paid, photoMode }: {
+function Methods({ p, demo }: {
   p: Passport; data: PassportResponse; mv: MeasureView | null; sample: boolean; demo: DemoKind; paid: boolean; photoMode: PhotoMode;
 }) {
-  const sc = p.aesthetic_score;
-  const score = aestheticScore(p);
-  const rank = referenceRank(p);
-  const expires = data.media.expires_at ? new Date(data.media.expires_at) : null;
-  const cell = { width: "49%", marginBottom: 8 } as Style;
-  return (
-    <Chapter k="methods">
-      <View style={{ flexDirection: "row", flexWrap: "wrap", justifyContent: "space-between" }}>
-        <View style={[s.box, cell]} wrap={false}>
-          <T style={s.bold}>{copy.methodScore}</T>
-          <T style={s.soft}>{scoreCopy.method}</T>
-          {score && <T style={s.soft}>{score.scaleNote}</T>}
-          <T style={s.soft}>{scoreCopy.notRank}</T>
-          {rank?.state === "ranked" && rank.note && <T style={s.soft}>{rank.note}</T>}
-          {rank?.cohort && <T style={s.small}>参考人群：{rank.cohort.publisher} · {rank.cohort.n.toLocaleString("en-US")} 份自愿扫描 · {rank.cohort.date} · {rank.cohort.url}</T>}
-          {mv && <T style={s.soft}>本次共测得 {mv.totalMeasured} / {mv.totalDefined} 项面部测量；比例是照片上的相对值，不是毫米。</T>}
-        </View>
-        <View style={[s.box, cell]} wrap={false}>
-          <T style={s.bold}>{copy.methodModel}</T>
-          <T style={s.soft}>测量来自照片关键点；文字观察来自一次图像分析；排序与计划由固定规则计算，你的反馈只改变建议顺序，不改变观察。</T>
-          {demo && <T style={[s.soft, { color: C.amber }]}>{copy.pdf.demo[demo]}</T>}
-          <T style={s.small}>版本：分析 {p.meta.prompt_version} · 规则 {p.meta.rules_version}{sc ? ` · 参考分 ${sc.scoring_version}` : ""} · 结构 {p.schema_version}</T>
-        </View>
-        <View style={[s.box, cell]}>
-          <T style={s.bold}>{copy.limitations}</T>
-          {p.analysis.limitations.length ? p.analysis.limitations.map((l) => <Bullet key={l}>{l}</Bullet>) : <T style={s.small}>这次没有额外的局限说明。</T>}
-        </View>
-        <View style={[s.box, cell]} wrap={false}>
-          <T style={s.bold}>{copy.methodPrivacy}</T>
-          {sample ? <T style={s.soft}>从照片中的轮廓与色彩，探索适合的造型方向。</T>
-            : data.media.expired ? <T style={s.soft}>{copy.photoExpired}</T>
-              : expires && !Number.isNaN(expires.getTime()) ? <T style={s.soft}>{copy.photoExpires}：{expires.toLocaleString("zh-CN")}。之后报告中的文字与数字仍然保留。</T> : null}
-          <T style={s.soft}>{PHOTO_NOTE[photoMode]}</T>
-          {!sample && <T style={s.small}>请像对待证件照一样保管这份文件；需要立即删除线上数据时，在网页底部的“我的选择与数据”里操作。</T>}
-        </View>
-      </View>
-      {(!paid || sample) && (
-        <View style={[s.box, { marginTop: 4 }]} wrap={false}>
-          <T style={s.h3}>{entitlements.title}</T>
-          <View style={[s.row, { borderBottomWidth: 0.5, borderBottomColor: C.rule, paddingBottom: 3 }]}>
-            <T style={[s.small, { width: 70 }]}>内容</T><T style={[s.small, { flex: 1 }]}>{entitlements.free}</T><T style={[s.small, { flex: 1 }]}>{entitlements.full}</T>
-          </View>
-          {entitlements.rows.map((r) => (
-            <View key={r.area} style={[s.row, { borderBottomWidth: 0.5, borderBottomColor: C.rule, paddingVertical: 3 }]}>
-              <T style={{ width: 70, fontWeight: 700 }}>{r.area}</T>
-              <T style={[s.soft, { flex: 1, paddingRight: 6 }]}>{r.free}</T>
-              <T style={{ flex: 1 }}>{r.full}</T>
-            </View>
-          ))}
-          <T style={[s.small, { marginTop: 3 }]}>{entitlements.previewNote}</T>
-        </View>
-      )}
-    </Chapter>
-  );
+  const ratios = referenceRatios(p);
+  return <Chapter k="methods">
+    <View style={s.panel}>{p.analysis.limitations.length ? p.analysis.limitations.map(l => <Bullet key={l}>{l}</Bullet>) : <T style={s.soft}>这次没有额外的局限说明。</T>}</View>
+    {demo && <T style={[s.small, { marginTop: 10 }]}>{copy.pdf.demo[demo]}</T>}
+    {ratios && <T style={[s.small, { marginTop: 14 }]}>比例参考：The Face Report · CC BY 4.0 · 关键点定义经适配。{ratios.sourceUrl}</T>}
+  </Chapter>;
 }
