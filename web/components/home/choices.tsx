@@ -37,12 +37,12 @@ export function Choices({ plate, decisions, reportHref }: { plate: Plate; decisi
           <div className={s.choiceFrame} ref={frameRef} data-ready={ready || undefined}>
             <span className={s.portraitHeading}>风格笔记 <span>／ {ch.kicker}</span></span>
             <div className={s.cam} style={{ width: W, height: H, transform: `translate(${cam.tx}px, ${cam.ty}px) scale(${cam.s})` }}>
-              <img src={plate.src} width={W} height={H} alt="Person-001 的 AI 合成示例正脸，展示原有发型" className={s.camImg} loading="lazy" />
+              <img src={plate.src} width={W} height={H} alt="发型与轮廓参考" className={s.camImg} loading="lazy" />
               <svg viewBox={`0 0 ${W} ${H}`} className={s.camSvg} data-marks={marks || undefined} aria-hidden>
                 <MetricLines key={ch.metricId} ov={ch.overlay} unit={cam.s} />
               </svg>
             </div>
-            <span className={s.choicePlateLabel}>AI 合成示例</span>
+
           </div>
           <figcaption className={s.choiceCaption}>
             <span>{ch.metricName} <b>{ch.value}</b></span>

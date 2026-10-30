@@ -57,13 +57,12 @@ describe("pipeline-backed demo cases (Issue #14)", () => {
     const { container } = render(<SampleReport variant={key} />);
     const p = c.passport as Passport;
 
-    // prominent AI-generated disclosure + selector with both people
-    const note = screen.getByTestId("demo-disclosure");
-    expect(note.textContent).toContain("AI 生成的虚构人物");
-    expect(note.textContent).toContain(c.provenance.layers.analysis.model);
+    // Public presentation focuses on the report; provenance remains in the source manifest.
+    expect(screen.queryByTestId("demo-disclosure")).toBeNull();
+    expect(container.textContent).not.toMatch(/P00[12]|AI 生成的虚构人物|示例人物由 AI 合成/);
     const selector = screen.getByTestId("sample-person-selector");
     expect(selector.querySelectorAll("a")).toHaveLength(2);
-    expect(selector.querySelector('[aria-current="page"]')?.textContent).toBe(c.label);
+    expect(selector.querySelector('[aria-current="page"]')?.getAttribute("href")).toBe(`/report/sample?v=${key}`);
 
     // the scoring layer's real number and the real measurements
     const report = screen.getByTestId("full-report");
@@ -92,8 +91,8 @@ describe("pipeline-backed demo cases (Issue #14)", () => {
 
   it("defaults /report/sample to person 001 and keeps the illustrated samples reachable", async () => {
     render(await SampleReportPage({ searchParams: Promise.resolve({}) }));
-    expect(screen.getByTestId("demo-disclosure")).toBeTruthy();
-    expect(screen.getByTestId("sample-person-selector").querySelector('[aria-current="page"]')?.textContent).toBe(DEMO_CASES[0].label);
+    expect(screen.queryByTestId("demo-disclosure")).toBeNull();
+    expect(screen.getByTestId("sample-person-selector").querySelector('[aria-current="page"]')?.getAttribute("href")).toBe("/report/sample?v=p001");
   });
 
   it("keeps ?v=male rendering the older illustrated sample without the demo disclosure", async () => {

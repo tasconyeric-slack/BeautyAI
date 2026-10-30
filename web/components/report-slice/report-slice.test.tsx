@@ -67,7 +67,7 @@ describe("S2 report slice critical path", () => {
     const data = response();
     data.partial.previews = [{ kind: "hair", target_id: "safe", status: "pending", image_model: null, before_url: data.media.front, after_url: null, error: null, ai_label: "AI 试看" }];
     const { container } = show(data);
-    expect(container.textContent).toContain("本示例未生成试看图");
+    expect(container.textContent).toContain("看懂剪发方向");
     expect(screen.queryByRole("button", { name: "加入我的方案" })).toBeNull();
     expect(container.textContent).not.toContain("正在生成");
     expect(localStorage.getItem(choicesKey(data.id))).toBeNull();

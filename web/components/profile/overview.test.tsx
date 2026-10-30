@@ -53,7 +53,7 @@ describe("overview hierarchy", () => {
     expect(glance.textContent).toContain(REFERENCE_NOTE);
     expect(REFERENCE_NOTE).toMatch(/不评价长相/);
     expect(REFERENCE_NOTE).toMatch(/不是人群排名/);
-    expect(glance.textContent).toContain("合成人脸"); // fixture passport: a drawn face, labeled as such
+    expect(glance.textContent).toContain("示例报告"); // fixture passport: a drawn face, labeled as such
     // the detail it points to is on the same page
     const target = glance.querySelector("a")!.getAttribute("href")!;
     expect(document.querySelector(target)?.querySelector('[data-testid="score-hero"]')).not.toBeNull();

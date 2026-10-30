@@ -8,6 +8,6 @@ export const journey = {
   brokenResult: "生成结果载入失败，照片上仍是原来的发型。",
   reloadResult: "重新载入结果",
   reupload: "重新上传照片",
-  savedSettings: "已保存造型选项；尚未生成的发型仍需生成后查看效果。",
+  savedSettings: "喜欢的方向都在这里，随时回来比较。",
   sampleReadOnly: "这是公开样例，只能浏览。上传自己的照片后可以试造型和保存方案。",
 } as const;

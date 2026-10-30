@@ -67,13 +67,13 @@ export function DesignMotion({ hero, readings, view, production = false }: { her
         <section className={s.individuals} aria-labelledby="individuals-title">
           <div className={s.editorialHead} data-reveal><p className={s.eyebrow}>02 / INDIVIDUALITY</p><h2 id="individuals-title">风格有很多种。<br /><em>答案，因你而异。</em></h2><p>不同的轮廓、发质和日常习惯，<br />值得各自的选择。</p></div>
           <div className={s.portraitStrip}>{["003", "004", "001", "002", "006", "005"].map((id, i) => <figure key={id} data-reveal style={{ "--delay": `${i * 65}ms` } as CSSProperties}>
-            <div><img src={`/demo/portraits/person-${id}-frontal.webp`} alt={`示例人物 P${id}，原有发型、未添加眼镜`} width={960} height={1200} loading="lazy" /></div><figcaption><span>P{id}</span><span>原有造型</span></figcaption>
-          </figure>)}</div><p className={s.disclosure}>AI 合成示例人物 · 人物展示使用原图</p>
+            <div><img src={`/demo/portraits/person-${id}-frontal.webp`} alt="人物风格肖像" width={960} height={1200} loading="lazy" /></div>
+          </figure>)}</div>
         </section>
         <section className={s.styleSection} id="possibility">
           <div className={s.styleIntro} data-reveal><p className={s.eyebrow}>03 / POSSIBILITIES</p><h2>改变多少，<br /><em>由你决定。</em></h2><p>先看一个发型方向。<br />在同一张照片里比较，保留喜欢的部分。</p><Link href={pageRoute("studio")} className={s.textLink}>在 Studio 里继续探索 <ArrowUpRight size={18} /></Link></div>
           <Comparison auto={auto} />
-          <div className={s.styleCaption} data-reveal><span>发型探索 / P001</span><h3>偏分内扣中长发</h3><p>试着改变分缝与发尾的走向，<br />看看自己是否喜欢这样的轮廓。</p><span>AI 造型模拟示例 · 旧公开报告 P001</span><Link href="/report/sample?v=p001" className={s.textLink}>阅读对应人物报告 <ArrowUpRight size={14} /></Link><a href="/demo/generated/p001/manifest.json" className={s.textLink}>查看素材来源</a></div>
+          <div className={s.styleCaption} data-reveal><span>发型探索</span><h3>偏分内扣中长发</h3><p>试着改变分缝与发尾的走向，<br />看看自己是否喜欢这样的轮廓。</p><Link href="/report/sample?v=p001" className={s.textLink}>阅读对应人物报告 <ArrowUpRight size={14} /></Link></div>
         </section>
         <section className={s.studioSection} id="studio-preview">
           <div className={s.studioHead} data-reveal><p className={s.eyebrow}>04 / LOOK STUDIO</p><h2>把想法，<em>放进照片里。</em></h2><p>从一个方向开始，慢慢找到自己的选择。</p></div>
@@ -82,15 +82,15 @@ export function DesignMotion({ hero, readings, view, production = false }: { her
         </section>
         <section className={s.takeaway}>
           <div data-reveal><p className={s.eyebrow}>05 / YOUR AESTHETIC PASSPORT</p><h2>一次了解，<br /><em>留下一份行动的方向。</em></h2><p>把观察、解读和选择收进一份报告。<br />今天尝试一点，下次剪发再进一步。</p><Link href={pageRoute("report")} className={s.button}>翻开完整示例报告 <ArrowUpRight size={17} /></Link></div>
-          <Link href={pageRoute("report")} className={s.reportBook} data-reveal aria-label="打开 P002 完整示例报告"><div className={s.bookTop}><b>BeautyAI</b><span>AESTHETIC<br />PASSPORT</span></div><div className={s.bookPortrait}><img src={hero.plate.src} alt="P002 报告封面" width={hero.plate.width} height={hero.plate.height} loading="lazy" /></div><div className={s.bookBottom}><span>属于自己的风格线索</span><b>形象护照 <ArrowUpRight size={21} /></b><span>No. P002 / 完整示例</span></div></Link>
+          <Link href={pageRoute("report")} className={s.reportBook} data-reveal aria-label="翻开形象护照"><div className={s.bookTop}><b>BeautyAI</b><span>AESTHETIC<br />PASSPORT</span></div><div className={s.bookPortrait}><img src={hero.plate.src} alt="形象护照封面" width={hero.plate.width} height={hero.plate.height} loading="lazy" /></div><div className={s.bookBottom}><span>属于自己的风格线索</span><b>形象护照 <ArrowUpRight size={21} /></b><span>发现 · 选择 · 行动</span></div></Link>
           <div className={s.planLine} data-reveal>{[["01", "看见特点", "从照片到理解"], ["02", "试一个方向", "从理解到选择"], ["03", "带进日常", "从选择到行动"]].map(([n, title, detail]) => <div key={n}><span>{n}</span><h3>{title}</h3><p>{detail}</p></div>)}</div>
         </section>
         <section className={s.closing} data-reveal><p className={s.eyebrow}>MAKE IT YOURS.</p><h2>从了解自己开始。</h2><Link href="/start" className={s.button}>上传照片，开始分析 <ArrowUpRight size={18} /></Link><Link href="/about" className={s.textLink}>了解分析方法与照片隐私 <ArrowUpRight size={14} /></Link></section>
       </> : view === "report" ? <div className={s.reportPage}><div className={s.pageHeading}><p className={s.eyebrow}>YOUR AESTHETIC PASSPORT</p><p>同一套视觉语言，从发现到理解。</p></div><SampleReport variant="p002" /></div>
-        : <section className={s.studioPage}><div className={s.pageHeading}><p className={s.eyebrow}>LOOK STUDIO / P001</p><h1>试一种可能，<em>找到自己的选择。</em></h1><p>发型与配色在同一处比较；保存你想继续尝试的方向。</p></div><Studio auto={auto} /></section>}
+        : <section className={s.studioPage}><div className={s.pageHeading}><p className={s.eyebrow}>Look Studio</p><h1>试一种可能，<em>找到自己的选择。</em></h1><p>发型与配色在同一处比较；保存你想继续尝试的方向。</p></div><Studio auto={auto} /></section>}
     </div>
     <footer className={s.footer}><Link href={pageRoute("home")} className={s.wordmark}>BeautyAI <span>形象护照</span></Link><p>看懂特点，保留自己的样子。</p><Link href="/about">分析方法与照片隐私 <ArrowUpRight size={14} /></Link></footer>
-    <aside className={s.reviewBar} aria-label="动态播放设置"><span>{production ? "首页示例演示" : "R3.1 / 体验稿"}</span><button type="button" onClick={() => setAutoplay(v => !v)} aria-pressed={auto}>{auto ? <Pause size={13} /> : <Play size={13} />}{reduced ? "已跟随减少动态设置" : auto ? "暂停自动演示" : "播放自动演示"}</button></aside>
+    <aside className={s.reviewBar} aria-label="动态播放设置"><span>{production ? "浏览节奏" : "R3.1 / 体验稿"}</span><button type="button" onClick={() => setAutoplay(v => !v)} aria-pressed={auto}>{auto ? <Pause size={13} /> : <Play size={13} />}{reduced ? "已跟随减少动态设置" : auto ? "暂停动态" : "播放动态"}</button></aside>
     </div>
   </div>;
 }
@@ -120,7 +120,7 @@ function ReadingStory({ hero, readings, reportHref }: { hero: HeroView; readings
   return <section className={s.readingSection} id="reading">
     <div className={s.editorialHead} data-reveal><p className={s.eyebrow}>01 / UNDERSTANDING YOU</p><h2>一张脸，<br /><em>慢慢读懂。</em></h2><p>沿着照片里的线索，<br />从看见特点，到理解自己的选择。</p></div>
     <div className={s.readingStory} ref={story}>
-      <div className={s.pinnedPortrait}><MeasuredPortrait hero={hero} chapter={readings[active]} /><div className={s.readingProgress}><span style={{ transform: `scaleX(${(active + 1) / readings.length})` }} /></div><p className={s.photoFoot}><span>P002 / 对应照片测量</span><span>{String(active + 1).padStart(2, "0")} — 03</span></p></div>
+      <div className={s.pinnedPortrait}><MeasuredPortrait hero={hero} chapter={readings[active]} /><div className={s.readingProgress}><span style={{ transform: `scaleX(${(active + 1) / readings.length})` }} /></div><p className={s.photoFoot}><span>轮廓 · 重心 · 配色</span><span>{String(active + 1).padStart(2, "0")} — 03</span></p></div>
       <div className={s.readingSteps}>{readings.map((ch, i) => <article key={ch.metricId} data-reading-step data-active={active === i}>
         <p className={s.eyebrow}>{String(i + 1).padStart(2, "0")} / {titles[i]}</p><h3>{ch.title}</h3><p className={s.readingValue}><span>{ch.metricName}</span><b>{ch.value}</b></p><p>{ch.seen}</p><div className={s.interpretation}><span>对风格的启发</span><p>{ch.means}</p></div>
         {ch.swatches && <div className={s.swatches}>{ch.swatches.map(color => <span key={color.name}><i style={{ background: color.hex }} />{color.name}</span>)}</div>}
@@ -135,7 +135,7 @@ function MeasuredPortrait({ hero, chapter }: { hero: HeroView; chapter: Chapter 
   const cam = box.w ? camera(focusBox(chapter.overlay, aspect, 0.18), box.w, box.h, hero.plate.width, hero.plate.height, 1.38) : { tx: 0, ty: 0, s: 0.3 };
   return <div className={s.measuredPortrait} ref={ref}>
     <div className={s.camera} style={{ width: hero.plate.width, height: hero.plate.height, transform: `translate(${cam.tx}px,${cam.ty}px) scale(${cam.s})` }}>
-      <img src={hero.plate.src} width={hero.plate.width} height={hero.plate.height} alt="P002 原图，照片聚焦随阅读位置变化" loading="lazy" />
+      <img src={hero.plate.src} width={hero.plate.width} height={hero.plate.height} alt="面部解读，照片随阅读聚焦" loading="lazy" />
       <svg viewBox={`0 0 ${hero.plate.width} ${hero.plate.height}`} aria-hidden><MetricLines key={chapter.metricId} ov={chapter.overlay} unit={cam.s} /></svg>
     </div>
     <span className={s.metricTag} key={chapter.metricId}>{chapter.metricName}<b>{chapter.value}</b></span><span className={s.photoKicker}>FACIAL STUDY / 002</span>
@@ -162,8 +162,8 @@ function Comparison({ auto }: { auto: boolean }) {
   const [cut, setCut] = useState(50);
   const [touched, setTouched] = useState(false);
   return <div className={s.comparison} ref={ref} data-play={auto && visible && !touched} style={{ "--cut": `${cut}%` } as CSSProperties}>
-    <img src={image("orig")} alt="P001 原有发型" width={1088} height={1456} loading="lazy" />
-    <img className={s.after} src={image("safe")} alt="P001 偏分内扣中长发 AI 造型模拟" width={1088} height={1456} loading="lazy" />
+    <img src={image("orig")} alt="发型对比原图" width={1088} height={1456} loading="lazy" />
+    <img className={s.after} src={image("safe")} alt="偏分内扣中长发效果" width={1088} height={1456} loading="lazy" />
     <span className={s.beforeLabel}>原有发型</span><span className={s.afterLabel}>发型探索 / AI 模拟</span><div className={s.divider} aria-hidden><span>‹ ›</span></div>
     <input type="range" min={0} max={100} value={cut} onPointerDown={() => setTouched(true)} onFocus={() => setTouched(true)} onChange={e => { setTouched(true); setCut(Number(e.target.value)); }} aria-label="拖动比较原图与发型模拟" />
     <span className={s.compareHint}>拖动，看看变化 <ArrowRight size={15} /></span>
@@ -193,9 +193,9 @@ function Studio({ auto, compact = false, production = false }: { auto: boolean; 
     <div className={s.studioCanvas} style={{ "--palette-color": colors[color][1] } as CSSProperties}>
       <div className={s.studioMat} />
       <div className={s.studioPhoto} data-compare={compare}>
-        <img src={image("orig")} alt="P001 原有造型" width={1088} height={1456} loading="lazy" />
-        <img src={image(hair)} alt={hair === "orig" ? "P001 原图" : `P001 ${hairName} AI 造型模拟`} width={1088} height={1456} loading="lazy" style={{ opacity: hold.holding ? 0 : 1 }} />
-        <span className={s.studioPhotoLabel}>{hold.holding || hair === "orig" ? "原有造型" : "AI 造型模拟"}</span>
+        <img src={image("orig")} alt="造型对比原图" width={1088} height={1456} loading="lazy" />
+        <img src={image(hair)} alt={hair === "orig" ? "造型原图" : `${hairName}效果`} width={1088} height={1456} loading="lazy" style={{ opacity: hold.holding ? 0 : 1 }} />
+        <span className={s.studioPhotoLabel}>{hold.holding || hair === "orig" ? "现在" : "尝试之后"}</span>
         {compare && <span className={s.studioCompareLine} aria-hidden />}
       </div>
       <div className={s.studioCanvasTop}><span>LOOK STUDIO / 001</span><span>无眼镜</span></div>
@@ -211,8 +211,8 @@ function Studio({ auto, compact = false, production = false }: { auto: boolean; 
       </div>
       <div className={s.studioSave}><span>{saved ? "已保存到本次演示" : hairName}</span>{production ? <Link href="/start" className={s.button}>用自己的照片试试 <ArrowUpRight size={16} /></Link> : <button type="button" className={s.button} onClick={() => setSaved(true)}>{saved ? <Check size={16} /> : <Bookmark size={16} />}{saved ? "已保存这个方向" : "保存这个方向"}</button>}{saved && <p role="status" className={s.savedNote}>已保留「{hairName}」。<button type="button" onClick={() => { setSaved(false); setHair("orig"); }}>再试一个方向 <RotateCcw size={12} /></button></p>}</div>
       <div className={s.studioSteps} aria-label="探索过程">{["选择", "比较", "保存"].map((label, i) => <span key={label} data-active={(saved ? 2 : compare || hold.holding ? 1 : 0) === i}><i>0{i + 1}</i>{label}</span>)}</div>
-      <p className={s.demoNote}>{production ? "AI 模拟示例 · 上传自己的照片后，可生成并保存个人造型选项" : "交互演示 · 使用已有示例图，保存仅在本页生效"}</p>
+      <p className={s.demoNote}>{production ? "找到喜欢的方向，用自己的照片继续探索。" : "交互演示 · 使用已有示例图，保存仅在本页生效"}</p>
     </div>
-    {compact && <div className={s.studioMobileSummary}><span>{scene === 0 ? "01 / 选择一个方向" : scene === 1 ? "02 / 看看发型变化" : "03 / 比较，再决定"}</span><p>{scene === 0 ? "保留原有造型，也是一个选项。" : scene === 1 ? "偏分内扣中长发 · AI 造型模拟" : "同一张照片，原有造型与发型探索。"}</p></div>}
+    {compact && <div className={s.studioMobileSummary}><span>{scene === 0 ? "01 / 选择一个方向" : scene === 1 ? "02 / 看看发型变化" : "03 / 比较，再决定"}</span><p>{scene === 0 ? "保持现在，也是一种选择。" : scene === 1 ? "偏分内扣中长发" : "同一张照片，看见不同的可能。"}</p></div>}
   </div>;
 }

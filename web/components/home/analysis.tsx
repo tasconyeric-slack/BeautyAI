@@ -50,7 +50,7 @@ export function Analysis({ plate, chapters, reportHref }: { plate: Plate; chapte
             <span className={s.portraitHeading}>面部结构 <span>／ {ch.kicker}</span></span>
             <div className={s.cam} style={{ width: W, height: H, transform: `translate(${cam.tx}px, ${cam.ty}px) scale(${cam.s})` }}>
               {/* overlay shares this exact intrinsic box */}
-              <img src={plate.src} width={W} height={H} alt="AI 合成示例人物正脸，当前测量项的标注与照片对齐" className={s.camImg} loading="lazy" />
+              <img src={plate.src} width={W} height={H} alt="面部解读与测量标注" className={s.camImg} loading="lazy" />
               <svg viewBox={`0 0 ${W} ${H}`} className={s.camSvg} data-marks={marks || undefined} aria-hidden>
                 <MetricLines key={ch.metricId} ov={ch.overlay} unit={cam.s} />
               </svg>
@@ -135,7 +135,7 @@ export function Analysis({ plate, chapters, reportHref }: { plate: Plate; chapte
       </div>
 
       <footer className={s.readingFoot}>
-        <p>示例人物由 AI 合成。测量取自对应照片，光线与拍摄角度会影响分析。<Link href="/about">方法与隐私 ↗</Link></p>
+        <p>从轮廓与比例，找到适合的风格方向。<Link href="/about">方法与隐私 ↗</Link></p>
         <Link prefetch={false} href={reportHref} className={s.footLink}>打开这份完整示例报告 <span aria-hidden>→</span></Link>
       </footer>
     </section>

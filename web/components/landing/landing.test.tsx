@@ -70,7 +70,7 @@ describe("Landing", () => {
     for (const k of ["symmetry", "thirds", "fifths", "golden_ratio"]) expect(screen.getByTestId(`score-part-${k}`)).toBeTruthy();
     expect(screen.getByTestId("score-strengths").querySelectorAll("li")).toHaveLength(2);
     expect(screen.getByTestId("score-improvement").textContent).toBeTruthy();
-    expect(hero.textContent).toContain("合成人脸");
+    expect(hero.textContent).toContain("示例报告");
     expect(screen.getByTestId("score-cta").getAttribute("href")).toBe("/p/ap_sample_0001");
     expect(screen.queryByText("颜值评分 · 即将上线")).toBeNull();
   });
@@ -110,9 +110,9 @@ describe("first screen (Issue #2)", () => {
   it("shows the deliverable as a synthetic example with the sample's own score — never as a live result", () => {
     render(<Landing />);
     const card = screen.getByTestId("hero-sample");
-    expect(card.textContent).toContain("示例 · 合成人脸，非真人");
+    expect(card.textContent).toContain("形象护照 · 示例报告");
     expect(card.textContent).toContain("不是实时分析结果");
-    expect(card.textContent).toContain("不代表任何真人");
+    expect(card.textContent).toContain("参考分来自这张照片的面部几何测量");
     expect(card.querySelector("img")!.getAttribute("alt")).toMatch(/非真人/);
     expect(screen.getByTestId("hero-score").textContent).toContain(String(Math.round(female().aesthetic_score.overall_score)));
     const f = female();
