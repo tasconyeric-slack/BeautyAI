@@ -27,9 +27,9 @@ export function RegionMeasurements({ r, data, geometry, gone, sample }: { r: Reg
           <img src={src} alt={`${VIEW_ZH[role]} · ${r.title}测量原图`} onError={() => setFailed(src)} />
           {crop && !hold.holding && <svg key={row?.id} data-measure-overlay={row?.name} viewBox={`0 0 ${crop.width} ${crop.height}`} preserveAspectRatio="xMidYMid meet" aria-hidden>
             {crop.overlays.flatMap((o, k) => <g key={k}>
-              {o.segments.map((line, i) => <line key={i} x1={line.a[0] * crop.width} y1={line.a[1] * crop.height} x2={line.b[0] * crop.width} y2={line.b[1] * crop.height} stroke={line.role === "measure" ? "var(--ap-amber)" : "white"} strokeWidth={2} strokeDasharray={line.role === "measure" ? undefined : "5 4"} vectorEffect="non-scaling-stroke" />)}
-              {o.arcs.map((a, i) => <path key={i} d={arcPath(a, crop.width, crop.height)} fill="none" stroke="var(--ap-amber)" strokeWidth={2} vectorEffect="non-scaling-stroke" />)}
-              {o.dots.map(([x, y], i) => <circle key={i} cx={x * crop.width} cy={y * crop.height} r={crop.width / 150} fill="var(--ap-amber)" />)}
+              {o.segments.map((line, i) => <line key={i} x1={line.a[0] * crop.width} y1={line.a[1] * crop.height} x2={line.b[0] * crop.width} y2={line.b[1] * crop.height} stroke={line.role === "measure" ? "#f5d99c" : "white"} strokeWidth={2} strokeDasharray={line.role === "measure" ? undefined : "5 4"} vectorEffect="non-scaling-stroke" />)}
+              {o.arcs.map((a, i) => <path key={i} d={arcPath(a, crop.width, crop.height)} fill="none" stroke="#f5d99c" strokeWidth={2} vectorEffect="non-scaling-stroke" />)}
+              {[...o.dots, ...o.segments.filter(line => line.role === "measure").flatMap(line => [line.a, line.b])].map(([x, y], i) => <circle key={i} cx={x * crop.width} cy={y * crop.height} r={crop.width / 150} fill="#f5d99c" stroke="white" strokeWidth={0.8} vectorEffect="non-scaling-stroke" />)}
             </g>)}
           </svg>}
         </div>

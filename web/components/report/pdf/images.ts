@@ -67,7 +67,7 @@ function regionImage(img: HTMLImageElement, crop: NonNullable<ReturnType<typeof 
     for (const sgm of o.segments) {
       const [ax, ay] = at(sgm.a), [bx, by] = at(sgm.b);
       ctx.setLineDash(sgm.role === "measure" ? [] : [6, 5]);
-      ctx.strokeStyle = sgm.role === "measure" ? "#e2b27f" : "rgba(255,255,255,.85)";
+      ctx.strokeStyle = sgm.role === "measure" ? "#f5d99c" : "rgba(255,255,255,.85)";
       ctx.lineWidth = sgm.role === "measure" ? 2.4 : 1.4;
       ctx.beginPath(); ctx.moveTo(ax, ay); ctx.lineTo(bx, by); ctx.stroke();
     }
@@ -75,14 +75,14 @@ function regionImage(img: HTMLImageElement, crop: NonNullable<ReturnType<typeof 
     for (const arc of o.arcs) {
       ctx.save();
       ctx.translate(dx, dy); ctx.scale(dw / crop.width, dh / crop.height);
-      ctx.strokeStyle = "#e2b27f"; ctx.lineWidth = 2.4 * crop.width / dw;
+      ctx.strokeStyle = "#f5d99c"; ctx.lineWidth = 2.4 * crop.width / dw;
       ctx.stroke(new Path2D(arcPath(arc, crop.width, crop.height)));
       ctx.restore();
     }
     const dots = [...o.segments.flatMap((sg) => (sg.role === "measure" ? [sg.a, sg.b] : [])), ...o.dots];
     for (const d of dots) {
       const [x, y] = at(d);
-      ctx.fillStyle = "#e2b27f"; ctx.strokeStyle = "#fff"; ctx.lineWidth = 1;
+      ctx.fillStyle = "#f5d99c"; ctx.strokeStyle = "#fff"; ctx.lineWidth = 1;
       ctx.beginPath(); ctx.arc(x, y, 3.2, 0, Math.PI * 2); ctx.fill(); ctx.stroke();
     }
   }

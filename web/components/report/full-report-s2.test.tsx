@@ -95,6 +95,7 @@ describe("ENG-02 full report critical path", () => {
     expect(image.getAttribute("style")).toBeNull();
     expect(canvas.querySelector("svg")!.getAttribute("viewBox")).toBe(before.viewBox);
     expect(canvas.querySelector("svg")!.getAttribute("preserveAspectRatio")).toBe("xMidYMid meet");
+    expect(canvas.querySelectorAll("circle").length).toBeGreaterThan(0);
     expect(container.textContent).not.toContain("比例参考：");
     expect(container.querySelector('[data-testid^="region-reading-"]')).toBeNull();
   });
