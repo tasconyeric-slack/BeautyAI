@@ -140,8 +140,16 @@
       "reason": "no real image-edit provider configured (DASHSCOPE_API_KEY)"
     },
     "learned_attractiveness": {
-      "status": "not_included",
-      "reason": "Issue #13 licence gate; no learned-attractiveness model is used"
+      "status": "research_only",
+      "source": "frozen Ridge inference on original real CV snapshot",
+      "model_id": "geometry-ridge17-scut-60-40-v1",
+      "artifact_sha256": "e74489df4953054838dee2d4e9468a6095f5e77e837ae62ff9cc94cea95a4d25",
+      "reference_sha256": "7eed142fa39242905ecb097c2abacddcf6ad1582998868b71e66c721aa501826",
+      "distribution_version": "scut-heldout-ridge17-ecdf-v1",
+      "reference_unit": "image",
+      "research_only": true,
+      "refreshed_at": "2026-10-30T18:17:50.463435+00:00",
+      "analysis_reused": true
     }
   },
   "user_context_note": "styling context is a fictional, user-declared profile from the demo manifest"

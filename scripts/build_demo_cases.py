@@ -176,8 +176,12 @@ def build_case(case: dict[str, Any], assets: Path, provider: Any, manifest: dict
                          "quick": meta.get("quick"), "calls": call_stats(run_dir)},
             "rules": {"source": "real (rules layer, config/rules.yaml)", "schema_version": passport["schema_version"]},
             "previews": image_provider_state(),
-            "learned_attractiveness": {"status": "not_included",
-                                       "reason": "Issue #13 licence gate; no learned-attractiveness model is used"},
+            "learned_attractiveness": ({
+                key: passport["learned_attractiveness"].get(key)
+                for key in ("status", "model_id", "checkpoint_id", "research_only", "unavailable_reason")
+            } if passport.get("learned_attractiveness") else {
+                "status": "not_included", "reason": "No learned-attractiveness result in this pipeline run",
+            }),
         },
         "user_context_note": "styling context is a fictional, user-declared profile from the demo manifest",
     }

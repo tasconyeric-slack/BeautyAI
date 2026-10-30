@@ -1,5 +1,5 @@
 {
-  "schema_version": "0.7",
+  "schema_version": "0.9",
   "passport_id": "ap_demo_p001",
   "created_at": "2026-10-24T19:48:51+00:00",
   "locale": "zh-CN",
@@ -8881,5 +8881,340 @@
     "cost_usd_est": 0.016384,
     "retries": 1,
     "rules_version": "0.5.0"
+  },
+  "learned_attractiveness": {
+    "contract_version": "learned-attractiveness-1",
+    "model_id": "geometry-ridge17-scut-60-40-v1",
+    "checkpoint_id": "sha256:e74489df4953054838dee2d4e9468a6095f5e77e837ae62ff9cc94cea95a4d25",
+    "preprocessing_version": "d36-17-aes-geo-1.0-v1",
+    "crop_version": "photo-check-working-rgb-v1",
+    "native_scale_id": "scut-human-panel-1-5",
+    "calibration_version": null,
+    "status": "research_only",
+    "raw_score": 2.8999977016833305,
+    "production_authorized": false,
+    "quality_flags": [],
+    "unavailable_reason": null,
+    "native_label_range": [
+      1.0,
+      5.0
+    ],
+    "display_score": 5.3,
+    "display_range": [
+      1.0,
+      10.0
+    ],
+    "display_transform": "scut-linear-1-10-v1",
+    "qc_status": "passed",
+    "inference_ms": 1.926,
+    "research_only": true,
+    "provenance": "cv_geometry_ridge_regression",
+    "limitations": [
+      "predicts_scut_rater_panel",
+      "linear_display_not_psl_calibration",
+      "geometry_only_not_whole_appearance"
+    ]
+  },
+  "learned_reference_rank": {
+    "status": "available",
+    "percentile": 45,
+    "top_percent": 55,
+    "cohort_id": "scut-heldout-ridge17-research",
+    "cohort_label": "SCUT 留出测试照片（研究样本）",
+    "n_unique_subjects": null,
+    "distribution_version": "scut-heldout-ridge17-ecdf-v1",
+    "method": "empirical_cdf_midrank_v1",
+    "limitations": [
+      "named_reference_sample_only",
+      "not_a_population_rank",
+      "convenience",
+      "sampling_band_excludes_selection_bias_and_model_error",
+      "image_independence_and_ages_unverified"
+    ],
+    "unavailable_reason": null,
+    "percentile_interval": [
+      40,
+      50
+    ],
+    "display_step_percent": 5,
+    "reference_unit": "image",
+    "n_reference": 2128,
+    "research_only": true,
+    "tier": {
+      "id": "middle_range",
+      "label_zh": "参考样本常见区间",
+      "min_percentile": 15
+    },
+    "distribution": {
+      "method": "gaussian_kde_scott_v1",
+      "n": 2128,
+      "bounds": [
+        1.0,
+        10.0
+      ],
+      "mean": 5.435548812086674,
+      "points": [
+        [
+          1.0,
+          0.0
+        ],
+        [
+          1.140625,
+          0.0
+        ],
+        [
+          1.28125,
+          0.0
+        ],
+        [
+          1.421875,
+          0.0
+        ],
+        [
+          1.5625,
+          0.0
+        ],
+        [
+          1.703125,
+          0.0
+        ],
+        [
+          1.84375,
+          5e-08
+        ],
+        [
+          1.984375,
+          1.04e-06
+        ],
+        [
+          2.125,
+          1.222e-05
+        ],
+        [
+          2.265625,
+          8.692e-05
+        ],
+        [
+          2.40625,
+          0.00038
+        ],
+        [
+          2.546875,
+          0.00106939
+        ],
+        [
+          2.6875,
+          0.00217517
+        ],
+        [
+          2.828125,
+          0.00397046
+        ],
+        [
+          2.96875,
+          0.00746057
+        ],
+        [
+          3.109375,
+          0.01326547
+        ],
+        [
+          3.25,
+          0.02111828
+        ],
+        [
+          3.390625,
+          0.03145753
+        ],
+        [
+          3.53125,
+          0.0452869
+        ],
+        [
+          3.671875,
+          0.06302819
+        ],
+        [
+          3.8125,
+          0.08481389
+        ],
+        [
+          3.953125,
+          0.11106799
+        ],
+        [
+          4.09375,
+          0.14427611
+        ],
+        [
+          4.234375,
+          0.18940053
+        ],
+        [
+          4.375,
+          0.24554026
+        ],
+        [
+          4.515625,
+          0.30210141
+        ],
+        [
+          4.65625,
+          0.34961854
+        ],
+        [
+          4.796875,
+          0.38689258
+        ],
+        [
+          4.9375,
+          0.41519779
+        ],
+        [
+          5.078125,
+          0.43106069
+        ],
+        [
+          5.21875,
+          0.42970381
+        ],
+        [
+          5.359375,
+          0.41448446
+        ],
+        [
+          5.5,
+          0.39501805
+        ],
+        [
+          5.640625,
+          0.37617164
+        ],
+        [
+          5.78125,
+          0.35557491
+        ],
+        [
+          5.921875,
+          0.32885605
+        ],
+        [
+          6.0625,
+          0.29884659
+        ],
+        [
+          6.203125,
+          0.27265124
+        ],
+        [
+          6.34375,
+          0.25006325
+        ],
+        [
+          6.484375,
+          0.22837155
+        ],
+        [
+          6.625,
+          0.2074821
+        ],
+        [
+          6.765625,
+          0.183749
+        ],
+        [
+          6.90625,
+          0.15353833
+        ],
+        [
+          7.046875,
+          0.11998775
+        ],
+        [
+          7.1875,
+          0.08863364
+        ],
+        [
+          7.328125,
+          0.06242766
+        ],
+        [
+          7.46875,
+          0.04116266
+        ],
+        [
+          7.609375,
+          0.02449928
+        ],
+        [
+          7.75,
+          0.01355059
+        ],
+        [
+          7.890625,
+          0.00782179
+        ],
+        [
+          8.03125,
+          0.00485041
+        ],
+        [
+          8.171875,
+          0.00276046
+        ],
+        [
+          8.3125,
+          0.00119767
+        ],
+        [
+          8.453125,
+          0.00035215
+        ],
+        [
+          8.59375,
+          6.592e-05
+        ],
+        [
+          8.734375,
+          7.61e-06
+        ],
+        [
+          8.875,
+          5.3e-07
+        ],
+        [
+          9.015625,
+          2e-08
+        ],
+        [
+          9.15625,
+          0.0
+        ],
+        [
+          9.296875,
+          0.0
+        ],
+        [
+          9.4375,
+          0.0
+        ],
+        [
+          9.578125,
+          0.0
+        ],
+        [
+          9.71875,
+          0.0
+        ],
+        [
+          9.859375,
+          0.0
+        ],
+        [
+          10.0,
+          0.0
+        ]
+      ]
+    }
   }
 }

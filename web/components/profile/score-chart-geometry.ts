@@ -16,8 +16,7 @@ export function densityPaths(curve: Density, score: number) {
   // Smooth the plotted samples; the underlying reference values and ECDF stay untouched.
   const smooth = (series: number[][]) => series.slice(1).reduce((path, end, i) => {
     const start = series[i], before = series[Math.max(0, i - 1)], after = series[Math.min(series.length - 1, i + 2)];
-    const dx = (end[0] - start[0]) / 6;
-    return `${path} C${start[0] + dx},${start[1] + (end[1] - before[1]) / 6} ${end[0] - dx},${end[1] - (after[1] - start[1]) / 6} ${end[0]},${end[1]}`;
+    return `${path} C${start[0] + (end[0] - before[0]) / 6},${start[1] + (end[1] - before[1]) / 6} ${end[0] - (after[0] - start[0]) / 6},${end[1] - (after[1] - start[1]) / 6} ${end[0]},${end[1]}`;
   }, `M${series[0][0]},${series[0][1]}`);
   const line = smooth(points);
   const tail = [[markerX, markerY], ...points.filter(p => p[0] > markerX)];

@@ -319,13 +319,14 @@ function Cover({ data, sample, demo, images, photoMode, now }: {
         <View style={{ width: "50%" }}>
           <T style={s.small}>{learnedCopy.title}</T>
           <T style={{ fontSize: 24 }}>{predicted.available ? `${predicted.score} /10` : learnedCopy.unavailable}</T>
+          <RadarChart p={p} compact />
         </View>
         <View style={{ width: "50%", borderLeftWidth: 0.5, borderLeftColor: C.rule, paddingLeft: 12 }}>
           <T style={s.small}>{learnedCopy.rank}</T>
           <T style={{ fontSize: 24 }}>{predicted.available && predicted.rank ? `前 ${predicted.rank.top}%` : learnedCopy.rankMissing}</T>
+          {predicted.available && predicted.rank?.distribution && <DensityChart curve={predicted.rank.distribution} score={predicted.score!} />}
         </View>
         </View>
-        {predicted.available && predicted.rank?.distribution && <DensityChart curve={predicted.rank.distribution} score={predicted.score!} />}
       </View>}
       {!predicted && score && score.score != null && (
         <View style={[s.box, s.row, { marginTop: 10, alignItems: "center" }]} wrap={false}>
@@ -511,34 +512,29 @@ const SEVERITY: Record<string, string> = { high: "影响较大", medium: "影响
 
 function DensityChart({ curve, score }: { curve: Density; score: number }) {
   const d = densityPaths(curve, score);
-  return <View style={{ alignItems: "center", marginTop: 8 }}>
-    <Svg width={300} height={130} viewBox="0 0 320 150">
+  return <View style={{ alignItems: "center", marginTop: 30 }}>
+    <Svg width={210} height={120} viewBox="0 0 320 150">
       <Path d={d.area} fill="#edf2f1" />
       <Path d={d.rightArea} fill="#c8d8d5" />
       <Path d={d.line} fill="none" stroke={C.primary} strokeWidth={1.8} />
       <Line x1={d.left} x2={d.right} y1={d.baseline} y2={d.baseline} stroke={C.rule} />
-      <Line x1={d.markerX} x2={d.markerX} y1={d.top} y2={d.baseline} stroke={C.primary} strokeWidth={1.5} />
-      <Circle cx={d.markerX} cy={d.markerY} r={3.5} fill="#ffffff" stroke={C.primary} />
-      <Line x1={d.meanX} x2={d.meanX} y1={d.baseline} y2={d.baseline + 5} stroke={C.muted} />
-      <Text x={d.left} y={138} style={{ fontSize: 10 }}>1</Text><Text x={d.right - 12} y={138} style={{ fontSize: 10 }}>10</Text>
-      <Text x={d.meanX} y={138} textAnchor="middle" style={{ fontFamily: FONT, fontSize: 10 }}>{`均值 ${curve.mean.toFixed(1)}`}</Text>
+      <Line x1={d.markerX} x2={d.markerX} y1={d.markerY} y2={d.baseline} stroke={C.primary} strokeWidth={1.1} strokeDasharray="3 3" />
     </Svg>
   </View>;
 }
 
-function RadarChart({ p }: { p: Passport }) {
+function RadarChart({ p, compact = false }: { p: Passport; compact?: boolean }) {
   const axes = harmonyRadar(p);
   if (!axes) return null;
   return <View style={{ alignItems: "center", marginBottom: 12 }} wrap={false}>
-    <T style={s.h4}>几何协调度 /100</T>
-    <Svg width={300} height={258} viewBox="0 0 360 310">
+    <T style={s.h4}>几何协调度</T>
+    <Svg width={compact ? 190 : 260} height={compact ? 164 : 224} viewBox="0 0 360 310">
       {[22, 44, 66, 88].map(r => <Polygon key={r} points={axes.map((_, i) => { const q = radarPoint(i, axes.length, r); return `${q.x},${q.y}`; }).join(" ")} fill="none" stroke={C.rule} strokeWidth={0.8} />)}
       {axes.map((a, i) => { const q = radarPoint(i, axes.length, 88); return <Line key={a.id} x1={180} y1={150} x2={q.x} y2={q.y} stroke={C.rule} strokeWidth={0.8} />; })}
       {axes.every(a => a.value !== null) && <Polygon points={radarPolygon(axes)} fill="#c8d8d5" stroke={C.primary} strokeWidth={1.6} />}
       {axes.map((a, i) => { const q = radarPoint(i, axes.length, 119), dot = radarPoint(i, axes.length, 88 * (a.value ?? 0) / 100); return <React.Fragment key={a.id}>
         {a.value !== null && <Circle cx={dot.x} cy={dot.y} r={2.5} fill={C.primary} />}
         <Text x={q.x} y={q.y - 3} textAnchor="middle" style={{ fontSize: 11, fontFamily: FONT }} fill={C.soft}>{a.label}</Text>
-        <Text x={q.x} y={q.y + 12} textAnchor="middle" style={{ fontSize: 12, fontFamily: FONT }} fill={C.ink}>{a.value ?? "—"}</Text>
       </React.Fragment>; })}
     </Svg>
   </View>;
@@ -548,7 +544,7 @@ function Interpretation({ p }: { p: Passport }) {
   const an = p.analysis;
   return (
     <Chapter k="interpretation">
-      <RadarChart p={p} />
+      {!learnedScore(p) && <RadarChart p={p} />}
       <View style={s.row}>
         <View style={[s.box, { flex: 1, marginRight: 6 }]}>
           <T style={s.h4}>{copy.works}</T>

@@ -23,7 +23,7 @@ export interface DemoProvenance {
     scoring: { scoring_version: string | null; status: string | null };
     analysis: { provider: string; model: string; prompt_version: string; retries: number };
     previews: { status: string; reason: string };
-    learned_attractiveness: { status: string; reason: string };
+    learned_attractiveness: { status: string; reason?: string; research_only?: boolean };
   };
 }
 

@@ -48,7 +48,7 @@ export function ReportOverview({ data, mv, sample, gone, geometry, exportAction 
     </div>
     {!predicted && harmony && <div className={s.harmonySummary}><HarmonyRadar axes={harmony} /></div>}
     <div className={s.glance} data-testid="report-glance">
-      <div><span>值得保留</span><h2>{highlight?.label_zh ?? "看见自己的特点"}</h2><p>{highlight?.seen_zh ?? p.analysis.profile_summary.one_liner}</p><a href="#findings">读懂面部特点 <ArrowUpRight size={14} /></a></div>
+      <div><span>面域解析</span><h2>{highlight?.label_zh ?? "看见自己的特点"}</h2><p>{highlight?.seen_zh ?? p.analysis.profile_summary.one_liner}</p><a href="#findings">读懂面部特点 <ArrowUpRight size={14} /></a></div>
       <div><span>风格方向</span><h2>{p.analysis.profile_summary.best_direction}</h2><a href="#options">探索发型与配色 <ArrowUpRight size={14} /></a></div>
       <div><span>从这里开始</span><h2>{first?.action ?? "找到喜欢的表达"}</h2><p>{first?.time}</p><a href={first ? `#rec-${first.id}` : "#plan"}>查看具体做法 <ArrowUpRight size={14} /></a></div>
     </div>

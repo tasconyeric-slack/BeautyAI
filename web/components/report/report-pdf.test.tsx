@@ -61,8 +61,8 @@ describe("PDF report export", () => {
     const cover = squash(r.pages[0]);
     expect(cover).toContain("颜值分5.5/10");
     expect(cover).toContain("参考排名前35%");
-    expect(cover).toContain("均值5.2");
-    expect(squash(r.all)).toContain("几何协调度/100");
+    expect(cover).not.toContain("均值");
+    expect(cover).toContain("几何协调度");
     expect(r.all).not.toContain("比例参考：");
     expect(cover).not.toMatch(/SCUT|原生|照片质量|研究预览|校准|评分与样本说明|test-model|AI面部美学参考分/);
   }, 60_000);
