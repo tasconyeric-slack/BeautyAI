@@ -3,7 +3,8 @@
 import * as React from "react";
 import Link from "next/link";
 import { ArrowDown, ArrowUpRight } from "lucide-react";
-import { aestheticScore, rankedRecs, referenceRank } from "@/lib/adapters";
+import { aestheticScore, learnedScore, rankedRecs, referenceRank } from "@/lib/adapters";
+import { PredictedScoreHero } from "@/components/profile/score-hero";
 import type { PassportResponse } from "@/lib/api";
 import type { FaceGeometry } from "@/lib/tint";
 import type { MeasureView } from "@/components/face/measure-model";
@@ -15,6 +16,7 @@ import s from "./full-report.module.css";
 export function ReportOverview({ data, mv, sample, gone, geometry, exportAction }: { data: PassportResponse; mv: MeasureView | null; sample: boolean; gone: boolean; geometry: FaceGeometry | null; exportAction?: React.ReactNode }) {
   const p = data.passport!;
   const score = aestheticScore(p), rank = referenceRank(p);
+  const predicted = learnedScore(p);
   const highlight = p.derived.measurement_insights?.items.find(i => i.highlight);
   const first = rankedRecs(p)[0];
   const [failed, setFailed] = React.useState<string | null>(null);
@@ -32,6 +34,7 @@ export function ReportOverview({ data, mv, sample, gone, geometry, exportAction 
         <p className={s.lead}>{p.analysis.profile_summary.one_liner}</p>
         <p className={s.bestDirection}>{p.analysis.profile_summary.best_direction}</p>
         <div className={s.coverActions}><a href="#improvements">找到适合的改变 <ArrowDown size={16} /></a>{sample ? <Link href="/start">建立我的护照 <ArrowUpRight size={16} /></Link> : <Link href={`/p/${data.id}/studio`}>在照片上试试 <ArrowUpRight size={16} /></Link>}</div>
+        {predicted && <PredictedScoreHero view={predicted} />}
         <div className={s.scoreSummary}>
           <div className={s.scoreHeadline}><span>{score?.name ?? "AI 面部美学参考分"}</span><strong data-testid={score?.state === "scored" && score.score !== null ? "score-value" : undefined}>{score?.state === "scored" && score.score !== null ? p.aesthetic_score!.overall_score : score?.state === "limited" ? "部分可用" : "暂不可用"}</strong>{score?.state === "scored" && <small>/ 100</small>}</div>
           <p data-testid="rank-state" className={s.rankLine}>{rank?.state === "ranked" ? <>{rank.label} <span>{rank.note}</span></> : score?.state === "scored" ? "参考人群位置校准中" : "当前照片暂无参考位置"}</p>

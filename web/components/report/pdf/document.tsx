@@ -15,7 +15,7 @@ import { adviceGroups } from "@/components/advice/advice-page";
 import { faceShape } from "@/components/face/face-model";
 import { CONFIDENCE_ZH, measureView, type Assessment, type MeasureView } from "@/components/face/measure-model";
 import {
-  aestheticScore, colorGroups, cover, hairOptions, rankedRecs, referenceRank, referenceRatios, stripRefs,
+  aestheticScore, colorGroups, cover, hairOptions, learnedScore, rankedRecs, referenceRank, referenceRatios, stripRefs,
   type HairOptionView, type ScoreView, type Tier,
 } from "@/lib/adapters";
 import type { Passport, PassportResponse } from "@/lib/api";
@@ -279,6 +279,7 @@ function Cover({ data, sample, demo, images, photoMode, now }: {
   const c = cover(p);
   const shape = faceShape(p);
   const score = aestheticScore(p);
+  const predicted = learnedScore(p);
   const rank = referenceRank(p);
   const created = new Date(data.created_at);
   const fmt = (d: Date) => (Number.isNaN(d.getTime()) ? "—" : d.toLocaleDateString("zh-CN"));
@@ -312,6 +313,13 @@ function Cover({ data, sample, demo, images, photoMode, now }: {
         )}
       </View>
 
+      {predicted && <View style={[s.box, { marginTop: 10 }]} wrap={false}>
+        <T style={s.small}>AI 颜值预测分{predicted.research ? " · 研究预览" : ""}</T>
+        <T style={{ fontSize: 22 }}>{predicted.available ? `${predicted.score} / 10` : "暂不可用"}</T>
+        {predicted.available && <T style={s.small}>SCUT 原生 {predicted.native} / 5；显示分为线性换算，未作 PSL 等级校准。</T>}
+        <T style={s.small}>{predicted.rank ? `在${predicted.rank.label}的 ${predicted.rank.n} ${predicted.rank.unit === "image" ? "张照片" : "名对象"}中约前 ${predicted.rank.top}%` : "暂无兼容且获授权的参考位置"}</T>
+        <T style={s.small}>预测指定评分者的平均评价，不是人口排名。模型：{predicted.model}</T>
+      </View>}
       {score && score.score != null && (
         <View style={[s.box, s.row, { marginTop: 10, alignItems: "center" }]} wrap={false}>
           <View style={{ width: 110, alignItems: "center" }}>

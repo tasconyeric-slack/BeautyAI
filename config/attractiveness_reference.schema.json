@@ -198,6 +198,9 @@
         },
         "adults_confirmed": {
           "type": "boolean"
+        },
+        "research_authorized": {
+          "type": "boolean"
         }
       }
     },
@@ -287,6 +290,12 @@
         },
         "qc": {
           "$ref": "#/$defs/qc"
+        },
+        "reference_unit": {
+          "enum": [
+            "image",
+            "subject"
+          ]
         }
       }
     },
@@ -353,7 +362,10 @@
           "$ref": "#/$defs/qc"
         },
         "n_unique_subjects": {
-          "type": "integer",
+          "type": [
+            "integer",
+            "null"
+          ],
           "minimum": 1
         },
         "distribution": {
@@ -394,6 +406,16 @@
               "minimum": 0
             }
           }
+        },
+        "reference_unit": {
+          "enum": [
+            "image",
+            "subject"
+          ]
+        },
+        "n_observations": {
+          "type": "integer",
+          "minimum": 1
         }
       }
     },

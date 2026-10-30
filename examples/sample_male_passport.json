@@ -1,5 +1,5 @@
 {
-  "schema_version": "0.7",
+  "schema_version": "0.8",
   "passport_id": "ap_sample_0002",
   "created_at": "2026-09-29T16:00:00+00:00",
   "locale": "zh-CN",
@@ -5529,6 +5529,8 @@
       "reference_doc": "docs/scoring/REFERENCE_DISTRIBUTIONS.md"
     }
   },
+  "learned_attractiveness": null,
+  "learned_reference_rank": null,
   "analysis": {
     "observations": [
       {

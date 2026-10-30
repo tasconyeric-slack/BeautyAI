@@ -4,6 +4,7 @@
 
 | 日期 | 改动 | 原因 | 前 → 后（指标） |
 |---|---|---|---|
+| 2026-10-30 | D42：Passport v0.8、analyzer-0.3.1；冻结 Ridge 主预测分及同模型研究 ECDF 接入现有报告 | 复用 #66 系数、#33 ECDF、#62 tiers；默认关闭、研究和生产授权独立 | 实测 2128 张参考照片；单次正脸检测；280.47 MiB 峰值；Ridge 0.094ms；缺失模型报告可用，无预测数字 |
 | 2026-09-29 | Schema v0.1、rules 0.1.0、analyzer-0.1、judge-0.1、preview-0.1 初版 | W1 核心产物 | — |
 | 2026-09-29 | `visual_edit_spec.target_description` 上限 240 → 360 字符 | 样例中一条可用的发型描述即超过 240，校验器拦截 | 样例通过校验 |
 | 2026-09-29 | 生产模型改为 DeepSeek `deepseek-flash`（JSON 模式）；analyzer-0.1 的 SYSTEM 末尾追加完整 Schema；新增输出契约检查并纳入重试 | D10、D12：JSON 模式不保证符合 Schema | — （尚无真实运行） |

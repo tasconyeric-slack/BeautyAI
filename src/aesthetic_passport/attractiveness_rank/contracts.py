@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
-from typing import Literal, TypedDict
+from typing import Literal, NotRequired, TypedDict
 
 
 class ModelIdentity(TypedDict):
@@ -33,6 +33,7 @@ class Provenance(TypedDict):
     aggregate_retention_authorized: bool
     model_production_authorized: bool
     adults_confirmed: bool
+    research_authorized: NotRequired[bool]
 
 
 class RankingQC(TypedDict):
@@ -51,6 +52,7 @@ class CohortManifest(TypedDict):
     native_score_bounds: list[float]
     provenance: Provenance
     qc: RankingQC
+    reference_unit: NotRequired[Literal["subject", "image"]]
 
 
 class ScoreCount(TypedDict):
@@ -64,7 +66,8 @@ class ImportSummary(TypedDict):
 
 
 class ReferenceCohort(CohortManifest):
-    n_unique_subjects: int
+    n_unique_subjects: int | None
+    n_observations: NotRequired[int]
     distribution: list[ScoreCount]
     import_summary: ImportSummary
 
@@ -97,3 +100,6 @@ class RankResult:
     unavailable_reason: str | None = None
     percentile_interval: tuple[float, float] | None = None
     display_step_percent: int | None = None
+    reference_unit: str = "subject"
+    n_reference: int | None = None
+    research_only: bool = False

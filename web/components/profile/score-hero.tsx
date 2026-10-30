@@ -1,6 +1,7 @@
 import { ArrowUpRight, Info } from "lucide-react";
 import Link from "next/link";
-import type { RankView, ScoreComponentView, ScoreView } from "@/lib/adapters";
+import type { LearnedScoreView, RankView, ScoreComponentView, ScoreView } from "@/lib/adapters";
+import { learnedAttractiveness as learnedCopy } from "@/lib/copy/zh";
 import { aestheticScore as copy, referenceRank as rankCopy } from "@/lib/copy/zh";
 
 /** AI 面部美学参考分 hero (Issue #31, D36): the number, its four parts, 2 strengths, 1 direction, and the way into the
@@ -140,7 +141,7 @@ function ComponentRow({ c }: { c: ScoreComponentView }) {
   );
 }
 
-function Gauge({ value }: { value: number }) {
+function Gauge({ value, maximum = 100 }: { value: number; maximum?: number }) {
   const r = 56;
   const len = 2 * Math.PI * r;
   return (
@@ -148,12 +149,37 @@ function Gauge({ value }: { value: number }) {
       <svg viewBox="0 0 132 132" className="size-full -rotate-90" aria-hidden>
         <circle cx="66" cy="66" r={r} fill="none" strokeWidth="10" className="stroke-rule" />
         <circle cx="66" cy="66" r={r} fill="none" strokeWidth="10" strokeLinecap="round" className="stroke-accent"
-          strokeDasharray={`${(len * value) / 100} ${len}`} />
+          strokeDasharray={`${(len * value) / maximum} ${len}`} />
       </svg>
       <div className="absolute inset-0 flex flex-col items-center justify-center">
         <span className="font-serif text-[44px] font-semibold leading-none tabular-nums" data-testid="score-value">{value}</span>
-        <span className="mt-1 text-[11px] text-muted">{copy.outOf}</span>
+        <span className="mt-1 text-[11px] text-muted">/ {maximum}</span>
       </div>
     </div>
   );
+}
+
+/** Existing score card styling, with the learned and geometric meanings kept explicit. */
+export function PredictedScoreHero({ view }: { view: LearnedScoreView }) {
+  return <section data-testid="learned-score" data-state={view.available ? "available" : "unavailable"}
+    aria-label={learnedCopy.title} className="rounded-[18px] border border-rule bg-paper-raised p-5 text-[13px] leading-6">
+    <h2 className="font-medium">{learnedCopy.title}</h2>
+    {view.research && <p className="text-amber">{learnedCopy.research}</p>}
+    {view.available ? <div className="flex flex-wrap items-center gap-5">
+      <Gauge value={view.score!} maximum={10} />
+      <div><p>{learnedCopy.native}：{view.native} / 5</p>
+        <p>{learnedCopy.qc}：{view.qc === "passed" ? "通过" : "受限"}</p>
+        {view.rank ? <div data-testid="learned-rank"><p>{learnedCopy.reference}：{view.rank.label}</p>
+          <p>在 {view.rank.n} {view.rank.unit === "image" ? "张参考照片" : "名参考对象"}中约前 {view.rank.top}%</p>
+          {view.rank.tier && <p>{view.rank.tier}</p>}
+          {view.rank.interval && <p className="text-muted">分位抽样区间约 {view.rank.interval[0]}–{view.rank.interval[1]}%（假设样本独立；不含选择偏差与模型误差）</p>}
+        </div> : <p data-testid="learned-rank-unavailable">{learnedCopy.rankMissing}</p>}
+      </div>
+    </div> : <p>{learnedCopy.reasons[view.reason ?? ""] ?? learnedCopy.unavailable}</p>}
+    <p className="mt-2 text-muted">{learnedCopy.method}</p>
+    <details className="mt-2 text-muted"><summary className="cursor-pointer">评分与样本说明</summary>
+      <p>{learnedCopy.transform}</p><p>{learnedCopy.caveat}</p>
+      <p>{learnedCopy.model}：{view.model}</p><p className="break-all">{view.checkpoint}</p>
+    </details>
+  </section>;
 }

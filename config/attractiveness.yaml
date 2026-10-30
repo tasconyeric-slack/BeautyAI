@@ -1,0 +1,16 @@
+version: ridge17-scut-1
+model_id: geometry-ridge17-scut-60-40-v1
+artifact_sha256: e74489df4953054838dee2d4e9468a6095f5e77e837ae62ff9cc94cea95a4d25
+artifact_path: models/aesthetics/geometry-ridge/scut-fbp5500-ridge-17.json
+preprocessing_version: d36-17-aes-geo-1.0-v1
+geometry_version: aes-geo-1.0
+crop_version: photo-check-working-rgb-v1
+native_scale_id: scut-human-panel-1-5
+native_bounds: [1.0, 5.0]
+display_bounds: [1.0, 10.0]
+display_version: scut-linear-1-10-v1
+reference_path: models/aesthetics/geometry-ridge/scut-heldout-reference-v1.json
+reference_id: scut-heldout-ridge17-research
+reference_version: scut-heldout-ridge17-ecdf-v1
+reference_sha256: 7eed142fa39242905ecb097c2abacddcf6ad1582998868b71e66c721aa501826
+research_permission: user-authorized-research-2026-10-30

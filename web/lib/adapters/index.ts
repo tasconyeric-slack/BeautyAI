@@ -364,6 +364,29 @@ export function aestheticScore(p: Passport): ScoreView | null {
   };
 }
 
+/** Learned prediction remains separate from D36. Old passports return null. */
+export function learnedScore(p: Passport) {
+  const s = p.learned_attractiveness;
+  if (!s) return null;
+  const available = (s.status === "ok" || s.status === "research_only") && s.qc_status === "passed"
+    && s.raw_score != null && s.display_score != null;
+  const rank = p.learned_reference_rank;
+  const ranked = available && rank?.status === "available" && rank.percentile != null && rank.top_percent != null;
+  return {
+    available, score: available ? s.display_score : null,
+    native: available ? s.raw_score!.toFixed(2) : null,
+    research: s.research_only, model: s.model_id, checkpoint: s.checkpoint_id,
+    qc: s.qc_status, reason: s.unavailable_reason,
+    rank: ranked ? {
+      label: rank.cohort_label, top: rank.top_percent, percentile: rank.percentile,
+      n: rank.n_reference, unit: rank.reference_unit, tier: rank.tier?.label_zh ?? null,
+      interval: rank.percentile_interval,
+    } : null,
+    rankReason: ranked ? null : rank?.unavailable_reason ?? "reference_missing",
+  };
+}
+export type LearnedScoreView = NonNullable<ReturnType<typeof learnedScore>>;
+
 // --- Reference-cohort position (Issue #41) -----------------------------------------------------------------------
 
 export interface CohortView { n: number; date: string; publisher: string; url: string }

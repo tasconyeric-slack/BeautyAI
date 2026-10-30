@@ -155,7 +155,7 @@ def test_pipeline_reports_every_stage_and_writes_passport(tmp_path, monkeypatch)
     assert stages == ["qc", "anchors", "color", "quick", "analysis", "rules", "assemble"]
     assert partials == ["anchors", "quick", "analysis"]                     # the reveal order (D21)
     assert passport["meta"]["analysis_model"] == "scripted-1" and passport["meta"]["retries"] == 0
-    assert passport["meta"]["quick"]["ok"] is True and passport["schema_version"] == "0.7"
+    assert passport["meta"]["quick"]["ok"] is True and passport["schema_version"] == "0.8"
     assert json.loads((tmp_path / "run" / "passport.json").read_text())["passport_id"] == "ap_0123456789ab"
     kinds = [json.loads(line)["kind"] for line in (tmp_path / "run" / "calls.jsonl").read_text().splitlines()]
     assert kinds == ["quick", "analysis"]
