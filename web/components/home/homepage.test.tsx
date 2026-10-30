@@ -17,5 +17,10 @@ describe("production homepage", () => {
     expect(screen.getByRole("link", { name: "用自己的照片试试" }).getAttribute("href")).toBe("/start");
     expect(screen.queryByRole("button", { name: "保存这个方向" })).toBeNull();
     expect(screen.getByText(/AI 模拟示例 · 上传自己的照片后/)).toBeTruthy();
+    const comparison = screen.getByRole("img", { name: "P001 原有发型" });
+    expect(comparison.getAttribute("src")).toBe("/demo/generated/p001/safe-before.jpg");
+    expect(screen.getByRole("img", { name: "P001 偏分内扣中长发 AI 造型模拟" }).getAttribute("src")).toBe("/demo/generated/p001/safe-after.jpg");
+    expect(screen.getByRole("link", { name: /阅读对应人物报告/ }).getAttribute("href")).toBe("/report/sample?v=p001");
+    expect(document.querySelector('img[src*="/design-motion/p001-b-"]')).toBeNull();
   });
 });

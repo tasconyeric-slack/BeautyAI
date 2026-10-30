@@ -1,0 +1,47 @@
+{
+  "authorization": "Owner-approved AI-synthesized fictional adult; approved 2026-10-29 for permanent public demonstration. No real user photos.",
+  "source": "02_生成结果/manifest.json, P001 safe/easy authorized exports",
+  "scope": "Generated hair examples only; report and geometry snapshots are unchanged. Easy ends slightly below the jaw target.",
+  "previews": [
+    {
+      "person": "P001",
+      "target": "safe",
+      "title": "偏分内扣中长发",
+      "passport_id": "ap_268c0a67a571",
+      "binding": "绑定旧公开报告",
+      "model": "qwen-image-3.0-pro",
+      "prompt_version": "preview-0.8",
+      "status": "succeeded",
+      "note": "发顶顺滑，内扣较克制；本轮自然度通过。",
+      "source_report": "person-001 / demo-2026.10-1 (old approved public report; not AD3611)",
+      "before": {
+        "url": "/demo/generated/p001/safe-before.jpg",
+        "sha256": "edf7f5c4572332f59a0a59dafb6394769fa6a67f072634ac1390ef3313e22c32"
+      },
+      "after": {
+        "url": "/demo/generated/p001/safe-after.jpg",
+        "sha256": "8c034f1f27ca4e985607575f04f7a126f89b8aa37f17876a6299d7dc8e25371b"
+      }
+    },
+    {
+      "person": "P001",
+      "target": "easy",
+      "title": "齐颌直发低维护",
+      "passport_id": "ap_883e1c6b9dbc",
+      "binding": "绑定旧公开报告",
+      "model": "qwen-image-3.0-pro",
+      "prompt_version": "preview-0.8",
+      "status": "succeeded",
+      "note": "直发短 bob 自然；长度略低于齐颌目标，仍可继续收短。",
+      "source_report": "person-001 / demo-2026.10-1 (old approved public report; not AD3611)",
+      "before": {
+        "url": "/demo/generated/p001/easy-before.jpg",
+        "sha256": "edf7f5c4572332f59a0a59dafb6394769fa6a67f072634ac1390ef3313e22c32"
+      },
+      "after": {
+        "url": "/demo/generated/p001/easy-after.jpg",
+        "sha256": "71e38a1167a7a0ee7f374c8788478a2e1295ee7f4cb98d590bed239ff24efe00"
+      }
+    }
+  ]
+}
