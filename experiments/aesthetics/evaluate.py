@@ -212,7 +212,7 @@ def evaluate(ds: EvalSet, *, methods: tuple[str, ...] = METHODS, weights: str | 
                 if ridge_artifact_out:
                     from .ridge_artifact import make_artifact, save_artifact
 
-                    artifact = make_artifact(fit, dataset=ds.name, label_name=ds.label,
+                    artifact = make_artifact(fit, dataset=ds.name, label_name=ds.label_name,
                                              label_range=ds.label_range)
                     save_artifact(ridge_artifact_out, artifact)
                     info["research_artifact_written"] = True
