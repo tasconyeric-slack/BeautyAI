@@ -1,47 +1,43 @@
-"""Research-bin estimated position for the existing geometric-harmony score.
+"""Transparent, non-calibrated human-like scale for the existing geometric score.
 
-2023 published SCUT-FBP5500 *human-rating* bin frequencies are real.
-The bridge between a 0-100 geometry index and those ratings is a declared
-BeautyAI product assumption, NOT a learned or empirically calibrated mapping.
-Do not route outputs through the #33 model-matched ECDF rank library.
+The geometry percentile is estimated from TFR's published 15,429-score summary,
+assuming aes-geo-1.0 is numerically comparable to TFR's distinct scoring engine.
+The 1-10 semantic score is the *same percentile* of a surrogate Normal distribution
+fitted by assumption to Hayden et al.'s 2007 group averages. Neither relation
+is validated against human labels for BeautyAI. Do not mistake it for a prediction.
 """
 from __future__ import annotations
 
 import math
 from functools import lru_cache
 from pathlib import Path
+from statistics import NormalDist
 from typing import Any
 
 import yaml
 
-from .reference import ROOT, ReferenceDataError
+from .reference import ROOT, ReferenceDataError, interp, load_reference, score_anchors
 
 CONFIG_PATH = ROOT / "config/academic_rank.yaml"
+METHOD = "tfr_harmony_quantile_to_hayden_semantic_normal_v1"
 
 
 @lru_cache(maxsize=2)
 def _config(path: str) -> dict[str, Any]:
     try:
-        data = yaml.safe_load(Path(path).read_text(encoding="utf-8"))
-        if not isinstance(data, dict) or data.get("version") != "academic-geometry-rank-v1":
+        cfg = yaml.safe_load(Path(path).read_text(encoding="utf-8"))
+        if not isinstance(cfg, dict) or cfg.get("version") != "academic-quantile-human-v1":
             raise ValueError
-        bins = data["native_rating_bins"]
-        if len(bins) != 4 or any(
-            len(row) != 3 or row[0] != i + 1 or row[1] != i + 2
-            or type(row[2]) is not int or row[2] <= 0
-            for i, row in enumerate(bins)
-        ):
-            raise ValueError
-        if sum(row[2] for row in bins) != data["reference_n"] or data["reference_n"] != 5500:
-            raise ValueError
-        for field in ("geometry_score_center", "academic_rating_center", "rating_per_geometry_point"):
-            if not isinstance(data[field], (float, int)) or not math.isfinite(data[field]):
+        for key in ("human_rating_mu", "human_rating_sigma"):
+            if not isinstance(cfg[key], (int, float)) or not math.isfinite(cfg[key]):
                 raise ValueError
-        if data["rating_per_geometry_point"] <= 0 or not 1 <= data["academic_rating_center"] <= 5:
+        if cfg["human_rating_sigma"] <= 0 or not 1 <= cfg["human_rating_mu"] <= 10:
             raise ValueError
-        if data["display_step_percent"] not in (1, 5, 10):
+        if cfg["display_step_percent"] not in (1, 5, 10):
             raise ValueError
-        return data
+        if not cfg["human_reference_url"] or not cfg["normality_context_url"]:
+            raise ValueError
+        return cfg
     except (OSError, KeyError, TypeError, ValueError, yaml.YAMLError):
         raise ReferenceDataError("invalid_academic_rank_policy") from None
 
@@ -52,11 +48,12 @@ def academic_rank_estimate(
     *,
     complete: bool = True,
     config_path: str | Path = CONFIG_PATH,
+    data: dict[str, Any] | None = None,
 ) -> dict[str, Any] | None:
-    """Return a score_percentile-compatible result, or None if not applicable.
+    """Return a Passport rank, or None for missing/limited/unknown score.
 
-    Never override missing/limited scores or unknown scoring versions. No photos,
-    model checkpoints, user records or dataset images are accessed.
+    For tails without published quantiles, return one-sided bounds. A lack of
+    source-matched data is a declared approximation rather than hidden calibration.
     """
     cfg = _config(str(config_path))
     if not cfg["enabled"] or not complete or scoring_version != cfg["source_scoring_version"]:
@@ -70,54 +67,59 @@ def academic_rank_estimate(
     if not math.isfinite(score) or not 0 <= score <= 100:
         return None
 
-    # The cross-scale bridge is an explicit *product convention*, not an academic estimate of model fidelity.
-    converted = max(1.0, min(5.0, cfg["academic_rating_center"] +
-                                cfg["rating_per_geometry_point"] * (score - cfg["geometry_score_center"])))
-    below_count = 0.0
-    for lo, hi, count in cfg["native_rating_bins"]:
-        if converted >= hi:
-            below_count += count
-        elif converted > lo:
-            below_count += count * (converted - lo) / (hi - lo)
-            break
-        else:
-            break
-    raw_top = 100.0 * (1.0 - below_count / cfg["reference_n"])
+    ref = (data or load_reference())["overall_score"]
+    if ref["id"] != cfg["geometry_distribution_id"]:
+        raise ReferenceDataError("geometry_distribution_id_mismatch")
+    anchors = score_anchors(ref)
+    p = interp(score, anchors)
+    semantic = max(1.0, min(10.0, cfg["human_rating_mu"] +
+                            cfg["human_rating_sigma"] * NormalDist().inv_cdf(p)))
+    human = round(semantic, 1)
     step = cfg["display_step_percent"]
-    if raw_top < step or raw_top > 100 - step:
-        top = max(1, min(99, round(raw_top)))
+    raw_top = 100.0 * (1.0 - p)
+    top = max(0.1, min(99.9, round(raw_top))) if raw_top < step or raw_top > 100 - step else round(raw_top / step) * step
+    top = int(top) if top == int(top) else top
+    pct = round(100 - top, 1) if top != int(top) else 100 - top
+
+    if score < anchors[0][0]:
+        precision = "lower_tail_bound"
+        label = f"颜值参考分不高于 {human}/10 · 参考样本约后 {pct}%"
+    elif score >= anchors[-1][0]:
+        precision = "upper_tail_bound"
+        label = f"颜值参考分不低于 {human}/10 · 参考样本约前 {top}% 以内"
     else:
-        top = round(raw_top / step) * step
-    percentile = 100 - top
-    source = cfg["source_title"]
+        precision = "interpolated"
+        label = f"颜值参考分约 {human}/10 · 参考样本前 {top}%"
+
     return {
         "status": "ok",
         "scoring_version": scoring_version,
         "mapping_mode": "crosswalk",
         "reference_distribution_version": cfg["version"],
-        "reference_id": "scut-fbp5500-2023-published-bins",
+        "reference_id": ref["id"],
         "score": score,
-        "reference_score": round(converted, 3),
-        "percentile_estimate": percentile,
+        "reference_score": human,
+        "percentile_estimate": pct,
         "top_percent_estimate": top,
-        "precision": "interpolated",
+        "precision": precision,
         "approximate": True,
-        "label_zh": f"按学术分布模型估计约前 {top}%",
-        "higher_than_zh": f"模型估计高于约 {percentile}% 的参考图片",
+        "label_zh": label,
+        "higher_than_zh": f"几何评分模型估计高于约 {pct}% 的对照扫描" if precision == "interpolated" else None,
         "note_zh": (
-            f"学术参考：{source}公布的 {cfg['reference_n']:,} 张照片人工平均评分区间频数。"
-            "本版本用固定产品假设将 BeautyAI 面部几何分映射到论文 1–5 分尺度，"
-            "并假设每个评分区间内部均匀分布；没有用新样本拟合。"
-            "这只是参考模型的估计位置，不是用户在人口中的真实排名，"
-            "也不是人工颜值评价模型的直接预测。"
+            f"几何分位置来自 The Face Report 公布的 {ref['n_scored']:,} 份自愿扫描。"
+            "假定 BeautyAI 几何分与其分数尺度接近，且保持与真人评价相同的排序；"
+            f"1–10 分的参考刻度基于 Hayden et al. (2007) 对 {cfg['human_reference_n']:,} 张照片的"
+            "人工评分高/中分组均值推算，并借用正态分布建模假设。"
+            "这两项对应关系未经 BeautyAI 真人数据验证，不是人工实际给出的分数，"
+            "也不是用户在一般人口中的真实百分位。"
         ),
         "cohort": {
-            "kind": "academic_published_images",
-            "n": cfg["reference_n"],
-            "source_date": cfg["source_date"],
-            "source_url": cfg["source_url"],
-            "publisher": source,
+            "kind": ref["cohort"]["kind"],
+            "n": ref["n_scored"],
+            "source_date": ref["source_date"],
+            "source_url": ref["source_url"],
+            "publisher": ref["publisher"],
             "population_representative": False,
         },
-        "method": "published_score_bins_uniform_with_fixed_geometry_bridge_v1",
+        "method": METHOD,
     }
