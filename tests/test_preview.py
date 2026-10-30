@@ -63,6 +63,14 @@ def test_prompt_content():
     assert "\n" not in p and "  " not in p
 
 
+def test_everyday_straight_cut_does_not_request_roller_styling():
+    prompt = build_prompt(dict(SPEC, target_description="Black straight hair with moderate root lift and ends softly curled inward."))
+    assert "smooth rounded crown following the original head silhouette" in prompt
+    assert "one shallow C bend" in prompt
+    curly = build_prompt(dict(SPEC, target_description="Short curly hair with tight ringlets."))
+    assert "one shallow C bend" not in curly and "smooth rounded crown" not in curly
+
+
 @pytest.mark.parametrize("region,phrase", [("brows", "eyebrows"), ("glasses", "eyeglasses"),
                                            ("facial_hair", "facial hair"), ("clothing_top", "top (shirt")])
 def test_prompt_names_each_region(region, phrase):
@@ -673,7 +681,9 @@ def test_preview_trace_reaches_served_image_without_photo_data(api, synthetic, m
     edit = next(c for c in calls if c["kind"] == "image_edit")
     trace = edit["trace"]
     assert [s["stage"] for s in trace] == ["input_ready", "provider_request", "provider_completed",
-                                         "registration_completed", "composite_completed", "quality_passed", "preview_saved"]
+                                         "crop_restore_started", "registration_started", "registration_completed",
+                                         "composite_completed", "composite_verification_started", "quality_passed",
+                                         "preview_saved"]
     times = [s["elapsed_ms"] for s in trace]
     assert times == sorted(times) and edit["latency_ms"] >= times[-1]
     assert edit["provider_latency_ms"] >= 0 and edit["cost_usd_est"] == 0.03
@@ -721,7 +731,7 @@ def test_reframed_qwen_output_gets_one_quality_retry(api, synthetic, monkeypatch
     edits = [c for c in calls if c["kind"] == "image_edit"]
     assert len(edits) == 2 and all(c["cost_usd_est"] == 0.03 for c in edits)
     assert edits[0]["error"] == "MisalignedEdit" and edits[0]["ok"] is False
-    assert edits[0]["trace"][-1]["stage"] == "provider_completed"
+    assert edits[0]["trace"][-1]["stage"] == "crop_restore_started"
     assert "Signature" not in json.dumps(edits)
     if recover:
         assert edits[1]["ok"] is True

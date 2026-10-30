@@ -1,6 +1,6 @@
-# Image Edit Prompt Builder — v0.7
+# Image Edit Prompt Builder — v0.8
 
-`prompt_version: preview-0.7`
+`prompt_version: preview-0.8`
 
 The preview never lets a model free-write the edit. It is built deterministically from the
 top-ranked recommendation that has a non-null `visual_edit_spec`, or the one the user picked
@@ -166,8 +166,23 @@ Keep the forehead exposed: no bangs, no strands draped over the eyebrows or eyes
 lie beside the face, not across the forehead.
 ```
 
-v0.7 appends these blocks only when their heading phrase occurs in the selected hair target (case-insensitive).
+These blocks apply only when their heading phrase occurs in the selected hair target (case-insensitive).
 Unrelated length/part examples never enter the request. Non-hair and `current_hc<i>` targets receive none of them.
+
+### Hair target: root lift
+
+```
+Use a smooth rounded crown following the original head silhouette, with just a little air at the roots.
+The straight strands flow continuously down from a single narrow side part. Maintain even hair density across
+the temples. 日常自然披发，头顶是顺滑连续的发丝，只在发根微微撑起，头皮只在一条细分缝中可见。
+```
+
+### Hair target: inward
+
+```
+The ends make one shallow C bend, a subtle inward turn only at the very tips, resting close to the neck.
+Keep the requested texture above the ends. 发尾只有最后一小段轻轻向内弯，线条舒展，贴近颈部，自然日常吹整质感。
+```
 
 ## Negative prompt
 

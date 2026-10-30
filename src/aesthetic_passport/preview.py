@@ -677,11 +677,14 @@ def generate_registered(rgb: np.ndarray, face: Any, seg: np.ndarray, spec: dict[
     if trace is not None:
         trace.model, trace.provider_latency_ms, trace.cost_usd_est = res.model, res.latency_ms, res.cost_usd_est
         trace.mark("provider_completed")
+        trace.mark("crop_restore_started")
     out_pad = _restore_crop(res.image, padded)
     edited = rgb.copy()
     edited[y0:y1, x0:x1] = out_pad[:ch, :cw]
     window = np.zeros(shape, bool)
     window[y0:y1, x0:x1] = True
+    if trace is not None:
+        trace.mark("registration_started")
     edited, window, result_face = register_edit(rgb, edited, face, window, cfg)
     if trace is not None:
         trace.mark("registration_completed")
@@ -808,6 +811,8 @@ def render_target(
     change = float(np.abs(composite.astype(np.int16) - rgb.astype(np.int16))[mask].mean()) if mask.any() else 0.0
     if change < cfg["preview_masks"]["min_hair_change"]:
         raise LowChange(f"change {change:.1f} below gate")
+    if trace is not None:
+        trace.mark("composite_verification_started")
     verify_composite(composite, face, window, cfg)    # a change score is not a success: check the face, too
     if trace is not None:
         trace.mark("quality_passed")

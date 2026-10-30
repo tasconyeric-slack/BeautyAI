@@ -1,4 +1,4 @@
-"""AI preview jobs (B1): many targets per passport, run 3 at a time, each retried once, then `fallback`.
+"""AI preview jobs (B1): targets share a process-wide budget, each retried once, then `fallback`.
 
 - The free preview (the "safe" hair direction, config/pricing.yaml free_previews) starts automatically after the
   passport job. More targets: POST /api/passport/{id}/previews {kind, target_ids} — free quota first, then the paid
@@ -12,6 +12,7 @@ from __future__ import annotations
 import json
 import logging
 import sys
+import threading
 from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
 from typing import Any
@@ -77,6 +78,9 @@ def _log_edit_failure(pid: str, kind: str, target: str, attempt: int, exc: BaseE
 ACTIVE = ("pending", "succeeded")
 AI_LABEL = "AI 试看"
 FREE_TARGETS = {("hair", "safe")}
+# Configuration is read once per process, just like the CV model instances. A per-batch executor alone does not
+# limit separate HTTP requests (or separate passports), which can otherwise multiply peak memory usage.
+_PREVIEW_SLOTS = threading.BoundedSemaphore(load_qc_config()["preview_masks"]["concurrency"])
 
 
 def image_provider_name() -> str:
@@ -196,6 +200,12 @@ def _log_call(settings: Settings, pid: str, kind: str, target: str, attempt: int
 
 
 def run_preview_job(settings: Settings, store: Store, pid: str, kind: str, target: str) -> str:
+    """Wait for the shared memory budget before reading the job, photo or expiry."""
+    with _PREVIEW_SLOTS:
+        return _run_preview_job(settings, store, pid, kind, target)
+
+
+def _run_preview_job(settings: Settings, store: Store, pid: str, kind: str, target: str) -> str:
     """One target with the quality gate: up to max_attempts tries, then `fallback`. Returns the final status."""
     job = store.get(pid)
     if not job or not job["passport"] or job["status"] == "deleted":

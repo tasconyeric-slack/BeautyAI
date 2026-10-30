@@ -98,7 +98,9 @@ def iso(dt: datetime) -> str:
 class Store:
     def __init__(self, db_path: Path):
         db_path.parent.mkdir(parents=True, exist_ok=True)
-        self._db = sqlite3.connect(db_path, check_same_thread=False, isolation_level=None)
+        # execute() is locked, but cursors are fetched outside that lock. CPython's shared statement cache can
+        # return empty/wrong rows across threads (python/cpython#118172); disable reuse on this shared connection.
+        self._db = sqlite3.connect(db_path, check_same_thread=False, isolation_level=None, cached_statements=0)
         self._db.row_factory = sqlite3.Row
         self._lock = threading.Lock()
         with self._lock:
@@ -216,6 +218,23 @@ class Store:
             (pid, kind, target_id, status, int(bool(paid)), image_model, prompt_used, after_name, error, attempts or 0, t, t,
              None if paid is None else int(paid), attempts),
         )
+
+    def recover_pending_previews(self) -> list[str]:
+        """Mark interrupted jobs retryable after an API restart.
+
+        BackgroundTasks are process-local: a terminated worker cannot complete its
+        pending rows. Keep paid entitlement and generated passports unchanged.
+        """
+        with self._lock:
+            rows = self._db.execute(
+                "SELECT DISTINCT passport_id FROM preview_jobs WHERE status='pending'"
+            ).fetchall()
+            if rows:
+                self._db.execute(
+                    "UPDATE preview_jobs SET status='fallback', error=?, updated_at=? WHERE status='pending'",
+                    ("本次试看因服务重启中断，请重试生成", iso(now())),
+                )
+        return [r[0] for r in rows]
 
     def previews(self, pid: str) -> list[dict[str, Any]]:
         rows = self._exec("SELECT * FROM preview_jobs WHERE passport_id=? ORDER BY created_at, kind, target_id",
