@@ -56,10 +56,24 @@ durable disk, if available: $0 incremental compute. Such a host is not currently
 confirmed. A developer laptop/tunnel is not an unattended production substitute.
 User confirmed existing Alibaba/Tencent accounts, no previous VM trial, an available
 domain and no mainland filing yet. Other major-cloud accounts can be created by
-the user if needed. This supports testing domestic-cloud eligibility first; it does
+the user if needed. The user subsequently chose **verify Alibaba's free trial first**;
+Tencent trial creation was not approved. This supports domestic-cloud verification; it does
 not prove a trial can be claimed or authorize claiming it. No free host has yet
-been verified inside those accounts. Recommend Tencent 4 GB trial first, then Alibaba
-99/year as the sustained paid fallback; do not consume both trials automatically.
+been verified inside those accounts. Verify an Alibaba x86 >=4 GB trial quote first,
+then Alibaba 99/year as the sustained paid fallback (2 GB needs measured headroom).
+Tencent remains an alternative; do not consume either trial automatically.
+
+Alibaba's detailed FAQ explicitly says trial expiry does **not** release instances;
+they continue billing on demand. Extra data disks, switching to fixed bandwidth and
+changing instance type are outside trial coverage. Stopping compute alone can leave
+storage charges. Do not create a trial without a bounded-use and expiry plan approved
+by the owner. A budget alert is not a hard spending cap. Confirm the total hourly
+instance+system-disk quote, regional traffic allowance and remaining credit in the
+account's trial-progress page. At hourly price `p`, personal credit lasts at most
+`300 / p / 24` days (and no later than trial expiry); a full 90 days requires
+`p <= 0.1389 RMB/hour`, plus staying within traffic and all other quotas. Use only
+synthetic data in the trial until the migration gate, and never assume trial eligibility
+solely because no previous trial was claimed: previous ECS purchases can also exclude it.
 Keep Vercel's existing tier; confirm its commercial-use eligibility and current bill
 before assuming $0. Real DeepSeek/Qwen usage remains separately metered: $10 is
 not a guarantee of the total bill at arbitrary traffic.
