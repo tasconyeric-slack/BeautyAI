@@ -1,37 +1,38 @@
 import type { HarmonyAxis } from "@/lib/adapters";
-import { densityPaths, radarPoint, radarPolygon, type Density } from "./score-chart-geometry";
+import { densityPaths, type Density } from "./score-chart-geometry";
 
 export function ReferenceDensity({ curve, score }: { curve: Density; score: number }) {
   const p = densityPaths(curve, score);
-  return <svg viewBox="0 0 320 150" role="img" aria-label={`颜值分分布，均值 ${curve.mean.toFixed(1)}，你的分数 ${score}`}
-    data-testid="reference-density" className="block w-full">
-    <path d={p.area} className="fill-accent/5" />
-    <path d={p.rightArea} data-testid="reference-density-tail" className="fill-accent/20" />
-    <path d={p.line} fill="none" strokeWidth="1.8" className="stroke-accent" />
-    <line x1={p.left} x2={p.right} y1={p.baseline} y2={p.baseline} className="stroke-rule" />
+  return <svg viewBox="0 0 320 150" role="img" aria-label={`参考分布；当前颜值分 ${score}`}
+    data-testid="reference-density" className="block w-full overflow-visible">
+    <path d={p.rightArea} data-testid="reference-density-tail" className="fill-accent/10" />
+    <path d={p.line} fill="none" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" className="stroke-accent" />
+    <line x1={p.left} x2={p.right} y1={p.baseline} y2={p.baseline} strokeWidth="0.8" className="stroke-rule" />
     <line x1={p.markerX} x2={p.markerX} y1={p.top} y2={p.baseline} data-testid="reference-score-marker"
-      data-score={score} strokeWidth="1.5" className="stroke-accent" />
-    <circle cx={p.markerX} cy={p.markerY} r="3.5" strokeWidth="1.5" className="fill-paper-raised stroke-accent" />
-    <line x1={p.meanX} x2={p.meanX} y1={p.baseline} y2={p.baseline + 5} className="stroke-ink-soft" />
-    <g className="fill-muted" fontSize="10"><text x={p.left} y="138">1</text><text x={p.right} y="138" textAnchor="end">10</text>
-      <text x={p.meanX} y="138" textAnchor="middle">均值 {curve.mean.toFixed(1)}</text></g>
+      data-score={score} strokeWidth="1.2" strokeDasharray="3 4" className="stroke-accent/70" />
   </svg>;
 }
 
 export function HarmonyRadar({ axes }: { axes: HarmonyAxis[] }) {
   const complete = axes.every(a => a.value !== null);
-  return <section data-testid="harmony-radar" aria-label="几何协调度" className="mx-auto w-full max-w-[420px]">
-    <h3 className="text-[14px] font-medium">几何协调度 <span className="ml-1 text-[11px] font-normal text-muted">/100</span></h3>
-    <svg viewBox="0 0 360 310" role="img" aria-label={axes.map(a => `${a.label} ${a.value ?? "未测得"}`).join("，")} className="block w-full">
-      {[22, 44, 66, 88].map(r => <polygon key={r} points={axes.map((_, i) => { const p = radarPoint(i, axes.length, r); return `${p.x},${p.y}`; }).join(" ")}
-        fill="none" className="stroke-rule" strokeWidth="0.8" />)}
-      {axes.map((a, i) => { const p = radarPoint(i, axes.length, 88); return <line key={a.id} x1="180" y1="150" x2={p.x} y2={p.y} className="stroke-rule" strokeWidth="0.8" />; })}
-      {complete && <polygon data-testid="harmony-polygon" points={radarPolygon(axes)} strokeWidth="1.6" className="fill-accent/20 stroke-accent" />}
-      {axes.map((a, i) => { const p = radarPoint(i, axes.length, 119), dot = radarPoint(i, axes.length, 88 * (a.value ?? 0) / 100);
+  const point = (i: number, radius: number) => {
+    const angle = -Math.PI / 2 + i * 2 * Math.PI / axes.length;
+    return { x: 120 + radius * Math.cos(angle), y: 112 + radius * Math.sin(angle) };
+  };
+  const ring = (r: number) => axes.map((_, i) => { const p = point(i, r); return `${p.x},${p.y}`; }).join(" ");
+  const names: Record<string, string> = { eyes: "眼部", brows: "眉部", nose: "鼻部", mouth: "口部", jaw: "轮廓", thirds: "三庭", fifths: "五眼", golden_ratio: "长宽" };
+  return <section data-testid="harmony-radar" aria-label="几何协调度" className="mx-auto w-full max-w-[260px]">
+    <h3 className="text-center text-[12px] font-medium tracking-wide text-ink-soft">几何协调度</h3>
+    <svg viewBox="0 0 240 224" role="img" aria-label={axes.map(a => `${a.label} ${a.value ?? "未测得"}`).join("，")} className="mt-2 block w-full">
+      {[18, 36, 54, 72].map(r => <polygon key={r} points={ring(r)} fill={r === 72 ? "var(--accent-soft)" : "none"}
+        className={r === 72 ? "stroke-accent/40" : "stroke-rule"} strokeWidth={r === 72 ? 1.2 : 0.7} />)}
+      {axes.map((a, i) => { const p = point(i, 72); return <line key={a.id} x1="120" y1="112" x2={p.x} y2={p.y} className="stroke-rule" strokeWidth="0.7" />; })}
+      {complete && <polygon data-testid="harmony-polygon" points={axes.map((a, i) => { const p = point(i, 72 * a.value! / 100); return `${p.x},${p.y}`; }).join(" ")}
+        strokeWidth="1.8" strokeLinejoin="round" className="fill-accent/20 stroke-accent" />}
+      {axes.map((a, i) => { const p = point(i, 94), dot = point(i, 72 * (a.value ?? 0) / 100);
         return <g key={a.id} data-axis={a.id} data-value={a.value ?? "missing"}>
-          {a.value !== null && <circle cx={dot.x} cy={dot.y} r="2.5" className="fill-accent" />}
-          <text x={p.x} y={p.y - 3} textAnchor="middle" fontSize="11" className="fill-ink-soft">{a.label}</text>
-          <text x={p.x} y={p.y + 12} textAnchor="middle" fontSize="12" className="fill-ink">{a.value ?? "—"}</text>
+          {a.value !== null && <circle cx={dot.x} cy={dot.y} r="2.5" className="fill-paper-raised stroke-accent" strokeWidth="1.2" />}
+          <text x={p.x} y={p.y + 4} textAnchor="middle" fontSize="11" className="fill-ink-soft">{names[a.id] ?? a.label}</text>
         </g>;
       })}
     </svg>

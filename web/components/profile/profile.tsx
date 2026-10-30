@@ -68,7 +68,7 @@ export function Profile() {
           <p className="text-[11px] tracking-[0.18em] text-muted">你的形象档案</p>
           <h1 className="mt-1 font-serif text-[24px] font-semibold leading-snug sm:text-[28px]">{c.oneLiner}</h1>
 
-          {predicted ? <div className="mt-4"><PredictedScoreHero view={predicted} /></div>
+          {predicted ? <div className="mt-4"><PredictedScoreHero view={predicted} harmony={harmony} /></div>
             : score && <div className="mt-4"><ScoreGlance view={score} retakeHref="/start" synthetic={synthetic} /></div>}
 
           <h2 className="mt-5 text-[13px] font-medium text-ink-soft">相对突出的特点 · 对造型的意义</h2>
@@ -105,7 +105,6 @@ export function Profile() {
       </section>
 
       {/* 2 · the score's parts and method, the archive cards, what the evidence covers */}
-      {predicted && harmony && <div className="mt-8"><HarmonyRadar axes={harmony} /></div>}
       {!predicted && score && (
         <section id="score" className="mt-10 scroll-mt-28">
           <ScoreHero view={score} rank={referenceRank(passport)} workbenchHref={`${base}/face`} retakeHref="/start" sample={synthetic} />

@@ -1,9 +1,9 @@
 import { ArrowUpRight, Info } from "lucide-react";
 import Link from "next/link";
-import type { LearnedScoreView, RankView, ScoreComponentView, ScoreView } from "@/lib/adapters";
+import type { HarmonyAxis, LearnedScoreView, RankView, ScoreComponentView, ScoreView } from "@/lib/adapters";
 import { learnedAttractiveness as learnedCopy } from "@/lib/copy/zh";
 import { aestheticScore as copy, referenceRank as rankCopy } from "@/lib/copy/zh";
-import { ReferenceDensity } from "./score-charts";
+import { HarmonyRadar, ReferenceDensity } from "./score-charts";
 
 /** AI 面部美学参考分 hero (Issue #31, D36): the number, its four parts, 2 strengths, 1 direction, and the way into the
  * measurement workbench. Renders only what the passport's scoring layer computed — never a placeholder number. */
@@ -161,16 +161,17 @@ function Gauge({ value, maximum = 100 }: { value: number; maximum?: number }) {
 }
 
 /** Two user-facing results; calculation provenance stays in the Passport data. */
-export function PredictedScoreHero({ view }: { view: LearnedScoreView }) {
+export function PredictedScoreHero({ view, harmony }: { view: LearnedScoreView; harmony?: HarmonyAxis[] | null }) {
   return <section data-testid="learned-score" data-state={view.available ? "available" : "unavailable"}
-    aria-label={learnedCopy.title} className="grid grid-cols-2 rounded-[18px] border border-rule bg-paper-raised py-6">
+    aria-label={learnedCopy.title} className="grid grid-cols-1 rounded-[18px] border border-rule bg-paper-raised py-6 sm:grid-cols-2">
     <div className="min-w-0 px-4 sm:px-6">
       <h2 className="text-[13px] font-medium text-ink-soft">{learnedCopy.title}</h2>
       {view.available ? <p data-testid="score-value" className="mt-3 whitespace-nowrap font-serif text-[40px] font-semibold leading-none tabular-nums sm:text-[48px]">
         {view.score}<span className="ml-1 font-sans text-[16px] font-normal text-muted">/10</span>
       </p> : <p className="mt-3 text-[20px] text-muted">{learnedCopy.unavailable}</p>}
+      {harmony && <div className="mt-7"><HarmonyRadar axes={harmony} /></div>}
     </div>
-    <div className="min-w-0 border-l border-rule px-4 sm:px-6" aria-label={learnedCopy.rankAccessible}>
+    <div className="mt-6 min-w-0 border-t border-rule px-4 pt-6 sm:mt-0 sm:border-t-0 sm:border-l sm:pt-0 sm:px-6" aria-label={learnedCopy.rankAccessible}>
       <h2 className="text-[13px] font-medium text-ink-soft">{learnedCopy.rank}</h2>
       {view.available && view.rank ? <>
         <p data-testid="learned-rank" className="mt-3 whitespace-nowrap font-serif text-[36px] font-semibold leading-none tabular-nums sm:text-[44px]">
@@ -183,9 +184,9 @@ export function PredictedScoreHero({ view }: { view: LearnedScoreView }) {
           <circle cx={8 + 1.44 * view.rank.percentile!} cy="10" r="5" strokeWidth="2" className="fill-paper-raised stroke-accent" />
         </svg>}
       </> : <p data-testid="learned-rank-unavailable" className="mt-3 text-[20px] text-muted">{learnedCopy.rankMissing}</p>}
+      {view.available && view.rank?.distribution && <div className="mt-8 flex min-h-[180px] items-center">
+        <ReferenceDensity curve={view.rank.distribution} score={view.score!} />
+      </div>}
     </div>
-    {view.available && view.rank?.distribution && <div className="col-span-2 mt-4 px-4 sm:px-6">
-      <ReferenceDensity curve={view.rank.distribution} score={view.score!} />
-    </div>}
   </section>;
 }

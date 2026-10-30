@@ -19,7 +19,8 @@ it("positions the vertical line on the score scale and shades the measured curve
   expect(line.getAttribute("x1")).toBe(line.getAttribute("x2"));
   expect(Number(line.getAttribute("y2"))).toBeGreaterThan(Number(line.getAttribute("y1")));
   expect(screen.getByTestId("reference-density-tail").getAttribute("d")).toBe(d.rightArea);
-  expect(screen.getByText("均值 5.2")).toBeTruthy();
+  expect(d.line).toContain(" C");
+  expect(screen.queryByText(/均值|\/100/)).toBeNull();
 });
 
 it("expands existing D36 values to eight axes and does not turn missing measurements into zeros", () => {
@@ -35,5 +36,6 @@ it("expands existing D36 values to eight axes and does not turn missing measurem
   rerender(<HarmonyRadar axes={axes.map(a => a.id === "eyes" ? { ...a, value: null } : a)} />);
   expect(screen.queryByTestId("harmony-polygon")).toBeNull();
   expect(container.querySelector('[data-axis="eyes"] circle')).toBeNull();
-  expect(screen.getByText("—")).toBeTruthy();
+  expect(container.querySelector('[data-axis="eyes"] text')?.textContent).toBe("眼部");
+  expect(container.textContent).not.toMatch(/\d/);
 });

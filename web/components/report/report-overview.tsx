@@ -36,7 +36,7 @@ export function ReportOverview({ data, mv, sample, gone, geometry, exportAction 
         <p className={s.lead}>{p.analysis.profile_summary.one_liner}</p>
         <p className={s.bestDirection}>{p.analysis.profile_summary.best_direction}</p>
         <div className={s.coverActions}><a href="#improvements">找到适合的改变 <ArrowDown size={16} /></a>{sample ? <Link href="/start">建立我的护照 <ArrowUpRight size={16} /></Link> : <Link href={`/p/${data.id}/studio`}>在照片上试试 <ArrowUpRight size={16} /></Link>}</div>
-        {predicted && <PredictedScoreHero view={predicted} />}
+        {predicted && <PredictedScoreHero view={predicted} harmony={harmony} />}
         {!predicted && <div className={s.scoreSummary}>
           <div className={s.scoreHeadline}><span>{score?.name ?? "AI 面部美学参考分"}</span><strong data-testid={score?.state === "scored" && score.score !== null ? "score-value" : undefined}>{score?.state === "scored" && score.score !== null ? p.aesthetic_score!.overall_score : score?.state === "limited" ? "部分可用" : "暂不可用"}</strong>{score?.state === "scored" && <small>/ 100</small>}</div>
           <p data-testid="rank-state" className={s.rankLine}>{rank?.state === "ranked" ? <>{rank.label} <span>{rank.note}</span></> : score?.state === "scored" ? "参考人群位置校准中" : "当前照片暂无参考位置"}</p>
@@ -46,7 +46,7 @@ export function ReportOverview({ data, mv, sample, gone, geometry, exportAction 
 
       </div>
     </div>
-    {harmony && <div className={s.harmonySummary}><HarmonyRadar axes={harmony} /></div>}
+    {!predicted && harmony && <div className={s.harmonySummary}><HarmonyRadar axes={harmony} /></div>}
     <div className={s.glance} data-testid="report-glance">
       <div><span>值得保留</span><h2>{highlight?.label_zh ?? "看见自己的特点"}</h2><p>{highlight?.seen_zh ?? p.analysis.profile_summary.one_liner}</p><a href="#findings">读懂面部特点 <ArrowUpRight size={14} /></a></div>
       <div><span>风格方向</span><h2>{p.analysis.profile_summary.best_direction}</h2><a href="#options">探索发型与配色 <ArrowUpRight size={14} /></a></div>
