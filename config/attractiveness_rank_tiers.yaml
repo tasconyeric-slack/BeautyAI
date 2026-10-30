@@ -1,0 +1,20 @@
+# Relative-position tiers for learned-attractiveness reference ranks.
+# Applied to the *displayed percentile* from #33's empirical-CDF engine,
+# NEVER to a raw 0–100 score or an unrelated geometric-harmony score.
+version: attractiveness-rank-tiers-1
+tiers:
+  - id: top_5
+    min_percentile: 95
+    label_zh: "参考样本前 5% 区间"
+  - id: top_15
+    min_percentile: 85
+    label_zh: "参考样本前 15% 区间"
+  - id: top_35
+    min_percentile: 65
+    label_zh: "参考样本前 35% 区间"
+  - id: middle_range
+    min_percentile: 15
+    label_zh: "参考样本常见区间"
+  - id: lower_15
+    min_percentile: 0
+    label_zh: "参考样本后 15% 区间"
