@@ -103,7 +103,7 @@ export function Profile() {
       </section>
 
       {/* 2 · the score's parts and method, the archive cards, what the evidence covers */}
-      {score && (
+      {!predicted && score && (
         <section id="score" className="mt-10 scroll-mt-28">
           <ScoreHero view={score} rank={referenceRank(passport)} workbenchHref={`${base}/face`} retakeHref="/start" sample={synthetic} />
         </section>

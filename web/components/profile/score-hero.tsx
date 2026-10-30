@@ -159,27 +159,21 @@ function Gauge({ value, maximum = 100 }: { value: number; maximum?: number }) {
   );
 }
 
-/** Existing score card styling, with the learned and geometric meanings kept explicit. */
+/** Two user-facing results; calculation provenance stays in the Passport data. */
 export function PredictedScoreHero({ view }: { view: LearnedScoreView }) {
   return <section data-testid="learned-score" data-state={view.available ? "available" : "unavailable"}
-    aria-label={learnedCopy.title} className="rounded-[18px] border border-rule bg-paper-raised p-5 text-[13px] leading-6">
-    <h2 className="font-medium">{learnedCopy.title}</h2>
-    {view.research && <p className="text-amber">{learnedCopy.research}</p>}
-    {view.available ? <div className="flex flex-wrap items-center gap-5">
-      <Gauge value={view.score!} maximum={10} />
-      <div><p>{learnedCopy.native}：{view.native} / 5</p>
-        <p>{learnedCopy.qc}：{view.qc === "passed" ? "通过" : "受限"}</p>
-        {view.rank ? <div data-testid="learned-rank"><p>{learnedCopy.reference}：{view.rank.label}</p>
-          <p>在 {view.rank.n} {view.rank.unit === "image" ? "张参考照片" : "名参考对象"}中约前 {view.rank.top}%</p>
-          {view.rank.tier && <p>{view.rank.tier}</p>}
-          {view.rank.interval && <p className="text-muted">分位抽样区间约 {view.rank.interval[0]}–{view.rank.interval[1]}%（假设样本独立；不含选择偏差与模型误差）</p>}
-        </div> : <p data-testid="learned-rank-unavailable">{learnedCopy.rankMissing}</p>}
-      </div>
-    </div> : <p>{learnedCopy.reasons[view.reason ?? ""] ?? learnedCopy.unavailable}</p>}
-    <p className="mt-2 text-muted">{learnedCopy.method}</p>
-    <details className="mt-2 text-muted"><summary className="cursor-pointer">评分与样本说明</summary>
-      <p>{learnedCopy.transform}</p><p>{learnedCopy.caveat}</p>
-      <p>{learnedCopy.model}：{view.model}</p><p className="break-all">{view.checkpoint}</p>
-    </details>
+    aria-label={learnedCopy.title} className="grid grid-cols-2 divide-x divide-rule rounded-[18px] border border-rule bg-paper-raised py-6">
+    <div className="min-w-0 px-4 sm:px-6">
+      <h2 className="text-[13px] font-medium text-ink-soft">{learnedCopy.title}</h2>
+      {view.available ? <p data-testid="score-value" className="mt-3 whitespace-nowrap font-serif text-[40px] font-semibold leading-none tabular-nums sm:text-[48px]">
+        {view.score}<span className="ml-1 font-sans text-[16px] font-normal text-muted">/10</span>
+      </p> : <p className="mt-3 text-[20px] text-muted">{learnedCopy.unavailable}</p>}
+    </div>
+    <div className="min-w-0 px-4 sm:px-6" aria-label={learnedCopy.rankAccessible}>
+      <h2 className="text-[13px] font-medium text-ink-soft">{learnedCopy.rank}</h2>
+      {view.available && view.rank ? <p data-testid="learned-rank" className="mt-3 whitespace-nowrap font-serif text-[36px] font-semibold leading-none tabular-nums sm:text-[44px]">
+        <span className="mr-1 font-sans text-[16px] font-normal">前 </span>{view.rank.top}%
+      </p> : <p data-testid="learned-rank-unavailable" className="mt-3 text-[20px] text-muted">{learnedCopy.rankMissing}</p>}
+    </div>
   </section>;
 }

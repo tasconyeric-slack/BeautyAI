@@ -29,8 +29,10 @@ You are building **Aesthetic Passport V2**. The governing documents are **`docs/
    17-feature Ridge prediction in `learned_attractiveness`, outside `analysis`, with explicit model/QC/scale
    metadata. It is OFF by default; research mode is forbidden in production. Production requires a
    model-specific permission receipt; learned ranking uses the #33 identity-matched authorized ECDF,
-   never the D37 geometric-score reference. SCUT research image ranks must remain labeled research,
-   with unknown unique-subject and adult status, and cannot satisfy production cohort gates.
+   never the D37 geometric-score reference. SCUT image ranks retain research provenance in stored data,
+   with unknown unique-subject and adult status, and cannot satisfy production cohort gates. Per the product
+   owner's 2026-10-30 direction, score cards show only the 1–10 result and reference top-percent result;
+   native scale, QC, model identity and research metadata stay in data and technical documentation.
 6. **Validate everything that crosses a boundary.** Model output → `validate_analysis` + `check_output_contract`;
    one repair retry in the same conversation, then fail loudly. Never retry on rules-layer outcomes.
    Assembled passport → `validate_passport`.

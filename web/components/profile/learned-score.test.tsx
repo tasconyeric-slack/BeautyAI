@@ -19,7 +19,7 @@ const score: NonNullable<Passport["learned_attractiveness"]> = {
 it("keeps old passports compatible and never synthesizes a learned score", () => {
   expect(learnedScore({ ...old, learned_attractiveness: undefined })).toBeNull();
 });
-it("renders native score, defined display score and actual server rank separately", () => {
+it("shows only the ten-point score and computed reference rank", () => {
   const p: Passport = { ...old, learned_attractiveness: score, learned_reference_rank: {
     status: "available", percentile: 65, top_percent: 35, cohort_label: "Test-only sample",
     cohort_id: "test", distribution_version: "test", n_reference: 2128, n_unique_subjects: null,
@@ -29,9 +29,10 @@ it("renders native score, defined display score and actual server rank separatel
   } };
   render(<PredictedScoreHero view={learnedScore(p)!} />);
   expect(screen.getByTestId("learned-score").textContent).toContain("5.5");
-  expect(screen.getByTestId("learned-score").textContent).toContain("3.00 / 5");
-  expect(screen.getByTestId("learned-rank").textContent).toContain("2128 张参考照片中约前 35%");
-  expect(screen.getByText(/研究预览/)).toBeTruthy();
+  expect(screen.getByTestId("score-value").textContent).toMatch(/5.5\s*\/\s*10/);
+  expect(screen.getByTestId("learned-rank").textContent).toBe("前 35%");
+  expect(screen.getByTestId("learned-score").textContent).not.toMatch(/SCUT|原生|照片质量|同模型|研究预览|校准|示意|常见区间|评分与样本说明|test-only-ridge/);
+  expect(screen.getByTestId("learned-score").querySelector("details")).toBeNull();
 });
 it("missing model never falls back to a geometric or fake predicted number", () => {
   render(<PredictedScoreHero view={learnedScore({ ...old, learned_attractiveness: {
@@ -39,5 +40,14 @@ it("missing model never falls back to a geometric or fake predicted number", () 
   } })!} />);
   expect(screen.queryByTestId("score-value")).toBeNull();
   expect(screen.queryByTestId("learned-rank")).toBeNull();
-  expect(screen.getByText("预测模型文件暂不可用。")).toBeTruthy();
+  expect(screen.getByText("暂不可用")).toBeTruthy();
+  expect(screen.getByText("暂无排名")).toBeTruthy();
+});
+
+it("withholds a missing percentile while keeping the real score", () => {
+  render(<PredictedScoreHero view={learnedScore({ ...old, learned_attractiveness: score,
+    learned_reference_rank: null })!} />);
+  expect(screen.getByTestId("score-value").textContent).toContain("5.5");
+  expect(screen.queryByTestId("learned-rank")).toBeNull();
+  expect(screen.getByText("暂无排名")).toBeTruthy();
 });

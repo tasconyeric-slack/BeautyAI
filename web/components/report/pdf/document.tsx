@@ -19,7 +19,7 @@ import {
   type HairOptionView, type ScoreView, type Tier,
 } from "@/lib/adapters";
 import type { Passport, PassportResponse } from "@/lib/api";
-import { aestheticScore as scoreCopy, entitlements, guidance, report as copy } from "@/lib/copy/zh";
+import { aestheticScore as scoreCopy, entitlements, guidance, learnedAttractiveness as learnedCopy, report as copy } from "@/lib/copy/zh";
 import { CHAPTER_KEYS, chapterNo, previewNote, regionViews, type ChapterKey, type PreviewNote, type RegionView } from "../report-model";
 import { cjkPieces, prepare } from "./text";
 
@@ -313,14 +313,17 @@ function Cover({ data, sample, demo, images, photoMode, now }: {
         )}
       </View>
 
-      {predicted && <View style={[s.box, { marginTop: 10 }]} wrap={false}>
-        <T style={s.small}>AI 颜值预测分{predicted.research ? " · 研究预览" : ""}</T>
-        <T style={{ fontSize: 22 }}>{predicted.available ? `${predicted.score} / 10` : "暂不可用"}</T>
-        {predicted.available && <T style={s.small}>SCUT 原生 {predicted.native} / 5；显示分为线性换算，未作 PSL 等级校准。</T>}
-        <T style={s.small}>{predicted.rank ? `在${predicted.rank.label}的 ${predicted.rank.n} ${predicted.rank.unit === "image" ? "张照片" : "名对象"}中约前 ${predicted.rank.top}%` : "暂无兼容且获授权的参考位置"}</T>
-        <T style={s.small}>预测指定评分者的平均评价，不是人口排名。模型：{predicted.model}</T>
+      {predicted && <View style={[s.box, s.row, { marginTop: 10 }]} wrap={false}>
+        <View style={{ width: "50%" }}>
+          <T style={s.small}>{learnedCopy.title}</T>
+          <T style={{ fontSize: 24 }}>{predicted.available ? `${predicted.score} /10` : learnedCopy.unavailable}</T>
+        </View>
+        <View style={{ width: "50%", borderLeftWidth: 0.5, borderLeftColor: C.rule, paddingLeft: 12 }}>
+          <T style={s.small}>{learnedCopy.rank}</T>
+          <T style={{ fontSize: 24 }}>{predicted.available && predicted.rank ? `前 ${predicted.rank.top}%` : learnedCopy.rankMissing}</T>
+        </View>
       </View>}
-      {score && score.score != null && (
+      {!predicted && score && score.score != null && (
         <View style={[s.box, s.row, { marginTop: 10, alignItems: "center" }]} wrap={false}>
           <View style={{ width: 110, alignItems: "center" }}>
             <T style={s.small}>{score.name}</T>
@@ -342,7 +345,7 @@ function Cover({ data, sample, demo, images, photoMode, now }: {
         </View>
       )}
 
-      {(!score || score.score === null) && <View style={[s.panel, { marginTop: 10 }]}><T style={s.bold}>{scoreCopy.unavailable}</T><T style={s.small}>{score?.statusText}{score?.flags.length ? ` · ${score.flags.join("；")}` : ""}</T><T style={s.small}>{scoreCopy.retake}</T></View>}
+      {!predicted && (!score || score.score === null) && <View style={[s.panel, { marginTop: 10 }]}><T style={s.bold}>{scoreCopy.unavailable}</T><T style={s.small}>{score?.statusText}{score?.flags.length ? ` · ${score.flags.join("；")}` : ""}</T><T style={s.small}>{scoreCopy.retake}</T></View>}
       {demo && <View style={[s.note, { marginTop: 10 }]}><T>{copy.pdf.demo[demo]}</T></View>}
       {!data.entitlement.paid && <T style={[s.small, { marginTop: 12 }]}>免费版报告</T>}
       <View style={{ marginTop: 16 }}>
