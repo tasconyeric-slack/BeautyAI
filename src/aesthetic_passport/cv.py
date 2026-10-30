@@ -91,7 +91,7 @@ class _Models:
         if self._landmarker is not None:
             return
         d = models_dir()
-        if not (d / FACE_MODEL).exists() or not (d / SEG_MODEL).exists():
+        if not (d / FACE_MODEL).exists():
             raise CVUnavailable(f"MediaPipe models not found in {d} — run `make models`")
         try:
             from mediapipe.tasks.python import BaseOptions, vision
@@ -105,6 +105,17 @@ class _Models:
             output_facial_transformation_matrixes=True,
             output_face_blendshapes=False,
         ))
+
+    def _load_segmenter(self) -> None:
+        if self._segmenter is not None:
+            return
+        d = models_dir()
+        if not (d / SEG_MODEL).exists():
+            raise CVUnavailable(f"MediaPipe segmentation model not found in {d} — run `make models`")
+        try:
+            from mediapipe.tasks.python import BaseOptions, vision
+        except (ImportError, OSError) as e:
+            raise CVUnavailable(f"MediaPipe could not load: {e}") from e
         self._segmenter = vision.ImageSegmenter.create_from_options(vision.ImageSegmenterOptions(
             base_options=BaseOptions(model_asset_path=str(d / SEG_MODEL)),
             running_mode=vision.RunningMode.IMAGE,
@@ -134,7 +145,7 @@ class _Models:
     def segment(self, rgb: np.ndarray) -> np.ndarray:
         """Per-pixel category mask (H×W uint8) at the input resolution."""
         with self._lock:
-            self._load()
+            self._load_segmenter()
             res = self._segmenter.segment(self._mp_image(rgb))
         return np.array(res.category_mask.numpy_view()).reshape(rgb.shape[:2])
 
@@ -155,7 +166,8 @@ atexit.register(MODELS.close)
 
 def available() -> bool:
     try:
-        MODELS._load()
+        with MODELS._lock:
+            MODELS._load()
         return True
     except CVUnavailable:
         return False
