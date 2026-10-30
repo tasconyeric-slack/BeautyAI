@@ -132,3 +132,46 @@ No photos, weights or network are used.
 Architecture and preprocessing re-implemented from MEBeauty-Benchmark (MIT, © 2026 Irina Lebedeva),
 `src/fbp_benchmark/methods/foundation.py`, `methods/training.py`, `pretrained.py`; `align_state` adapted from
 `pretrained.py`. See `THIRD_PARTY.md`.
+
+
+## Zero-additional-server-cost geometry Ridge experiment (research only)
+
+The existing `geometry_ridge` benchmark already fitted a 17-feature Ridge regressor,
+but its report recorded metrics **without saving the fitted coefficients**. A Spearman
+score is not a model, so it cannot be used to predict new photos by itself.
+
+The optional `--ridge-artifact-out` now captures the actual `mu/sd/w/b` arrays
+**when the existing evaluation fits its research TRAIN split**. This is an
+optional repeat of the existing training operation, not zero training; it
+requires the already-licensed local research data, but no new annotations,
+GPU, third-party API calls or paid inference tier.
+
+```bash
+# If the already authorized SCUT local research dataset is available:
+python -m experiments.aesthetics evaluate \
+  --dataset scut-fbp5500 \
+  --images-dir data/scut-fbp5500/SCUT-FBP5500_v2/Images \
+  --methods geometry_ridge --bootstrap 0 \
+  --ridge-artifact-out models/aesthetics/geometry-ridge/scut-research.json
+
+# Subsequent local inference: no fitting, weights download, PyTorch or GPU.
+python -m experiments.aesthetics ridge-predict path/to/consented-photo.jpg \
+  --artifact models/aesthetics/geometry-ridge/scut-research.json
+```
+
+The exported model preserves the **SCUT 1–5 panel scale**; it is NOT a
+verified strict PSL/TikTok 1–10 score, not a population rank and not
+a licensed commercial model. Artifacts stay in git-ignored `models/` and
+are NOT committed. Missing/mismatched files or unusable face geometry
+return `status=unavailable` and null scores.
+
+If absolutely no model fitting is allowed, no Ridge artifact exists in
+the repository as of this change. Only `ridge-predict` against
+an independently obtained compatible, appropriately authorized
+pre-fitted artifact can run. Do not silently substitute arbitrary
+weights or rebrand the old deterministic geometry score.
+
+This experiment does not alter `src/`, public reports, the production
+geometry scorer or existing ranking gates. The feature extractor needs
+MediaPipe (already used by the product); the Ridge prediction adds only
+a tiny NumPy matrix-vector operation and requires no Render memory upgrade.
