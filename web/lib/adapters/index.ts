@@ -366,10 +366,10 @@ export function aestheticScore(p: Passport): ScoreView | null {
 
 // --- Reference-cohort position (Issue #41) -----------------------------------------------------------------------
 
-export interface CohortView { n: number; date: string; publisher: string; url: string }
+export interface CohortView { n: number; date: string; publisher: string; url: string; kind?: string }
 export interface RankView {
   title: string;
-  /** "ranked" only when the scorer's scale is registered against the reference cohort (server-side gate). */
+  /** "ranked" if an authorized source-aligned rank or labeled provisional academic estimate exists. */
   state: "ranked" | "unavailable";
   /** e.g. 参考扫描人群中约前 30% — approximate, from published aggregates. */
   label: string | null;
@@ -393,7 +393,7 @@ export function referenceRank(p: Passport): RankView | null {
     higherThan: ranked ? k.higher_than_zh ?? null : null,
     reason: ranked ? null : k.reason_zh ?? null,
     note: k.note_zh ?? null,
-    cohort: k.cohort ? { n: k.cohort.n, date: k.cohort.source_date, publisher: k.cohort.publisher.split(" (")[0], url: k.cohort.source_url } : null,
+    cohort: k.cohort ? { n: k.cohort.n, date: k.cohort.source_date, publisher: k.cohort.publisher.split(" (")[0], url: k.cohort.source_url, kind: k.cohort.kind } : null,
   };
 }
 
