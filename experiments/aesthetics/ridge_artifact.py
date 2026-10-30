@@ -50,7 +50,10 @@ def validate_artifact(artifact: dict[str, Any]) -> None:
             raise ValueError(f"invalid {name}")
     if fit["alpha"] <= 0 or not isinstance(fit.get("n_train"), int) or fit["n_train"] < 30:
         raise ValueError("invalid Ridge fit metadata")
-    lo, hi = target.get("label_range", [None, None]) if isinstance(target.get("label_range"), list) else (None, None)
+    bounds = target.get("label_range")
+    if not isinstance(bounds, list) or len(bounds) != 2:
+        raise ValueError("invalid target label range")
+    lo, hi = bounds
     if any(isinstance(x, bool) or not isinstance(x, (int, float)) or not math.isfinite(x) for x in (lo, hi)):
         raise ValueError("invalid target label range")
     if lo >= hi or not isinstance(target.get("dataset"), str) or not target["dataset"]:

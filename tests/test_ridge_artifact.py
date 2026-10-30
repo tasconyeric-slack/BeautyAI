@@ -8,7 +8,12 @@ import pytest
 
 from experiments.aesthetics import cli, metrics
 from experiments.aesthetics.ridge_artifact import (
-    FEATURES, load_artifact, make_artifact, predict_features, predict_photo, save_artifact,
+    FEATURES,
+    load_artifact,
+    make_artifact,
+    predict_features,
+    predict_photo,
+    save_artifact,
 )
 
 
@@ -68,3 +73,12 @@ def test_missing_coefficients_never_produce_fake_score(tmp_path, capsys):
     code = cli.main(["ridge-predict", str(fake), "--artifact", str(missing)])
     assert code == 3
     assert json.loads(capsys.readouterr().out)["score"] is None
+
+
+@pytest.mark.parametrize("bounds", [[], [1], [1, 2, 3], None, [True, 5], [5, 1]])
+def test_invalid_bounds_fail_closed(tmp_path, bounds):
+    a = _artifact()
+    a["target"]["label_range"] = bounds
+    p = tmp_path / "bad.json"
+    p.write_text(json.dumps(a), encoding="utf-8")
+    assert predict_photo(tmp_path / "unused.jpg", p)["score"] is None

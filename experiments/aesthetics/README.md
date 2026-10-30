@@ -175,3 +175,9 @@ This experiment does not alter `src/`, public reports, the production
 geometry scorer or existing ranking gates. The feature extractor needs
 MediaPipe (already used by the product); the Ridge prediction adds only
 a tiny NumPy matrix-vector operation and requires no Render memory upgrade.
+# Parameter export and upload-path delivery
+
+See [Ridge path delivery](../../docs/experiments/aesthetics/RIDGE_PATH.md) for the
+2026-10-30 actual coefficient export, reproduced SCUT metrics, single-path memory
+measurement, commands and the remaining production-contract integration boundary.
+
