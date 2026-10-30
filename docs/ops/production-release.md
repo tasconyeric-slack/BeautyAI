@@ -23,8 +23,12 @@ otherwise about USD 10/month or less. A preference is not purchase/deploy author
   entries. Successful Vercel PR checks are not proof of production domain assignment.
 - #49/#58 incident evidence records Free/512 MB OOM and ephemeral report loss.
   This is historical evidence, not a refreshed production inventory.
-- `03_联调进展.md` did not yet exist when checked. Final frontend SHA is pending
-  that owner's delivery. Do not call this a fully pinned release until it is supplied.
+- Frontend owner subsequently delivered PR #60 at
+  `3f457bf77f800842e7a5cd4be4324878368b58c4`, based on backend merge `c93d802`.
+  Local API/Studio integration passed using approved synthetic media. Its new-report
+  analysis/payment were explicitly fake; a real analysis path remains a cloud gate.
+  #60's eventual main merge SHA and this PR's merge SHA must be recorded before
+  release. Neither PR head is claimed as an existing production deployment.
 
 ## Budget decision (three shortlisted options)
 
