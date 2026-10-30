@@ -14,7 +14,7 @@ import s from "./design-motion.module.css";
 
 type View = "home" | "report" | "studio";
 const route = (view: View) => `/dev/design-motion${view === "home" ? "" : `?view=${view}`}`;
-const image = (key: string) => `/design-motion/p001-b-${key}.png`;
+const image = (key: string) => `/demo/generated/p001/${key === "orig" ? "safe-before" : `${key}-after`}.jpg`;
 const titles = ["先看轮廓", "再看重心", "找到配色"];
 const subscribe = (change: () => void) => {
   const mq = window.matchMedia("(prefers-reduced-motion: reduce)");
@@ -73,7 +73,7 @@ export function DesignMotion({ hero, readings, view, production = false }: { her
         <section className={s.styleSection} id="possibility">
           <div className={s.styleIntro} data-reveal><p className={s.eyebrow}>03 / POSSIBILITIES</p><h2>改变多少，<br /><em>由你决定。</em></h2><p>先看一个发型方向。<br />在同一张照片里比较，保留喜欢的部分。</p><Link href={pageRoute("studio")} className={s.textLink}>在 Studio 里继续探索 <ArrowUpRight size={18} /></Link></div>
           <Comparison auto={auto} />
-          <div className={s.styleCaption} data-reveal><span>发型探索 / P001</span><h3>偏分蓬松中长发</h3><p>试着改变分缝与发尾的走向，<br />看看自己是否喜欢这样的轮廓。</p><span>AI 造型模拟示例</span></div>
+          <div className={s.styleCaption} data-reveal><span>发型探索 / P001</span><h3>偏分内扣中长发</h3><p>试着改变分缝与发尾的走向，<br />看看自己是否喜欢这样的轮廓。</p><span>AI 造型模拟示例 · 旧公开报告 P001</span><Link href="/report/sample?v=p001" className={s.textLink}>阅读对应人物报告 <ArrowUpRight size={14} /></Link><a href="/demo/generated/p001/manifest.json" className={s.textLink}>查看素材来源</a></div>
         </section>
         <section className={s.studioSection} id="studio-preview">
           <div className={s.studioHead} data-reveal><p className={s.eyebrow}>04 / LOOK STUDIO</p><h2>把想法，<em>放进照片里。</em></h2><p>从一个方向开始，慢慢找到自己的选择。</p></div>
@@ -162,8 +162,8 @@ function Comparison({ auto }: { auto: boolean }) {
   const [cut, setCut] = useState(50);
   const [touched, setTouched] = useState(false);
   return <div className={s.comparison} ref={ref} data-play={auto && visible && !touched} style={{ "--cut": `${cut}%` } as CSSProperties}>
-    <img src={image("orig")} alt="P001 原有发型" width={672} height={900} loading="lazy" />
-    <img className={s.after} src={image("safe")} alt="P001 偏分蓬松中长发 AI 造型模拟" width={672} height={900} loading="lazy" />
+    <img src={image("orig")} alt="P001 原有发型" width={1088} height={1456} loading="lazy" />
+    <img className={s.after} src={image("safe")} alt="P001 偏分内扣中长发 AI 造型模拟" width={1088} height={1456} loading="lazy" />
     <span className={s.beforeLabel}>原有发型</span><span className={s.afterLabel}>发型探索 / AI 模拟</span><div className={s.divider} aria-hidden><span>‹ ›</span></div>
     <input type="range" min={0} max={100} value={cut} onPointerDown={() => setTouched(true)} onFocus={() => setTouched(true)} onChange={e => { setTouched(true); setCut(Number(e.target.value)); }} aria-label="拖动比较原图与发型模拟" />
     <span className={s.compareHint}>拖动，看看变化 <ArrowRight size={15} /></span>
@@ -187,14 +187,14 @@ function Studio({ auto, compact = false, production = false }: { auto: boolean; 
   }, [auto, visible, touched, scene]);
   const choose = (key: string) => { setTouched(true); setHair(key); setSaved(false); };
   const compare = scene === 2 && !touched;
-  const hairName = hair === "safe" ? "偏分蓬松中长发" : hair === "easy" ? "耳下短直发" : "保留原有发型";
+  const hairName = hair === "safe" ? "偏分内扣中长发" : hair === "easy" ? "齐颌直发低维护" : "保留原有发型";
   const colors = [ ["米白", "#e8e2d7"], ["玫瑰", "#b97a78"], ["深青蓝", "#2f4858"] ];
   return <div className={s.studio} ref={ref} data-compact={compact} onPointerDown={() => setTouched(true)} onFocusCapture={() => setTouched(true)}>
     <div className={s.studioCanvas} style={{ "--palette-color": colors[color][1] } as CSSProperties}>
       <div className={s.studioMat} />
       <div className={s.studioPhoto} data-compare={compare}>
-        <img src={image("orig")} alt="P001 原有造型" width={672} height={900} loading="lazy" />
-        <img src={image(hair)} alt={hair === "orig" ? "P001 原图" : `P001 ${hairName} AI 造型模拟`} width={672} height={900} loading="lazy" style={{ opacity: hold.holding ? 0 : 1 }} />
+        <img src={image("orig")} alt="P001 原有造型" width={1088} height={1456} loading="lazy" />
+        <img src={image(hair)} alt={hair === "orig" ? "P001 原图" : `P001 ${hairName} AI 造型模拟`} width={1088} height={1456} loading="lazy" style={{ opacity: hold.holding ? 0 : 1 }} />
         <span className={s.studioPhotoLabel}>{hold.holding || hair === "orig" ? "原有造型" : "AI 造型模拟"}</span>
         {compare && <span className={s.studioCompareLine} aria-hidden />}
       </div>
@@ -205,7 +205,7 @@ function Studio({ auto, compact = false, production = false }: { auto: boolean; 
       <p className={s.eyebrow}>YOUR STYLE, YOUR CHOICE.</p><h3>留住自己，<br /><em>试一点不同。</em></h3>
       <div className={s.studioTabs} role="tablist" aria-label="造型选项">{[["hair", "发型"], ["color", "配色"], ["optional", "按需选镜"]].map(([key, label]) => <button key={key} type="button" role="tab" id={`${compact ? "mini" : "full"}-${key}`} aria-controls={`${compact ? "mini" : "full"}-panel`} aria-selected={tab === key} onClick={() => { setTab(key); setTouched(true); }}>{label}</button>)}</div>
       <div className={s.studioOptions} role="tabpanel" id={`${compact ? "mini" : "full"}-panel`} aria-labelledby={`${compact ? "mini" : "full"}-${tab}`}>
-        {tab === "hair" ? <><p className={s.optionIntro}>选择一个方向，照片会在原位切换。</p>{[["orig", "现在", "保留原有发型"], ["safe", "稳妥", "偏分蓬松中长发"], ["easy", "省心", "耳下短直发"]].map(([key, label, name]) => <button type="button" key={key} className={s.hairOption} aria-pressed={hair === key} onClick={() => choose(key)}><span>{label}</span><b>{name}</b><i>{hair === key && <Check size={13} />}</i></button>)}<p className={s.optionDescription}>{hair === "orig" ? "保持原有发型也可以。先看看其他方向，再决定是否改变。" : hair === "safe" ? "用偏分和发尾的弧线调整轮廓。先试着看一看，再和发型师讨论。" : "更短、更轻的一个方向。把日常打理的习惯，也放进选择里。"}</p></>
+        {tab === "hair" ? <><p className={s.optionIntro}>选择一个方向，照片会在原位切换。</p>{[["orig", "现在", "保留原有发型"], ["safe", "稳妥", "偏分内扣中长发"], ["easy", "省心", "齐颌直发低维护"]].map(([key, label, name]) => <button type="button" key={key} className={s.hairOption} aria-pressed={hair === key} onClick={() => choose(key)}><span>{label}</span><b>{name}</b><i>{hair === key && <Check size={13} />}</i></button>)}<p className={s.optionDescription}>{hair === "orig" ? "保持原有发型也可以。先看看其他方向，再决定是否改变。" : hair === "safe" ? "用偏分和发尾的弧线调整轮廓。先试着看一看，再和发型师讨论。" : "自然短直发方向；此图长度略低于齐颌目标。把日常打理的习惯，也放进选择里。"}</p></>
           : tab === "color" ? <div className={s.colorStudy}><p>把颜色放在照片旁边，观察不同的搭配氛围。</p><div>{colors.map(([name, hex], i) => <button key={name} type="button" aria-pressed={color === i} onClick={() => { setColor(i); setSaved(false); }}><i style={{ background: hex }} />{name}</button>)}</div><p className={s.optionDescription}>此处演示近脸配色的版式与切换；照片保留原色。</p></div>
           : <div className={s.optionalGlasses}><span>可选探索</span><h4>平时戴眼镜，<br />再来选适合的镜框。</h4><p>人物默认不添加眼镜。选镜作为独立选项继续细化，先把关注点留给自己的轮廓与风格。</p></div>}
       </div>
@@ -213,6 +213,6 @@ function Studio({ auto, compact = false, production = false }: { auto: boolean; 
       <div className={s.studioSteps} aria-label="探索过程">{["选择", "比较", "保存"].map((label, i) => <span key={label} data-active={(saved ? 2 : compare || hold.holding ? 1 : 0) === i}><i>0{i + 1}</i>{label}</span>)}</div>
       <p className={s.demoNote}>{production ? "AI 模拟示例 · 上传自己的照片后，可生成并保存个人造型选项" : "交互演示 · 使用已有示例图，保存仅在本页生效"}</p>
     </div>
-    {compact && <div className={s.studioMobileSummary}><span>{scene === 0 ? "01 / 选择一个方向" : scene === 1 ? "02 / 看看发型变化" : "03 / 比较，再决定"}</span><p>{scene === 0 ? "保留原有造型，也是一个选项。" : scene === 1 ? "偏分蓬松中长发 · AI 造型模拟" : "同一张照片，原有造型与发型探索。"}</p></div>}
+    {compact && <div className={s.studioMobileSummary}><span>{scene === 0 ? "01 / 选择一个方向" : scene === 1 ? "02 / 看看发型变化" : "03 / 比较，再决定"}</span><p>{scene === 0 ? "保留原有造型，也是一个选项。" : scene === 1 ? "偏分内扣中长发 · AI 造型模拟" : "同一张照片，原有造型与发型探索。"}</p></div>}
   </div>;
 }

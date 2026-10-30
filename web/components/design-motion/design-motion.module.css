@@ -108,7 +108,7 @@
 .studio { display:grid; grid-template-columns:minmax(0,1.2fr) minmax(0,1fr); max-width:1320px; margin:auto; gap:8%; align-items:stretch; }
 .studioCanvas { position:relative; background:#283437; min-height:620px; display:flex; align-items:center; justify-content:center; padding:54px 55px 76px; overflow:hidden; }
 .studioMat { position:absolute; inset:0; background:var(--palette-color); opacity:.07; transition:background 800ms; }
-.studioPhoto { position:relative; width:100%; max-width:420px; aspect-ratio:672/900; overflow:hidden; }
+.studioPhoto { position:relative; width:100%; max-width:420px; aspect-ratio:1088/1456; overflow:hidden; }
 .studioPhoto>img { width:100%; height:100%; object-fit:cover; }
 .studioPhoto>img+img { position:absolute; inset:0; transition:opacity var(--dm-swap) var(--dm-ease); }
 .studioPhoto[data-compare="true"]>img+img { clip-path:inset(0 0 0 50%); }
