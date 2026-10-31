@@ -183,7 +183,7 @@ export const httpBackend: Backend = {
   shared: (token) => call(`/api/share/${enc(token)}`),
   remove: (id) => call(`/api/passport/${enc(id)}`, { method: "DELETE" }),
   checkout: async (id, inviteCode) =>
-    absolutize(await call<PassportResponse & { payment: { status: string; order_id: string | null } }>(
+    absolutize(await call<PassportResponse & { payment: { status: string; order_id: string | null; pay_url: string | null } }>(
       `/api/checkout`, json({ passport_id: id, invite_code: inviteCode || undefined }))),
   async event(name, extra) {
     try {
