@@ -7,7 +7,7 @@ from .base import Checkout, PaymentError, PaymentProvider
 from .fake import FakePaymentProvider
 from .stripe import StripePaymentProvider
 
-__all__ = ["Checkout", "FakePaymentProvider", "StripePaymentProvider", "PaymentError", "PaymentProvider", "payment_from_env"]
+__all__ = ["Checkout", "FakePaymentProvider", "PaymentError", "PaymentProvider", "StripePaymentProvider", "payment_from_env"]
 
 
 def payment_from_env() -> PaymentProvider:
