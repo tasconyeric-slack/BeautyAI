@@ -332,6 +332,36 @@ def test_invite_unlock(client):
     assert get(client, pid)["entitlement"]["paid"] is True
 
 
+def test_stripe_pending_order_unlocks_only_after_signed_paid_webhook(client, monkeypatch):
+    import hashlib
+    import hmac
+    import time
+    from aesthetic_passport.payments.base import Checkout
+    from aesthetic_passport.payments.stripe import StripePaymentProvider
+
+    pid = ready(client)
+    monkeypatch.setenv("PAYMENT_PROVIDER", "stripe")
+    monkeypatch.setenv("STRIPE_SECRET_KEY", "sk_test_not_real")
+    monkeypatch.setenv("STRIPE_WEBHOOK_SECRET", "whsec_not_real")
+    monkeypatch.setenv("PAYMENT_RETURN_BASE_URL", "https://beautytest.byliyz.com")
+    monkeypatch.setattr(StripePaymentProvider, "create_checkout",
+                        lambda self, _pid, amount: Checkout("cs_test_mock123", "https://checkout.stripe.com/test", False))
+    checkout = client.post("/api/checkout", json={"passport_id": pid}).json()
+    assert checkout["payment"]["status"] == "pending" and checkout["payment"]["pay_url"]
+    assert get(client, pid)["entitlement"]["paid"] is False
+    event = {"type": "checkout.session.completed", "data": {"object": {
+        "id": "cs_test_mock123", "mode": "payment", "payment_status": "paid",
+        "amount_total": 13900, "currency": "cny",
+    }}}
+    raw = json.dumps(event, separators=(",", ":")).encode()
+    ts = str(int(time.time()))
+    sig = hmac.new(b"whsec_not_real", ts.encode() + b"." + raw, hashlib.sha256).hexdigest()
+    headers = {"stripe-signature": f"t={ts},v1={sig}", "content-type": "application/json"}
+    assert client.post("/api/payments/webhook", content=raw, headers=headers).json()["changed"] is True
+    assert get(client, pid)["entitlement"]["paid"] is True
+    assert client.post("/api/payments/webhook", content=raw, headers=headers).json()["changed"] is False
+
+
 def test_one_time_invite_endpoint_and_permanent_code(client):
     first, second = ready(client), ready(client)
     _, codes, _ = client.app.state.store.issue_invite_codes(1, 24)
