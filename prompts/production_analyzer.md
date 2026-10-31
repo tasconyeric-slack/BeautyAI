@@ -1,6 +1,6 @@
-# Production Analyzer Prompt — v0.3.2
+# Production Analyzer Prompt — v0.3.3
 
-`prompt_version: analyzer-0.3.2`
+`prompt_version: analyzer-0.3.3`
 
 v0.3 (schema v0.3, V2): front photo only is required (D20); adds `observations[].region`, `feature_signature`,
 `hair_options` (safe / bold / easy, replaces `hair_direction.named_styles`), color `combos` / hair color directions /
@@ -220,3 +220,5 @@ GARMENT IDS (outfit_direction.items[].garment_id must be one of these):
 
 Analyze these photos and return the JSON object.
 ```
+
+Passport v0.10 also assembles a separate geometry_reference_rank outside analysis. Never output scores or ranks.

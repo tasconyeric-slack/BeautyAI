@@ -1,9 +1,9 @@
 import type { HarmonyAxis } from "@/lib/adapters";
 import { densityPaths, type Density } from "./score-chart-geometry";
 
-export function ReferenceDensity({ curve, score }: { curve: Density; score: number }) {
+export function ReferenceDensity({ curve, score, scoreLabel = "颜值分" }: { curve: Density; score: number; scoreLabel?: string }) {
   const p = densityPaths(curve, score);
-  return <svg viewBox="0 0 320 150" role="img" aria-label={`参考分布；当前颜值分 ${score}`}
+  return <svg viewBox="0 0 320 150" role="img" aria-label={`参考分布；当前${scoreLabel} ${score}`}
     data-testid="reference-density" className="mx-auto block w-full max-w-[230px] overflow-visible">
     <path d={p.rightArea} data-testid="reference-density-tail" className="fill-accent/10" />
     <path d={p.line} fill="none" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" className="stroke-accent" />

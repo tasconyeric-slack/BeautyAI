@@ -48,7 +48,7 @@ describe("overview hierarchy", () => {
   it("shows the scorer's own number, says it is a model reference and not a verdict or a rank, and names the sample", () => {
     renderProfile(full);
     const glance = screen.getByTestId("score-glance");
-    expect(screen.getByTestId("glance-value").textContent).toBe(String(Math.round(p.aesthetic_score!.overall_score!)));
+    expect(screen.getByTestId("glance-value").textContent).toBe(String(Number((p.aesthetic_score!.overall_score! / 10).toFixed(2))));
     expect(glance.textContent).toContain("模型参考");
     expect(glance.textContent).toContain(REFERENCE_NOTE);
     expect(REFERENCE_NOTE).toMatch(/不评价长相/);

@@ -15,7 +15,7 @@ describe("ENG-02 full report critical path", () => {
     const data = sampleReportResponse(demo.id);
     const { container } = render(<FullReportContent data={data} geometry={demo.geometry} sample />);
     expect(container.querySelectorAll("[data-chapter]")).toHaveLength(7);
-    expect(screen.getByTestId("score-value").textContent).toContain(String(demo.passport.learned_attractiveness?.display_score ?? demo.passport.aesthetic_score!.overall_score));
+    expect(screen.getByTestId("geometry-score-value").textContent).toContain(String(Number((demo.passport.aesthetic_score!.overall_score! / 10).toFixed(2))));
     expect(container.querySelectorAll('a[href^="/p/"]')).toHaveLength(0);
     expect(screen.queryByRole("button", { name: "加入我的方案" })).toBeNull();
     expect(screen.getByTestId("preview-state").textContent).not.toContain("正在生成");
@@ -108,7 +108,7 @@ describe("ENG-02 full report critical path", () => {
     data.passport!.aesthetic_score!.overall_score = null;
     render(<FullReportContent data={data} geometry={DEMO_CASES[0].geometry} sample />);
     expect(screen.queryByTestId("score-value")).toBeNull();
-    expect(screen.getByTestId("rank-state").textContent).not.toMatch(/前\s*\d+%/);
+    expect(screen.getByTestId("geometry-rank").textContent).not.toMatch(/前\s*\d+%/);
     expect(screen.queryByTestId("region-reading-proportions")).toBeNull();
   });
 });

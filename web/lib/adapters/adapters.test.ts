@@ -70,7 +70,7 @@ describe("adapters", () => {
   it("aestheticScore: rounds the computed score, keeps four parts in weight order, and reads strengths from the passport", () => {
     const v = aestheticScore(F);
     expect(v).not.toBeNull();
-    expect(v!.score).toBe(Math.round(F.aesthetic_score!.overall_score!));
+    expect(v!.score).toBe(Number((F.aesthetic_score!.overall_score! / 10).toFixed(2)));
     expect(v!.components.map((c) => [c.key, c.weightPct])).toEqual([["symmetry", 35], ["thirds", 25], ["fifths", 25], ["golden_ratio", 15]]);
     expect(v!.components[1].detail).toMatch(/^测得 \d+ \/ \d+ \/ \d+$/);
     expect(v!.components[1].about).toContain("18 / 41 / 41");

@@ -1,5 +1,8 @@
 "use client";
 
+import { geometryScore } from "@/lib/adapters";
+import { GeometryScoreHero } from "./geometry-score";
+
 /** The results overview (A4, Issue #2). Reading order, top to bottom:
  *    1. what this profile says — one line, the score as a model-based reference, the strengths and what they mean
  *       for styling, and ONE action to take first;
@@ -69,7 +72,7 @@ export function Profile() {
           <p className="text-[11px] tracking-[0.18em] text-muted">你的形象档案</p>
           <h1 className={s.title}>{c.oneLiner}</h1>
 
-          {predicted ? <div className="mt-4"><PredictedScoreHero view={predicted} harmony={harmony} /></div>
+          {predicted ? <div className="mt-4"><PredictedScoreHero view={predicted} harmony={harmony} /><GeometryScoreHero view={geometryScore(passport)} /></div>
             : score && <div className="mt-4"><ScoreGlance view={score} retakeHref="/start" synthetic={synthetic} /></div>}
 
           <h2 className="mt-5 text-[13px] font-medium text-ink-soft">相对突出的特点 · 对造型的意义</h2>

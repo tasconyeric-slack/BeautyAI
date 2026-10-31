@@ -1,3 +1,7 @@
+# Schema v0.10
+
+v0.10 adds optional geometry_reference_rank using the existing rank shape: an independent D36 full-QC photo-sample ECDF with a 0–10 display density. Stored geometry remains 0–100. Prompt analyzer-0.3.3; analysis unchanged. Older passports remain valid.
+
 # Schema 说明 v0.9
 
 v0.9（D43）在 `learned_reference_rank` 增加可选 `distribution`：同一获授权参考集的平滑密度（65 个 `[显示分, 密度]` 点、样本数、实际预测均值、1–10 边界、`gaussian_kde_scott_v1` 方法）。仅排名可用时生成；旧报告可缺省，排名不可用时为 null。它只用于画图，ECDF 排名算法不变。生产提示词升至 `analyzer-0.3.2`，仍由流水线而非分析模型产生。继续接受 v0.3–v0.8。

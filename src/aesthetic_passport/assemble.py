@@ -19,7 +19,7 @@ from typing import Any
 from .rules import derive, free_preview_targets, load_rules
 from .schema_io import validate_analysis, validate_passport
 
-SCHEMA_VERSION = "0.9"
+SCHEMA_VERSION = "0.10"
 AI_LABEL = "AI 试看"
 
 # V2 onboarding asks only for the presentation (D20); everything else starts from these defaults and is refined later
@@ -78,6 +78,7 @@ def build_passport(
     reference_percentiles: dict[str, Any] | None = None,
     learned_attractiveness: dict[str, Any] | None = None,
     learned_reference_rank: dict[str, Any] | None = None,
+    geometry_reference_rank: dict[str, Any] | None = None,
     locale: str = "zh-CN",
     passport_id: str | None = None,
     created_at: str | None = None,
@@ -110,6 +111,7 @@ def build_passport(
         "reference_percentiles": reference_percentiles,
         "learned_attractiveness": learned_attractiveness,
         "learned_reference_rank": learned_reference_rank,
+        "geometry_reference_rank": geometry_reference_rank,
         "analysis": analysis,
         "derived": derived,
         "previews": previews,

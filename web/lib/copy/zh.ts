@@ -369,7 +369,7 @@ export const entitlements = {
 /** AI 面部美学参考分 (Issue #31, D36). A geometry reference on one photo — never called attractiveness, never a rank. */
 export const aestheticScore = {
   title: "AI 面部美学参考分",
-  outOf: "满分 100",
+  outOf: "满分 10",
   breakdown: "四项构成",
   strengths: "相对突出",
   improvement: "可以优先调整",
@@ -620,4 +620,11 @@ export const learnedAttractiveness = {
     pose_yaw: "头部偏转", pose_pitch: "头部俯仰", eyewear: "眼镜可能遮挡", eyewear_detected: "眼镜可能遮挡",
     mouth_open: "张嘴或表情变化", eyes_closed: "眼部闭合", upper_third_occluded: "额头区域遮挡",
   } as Record<string, string>,
+};
+
+export const geometryScore = {
+  title: "几何分", unavailable: "这张照片暂时给不出总分", limited: "参考有限",
+  rank: "几何分照片样本排名", rankMissing: "参考排名暂不可用",
+  scope: "非人口排名；照片主体及年龄未核验。",
+  method: "对称 35% · 三庭 25% · 五眼 25% · 长宽比 15%。仅描述这张照片的几何协调度，不代表整体外貌；与回归预测分独立计算。参考位置来自单独计算的照片样本。",
 };

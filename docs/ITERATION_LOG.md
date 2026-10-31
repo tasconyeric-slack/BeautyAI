@@ -111,3 +111,10 @@ The Ridge service rejected every QC/geometry warning and every D36 `limited` sta
 ## 2026-10-31 · Ridge photo warnings annotate measured predictions
 
 The production photo test reached authorized Ridge inference with a verified frozen artifact, but cheek-texture warning `beauty_filter_suspect` was treated as a hard score rejection. Photo QC documents this heuristic as warn-only and potentially overlapping naturally smooth skin. Per the product owner's follow-up, Ridge now accepts warning-level conditions whenever the existing complete finite geometry vector remains available. The unchanged upload rejection, geometry/pose bounds, model/receipt/hash/version checks, missing/nonfinite feature checks and ECDF precision/tail rules remain in force. Predictions retain all flags and use existing `qc_status=limited`; the report and PDF show the specific photo limitations and an accuracy caveat under the results. No model, coefficients, feature definition/order, transform, reference data, schema, or analysis prompt changes. Regression covers authorized image ranking and report assembly, retained warnings, and limited-score UI visibility.
+## 2026-10-31 — independent geometry score and ECDF
+
+User chose option B: display D36 overall/components /10 alongside Ridge. Independently
+rescore full-QC reference photos; no formula or native precision changes. Schema v0.10,
+prompt analyzer-0.3.3. Separate geometry reference has 1075 photos, mean 7.5283/10,
+range 4.99–8.83. Empirical ranking and visualization-only KDE impose no normality.
+Separate hash-bound production permission; no sparse-tail extrapolation.

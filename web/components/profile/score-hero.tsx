@@ -31,7 +31,7 @@ export function ScoreHero({ view, rank = null, workbenchHref, retakeHref, sample
           {sample && <p className="mt-1 text-[11px] text-muted">{copy.sample}</p>}
           {hasScore ? (
             <>
-              <Gauge value={view.score as number} />
+              <Gauge value={view.score as number} maximum={10} />
               {view.tier && <p className="mt-1 font-serif text-[17px] font-semibold">{view.tier}</p>}
             </>
           ) : (
@@ -135,7 +135,7 @@ function ComponentRow({ c }: { c: ScoreComponentView }) {
         <span className="font-serif text-[17px] tabular-nums">{c.score ?? <span className="text-[12px] text-muted">{copy.notMeasured}</span>}</span>
       </div>
       <div className="mt-1 h-1.5 overflow-hidden rounded-full bg-rule" aria-hidden>
-        <div className="h-full rounded-full bg-accent" style={{ width: `${c.score ?? 0}%` }} />
+        <div className="h-full rounded-full bg-accent" style={{ width: `${(c.score ?? 0) * 10}%` }} />
       </div>
       <p className="mt-1 text-[12px] leading-5 text-muted">{c.about} · {c.detail}</p>
     </li>

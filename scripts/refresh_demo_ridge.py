@@ -38,7 +38,10 @@ def main() -> None:
     prediction, rank = evaluate(front, passport["aesthetic_score"])
     if prediction["raw_score"] is None or rank["status"] != "available":
         raise ValueError("sample_ridge_or_reference_unavailable")
-    passport.update(schema_version="0.9", learned_attractiveness=prediction, learned_reference_rank=rank)
+    from aesthetic_passport.scoring.reference import evaluate_geometry_reference
+
+    passport["geometry_reference_rank"] = evaluate_geometry_reference(passport.get("aesthetic_score"))
+    passport.update(schema_version="0.10", learned_attractiveness=prediction, learned_reference_rank=rank)
     if validate_passport(passport):
         raise ValueError("invalid_refreshed_passport")
     cfg = load_config()

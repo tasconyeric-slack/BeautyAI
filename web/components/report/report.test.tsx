@@ -47,7 +47,7 @@ describe("full report — public synthetic sample (full entitlement)", () => {
     expect(chapters).toEqual(CHAPTER_KEYS);
 
     // overall: the scoring layer's number, labeled as a synthetic sample
-    expect(screen.getByTestId("score-value").textContent).toBe(String(p.aesthetic_score!.overall_score));
+    expect(screen.getByTestId("geometry-score-value").textContent).toContain(String(p.aesthetic_score!.overall_score! / 10));
     expect(report.textContent).not.toContain("合成人脸");
 
     // findings: six region chapters with measured values straight from measurement_profile
@@ -131,7 +131,7 @@ describe("report model", () => {
 
   it("the landing preview quotes the sample passport, not hard-coded numbers", () => {
     const r = sampleReportPreview(p);
-    expect(r.overview).toContain(String(Math.round(p.aesthetic_score!.overall_score!)));
+    expect(r.overview).toContain(String(Number((p.aesthetic_score!.overall_score! / 10).toFixed(2))));
     expect(r.findings).toContain(String(p.measurement_profile!.coverage.total_measured));
   });
 });

@@ -1,5 +1,5 @@
 {
-  "schema_version": "0.9",
+  "schema_version": "0.10",
   "passport_id": "ap_sample_0001",
   "created_at": "2026-10-22T09:00:00+00:00",
   "locale": "zh-CN",
@@ -8704,5 +8704,27 @@
     "cost_usd_est": null,
     "retries": 0,
     "rules_version": "0.5.0"
+  },
+  "geometry_reference_rank": {
+    "status": "unavailable",
+    "percentile": null,
+    "top_percent": null,
+    "cohort_id": "scut-heldout-d36-geometry",
+    "cohort_label": "SCUT 几何分参考照片样本",
+    "n_unique_subjects": null,
+    "distribution_version": "scut-heldout-d36-full-ecdf-v1",
+    "method": "empirical_cdf_midrank_v1",
+    "limitations": [
+      "named_reference_sample_only",
+      "not_a_population_rank"
+    ],
+    "unavailable_reason": "unsupported_display_tail",
+    "percentile_interval": null,
+    "display_step_percent": null,
+    "reference_unit": "image",
+    "n_reference": 1075,
+    "research_only": true,
+    "tier": null,
+    "distribution": null
   }
 }
