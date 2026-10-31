@@ -24,6 +24,8 @@ COPY config ./config
 COPY schema ./schema
 COPY prompts ./prompts
 COPY examples ./examples
+# Private operational CLI for 24-hour invitation batches (not a public API).
+COPY scripts/generate_invite_codes.py ./scripts/generate_invite_codes.py
 
 # runs/ holds the SQLite job store and 24 h media; mount a persistent disk here.
 ENV MODELS_DIR=/app/models RUNS_DIR=/data/runs QC_MODE=real PORT=8000
