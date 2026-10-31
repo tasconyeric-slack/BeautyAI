@@ -1,5 +1,5 @@
 {
-  "schema_version": "0.9",
+  "schema_version": "0.10",
   "passport_id": "ap_sample_0002",
   "created_at": "2026-09-29T16:00:00+00:00",
   "locale": "zh-CN",
@@ -5531,6 +5531,7 @@
   },
   "learned_attractiveness": null,
   "learned_reference_rank": null,
+  "geometry_reference_rank": null,
   "analysis": {
     "observations": [
       {

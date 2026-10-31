@@ -92,7 +92,7 @@ describe("PDF report export", () => {
     expect(r.all).not.toMatch(/总分 =|测量视角、参考来源与署名|测量依据、适用范围与照片管理/);
     // the scoring layer's number and the four parts, measurement values straight from measurement_profile
     const all = squash(r.all);
-    expect(all).toContain(String(Math.round(p.aesthetic_score!.overall_score!)));
+    expect(all).toContain(String(Number((p.aesthetic_score!.overall_score! / 10).toFixed(2))));
     for (const c of p.aesthetic_score!.components) expect(all).toContain(squash(c.name_zh));
     const m001 = p.measurement_profile!.metrics.find((m) => m.id === "M001")!;
     expect(all).toContain(m001.value!.toFixed(m001.decimals));

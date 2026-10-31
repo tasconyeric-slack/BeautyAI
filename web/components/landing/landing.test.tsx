@@ -66,7 +66,7 @@ describe("Landing", () => {
     render(<Landing />);
     const female = JSON.parse(readFileSync(path.resolve(__dirname, "../../lib/fixtures/sample_passport.json"), "utf8"));
     const hero = screen.getByTestId("score-hero");
-    expect(screen.getByTestId("score-value").textContent).toBe(String(Math.round(female.aesthetic_score.overall_score)));
+    expect(screen.getByTestId("score-value").textContent).toBe(String(Number((female.aesthetic_score.overall_score / 10).toFixed(2))));
     for (const k of ["symmetry", "thirds", "fifths", "golden_ratio"]) expect(screen.getByTestId(`score-part-${k}`)).toBeTruthy();
     expect(screen.getByTestId("score-strengths").querySelectorAll("li")).toHaveLength(2);
     expect(screen.getByTestId("score-improvement").textContent).toBeTruthy();
@@ -114,7 +114,7 @@ describe("first screen (Issue #2)", () => {
     expect(card.textContent).toContain("不是实时分析结果");
     expect(card.textContent).toContain("参考分来自这张照片的面部几何测量");
     expect(card.querySelector("img")!.getAttribute("alt")).toMatch(/非真人/);
-    expect(screen.getByTestId("hero-score").textContent).toContain(String(Math.round(female().aesthetic_score.overall_score)));
+    expect(screen.getByTestId("hero-score").textContent).toContain(String(Number((female().aesthetic_score.overall_score / 10).toFixed(2))));
     const f = female();
     const top = f.analysis.recommendations.find((r: { id: string }) => r.id === f.derived.top5[0]);
     expect(card.textContent).toContain(top.action.replace(/\s*\[[^\]]*\]/g, ""));

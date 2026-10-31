@@ -1,7 +1,7 @@
 /** Display coordinates only. Both the browser and PDF use these same chart paths. */
 import type { HarmonyAxis, LearnedScoreView } from "@/lib/adapters";
 
-export type Density = NonNullable<NonNullable<LearnedScoreView["rank"]>["distribution"]>;
+export type Density = Omit<NonNullable<NonNullable<LearnedScoreView["rank"]>["distribution"]>, "bounds"> & { bounds: [number, number] };
 export function densityPaths(curve: Density, score: number) {
   const left = 12, right = 308, baseline = 112, top = 12;
   const [lo, hi] = curve.bounds;

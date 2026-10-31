@@ -19,7 +19,7 @@ You are building **Aesthetic Passport V2**. The governing documents are **`docs/
    tests, and adds a DECISIONS entry.
 3. **One production analysis model per request.** No live multi-model voting. Any evaluator model is offline only.
 4. **Thresholds live in `config/*.yaml`**, not in code.
-5. **Scope guard.** D36 remains a separate geometric harmony reference (`AI 面部美学参考分`, `scoring/`,
+5. **Scope guard.** D45 permits two independent displayed scores: Ridge prediction and D36 geometry (native /10), with separate identity-matched empirical photo-sample references. Geometry production ranking requires its own hash-bound permission receipt; no population-rank claim or distribution borrowing. D36 remains a separate geometric harmony reference (`AI 面部美学参考分`, `scoring/`,
    `config/scoring.yaml`): deterministic, from CV landmarks, honest limited/unavailable states, never called an
    attractiveness verdict or a population rank. Percentiles (D37, `percentiles/`) give only an approximate position in
    a published, self-selected reference cohort. They require a `scoring_version` registered in

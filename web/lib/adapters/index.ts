@@ -3,7 +3,7 @@
 import type { IllustratedAvatarProps, ProfileCardProps, StylistCardProps } from "@/components/cards";
 import type { StylePlaneProps, SwatchColor } from "@/components/ds";
 import type { Passport, PassportResponse, PreviewState } from "../passport";
-import { learnedAttractiveness as learnedCopy } from "../copy/zh";
+import { geometryScore as geometryCopy, learnedAttractiveness as learnedCopy } from "../copy/zh";
 
 type Analysis = Passport["analysis"];
 type HairOption = Analysis["hair_options"][number];
@@ -348,15 +348,15 @@ export function aestheticScore(p: Passport): ScoreView | null {
   const names = Object.fromEntries(s.components.map((c) => [c.key, c.name_zh]));
   return {
     state: s.status === "full" ? "scored" : s.status,
-    name: s.copy_zh.name,
-    score: s.overall_score == null ? null : Math.round(s.overall_score),
+    name: geometryCopy.title,
+    score: s.overall_score == null ? null : Number((s.overall_score / 10).toFixed(2)),
     tier: s.tier?.label_zh ?? null,
     statusText: s.copy_zh.status,
     scaleNote: s.copy_zh.scale_note,
     flags: s.quality_flags.map((f) => s.copy_zh.flags[f]).filter((x): x is string => Boolean(x)),
     components: s.components.map((c) => ({
       key: c.key, name: c.name_zh, about: c.about_zh, weightPct: Math.round(c.weight * 100),
-      score: c.score == null ? null : Math.round(c.score),
+      score: c.score == null ? null : Number((c.score / 10).toFixed(2)),
       detail: componentDetail(c.key, c.measured as Record<string, unknown> | null),
     })),
     strengths: s.strengths.map((x) => x.text_zh),
@@ -394,6 +394,22 @@ export function learnedScore(p: Passport) {
   };
 }
 export type LearnedScoreView = NonNullable<ReturnType<typeof learnedScore>>;
+
+/** D36 native precision is retained in data; display conversion never feeds the ECDF. */
+export function geometryScore(p: Passport) {
+  const score = p.aesthetic_score;
+  const rank = p.geometry_reference_rank;
+  return {
+    score: score?.overall_score == null ? null : Number((score.overall_score / 10).toFixed(2)),
+    limited: score?.status === "limited",
+    statusText: score?.copy_zh.status ?? "",
+    flags: score?.quality_flags.map(f => score.copy_zh.flags[f]).filter(Boolean) ?? [],
+    components: score?.components.map(c => ({ key: c.key, name: c.name_zh,
+      weight: Math.round(c.weight * 100), score: c.score == null ? null : Number((c.score / 10).toFixed(2)) })) ?? [],
+    rank: score?.status === "full" && rank?.status === "available" ? rank : null,
+  };
+}
+export type GeometryScoreView = ReturnType<typeof geometryScore>;
 
 /** Existing D36 subscores only: expand the five measured symmetry groups, without scoring again. */
 export function harmonyRadar(p: Passport) {

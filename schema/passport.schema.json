@@ -29,7 +29,8 @@
         "0.6",
         "0.7",
         "0.8",
-        "0.9"
+        "0.9",
+        "0.10"
       ],
       "description": "0.7 (Issue #41): optional reference_percentiles (rules layer) — additive, so 0.3–0.6 documents stay valid. 0.6 (Issue #31, D36): optional aesthetic_score (scoring layer) — additive, so 0.3–0.5 documents stay valid. 0.5 (V3B, D35): photo roles profile90 / noglasses, measurement_profile views, side and smile metrics, catalog counts, per-metric source photo, derived.measurement_insights.assessments — all additive, so 0.3–0.4 documents stay valid. 0.4 (V3A, D34): adds measurement_profile (CV) and derived.measurement_insights (rules), both optional so 0.3 / 0.3.1 documents stay valid. 0.3.1 (V2.1): adds beauty_filter_suspect to input_quality issues."
     },
@@ -3796,6 +3797,16 @@
           "type": "null"
         }
       ]
+    },
+    "geometry_reference_rank": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/geometry_reference_rank"
+        },
+        {
+          "type": "null"
+        }
+      ]
     }
   },
   "$defs": {
@@ -4217,6 +4228,243 @@
           }
         }
       }
+    },
+    "geometry_reference_density": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "method",
+        "n",
+        "bounds",
+        "mean",
+        "points"
+      ],
+      "properties": {
+        "method": {
+          "const": "gaussian_kde_scott_v1"
+        },
+        "n": {
+          "type": "integer",
+          "minimum": 2
+        },
+        "bounds": {
+          "const": [
+            0,
+            10
+          ]
+        },
+        "mean": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 10
+        },
+        "points": {
+          "type": "array",
+          "minItems": 3,
+          "maxItems": 129,
+          "items": {
+            "type": "array",
+            "minItems": 2,
+            "maxItems": 2,
+            "prefixItems": [
+              {
+                "type": "number",
+                "minimum": 0,
+                "maximum": 10
+              },
+              {
+                "type": "number",
+                "minimum": 0
+              }
+            ],
+            "items": false,
+            "tsType": "[number, number]"
+          }
+        }
+      }
+    },
+    "geometry_reference_rank": {
+      "type": "object",
+      "required": [
+        "status",
+        "percentile",
+        "top_percent",
+        "n_unique_subjects",
+        "n_reference",
+        "reference_unit",
+        "research_only",
+        "display_step_percent",
+        "percentile_interval",
+        "limitations",
+        "tier",
+        "cohort_id",
+        "cohort_label",
+        "distribution_version",
+        "unavailable_reason",
+        "method"
+      ],
+      "properties": {
+        "status": {
+          "enum": [
+            "available",
+            "unavailable"
+          ]
+        },
+        "percentile": {
+          "type": [
+            "number",
+            "null"
+          ],
+          "minimum": 0,
+          "maximum": 100
+        },
+        "top_percent": {
+          "type": [
+            "number",
+            "null"
+          ],
+          "minimum": 0,
+          "maximum": 100
+        },
+        "n_unique_subjects": {
+          "type": [
+            "integer",
+            "null"
+          ],
+          "minimum": 1
+        },
+        "n_reference": {
+          "type": [
+            "integer",
+            "null"
+          ],
+          "minimum": 1
+        },
+        "reference_unit": {
+          "enum": [
+            "image",
+            "subject"
+          ]
+        },
+        "research_only": {
+          "type": "boolean"
+        },
+        "display_step_percent": {
+          "type": [
+            "integer",
+            "null"
+          ]
+        },
+        "percentile_interval": {
+          "type": [
+            "array",
+            "null"
+          ],
+          "items": {
+            "type": "number"
+          },
+          "minItems": 2,
+          "maxItems": 2
+        },
+        "limitations": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "tier": {
+          "anyOf": [
+            {
+              "type": "null"
+            },
+            {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "id",
+                "label_zh",
+                "min_percentile"
+              ],
+              "properties": {
+                "id": {
+                  "type": "string"
+                },
+                "label_zh": {
+                  "type": "string"
+                },
+                "min_percentile": {
+                  "type": "integer"
+                }
+              }
+            }
+          ]
+        },
+        "cohort_id": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "cohort_label": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "distribution_version": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "unavailable_reason": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "method": {
+          "const": "empirical_cdf_midrank_v1"
+        },
+        "distribution": {
+          "anyOf": [
+            {
+              "type": "null"
+            },
+            {
+              "$ref": "#/$defs/geometry_reference_density"
+            }
+          ]
+        }
+      },
+      "additionalProperties": false,
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "status": {
+                "const": "unavailable"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "percentile": {
+                "type": "null"
+              },
+              "top_percent": {
+                "type": "null"
+              },
+              "tier": {
+                "type": "null"
+              },
+              "distribution": {
+                "type": "null"
+              }
+            }
+          }
+        }
+      ]
     }
   }
 }

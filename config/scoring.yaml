@@ -14,6 +14,10 @@ version: "aes-geo-1.0"
 method: "35/25/25/15 geometric harmony on MediaPipe face-mesh landmarks (front photo, roll-corrected frame)"
 landmark_model: "mediapipe_face_mesh_478"
 
+reference_curve:
+  points: 65
+  min_bandwidth_native: 0.3
+
 weights:                      # [public] attractiveness + psl-score pages: symmetry 35, thirds 25, fifths 25, golden 15
   symmetry: 0.35
   thirds: 0.25

@@ -1,3 +1,5 @@
+import { geometryScore } from "@/lib/adapters";
+import { geometryScore as geometryCopy } from "@/lib/copy/zh";
 /** 完整面部评估报告 · PDF (Issue #33, Phase 2): the seven-chapter report as a real, paginated, text-based PDF.
  *
  *  Built from exactly what the web report shows: the same `PassportResponse` (already trimmed by the server for a free
@@ -15,7 +17,7 @@ import { adviceGroups } from "@/components/advice/advice-page";
 import { faceShape } from "@/components/face/face-model";
 import { CONFIDENCE_ZH, measureView, type Assessment, type MeasureView } from "@/components/face/measure-model";
 import {
-  aestheticScore, colorGroups, cover, hairOptions, harmonyRadar, learnedScore, rankedRecs, referenceRank, stripRefs,
+  colorGroups, cover, hairOptions, harmonyRadar, learnedScore, rankedRecs, stripRefs,
   type HairOptionView, type ScoreView, type Tier,
 } from "@/lib/adapters";
 import type { Passport, PassportResponse } from "@/lib/api";
@@ -279,9 +281,8 @@ function Cover({ data, sample, demo, images, photoMode, now }: {
   const p = data.passport!;
   const c = cover(p);
   const shape = faceShape(p);
-  const score = aestheticScore(p);
   const predicted = learnedScore(p);
-  const rank = referenceRank(p);
+  const geometric = geometryScore(p);
   const created = new Date(data.created_at);
   const fmt = (d: Date) => (Number.isNaN(d.getTime()) ? "—" : d.toLocaleDateString("zh-CN"));
   const facts: [string, string][] = [
@@ -330,29 +331,19 @@ function Cover({ data, sample, demo, images, photoMode, now }: {
         </View>
       </View>}
       {predicted?.qualityNote && <T style={[s.small, { marginTop: 6 }]}>{predicted.qualityNote}</T>}
-      {!predicted && score && score.score != null && (
-        <View style={[s.box, s.row, { marginTop: 10, alignItems: "center" }]} wrap={false}>
-          <View style={{ width: 110, alignItems: "center" }}>
-            <T style={s.small}>{score.name}</T>
-            <Text style={{ fontSize: 34, fontWeight: 700, lineHeight: 1.15, color: C.primary }}>{score.score}</Text>
-            <T style={s.small}>{scoreCopy.outOf}{score.state === "scored" && score.tier ? ` · ${score.tier}` : ""}</T>
-          </View>
-          <View style={{ flex: 1, paddingLeft: 12, borderLeftWidth: 0.5, borderLeftColor: C.rule }}>
-            {score.state === "limited" && <T style={[s.small, { marginBottom: 5 }]}>{scoreCopy.limited} · {score.statusText}{score.flags.length ? ` · ${score.flags.join("；")}` : ""}</T>}
-            {score.components.map((x) => (
-              <View key={x.key} style={[s.row, { alignItems: "center", marginBottom: 3 }]}>
-                <T style={{ width: 70, fontSize: 8.5 }}>{x.name}</T>
-                <View style={{ flex: 1 }}><Bar pct={x.score ?? 0} /></View>
-                <Text style={{ width: 28, textAlign: "right", fontSize: 8.5 }}>{x.score ?? "—"}</Text>
-              </View>
-            ))}
-            {rank && <T style={[s.small, { marginTop: 4 }]}>{rank.state === "ranked" ? `${rank.title}：${rank.label}（约）` : "参考人群位置校准中"}</T>}
-            {demo && <T style={[s.small, { marginTop: 2, color: C.amber }]}>{copy.pdf.demoScore}</T>}
-          </View>
-        </View>
-      )}
-
-      {!predicted && (!score || score.score === null) && <View style={[s.panel, { marginTop: 10 }]}><T style={s.bold}>{scoreCopy.unavailable}</T><T style={s.small}>{score?.statusText}{score?.flags.length ? ` · ${score.flags.join("；")}` : ""}</T><T style={s.small}>{scoreCopy.retake}</T></View>}
+      <View style={[s.box, { marginTop: 10 }]}>
+        <T style={s.small}>{geometryCopy.title}</T>
+        <T style={{ fontSize: 24 }}>{geometric.score === null ? geometryCopy.unavailable : `${geometric.score} /10`}</T>
+        {geometric.limited && <T style={s.small}>{geometryCopy.limited}</T>}
+        {geometric.components.map(c => <T key={c.key} style={s.small}>{c.name} · {c.weight}% · {c.score === null ? "—" : `${c.score} /10`}</T>)}
+        <T style={s.small}>{geometryCopy.rank}：{geometric.rank ? `约前 ${geometric.rank.top_percent}%` : geometryCopy.rankMissing}</T>
+        {geometric.rank && <T style={s.small}>{geometric.rank.cohort_label} · {geometric.rank.n_reference} 张照片。{geometryCopy.scope}</T>}
+        {geometric.rank?.distribution && geometric.score !== null && <DensityChart curve={geometric.rank.distribution} score={geometric.score} />}
+        <T style={s.small}>{geometric.statusText} {geometric.flags.join("；")}</T>
+        {demo && <T style={s.small}>{copy.pdf.demoScore}</T>}
+        {geometric.score === null && <T style={s.small}>{scoreCopy.retake}</T>}
+        <T style={s.small}>{geometryCopy.method}</T>
+      </View>
       {demo && <View style={[s.note, { marginTop: 10 }]}><T>{copy.pdf.demo[demo]}</T></View>}
       {!data.entitlement.paid && <T style={[s.small, { marginTop: 12 }]}>免费版报告</T>}
       <View style={{ marginTop: 16 }}>

@@ -45,14 +45,14 @@ function Ring({ value }: { value: number | null }) {
         <circle cx="38" cy="38" r={r} fill="none" strokeWidth="6" className="stroke-rule" />
         {value != null && (
           <circle cx="38" cy="38" r={r} fill="none" strokeWidth="6" strokeLinecap="round" className="stroke-accent"
-            strokeDasharray={`${(len * value) / 100} ${len}`} />
+            strokeDasharray={`${(len * value) / 10} ${len}`} />
         )}
       </svg>
       <div className="absolute inset-0 flex flex-col items-center justify-center">
         {value != null ? (
           <>
             <span className="font-serif text-[26px] font-semibold leading-none tabular-nums" data-testid="glance-value">{value}</span>
-            <span className="mt-0.5 text-[10px] text-muted">/ 100</span>
+            <span className="mt-0.5 text-[10px] text-muted">/ 10</span>
           </>
         ) : <span className="text-[12px] text-muted">—</span>}
       </div>

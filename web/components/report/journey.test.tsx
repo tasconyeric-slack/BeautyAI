@@ -83,7 +83,7 @@ describe("the full report as a document", () => {
     const items = within(strip).getAllByRole("link");
     expect(items.map((a) => a.getAttribute("href"))).toEqual(["#findings", "#options", "#rec-r1"]);
     for (const a of items) expect(container.querySelector(a.getAttribute("href")!), a.getAttribute("href")!).not.toBeNull();
-    expect(screen.getByTestId("score-value").textContent).toContain(String(passport.aesthetic_score!.overall_score));
+    expect(screen.getByTestId("geometry-score-value").textContent).toContain(String(passport.aesthetic_score!.overall_score! / 10));
     expect(screen.getByTestId("full-report").dataset.sample).toBe("1");
   });
 

@@ -182,6 +182,9 @@ def run_pipeline(
     from .attractiveness.service import evaluate as evaluate_learned
 
     learned_attractiveness, learned_reference_rank = evaluate_learned(front, aesthetic_score)
+    from .scoring.reference import evaluate_geometry_reference
+
+    geometry_reference_rank = evaluate_geometry_reference(aesthetic_score)
 
     # 4a. Quick first look (front only). Never blocks the full analysis.
     images = load_images({r: photos[r] for r in usable if r in MODEL_ROLES})
@@ -222,6 +225,7 @@ def run_pipeline(
                               color_measurements=color_measurements, measurement_profile=measurement_profile,
                               aesthetic_score=aesthetic_score, reference_percentiles=reference_percentiles,
                               learned_attractiveness=learned_attractiveness, learned_reference_rank=learned_reference_rank,
+                              geometry_reference_rank=geometry_reference_rank,
                               passport_id=passport_id)
     (run_dir / "passport.json").write_text(json.dumps(passport, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
     partial("analysis", passport)

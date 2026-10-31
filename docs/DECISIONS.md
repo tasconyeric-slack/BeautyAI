@@ -304,3 +304,14 @@
 - Product owner requests score and sample ranking when measurements are usable, with concrete photo-quality caveats underneath. Warning flags no longer independently suppress Ridge inference; preserve them and mark the existing QC state limited. Smooth-cheek suspicion is a texture heuristic, not evidence of invalid geometry.
 - Rejected uploads and unavailable/incompatible/nonfinite measurements still cannot produce a prediction. Existing geometry pose limits, authorization, model identity/hash validation, reference gates and ECDF tail/precision support remain unchanged; no fabricated score or percentile.
 - Report and exported PDF share the limited-score visibility rule and caveat. No analysis/schema/model/formula changes, no second model call, no infrastructure upgrade or private files in Git.
+# D45 Independent geometry and predicted scores (2026-10-31)
+
+Owner selected option B: show Ridge and original D36 geometry independently, both /10.
+D36 stored native scale remains 0–100; display conversion does not affect ranking.
+Geometry uses its own full-QC, byte-deduplicated SCUT holdout ECDF, never Ridge
+predictions or competitor bins. Its 1075 eligible photos differ from Ridge's 2128.
+KDE is display only; no imposed normality or tail shape. Independent formula identity,
+private hash-bound production permission, sample-size and sparse-tail gates apply.
+Schema v0.10 adds optional geometry_reference_rank; prompt analyzer-0.3.3 leaves
+analysis unchanged. See docs/scoring/GEOMETRY_REFERENCE.md. This supersedes the
+single-visible-score restriction only for these two named references.
