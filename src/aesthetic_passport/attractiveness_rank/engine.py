@@ -55,14 +55,15 @@ def rank_prediction(
     cohort_id: str,
     distribution_version: str,
     policy: RankPolicy = DEFAULT_POLICY,
+    research_mode: bool = False,
 ) -> RankResult:
     """No numerical fields on any unavailable path. Inputs are never mutated."""
-    context = {"cohort_id": cohort_id, "distribution_version": distribution_version}
+    context = {"cohort_id": cohort_id, "distribution_version": distribution_version, "research_only": research_mode}
 
     def unavailable(reason: str) -> RankResult:
         return RankResult(status="unavailable", unavailable_reason=reason, **context)
 
-    blocker = model_blocker(prediction)
+    blocker = model_blocker(prediction, research_mode=research_mode)
     if blocker:
         return unavailable(blocker)
     if registry is None:
@@ -78,12 +79,13 @@ def rank_prediction(
     if cohort is None:
         return unavailable("reference_version_missing")
     context.update(cohort_label=cohort["cohort_label"], n_unique_subjects=cohort["n_unique_subjects"])
-    blocker = cohort_blocker(cohort)
+    blocker = cohort_blocker(cohort, research_mode=research_mode)
     if blocker:
         return unavailable(blocker)
     if any(prediction[key] != cohort["identity"][key] for key in IDENTITY_FIELDS):
         return unavailable("model_reference_mismatch")
-    n = cohort["n_unique_subjects"]
+    n = cohort.get("n_observations") if cohort.get("reference_unit") == "image" else cohort["n_unique_subjects"]
+    context.update(n_reference=n, reference_unit=cohort.get("reference_unit", "subject"))
     if n < policy.min_unique_subjects:
         return unavailable("reference_too_small")
     if len(cohort["distribution"]) < policy.min_distinct_scores:
@@ -120,6 +122,6 @@ def rank_prediction(
             "not_a_population_rank",
             cohort["sampling"],
             "sampling_band_excludes_selection_bias_and_model_error",
-        ),
+        ) + (("image_independence_and_ages_unverified",) if cohort.get("reference_unit") == "image" else ()),
         **context,
     )

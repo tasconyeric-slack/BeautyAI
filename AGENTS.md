@@ -19,13 +19,20 @@ You are building **Aesthetic Passport V2**. The governing documents are **`docs/
    tests, and adds a DECISIONS entry.
 3. **One production analysis model per request.** No live multi-model voting. Any evaluator model is offline only.
 4. **Thresholds live in `config/*.yaml`**, not in code.
-5. **Scope guard.** The only score is the D36 geometric harmony reference (`AI 面部美学参考分`, `scoring/`,
+5. **Scope guard.** D36 remains a separate geometric harmony reference (`AI 面部美学参考分`, `scoring/`,
    `config/scoring.yaml`): deterministic, from CV landmarks, honest limited/unavailable states, never called an
    attractiveness verdict or a population rank. Percentiles (D37, `percentiles/`) give only an approximate position in
    a published, self-selected reference cohort. They require a `scoring_version` registered in
    `config/percentiles.yaml` and show ratio rails only for verified definitions. No medical/surgical/
    dermatology advice, no inference of ethnicity, age, gender identity, health, weight or body shape.
-   `presentation` and body frame are user-selected or user-entered.
+   `presentation` and body frame are user-selected or user-entered. D42 additionally permits the frozen
+   17-feature Ridge prediction in `learned_attractiveness`, outside `analysis`, with explicit model/QC/scale
+   metadata. It is OFF by default; research mode is forbidden in production. Production requires a
+   model-specific permission receipt; learned ranking uses the #33 identity-matched authorized ECDF,
+   never the D37 geometric-score reference. SCUT image ranks retain research provenance in stored data,
+   with unknown unique-subject and adult status, and cannot satisfy production cohort gates. Per the product
+   owner's 2026-10-30 direction, score cards show only the 1–10 result and reference top-percent result;
+   native scale, QC, model identity and research metadata stay in data and technical documentation.
 6. **Validate everything that crosses a boundary.** Model output → `validate_analysis` + `check_output_contract`;
    one repair retry in the same conversation, then fail loudly. Never retry on rules-layer outcomes.
    Assembled passport → `validate_passport`.

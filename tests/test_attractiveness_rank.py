@@ -287,3 +287,38 @@ def test_one_critical_path_import_reload_rank_and_empty_production_registry(tmp_
     blocked = rank_prediction(prediction(), load_registry(), cohort_id="test-only", distribution_version="test-1")
     assert blocked.status == "unavailable" and blocked.percentile is None
     assert not list(Path("config").glob("*test-only*"))
+
+
+def test_research_image_ecdf_keeps_production_gates_and_unknown_subject_count():
+    from aesthetic_passport.attractiveness_rank.ingest import build_image_reference
+    from aesthetic_passport.attractiveness_rank.tiers import tier_for_rank
+
+    m = manifest()
+    m["reference_unit"] = "image"
+    m["provenance"].update(data_kind="research_only", adults_confirmed=False,
+                            model_production_authorized=False, research_authorized=True)
+    ref = build_image_reference(m, [i / 100 for i in range(1000)])
+    result = prediction(5, status="research_only", production_authorized=False)
+    assert rank_prediction(result, ref, cohort_id="test-only", distribution_version="test-1").percentile is None
+    ranked = rank_prediction(result, ref, cohort_id="test-only", distribution_version="test-1", research_mode=True)
+    assert ranked.status == "available" and ranked.percentile == 50
+    assert ranked.n_unique_subjects is None and ranked.n_reference == 1000
+    assert ranked.reference_unit == "image" and ranked.research_only
+    assert tier_for_rank(ranked) is not None
+    # A mode switch cannot make this image cohort acceptable to production.
+    blocked = rank_prediction(prediction(5), ref, cohort_id="test-only", distribution_version="test-1")
+    assert blocked.percentile is None
+    ref["cohorts"][0]["identity"]["checkpoint_id"] = "other"
+    mismatch = rank_prediction(result, ref, cohort_id="test-only", distribution_version="test-1", research_mode=True)
+    assert mismatch.unavailable_reason == "model_reference_mismatch"
+    assert mismatch.percentile is None
+
+
+def test_research_reference_still_requires_permission_and_aggregate_retention():
+    from aesthetic_passport.attractiveness_rank.ingest import build_image_reference
+
+    m = manifest()
+    m["reference_unit"] = "image"
+    m["provenance"].update(data_kind="research_only", research_authorized=False)
+    with pytest.raises(ReferenceDataError, match="cohort_not_authorized"):
+        build_image_reference(m, [1, 2, 3])

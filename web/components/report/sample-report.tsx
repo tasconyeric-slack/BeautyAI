@@ -17,9 +17,8 @@ export function SampleReport({ variant }: { variant: SampleVariant }) {
   const data = React.useMemo(() => sampleReportResponse(demo ? demo.id : variant), [demo, variant]);
   return <StaticPassportProvider value={{ data }}>
     <div className={s.sampleSurface}>
-      <nav aria-label="选择报告" className={s.sampleNav}>
+      <nav aria-label="示例报告" className={s.sampleNav}>
         <Link href="/">发现你的风格</Link><span className={s.sampleNavTitle}>一份报告，新的视角。</span>
-        <div className={s.samplePeople} data-testid="sample-person-selector">{DEMO_CASES.map((c, i) => <Link key={c.key} href={`/report/sample?v=${c.key}`} aria-label={`查看报告${i + 1}`} aria-current={c.key === variant ? "page" : undefined}><img src={c.photos.front} alt="" /><span>报告{["一", "二"][i]}</span></Link>)}</div>
       </nav>
       <FullReport sample />
       <section className={s.sampleClosing}><p>看懂特点，找到自己的表达。</p><h2>下一份，属于你。</h2><Link href="/start" data-cta="primary">建立我的形象护照 <ArrowUpRight size={18} /></Link><span>一张正脸，就可以开始。</span></section>

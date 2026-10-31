@@ -1,5 +1,5 @@
 /** Issue #14 critical path: the pipeline-backed sample reports of AI-generated fictional people render through the
- *  existing report with their own measured numbers, a visible AI-generated disclosure, honest provenance and no
+ *  existing report with their own measured numbers, recorded synthetic provenance and no
  *  invented previews or learned scores. */
 import { readFileSync } from "node:fs";
 import path from "node:path";
@@ -17,7 +17,7 @@ vi.mock("next/link", () => ({
 }));
 vi.mock("next/navigation", () => ({ usePathname: () => "/report/sample", useRouter: () => ({ push: () => {} }) }));
 
-const FORBIDDEN = /颜值|打分|评分|标准脸|完美|缺陷|缺点|整容|医美|手术|治疗/;
+const FORBIDDEN = /打分|标准脸|完美|缺陷|缺点|整容|医美|手术|治疗/;
 const ROOT = path.resolve(__dirname, "../../..");
 
 describe("pipeline-backed demo cases (Issue #14)", () => {
@@ -32,7 +32,7 @@ describe("pipeline-backed demo cases (Issue #14)", () => {
     }
   });
 
-  it("records real-provider provenance that matches the passport, with no learned score and no previews", () => {
+  it("records matching analysis and measured Ridge provenance without invented previews", () => {
     for (const c of DEMO_CASES) {
       const p = c.passport;
       const L = c.provenance.layers;
@@ -41,7 +41,12 @@ describe("pipeline-backed demo cases (Issue #14)", () => {
       expect(L.analysis.model).toBe(p.meta.analysis_model);
       expect(p.meta.analysis_model).not.toMatch(/fixture|fake|sample/);
       expect(L.scoring.scoring_version).toBe(p.aesthetic_score?.scoring_version);
-      expect(L.learned_attractiveness.status).toBe("not_included");
+      expect(L.learned_attractiveness.status).toBe(p.learned_attractiveness?.status ?? "not_included");
+      if (c.key === "p001") {
+        expect(p.learned_attractiveness?.raw_score).not.toBeNull();
+        expect(p.learned_reference_rank?.distribution?.n).toBe(2128);
+        expect(p.learned_reference_rank?.research_only).toBe(true);
+      }
       // the assembler's pending placeholder only: no preview image was ever generated
       for (const pv of p.previews ?? []) expect([pv.status, pv.image_model, pv.after_ref]).toEqual(["pending", null, null]);
       expect(L.previews.status).toBe("unavailable");
@@ -60,13 +65,11 @@ describe("pipeline-backed demo cases (Issue #14)", () => {
     // Public presentation focuses on the report; provenance remains in the source manifest.
     expect(screen.queryByTestId("demo-disclosure")).toBeNull();
     expect(container.textContent).not.toMatch(/P00[12]|AI 生成的虚构人物|示例人物由 AI 合成/);
-    const selector = screen.getByTestId("sample-person-selector");
-    expect(selector.querySelectorAll("a")).toHaveLength(2);
-    expect(selector.querySelector('[aria-current="page"]')?.getAttribute("href")).toBe(`/report/sample?v=${key}`);
+    expect(screen.queryByTestId("sample-person-selector")).toBeNull();
 
     // the scoring layer's real number and the real measurements
     const report = screen.getByTestId("full-report");
-    expect(screen.getByTestId("score-value").textContent).toBe(String(p.aesthetic_score!.overall_score));
+    expect(screen.getByTestId("score-value").textContent).toContain(String(p.learned_attractiveness?.display_score ?? p.aesthetic_score!.overall_score));
     const m001 = p.measurement_profile!.metrics.find((m) => m.id === "M001")!;
     expect(container.querySelector('[data-metric-row="M001"] [data-testid="metric-value"]')?.textContent)
       .toBe(m001.value!.toFixed(m001.decimals));
@@ -89,13 +92,13 @@ describe("pipeline-backed demo cases (Issue #14)", () => {
     expect(r.media.expired).toBe(false);
   });
 
-  it("defaults /report/sample to person 001 and keeps the illustrated samples reachable", async () => {
+  it("publishes person 001 as the single default sample", async () => {
     render(await SampleReportPage({ searchParams: Promise.resolve({}) }));
     expect(screen.queryByTestId("demo-disclosure")).toBeNull();
-    expect(screen.getByTestId("sample-person-selector").querySelector('[aria-current="page"]')?.getAttribute("href")).toBe("/report/sample?v=p001");
+    expect(screen.getByTestId("learned-rank")).toBeTruthy();
   });
 
-  it("keeps ?v=male rendering the older illustrated sample without the demo disclosure", async () => {
+  it("uses person-001 for legacy variant links too", async () => {
     render(await SampleReportPage({ searchParams: Promise.resolve({ v: "male" }) }));
     expect(screen.queryByTestId("demo-disclosure")).toBeNull();
     expect(screen.getByTestId("full-report")).toBeTruthy();

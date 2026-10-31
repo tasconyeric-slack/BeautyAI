@@ -1,7 +1,9 @@
 import { ArrowUpRight, Info } from "lucide-react";
 import Link from "next/link";
-import type { RankView, ScoreComponentView, ScoreView } from "@/lib/adapters";
+import type { HarmonyAxis, LearnedScoreView, RankView, ScoreComponentView, ScoreView } from "@/lib/adapters";
+import { learnedAttractiveness as learnedCopy } from "@/lib/copy/zh";
 import { aestheticScore as copy, referenceRank as rankCopy } from "@/lib/copy/zh";
+import { HarmonyRadar, ReferenceDensity } from "./score-charts";
 
 /** AI 面部美学参考分 hero (Issue #31, D36): the number, its four parts, 2 strengths, 1 direction, and the way into the
  * measurement workbench. Renders only what the passport's scoring layer computed — never a placeholder number. */
@@ -140,7 +142,7 @@ function ComponentRow({ c }: { c: ScoreComponentView }) {
   );
 }
 
-function Gauge({ value }: { value: number }) {
+function Gauge({ value, maximum = 100 }: { value: number; maximum?: number }) {
   const r = 56;
   const len = 2 * Math.PI * r;
   return (
@@ -148,12 +150,43 @@ function Gauge({ value }: { value: number }) {
       <svg viewBox="0 0 132 132" className="size-full -rotate-90" aria-hidden>
         <circle cx="66" cy="66" r={r} fill="none" strokeWidth="10" className="stroke-rule" />
         <circle cx="66" cy="66" r={r} fill="none" strokeWidth="10" strokeLinecap="round" className="stroke-accent"
-          strokeDasharray={`${(len * value) / 100} ${len}`} />
+          strokeDasharray={`${(len * value) / maximum} ${len}`} />
       </svg>
       <div className="absolute inset-0 flex flex-col items-center justify-center">
         <span className="font-serif text-[44px] font-semibold leading-none tabular-nums" data-testid="score-value">{value}</span>
-        <span className="mt-1 text-[11px] text-muted">{copy.outOf}</span>
+        <span className="mt-1 text-[11px] text-muted">/ {maximum}</span>
       </div>
     </div>
   );
+}
+
+/** Two user-facing results; calculation provenance stays in the Passport data. */
+export function PredictedScoreHero({ view, harmony }: { view: LearnedScoreView; harmony?: HarmonyAxis[] | null }) {
+  return <section data-testid="learned-score" data-state={view.available ? "available" : "unavailable"}
+    aria-label={learnedCopy.title} className="grid grid-cols-2 rounded-[18px] border border-rule bg-paper-raised py-5 sm:py-6">
+    <div className="min-w-0 px-3 sm:px-5">
+      <h2 className="text-[13px] font-medium text-ink-soft">{learnedCopy.title}</h2>
+      {view.available ? <p data-testid="score-value" className="mt-3 whitespace-nowrap font-serif text-[34px] font-semibold leading-none tabular-nums sm:text-[44px]">
+        {view.score}<span className="ml-1 font-sans text-[16px] font-normal text-muted">/10</span>
+      </p> : <p className="mt-3 text-[20px] text-muted">{learnedCopy.unavailable}</p>}
+      {harmony && <div className="mt-7"><HarmonyRadar axes={harmony} /></div>}
+    </div>
+    <div className="min-w-0 border-l border-rule px-3 sm:px-5" aria-label={learnedCopy.rankAccessible}>
+      <h2 className="text-[13px] font-medium text-ink-soft">{learnedCopy.rank}</h2>
+      {view.available && view.rank ? <>
+        <p data-testid="learned-rank" className="mt-3 whitespace-nowrap font-serif text-[30px] font-semibold leading-none tabular-nums sm:text-[40px]">
+          <span className="mr-1 font-sans text-[16px] font-normal">前 </span>{view.rank.top}%
+        </p>
+        {!view.rank.distribution && <svg viewBox="0 0 160 20" aria-hidden="true" data-testid="rank-position" data-percentile={view.rank.percentile}
+          className="mt-3 h-5 w-full max-w-[220px] overflow-visible">
+          <path d="M8 10H152" fill="none" strokeWidth="3" strokeLinecap="round" className="stroke-rule" />
+          <path d={`M8 10H${8 + 1.44 * view.rank.percentile!}`} fill="none" strokeWidth="3" strokeLinecap="round" className="stroke-accent/40" />
+          <circle cx={8 + 1.44 * view.rank.percentile!} cy="10" r="5" strokeWidth="2" className="fill-paper-raised stroke-accent" />
+        </svg>}
+      </> : <p data-testid="learned-rank-unavailable" className="mt-3 text-[20px] text-muted">{learnedCopy.rankMissing}</p>}
+      {view.available && view.rank?.distribution && <div className="mt-7 flex h-[155px] items-center sm:h-[195px]">
+        <ReferenceDensity curve={view.rank.distribution} score={view.score!} />
+      </div>}
+    </div>
+  </section>;
 }

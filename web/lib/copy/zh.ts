@@ -607,3 +607,10 @@ export const zh = {
   common, consent, privacy, upload, photos, qc, topics, landing, presentation, onboarding, reveal,
   profile, guidance, style, feedback, adjustments, settings, paywall, entitlements, aestheticScore, referenceRank, report, atlas, share,
 } as const;
+export const learnedAttractiveness = {
+  title: "颜值分",
+  rank: "参考排名",
+  rankAccessible: "参考样本内排名",
+  rankMissing: "暂无排名",
+  unavailable: "暂不可用",
+};

@@ -364,6 +364,46 @@ export function aestheticScore(p: Passport): ScoreView | null {
   };
 }
 
+/** Learned prediction remains separate from D36. Old passports return null. */
+export function learnedScore(p: Passport) {
+  const s = p.learned_attractiveness;
+  if (!s) return null;
+  const available = (s.status === "ok" || s.status === "research_only") && s.qc_status === "passed"
+    && s.raw_score != null && s.display_score != null;
+  const rank = p.learned_reference_rank;
+  const ranked = available && rank?.status === "available" && rank.percentile != null && rank.top_percent != null;
+  return {
+    available, score: available ? s.display_score : null,
+    native: available ? s.raw_score!.toFixed(2) : null,
+    research: s.research_only, model: s.model_id, checkpoint: s.checkpoint_id,
+    qc: s.qc_status, reason: s.unavailable_reason,
+    rank: ranked ? {
+      label: rank.cohort_label, top: rank.top_percent, percentile: rank.percentile,
+      n: rank.n_reference, unit: rank.reference_unit, tier: rank.tier?.label_zh ?? null,
+      interval: rank.percentile_interval,
+      distribution: rank.distribution ?? null,
+    } : null,
+    rankReason: ranked ? null : rank?.unavailable_reason ?? "reference_missing",
+  };
+}
+export type LearnedScoreView = NonNullable<ReturnType<typeof learnedScore>>;
+
+/** Existing D36 subscores only: expand the five measured symmetry groups, without scoring again. */
+export function harmonyRadar(p: Passport) {
+  const s = p.aesthetic_score;
+  if (!s) return null;
+  const symmetry = s.components.find(c => c.key === "symmetry")?.measured as { features?: Record<string, unknown> } | null;
+  const number = (v: unknown) => typeof v === "number" && Number.isFinite(v) && v >= 0 && v <= 100 ? v : null;
+  const axes = [
+    ...Object.entries({ eyes: "眼部对称", brows: "眉部对称", nose: "鼻部对称", mouth: "口部对称", jaw: "轮廓对称" })
+      .map(([id, label]) => ({ id, label, value: number(symmetry?.features?.[id]) })),
+    ...Object.entries({ thirds: "三庭均衡", fifths: "五眼均衡", golden_ratio: "长宽协调" })
+      .map(([id, label]) => ({ id, label, value: number(s.component_scores[id as keyof typeof s.component_scores]) })),
+  ];
+  return axes.some(a => a.value !== null) ? axes : null;
+}
+export type HarmonyAxis = NonNullable<ReturnType<typeof harmonyRadar>>[number];
+
 // --- Reference-cohort position (Issue #41) -----------------------------------------------------------------------
 
 export interface CohortView { n: number; date: string; publisher: string; url: string }

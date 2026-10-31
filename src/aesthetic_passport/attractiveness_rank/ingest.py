@@ -86,3 +86,26 @@ def build_reference(manifest: CohortManifest, observations: Iterable[ReferenceOb
     }
     validate_registry(registry)
     return registry
+
+
+def build_image_reference(manifest: CohortManifest, scores: Iterable[float]) -> ReferenceRegistry:
+    """Research images only: do not fabricate adult or unique-subject evidence.
+
+    The caller must remove exact duplicate images before supplying these values.
+    Production subject-cohort ingestion and its adult/dedup gates remain above.
+    """
+    validate_boundary(manifest, "manifest")
+    if manifest.get("reference_unit") != "image" or manifest["provenance"]["data_kind"] != "research_only":
+        raise ReferenceDataError("research_image_reference_required")
+    blocker = cohort_blocker(manifest, research_mode=True)
+    if blocker:
+        raise ReferenceDataError(blocker)
+    histogram = Counter(scores)
+    n = sum(histogram.values())
+    registry = {"registry_version": "attractiveness-reference-1", "unavailable_reason": None, "cohorts": [{
+        **copy.deepcopy(manifest), "n_unique_subjects": None, "n_observations": n,
+        "distribution": [{"score": score, "count": count} for score, count in sorted(histogram.items())],
+        "import_summary": {"records_received": n, "duplicates_removed": 0},
+    }]}
+    validate_registry(registry)
+    return registry

@@ -1,6 +1,15 @@
-# Schema 说明 v0.2
+# Schema 说明 v0.9
 
-两份文件，一个原则：**模型只写 `analysis`，其余都不是模型写的。**
+v0.9（D43）在 `learned_reference_rank` 增加可选 `distribution`：同一获授权参考集的平滑密度（65 个 `[显示分, 密度]` 点、样本数、实际预测均值、1–10 边界、`gaussian_kde_scott_v1` 方法）。仅排名可用时生成；旧报告可缺省，排名不可用时为 null。它只用于画图，ECDF 排名算法不变。生产提示词升至 `analyzer-0.3.2`，仍由流水线而非分析模型产生。继续接受 v0.3–v0.8。
+
+两份文件，一个原则：**生产分析模型只写 `analysis`；CV、确定性回归与规则分别由流水线组装。**
+
+v0.8（D42）新增两个可选、可为 null 的顶层字段，仍接受 v0.3–v0.7 存储报告：
+
+- `learned_attractiveness`：现有 PhotoCheck 几何特征的 Ridge 预测；原生 `raw_score` 为 1–5，`display_score` 为明确版本化的 `1 + (raw_score - 1) * 9/4`，不赋予 PSL 等级含义。包含完整模型身份、SHA256、QC、授权状态、不可用原因及推理耗时。不可用时两种分数都为 null。
+- `learned_reference_rank`：复用 #33 的 ECDF 与 #62 tiers，独立于 D37 `reference_percentiles`。只有同模型、同预处理、同尺度和获授权参考集才输出数字；包含样本版本、单位、规模、近似分位与区间。SCUT 研究集的单位是照片，`n_unique_subjects=null`；生产模式拒绝该研究集。
+
+两者不进入或修改 `analysis`、不替代 D36 `aesthetic_score`，也不影响偏好重排。生产分析提示词升至 `analyzer-0.3.1`，analysis schema 不变。
 
 | 块 | 谁产生 | 文件 / 代码 |
 |---|---|---|

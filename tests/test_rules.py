@@ -38,7 +38,7 @@ def test_sample_analysis_is_valid(analysis):
 def test_committed_sample_passports_are_valid(name):
     passport = json.loads((EX / name).read_text(encoding="utf-8"))
     assert validate_passport(passport) == []
-    assert passport["schema_version"] == "0.7"
+    assert passport["schema_version"] == "0.9"
     assert passport["aesthetic_score"]["overall_score"] is not None
 
 

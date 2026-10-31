@@ -40,6 +40,33 @@ async function build(input: ReportPdfInput, name: string) {
 const squash = (t: string) => t.replace(/\s+/g, "");
 
 describe("PDF report export", () => {
+  it("learned cover contains just the ten-point score and reference top-percent", async () => {
+    const data = structuredClone(sampleReportResponse("female"));
+    data.passport!.learned_attractiveness = {
+      contract_version: "learned-attractiveness-1", status: "research_only", model_id: "test-model",
+      checkpoint_id: "sha256:test", preprocessing_version: "test", crop_version: "test", native_scale_id: "test",
+      calibration_version: null, raw_score: 3, display_score: 5.5, native_label_range: [1, 5], display_range: [1, 10],
+      display_transform: "test-linear", qc_status: "passed", inference_ms: 0.1, research_only: true,
+      production_authorized: false, provenance: "cv_geometry_ridge_regression", quality_flags: [],
+      unavailable_reason: null, limitations: [],
+    };
+    data.passport!.learned_reference_rank = {
+      status: "available", percentile: 65, top_percent: 35, cohort_label: "test-only sample", cohort_id: "test",
+      distribution_version: "test", n_reference: 1000, n_unique_subjects: null, reference_unit: "image",
+      method: "empirical_cdf_midrank_v1", limitations: [], unavailable_reason: null,
+      percentile_interval: [60, 70], display_step_percent: 5, research_only: true, tier: null,
+      distribution: { method: "gaussian_kde_scott_v1", n: 1000, bounds: [1, 10], mean: 5.2, points: [[1, 0.01], [5, 0.3], [10, 0.01]] },
+    };
+    const r = await build({ data, sample: false, images: null, photoMode: "omitted" }, "learned-summary.pdf");
+    const cover = squash(r.pages[0]);
+    expect(cover).toContain("颜值分5.5/10");
+    expect(cover).toContain("参考排名前35%");
+    expect(cover).not.toContain("均值");
+    expect(cover).toContain("几何协调度");
+    expect(r.all).not.toContain("比例参考：");
+    expect(cover).not.toMatch(/SCUT|原生|照片质量|研究预览|校准|评分与样本说明|test-model|AI面部美学参考分/);
+  }, 60_000);
+
   it("sample (full): seven chapters, real numbers, selectable Chinese text, metadata, page numbers", async () => {
     const data = sampleReportResponse("female");
     const p = data.passport as Passport;

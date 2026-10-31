@@ -4,6 +4,9 @@
 
 | 日期 | 改动 | 原因 | 前 → 后（指标） |
 |---|---|---|---|
+| 2026-10-30 | D43：Passport v0.9、analyzer-0.3.2；真实参考预测 KDE 曲线、8轴协调度雷达、固定全照片测量画幅；来源移入关于页 | 保留旧版供比较，按用户提供竞品参考精简报告 | Ridge、ECDF 与 D36 算法不变；真实上传及缺失模型通过，单次检测，峰值279.15 MiB，Ridge 0.121ms |
+| 2026-10-30 | D42 展示修订：档案、报告、PDF 只显示颜值分 /10 和前百分比；记录负责人模型生产授权确认 | 产品负责人要求直接给出两个结论 | 移除原生分、质量、模型、研究及分级说明；保留计算数据和缺失值处理 |
+| 2026-10-30 | D42：Passport v0.8、analyzer-0.3.1；冻结 Ridge 主预测分及同模型研究 ECDF 接入现有报告 | 复用 #66 系数、#33 ECDF、#62 tiers；默认关闭、研究和生产授权独立 | 实测 2128 张参考照片；单次正脸检测；280.47 MiB 峰值；Ridge 0.094ms；缺失模型报告可用，无预测数字 |
 | 2026-09-29 | Schema v0.1、rules 0.1.0、analyzer-0.1、judge-0.1、preview-0.1 初版 | W1 核心产物 | — |
 | 2026-09-29 | `visual_edit_spec.target_description` 上限 240 → 360 字符 | 样例中一条可用的发型描述即超过 240，校验器拦截 | 样例通过校验 |
 | 2026-09-29 | 生产模型改为 DeepSeek `deepseek-flash`（JSON 模式）；analyzer-0.1 的 SYSTEM 末尾追加完整 Schema；新增输出契约检查并纳入重试 | D10、D12：JSON 模式不保证符合 Schema | — （尚无真实运行） |
@@ -94,3 +97,7 @@
 - Two-seed before/after evidence: `docs/demos/issue-1-style-adherence.md`. One seed improves length/part visibly; the second still misses exact length/part, and the crown remains overstyled. No reliable style or genuine-photo acceptance claim. Twelve paid images, USD 0.36 estimated; actual billing unavailable.
 - Acceptance script no longer recursively deletes CLI-selected output paths; every run uses a new directory confined beneath `runs/live-hair-preview`. No provider/auth/model runtime or homepage changes.
 | 2026-10-29 | preview-0.8 + Qwen Image 3.0 Pro：对 root lift / inward 添加正向日常造型约束；沿用原注册/合成与身份门。单批次并发 1 扩展为跨请求共用；复用 #49 重启恢复，禁用 SQLite 共享 statement cache | #54：真实出图发现 2.0 把发根撑起画成卷束，追加负面词无稳定改善；3.0 Pro 同源 P001 头顶与发尾更自然；存储并发复现见 docs/ops/preview-stability.md | API fake 回归 + 有限真实调用，私有结果在任务包，不提交照片；P002/P005/P004逐例状态见本轮说明 |
+
+## 2026-10-30 · Person001 single web example
+
+PR #68 preview used the old Person001 snapshot without learned score/rank. Refreshed only its frozen Ridge inference from existing real CV measurements and PhotoCheck pose, preserving the real analysis and research reference provenance; added reproducible hash-verifying refresh script. All public sample variants now show Person001. Score/rank and their compact charts remain side by side on mobile and desktop; PDF uses the same arrangement and omits numeric chart labels. Renamed overview label to 面域解析. Model/reference authorization and stored-report compatibility remain unchanged.

@@ -53,16 +53,18 @@ def validate_boundary(value: Any, kind: str) -> None:
         raise ReferenceDataError(f"invalid_{kind}") from None
 
 
-def model_blocker(prediction: ModelResult) -> str | None:
+def model_blocker(prediction: ModelResult, *, research_mode: bool = False) -> str | None:
     try:
         validate_boundary(prediction, "model_result")
     except ReferenceDataError:
         return "invalid_model_result"
-    if prediction["status"] == "research_only":
+    if prediction["status"] == "research_only" and not research_mode:
         return "model_research_only"
-    if prediction["production_authorized"] is not True:
+    if prediction["production_authorized"] is not True and not research_mode:
         return "model_not_authorized"
-    if prediction["status"] != "ok" or prediction["unavailable_reason"] or prediction["raw_score"] is None:
+    allowed = ("ok", "research_only") if research_mode else ("ok",)
+    if (prediction["status"] not in allowed or prediction["unavailable_reason"]
+            or prediction["raw_score"] is None):
         return "model_unavailable"
     # Conservative until #13 supplies an explicit allowlist of harmless flags.
     if prediction["quality_flags"]:
@@ -70,8 +72,18 @@ def model_blocker(prediction: ModelResult) -> str | None:
     return None
 
 
-def cohort_blocker(cohort: dict[str, Any]) -> str | None:
+def cohort_blocker(cohort: dict[str, Any], *, research_mode: bool = False) -> str | None:
     provenance = cohort["provenance"]
+    if research_mode and provenance["data_kind"] == "research_only":
+        if (provenance.get("research_authorized") is not True
+                or provenance["ranking_authorized"] is not True
+                or provenance["aggregate_retention_authorized"] is not True):
+            return "cohort_not_authorized"
+        if cohort["qc"]["status"] != "passed":
+            return "cohort_qc_failed"
+        return None
+    if cohort.get("reference_unit", "subject") != "subject":
+        return "cohort_subjects_unverified"
     if provenance["data_kind"] != "real_adult" or not all(
         provenance[key] is True
         for key in (
@@ -95,7 +107,11 @@ def validate_cohort(cohort: ReferenceCohort) -> None:
         raise ReferenceDataError("invalid_score_bounds")
     if any(a["score"] >= b["score"] for a, b in itertools.pairwise(dist)):
         raise ReferenceDataError("invalid_distribution_order")
-    n = cohort["n_unique_subjects"]
+    n = cohort.get("n_observations") if cohort.get("reference_unit") == "image" else cohort["n_unique_subjects"]
+    if type(n) is not int or n < 1:
+        raise ReferenceDataError("invalid_reference_size")
+    if cohort.get("reference_unit") == "image" and cohort["n_unique_subjects"] is not None:
+        raise ReferenceDataError("unverified_subject_count")
     summary = cohort["import_summary"]
     if sum(point["count"] for point in dist) != n:
         raise ReferenceDataError("invalid_distribution_count")
@@ -130,7 +146,9 @@ def empirical_quantile(cohort: ReferenceCohort, probability: float) -> float:
         raise ReferenceDataError("invalid_quantile_probability")
     if not math.isfinite(probability) or not 0 <= probability <= 1:
         raise ReferenceDataError("invalid_quantile_probability")
-    target = max(1, math.ceil(probability * cohort["n_unique_subjects"]))
+    n = cohort["n_observations"] if cohort.get("reference_unit") == "image" else cohort["n_unique_subjects"]
+    assert n is not None  # validate_cohort checked the selected reference unit
+    target = max(1, math.ceil(probability * n))
     cumulative = 0
     for point in cohort["distribution"]:
         cumulative += point["count"]

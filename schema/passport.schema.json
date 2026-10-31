@@ -1,7 +1,7 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://aesthetic-passport.local/schema/passport.schema.json",
-  "title": "Aesthetic Passport v0.6",
+  "title": "Aesthetic Passport v0.9",
   "description": "The assembled product object. Every downstream surface (web report, share card, PDF, image preview, eval, future history/A-B) reads this. Provenance is explicit: `analysis` = what the model said; `derived` = what the rules layer computed; `input_quality`/`anchors`/`color_measurements` = what CV measured.",
   "type": "object",
   "additionalProperties": false,
@@ -27,7 +27,9 @@
         "0.4",
         "0.5",
         "0.6",
-        "0.7"
+        "0.7",
+        "0.8",
+        "0.9"
       ],
       "description": "0.7 (Issue #41): optional reference_percentiles (rules layer) — additive, so 0.3–0.6 documents stay valid. 0.6 (Issue #31, D36): optional aesthetic_score (scoring layer) — additive, so 0.3–0.5 documents stay valid. 0.5 (V3B, D35): photo roles profile90 / noglasses, measurement_profile views, side and smile metrics, catalog counts, per-metric source photo, derived.measurement_insights.assessments — all additive, so 0.3–0.4 documents stay valid. 0.4 (V3A, D34): adds measurement_profile (CV) and derived.measurement_insights (rules), both optional so 0.3 / 0.3.1 documents stay valid. 0.3.1 (V2.1): adds beauty_filter_suspect to input_quality issues."
     },
@@ -3771,6 +3773,447 @@
             "reference_doc": {
               "type": "string"
             }
+          }
+        }
+      }
+    },
+    "learned_attractiveness": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/learned_attractiveness"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "learned_reference_rank": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/learned_reference_rank"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    }
+  },
+  "$defs": {
+    "learned_attractiveness": {
+      "type": "object",
+      "required": [
+        "model_id",
+        "checkpoint_id",
+        "preprocessing_version",
+        "crop_version",
+        "native_scale_id",
+        "calibration_version",
+        "contract_version",
+        "status",
+        "raw_score",
+        "production_authorized",
+        "quality_flags",
+        "unavailable_reason",
+        "native_label_range",
+        "display_range",
+        "display_score",
+        "display_transform",
+        "qc_status",
+        "inference_ms",
+        "research_only",
+        "provenance",
+        "limitations"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "model_id": {
+          "type": "string",
+          "minLength": 1,
+          "pattern": "\\S"
+        },
+        "checkpoint_id": {
+          "type": "string",
+          "minLength": 1,
+          "pattern": "\\S"
+        },
+        "preprocessing_version": {
+          "type": "string",
+          "minLength": 1,
+          "pattern": "\\S"
+        },
+        "crop_version": {
+          "type": "string",
+          "minLength": 1,
+          "pattern": "\\S"
+        },
+        "native_scale_id": {
+          "type": "string",
+          "minLength": 1,
+          "pattern": "\\S"
+        },
+        "calibration_version": {
+          "anyOf": [
+            {
+              "type": "string",
+              "minLength": 1,
+              "pattern": "\\S"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "contract_version": {
+          "const": "learned-attractiveness-1"
+        },
+        "status": {
+          "enum": [
+            "ok",
+            "unavailable",
+            "research_only"
+          ]
+        },
+        "raw_score": {
+          "type": [
+            "number",
+            "null"
+          ],
+          "minimum": 1,
+          "maximum": 5
+        },
+        "production_authorized": {
+          "type": "boolean"
+        },
+        "quality_flags": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1,
+            "pattern": "\\S"
+          },
+          "uniqueItems": true
+        },
+        "unavailable_reason": {
+          "anyOf": [
+            {
+              "type": "string",
+              "minLength": 1,
+              "pattern": "\\S"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "native_label_range": {
+          "type": "array",
+          "items": {
+            "type": "number"
+          },
+          "minItems": 2,
+          "maxItems": 2
+        },
+        "display_range": {
+          "type": "array",
+          "items": {
+            "type": "number"
+          },
+          "minItems": 2,
+          "maxItems": 2
+        },
+        "display_score": {
+          "type": [
+            "number",
+            "null"
+          ],
+          "minimum": 1,
+          "maximum": 10
+        },
+        "display_transform": {
+          "type": "string"
+        },
+        "qc_status": {
+          "enum": [
+            "unavailable",
+            "limited",
+            "passed"
+          ]
+        },
+        "inference_ms": {
+          "type": [
+            "number",
+            "null"
+          ],
+          "minimum": 0
+        },
+        "research_only": {
+          "type": "boolean"
+        },
+        "provenance": {
+          "const": "cv_geometry_ridge_regression"
+        },
+        "limitations": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "status": {
+                "const": "unavailable"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "raw_score": {
+                "type": "null"
+              },
+              "display_score": {
+                "type": "null"
+              }
+            }
+          }
+        }
+      ]
+    },
+    "learned_reference_rank": {
+      "type": "object",
+      "required": [
+        "status",
+        "percentile",
+        "top_percent",
+        "n_unique_subjects",
+        "n_reference",
+        "reference_unit",
+        "research_only",
+        "display_step_percent",
+        "percentile_interval",
+        "limitations",
+        "tier",
+        "cohort_id",
+        "cohort_label",
+        "distribution_version",
+        "unavailable_reason",
+        "method"
+      ],
+      "properties": {
+        "status": {
+          "enum": [
+            "available",
+            "unavailable"
+          ]
+        },
+        "percentile": {
+          "type": [
+            "number",
+            "null"
+          ],
+          "minimum": 0,
+          "maximum": 100
+        },
+        "top_percent": {
+          "type": [
+            "number",
+            "null"
+          ],
+          "minimum": 0,
+          "maximum": 100
+        },
+        "n_unique_subjects": {
+          "type": [
+            "integer",
+            "null"
+          ],
+          "minimum": 1
+        },
+        "n_reference": {
+          "type": [
+            "integer",
+            "null"
+          ],
+          "minimum": 1
+        },
+        "reference_unit": {
+          "enum": [
+            "image",
+            "subject"
+          ]
+        },
+        "research_only": {
+          "type": "boolean"
+        },
+        "display_step_percent": {
+          "type": [
+            "integer",
+            "null"
+          ]
+        },
+        "percentile_interval": {
+          "type": [
+            "array",
+            "null"
+          ],
+          "items": {
+            "type": "number"
+          },
+          "minItems": 2,
+          "maxItems": 2
+        },
+        "limitations": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "tier": {
+          "anyOf": [
+            {
+              "type": "null"
+            },
+            {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "id",
+                "label_zh",
+                "min_percentile"
+              ],
+              "properties": {
+                "id": {
+                  "type": "string"
+                },
+                "label_zh": {
+                  "type": "string"
+                },
+                "min_percentile": {
+                  "type": "integer"
+                }
+              }
+            }
+          ]
+        },
+        "cohort_id": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "cohort_label": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "distribution_version": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "unavailable_reason": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "method": {
+          "const": "empirical_cdf_midrank_v1"
+        },
+        "distribution": {
+          "anyOf": [
+            {
+              "type": "null"
+            },
+            {
+              "$ref": "#/$defs/reference_density"
+            }
+          ]
+        }
+      },
+      "additionalProperties": false,
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "status": {
+                "const": "unavailable"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "percentile": {
+                "type": "null"
+              },
+              "top_percent": {
+                "type": "null"
+              },
+              "tier": {
+                "type": "null"
+              },
+              "distribution": {
+                "type": "null"
+              }
+            }
+          }
+        }
+      ]
+    },
+    "reference_density": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "method",
+        "n",
+        "bounds",
+        "mean",
+        "points"
+      ],
+      "properties": {
+        "method": {
+          "const": "gaussian_kde_scott_v1"
+        },
+        "n": {
+          "type": "integer",
+          "minimum": 2
+        },
+        "bounds": {
+          "const": [
+            1,
+            10
+          ]
+        },
+        "mean": {
+          "type": "number",
+          "minimum": 1,
+          "maximum": 10
+        },
+        "points": {
+          "type": "array",
+          "minItems": 3,
+          "maxItems": 129,
+          "items": {
+            "type": "array",
+            "minItems": 2,
+            "maxItems": 2,
+            "prefixItems": [
+              {
+                "type": "number",
+                "minimum": 1,
+                "maximum": 10
+              },
+              {
+                "type": "number",
+                "minimum": 0
+              }
+            ],
+            "items": false,
+            "tsType": "[number, number]"
           }
         }
       }

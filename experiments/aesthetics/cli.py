@@ -101,7 +101,8 @@ def cmd_evaluate(a: argparse.Namespace) -> int:
                                 device=a.device, threads=a.threads, batch=a.batch, max_test=a.max_test,
                                 max_train=a.max_train, calibration_n=a.calibration_n, bootstrap=a.bootstrap,
                                 min_group=a.min_group, reference_predictions=a.reference_predictions,
-                                parity_tolerance=a.parity_tolerance)
+                                parity_tolerance=a.parity_tolerance,
+                                ridge_artifact_out=a.ridge_artifact_out)
     except ValueError as e:
         _emit({"status": "error", "error": str(e)})
         return 1
@@ -110,6 +111,14 @@ def cmd_evaluate(a: argparse.Namespace) -> int:
     print(to_markdown(report))
     print(f"\nwrote {out}/report.json, report.md, predictions.jsonl", file=sys.stderr)
     return 0 if report["status"] == "complete" or not a.require_all else 3
+
+
+def cmd_ridge_predict(a: argparse.Namespace) -> int:
+    from .ridge_artifact import predict_photo
+
+    res = predict_photo(a.photo, a.artifact)
+    _emit(res, a.out)
+    return 0 if res["status"] == "ok" else 3
 
 
 def cmd_bench(a: argparse.Namespace) -> int:
@@ -177,9 +186,17 @@ def build_parser() -> argparse.ArgumentParser:
                    help="MEBeauty-Benchmark results/dinov2-partial_predictions.npz for a parity check")
     e.add_argument("--parity-tolerance", type=float, default=1e-3,
                    help="max |Δ score| vs the published predictions for parity PASS (default 1e-3)")
+    e.add_argument("--ridge-artifact-out",
+                   help="optional git-ignored local research-only Ridge coefficient JSON; fits on existing TRAIN rows")
     e.add_argument("--require-all", action="store_true", help="exit 3 unless every method ran")
     e.add_argument("--out", help="output dir (default runs/aesthetics/eval-<dataset>-<time>, git-ignored)")
     e.set_defaults(fn=cmd_evaluate)
+
+    r = sub.add_parser("ridge-predict", help="local research-only inference from exported Ridge coefficients")
+    r.add_argument("photo")
+    r.add_argument("--artifact", required=True, help="JSON produced by evaluate --ridge-artifact-out")
+    r.add_argument("--out")
+    r.set_defaults(fn=cmd_ridge_predict)
 
     b = sub.add_parser("bench", help="measure load time, latency and memory")
     _model_args(b)

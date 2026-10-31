@@ -70,6 +70,72 @@ export type FeatureSignature = {
   region: Region;
   styling_implication: string;
 }[];
+/**
+ * This interface was referenced by `Passport`'s JSON-Schema
+ * via the `definition` "learned_attractiveness".
+ */
+export type LearnedAttractiveness = {
+  model_id: string;
+  checkpoint_id: string;
+  preprocessing_version: string;
+  crop_version: string;
+  native_scale_id: string;
+  calibration_version: string | null;
+  contract_version: "learned-attractiveness-1";
+  status: "ok" | "unavailable" | "research_only";
+  raw_score: number | null;
+  production_authorized: boolean;
+  quality_flags: string[];
+  unavailable_reason: string | null;
+  /**
+   * @minItems 2
+   * @maxItems 2
+   */
+  native_label_range: number[];
+  /**
+   * @minItems 2
+   * @maxItems 2
+   */
+  display_range: number[];
+  display_score: number | null;
+  display_transform: string;
+  qc_status: "unavailable" | "limited" | "passed";
+  inference_ms: number | null;
+  research_only: boolean;
+  provenance: "cv_geometry_ridge_regression";
+  limitations: string[];
+};
+/**
+ * This interface was referenced by `Passport`'s JSON-Schema
+ * via the `definition` "learned_reference_rank".
+ */
+export type LearnedReferenceRank = {
+  status: "available" | "unavailable";
+  percentile: number | null;
+  top_percent: number | null;
+  n_unique_subjects: number | null;
+  n_reference: number | null;
+  reference_unit: "image" | "subject";
+  research_only: boolean;
+  display_step_percent: number | null;
+  /**
+   * @minItems 2
+   * @maxItems 2
+   */
+  percentile_interval: number[] | null;
+  limitations: string[];
+  tier: null | {
+    id: string;
+    label_zh: string;
+    min_percentile: number;
+  };
+  cohort_id: string | null;
+  cohort_label: string | null;
+  distribution_version: string | null;
+  unavailable_reason: string | null;
+  method: "empirical_cdf_midrank_v1";
+  distribution?: null | ReferenceDensity;
+};
 
 /**
  * The assembled product object. Every downstream surface (web report, share card, PDF, image preview, eval, future history/A-B) reads this. Provenance is explicit: `analysis` = what the model said; `derived` = what the rules layer computed; `input_quality`/`anchors`/`color_measurements` = what CV measured.
@@ -78,7 +144,7 @@ export interface Passport {
   /**
    * 0.7 (Issue #41): optional reference_percentiles (rules layer) — additive, so 0.3–0.6 documents stay valid. 0.6 (Issue #31, D36): optional aesthetic_score (scoring layer) — additive, so 0.3–0.5 documents stay valid. 0.5 (V3B, D35): photo roles profile90 / noglasses, measurement_profile views, side and smile metrics, catalog counts, per-metric source photo, derived.measurement_insights.assessments — all additive, so 0.3–0.4 documents stay valid. 0.4 (V3A, D34): adds measurement_profile (CV) and derived.measurement_insights (rules), both optional so 0.3 / 0.3.1 documents stay valid. 0.3.1 (V2.1): adds beauty_filter_suspect to input_quality issues.
    */
-  schema_version: "0.3" | "0.3.1" | "0.4" | "0.5" | "0.6" | "0.7";
+  schema_version: "0.3" | "0.3.1" | "0.4" | "0.5" | "0.6" | "0.7" | "0.8" | "0.9";
   passport_id: string;
   created_at: string;
   locale: "zh-CN" | "en";
@@ -1019,6 +1085,8 @@ export interface Passport {
       reference_doc: string;
     };
   } | null;
+  learned_attractiveness?: LearnedAttractiveness | null;
+  learned_reference_rank?: LearnedReferenceRank | null;
 }
 /**
  * Production analyzer output, analyzer-0.3 (schema v0.3). Model layer only: the rules layer derives labels, rankings, style positions, checks and plans from it.
@@ -1489,6 +1557,21 @@ export interface HairOption {
   visual_edit_spec: EditSpec;
   evidence: Evidence;
   confidence: Confidence;
+}
+/**
+ * This interface was referenced by `Passport`'s JSON-Schema
+ * via the `definition` "reference_density".
+ */
+export interface ReferenceDensity {
+  method: "gaussian_kde_scott_v1";
+  n: number;
+  bounds: [1, 10];
+  mean: number;
+  /**
+   * @minItems 3
+   * @maxItems 129
+   */
+  points: [number, number][];
 }
 
 /* quick.schema.json */
