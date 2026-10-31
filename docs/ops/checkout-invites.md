@@ -13,12 +13,12 @@
 Run this command in the **API runtime** with the *same RUNS_DIR / SQLite database* used by the running API:
 
 ~~~sh
-python scripts/generate_invite_codes.py --count 100 --ttl-hours 24 --output /secure/invites-20261031.csv
+python scripts/generate_invite_codes.py --count 100 --ttl-hours 24 --output /data/runs/invites-20261031.csv
 ~~~
 
 Requirements:
 
-1. Use a writable private directory outside the repository (example /secure is illustrative, create an actual directory first).
+1. On the Render API container, /data/runs is the mounted persistent volume. For other deployments, use a private writable directory outside the repository. Run only once for the requested batch.
 2. Only the running API's SQLite database contains the hashed codes and redemption state. CSV contents are bearer secrets; store and distribute privately, never in Git or build logs. A generated local CSV is **not** registered with the deployed API unless the command runs against the deployed API's persistent DB.
 3. CSV includes batch ID, plaintext code, exact UTC expiration and initial unused status.
 4. Each code unlocks **one** passport. The database rejects replay, expired and revoked codes. Redemption and premium entitlement are one SQLite transaction.
