@@ -84,6 +84,84 @@ try {
     await page.getByRole('radio', { name: /省心/ }).click();
     await page.getByRole('button', { name: '生成这个造型', exact: true }).click();
     await page.getByText('AI 发型模拟已叠加', { exact: true }).waitFor();
+    await page.emulateMedia({ reducedMotion: 'reduce' });
+    const motion = await page.evaluate(() => {
+      const elements = ['animate-spin', 'animate-pulse', 'transition-colors'].map(className => {
+        const element = document.createElement('button');
+        element.className = className;
+        document.body.append(element);
+        const style = getComputedStyle(element);
+        const result = { className, animationDuration: style.animationDuration, transitionDuration: style.transitionDuration };
+        element.remove();
+        return result;
+      });
+      return { reduced: matchMedia('(prefers-reduced-motion: reduce)').matches, elements };
+    });
+    assert.ok(motion.reduced);
+    for (const item of motion.elements) {
+      for (const duration of [...item.animationDuration.split(','), ...item.transitionDuration.split(',')]) {
+        assert.ok(parseFloat(duration) * (duration.trim().endsWith('ms') ? 1 : 1000) <= 0.01, `${item.className}: ${duration}`);
+      }
+    }
+    const previewDetails = page.locator('details').filter({ has: page.getByText('关于预览与照片', { exact: true }) });
+    await previewDetails.locator('summary').click();
+    assert.ok(await previewDetails.locator('p').isVisible(), 'Reduced-motion disclosure remains visible');
+    const settingsButton = page.getByRole('button', { name: /我的选择与数据.*删除数据/ });
+    await settingsButton.click();
+    const dialog = page.getByRole('dialog');
+    await dialog.waitFor();
+    await page.waitForFunction(() => document.querySelector('[role="dialog"]')?.contains(document.activeElement));
+    const inside = () => dialog.evaluate(el => el.contains(document.activeElement));
+    assert.ok(await inside(), 'Settings receives focus');
+    const tabbables = dialog.locator('a[href], button:not([disabled])');
+    const tabCount = await tabbables.count();
+    await tabbables.last().focus();
+    await page.keyboard.press('Tab');
+    assert.ok(await tabbables.first().evaluate(el => el === document.activeElement), 'Tab wraps to first settings control');
+    await page.keyboard.press('Shift+Tab');
+    assert.ok(await tabbables.last().evaluate(el => el === document.activeElement), 'Shift+Tab wraps to last settings control');
+    for (let tab = 0; tab <= tabCount; tab++) { await page.keyboard.press('Tab'); assert.ok(await inside()); }
+    await page.keyboard.press('Escape');
+    await dialog.waitFor({ state: 'hidden' });
+    assert.ok(await settingsButton.evaluate(el => el === document.activeElement), 'Escape restores settings trigger focus');
+    writeFileSync(join(evidence, `${name}-interaction.json`), JSON.stringify({ motion, settingsFocusLoop: true, escapeRestoresFocus: true, disclosureVisible: true }, null, 2));
+    await page.emulateMedia({ reducedMotion: 'no-preference' });
+    const routes = [];
+    for (const suffix of ['', '/face', '/color', '/style', '/detail', '/advice', '/hair', '/makeup', '/outfit', '/glasses', '/more', '/share', '/compare', '/plan']) {
+      const response = await page.goto(`${base}/p/${id}${suffix}`);
+      await page.locator('main').waitFor();
+      await page.evaluate(() => document.fonts.ready);
+      await page.getByRole('button', { name: /我的选择与数据.*删除数据/ }).waitFor();
+      const metrics = await page.evaluate(() => ({
+        width: innerWidth, scrollWidth: document.documentElement.scrollWidth,
+        headings: [...document.querySelectorAll('h1')].map(h => h.textContent),
+        background: getComputedStyle(document.body).backgroundColor,
+      }));
+      routes.push({ suffix, status: response.status(), ...metrics });
+      assert.equal(response.status(), 200, `${name}: ${suffix} status`);
+      assert.ok(metrics.scrollWidth <= metrics.width, `${name}: ${suffix} horizontal overflow ${metrics.scrollWidth}/${metrics.width}`);
+      if (suffix === '/advice') {
+        const adjust = page.getByRole('button', { name: '调整', exact: true });
+        await adjust.click();
+        const adjustment = page.getByRole('dialog');
+        const minutes = adjustment.locator('fieldset').first();
+        const initialMinute = await minutes.locator('[aria-pressed="true"]').innerText();
+        await minutes.locator('[aria-pressed="false"]').first().click();
+        assert.notEqual(await minutes.locator('[aria-pressed="true"]').innerText(), initialMinute);
+        for (const control of await adjustment.getByRole('button').all()) {
+          assert.ok((await control.boundingBox()).height >= 44, 'Adjustment controls have a 44px touch height');
+        }
+        await page.keyboard.press('Escape');
+        await adjustment.waitFor({ state: 'hidden' });
+        assert.ok(await adjust.evaluate(el => el === document.activeElement));
+        await adjust.click();
+        assert.equal(await minutes.locator('[aria-pressed="true"]').innerText(), initialMinute, 'Dismissed adjustments do not persist');
+        await page.keyboard.press('Escape');
+        routes.at(-1).adjustmentCancelRestores = true;
+      }
+      if (['/face', '/color', '/advice'].includes(suffix)) await shot(`route-${suffix.slice(1)}`);
+    }
+    writeFileSync(join(evidence, `${name}-routes.json`), JSON.stringify(routes, null, 2));
     await page.goto(`${base}/report/sample`);
     await page.getByTestId('full-report').waitFor();
     assert.equal(await page.locator('a[href^="/p/"]').count(), 0);

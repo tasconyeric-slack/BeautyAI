@@ -1,8 +1,9 @@
 /** Issue #2: a passport page whose data cannot be loaded says so and can retry; it is never a blank page.
  *  Runs the real provider and shell against a backend that fails, then recovers. */
-import { fireEvent, render, screen } from "@testing-library/react";
+import { fireEvent, render, screen, waitFor, within } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { sampleReportResponse } from "@/lib/fixture/backend";
+import { settings } from "@/lib/copy/zh";
 
 const get = vi.hoisted(() => vi.fn());
 vi.mock("@/lib/api", async (orig) => {
@@ -61,5 +62,43 @@ describe("passport shell when the passport cannot be loaded", () => {
     page();
     expect(await screen.findByText("PAGE CONTENT")).toBeTruthy();
     expect(screen.queryByTestId("passport-error")).toBeNull();
+  });
+});
+
+describe("passport settings use the shared sheet interaction", () => {
+  it("moves focus inside, contains keyboard navigation and returns focus on Escape", async () => {
+    get.mockResolvedValue(sampleReportResponse("female"));
+    page();
+    await screen.findByText("PAGE CONTENT");
+    const opener = screen.getByRole("button", { name: `${settings.title} · 删除数据` });
+    opener.focus();
+    const previousOverflow = document.body.style.overflow;
+    fireEvent.click(opener);
+    const dialog = screen.getByRole("dialog", { name: settings.title });
+    const close = within(dialog).getByRole("button", { name: "关闭" });
+    const last = within(dialog).getByRole("button", { name: "删除我的照片与报告" });
+    await waitFor(() => expect(document.activeElement).toBe(close));
+    expect(document.body.style.overflow).toBe("hidden");
+    fireEvent.keyDown(close, { key: "Tab", shiftKey: true });
+    expect(document.activeElement).toBe(last);
+    fireEvent.keyDown(last, { key: "Tab" });
+    expect(document.activeElement).toBe(close);
+    fireEvent.keyDown(close, { key: "Escape" });
+    expect(screen.queryByRole("dialog")).toBeNull();
+    expect(document.activeElement).toBe(opener);
+    expect(document.body.style.overflow).toBe(previousOverflow);
+  });
+
+  it("keeps the deletion confirmation reversible without deleting the passport", async () => {
+    get.mockResolvedValue(sampleReportResponse("female"));
+    page();
+    await screen.findByText("PAGE CONTENT");
+    fireEvent.click(screen.getByRole("button", { name: `${settings.title} · 删除数据` }));
+    const dialog = screen.getByRole("dialog", { name: settings.title });
+    fireEvent.click(within(dialog).getByRole("button", { name: "删除我的照片与报告" }));
+    expect(within(dialog).getByRole("button", { name: "确认删除" })).toBeTruthy();
+    fireEvent.click(within(dialog).getByRole("button", { name: "保留护照" }));
+    expect(within(dialog).queryByRole("button", { name: "确认删除" })).toBeNull();
+    expect(screen.getByText("PAGE CONTENT")).toBeTruthy();
   });
 });
