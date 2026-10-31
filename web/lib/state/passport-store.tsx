@@ -261,6 +261,13 @@ export function PassportProvider({ id, initial, children }: { id: string; initia
     try {
       const r = await backend.checkout(id, inviteCode);
       apply(r);
+      if (r.payment?.status === "pending" && r.payment.pay_url) {
+        const url = new URL(r.payment.pay_url);
+        if (url.protocol !== "https:" || url.hostname !== "checkout.stripe.com") {
+          throw new Error("支付链接不可用，请稍后重试");
+        }
+        window.location.assign(url.href);
+      }
     } finally {
       setBusy(false);
     }
