@@ -357,7 +357,7 @@ export function FaceAtlas({ a, v, id, geometry, photos, expired, onShowMetric, o
   const pick = React.useCallback((key: string, focus = false) => {
     setSel(key);
     if (focus) tabs.current[key]?.focus();
-    else rootRef.current?.scrollIntoView?.({ behavior: "smooth", block: "start" });
+    else rootRef.current?.scrollIntoView?.({ behavior: window.matchMedia?.("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth", block: "start" });
   }, []);
   const onKey = (e: React.KeyboardEvent) => {
     const i = keys.indexOf(sel);

@@ -1,6 +1,6 @@
 "use client";
 
-import { ArrowRight, ChevronRight, Compass, IdCard, ListChecks, Settings, Sparkles, X } from "lucide-react";
+import { ArrowRight, ChevronRight, Compass, IdCard, ListChecks, Settings, Sparkles } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import * as React from "react";
@@ -11,6 +11,7 @@ import { PassportProvider, usePassport } from "@/lib/state/passport-store";
 import { cn } from "@/lib/utils";
 import { currentStep, JOURNEY, journeyHref, nextStep } from "./journey";
 import { ErrorState } from "./states";
+import { Sheet } from "./sheet";
 
 export function PassportShell({ id, children }: { id: string; children: React.ReactNode }) {
   return (
@@ -23,6 +24,7 @@ export function PassportShell({ id, children }: { id: string; children: React.Re
 function Inner({ children }: { children: React.ReactNode }) {
   const { deletedAt, error, data, refresh } = usePassport();
   const [sheet, setSheet] = React.useState(false);
+  const closeSheet = React.useCallback(() => setSheet(false), []);
   if (deletedAt) return <Deleted at={deletedAt} />;
   // A 404 is not proof of intentional deletion: ephemeral storage may have
   // disappeared after a backend restart. Preserve any already-loaded report.
@@ -42,13 +44,13 @@ function Inner({ children }: { children: React.ReactNode }) {
       <JourneyNext />
       <div className="no-print mx-auto mt-10 flex max-w-5xl justify-center px-4">
         <button type="button" onClick={() => setSheet(true)}
-          className="inline-flex items-center gap-1.5 rounded-full border border-rule px-4 py-2 text-[13px] text-muted hover:text-ink">
+          className="inline-flex min-h-11 items-center gap-1.5 rounded-full border border-rule px-4 py-2 text-[13px] text-muted hover:text-ink">
           <Settings className="size-4" />{settings.title} · 删除数据
         </button>
       </div>
       <ChangeNote />
       <BottomNav />
-      {sheet && <SettingsSheet onClose={() => setSheet(false)} />}
+      {sheet && <SettingsSheet onClose={closeSheet} />}
     </>
   );
 }
@@ -172,11 +174,6 @@ function BottomNav() {
 function SettingsSheet({ onClose }: { onClose: () => void }) {
   const { id, remove } = usePassport();
   const [confirm, setConfirm] = React.useState(false);
-  React.useEffect(() => {
-    const onKey = (e: KeyboardEvent) => e.key === "Escape" && onClose();
-    document.addEventListener("keydown", onKey);
-    return () => document.removeEventListener("keydown", onKey);
-  }, [onClose]);
   const [state, setState] = React.useState<"idle" | "deleting" | "failed">("idle");
   const doDelete = async () => {
     setState("deleting");
@@ -187,12 +184,7 @@ function SettingsSheet({ onClose }: { onClose: () => void }) {
     }
   };
   return (
-    <div className="fixed inset-0 z-50 flex items-end bg-black/40" role="dialog" aria-modal="true" aria-label={settings.title} onClick={onClose}>
-      <div className="mx-auto w-full max-w-md rounded-t-[18px] bg-paper p-5 pb-8" onClick={(e) => e.stopPropagation()}>
-        <div className="mb-4 flex items-center justify-between">
-          <h2 className="font-serif text-[18px] font-semibold">{settings.title}</h2>
-          <button type="button" aria-label="关闭" onClick={onClose} className="rounded-full p-1 text-muted hover:text-ink"><X className="size-5" /></button>
-        </div>
+    <Sheet open onClose={onClose} title={settings.title}>
         <ul className="space-y-2 text-[13px] leading-6 text-ink-soft">
           {privacy.facts.map((f) => <li key={f}>· {f}</li>)}
           <li>· {privacy.unsavedPassport}</li>
@@ -222,8 +214,7 @@ function SettingsSheet({ onClose }: { onClose: () => void }) {
             </div>
           )}
         </div>
-      </div>
-    </div>
+    </Sheet>
   );
 }
 

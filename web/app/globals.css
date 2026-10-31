@@ -132,6 +132,19 @@ html { scroll-padding-top: 4.5rem; }
 @keyframes ap-pulse { 0%, 100% { opacity: .35; } 50% { opacity: 1; } }
 .ap-pulse { animation: ap-pulse 1.4s ease-in-out infinite; }
 @media (prefers-reduced-motion: reduce) { .ap-draw, .ap-rise, .ap-scan, .ap-pulse { animation: none; } }
+
+/* A shared fallback for utility loaders and controls outside page-specific motion scopes.
+   Finish animations immediately rather than removing them: their final frame may reveal content. */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-delay: 0ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0ms !important;
+    transition-delay: 0ms !important;
+    scroll-behavior: auto !important;
+  }
+}
 .scrollbar-none { scrollbar-width: none; }
 .scrollbar-none::-webkit-scrollbar { display: none; }
 

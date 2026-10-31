@@ -12,8 +12,13 @@ export function useHold() {
   const stop = useCallback(() => setHolding(false), []);
   useEffect(() => {
     if (!holding) return;
+    const onVisibilityChange = () => { if (document.visibilityState === "hidden") stop(); };
     window.addEventListener("blur", stop);
-    return () => window.removeEventListener("blur", stop);
+    document.addEventListener("visibilitychange", onVisibilityChange);
+    return () => {
+      window.removeEventListener("blur", stop);
+      document.removeEventListener("visibilitychange", onVisibilityChange);
+    };
   }, [holding, stop]);
   const props: ButtonHTMLAttributes<HTMLButtonElement> = {
     type: "button",

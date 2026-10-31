@@ -125,13 +125,13 @@ function Assessment({ view, id, geometry, src, expired, photos, ratios, passport
   if (!urls.front) urls.front = src;
   const openAdd = React.useCallback(() => {
     setAdding(true);
-    requestAnimationFrame(() => addRef.current?.scrollIntoView?.({ behavior: "smooth", block: "center" }));
+    requestAnimationFrame(() => addRef.current?.scrollIntoView?.({ behavior: window.matchMedia?.("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth", block: "center" }));
   }, []);
   /** Pin a metric in the workbench; side / smile metrics first switch the workbench to their own photo. */
   const show = React.useCallback((metricId: string, role?: ViewRole) => {
     const pin = () => {
       document.querySelector<HTMLButtonElement>(`[data-metric="${metricId}"]`)?.click();
-      document.querySelector('[data-testid="workbench"]')?.scrollIntoView?.({ behavior: "smooth", block: "start" });
+      document.querySelector('[data-testid="workbench"]')?.scrollIntoView?.({ behavior: window.matchMedia?.("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth", block: "start" });
     };
     const tab = role ? document.querySelector<HTMLButtonElement>(`[data-view-tab="${role}"][aria-selected="false"]`) : null;
     if (!tab) return pin();

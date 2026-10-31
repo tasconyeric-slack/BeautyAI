@@ -217,6 +217,22 @@ function withNoglasses(): { p: Passport; g: FaceGeometry } {
 }
 
 describe("face atlas · glasses-free measurement photo", () => {
+  it.each([true, false])("keeps region navigation usable with reduced motion %s", (reduced) => {
+    const scroll = vi.fn();
+    vi.stubGlobal("matchMedia", vi.fn().mockReturnValue({ matches: reduced }));
+    const previous = Element.prototype.scrollIntoView;
+    Element.prototype.scrollIntoView = scroll;
+    try {
+      renderFace(full(), geometry);
+      fireEvent.click(within(screen.getByTestId("atlas-overview")).getAllByRole("button")[0]);
+      expect(atlasEl().querySelector('[role="tab"][aria-selected="true"]')).toBeTruthy();
+      expect(scroll).toHaveBeenLastCalledWith({ behavior: reduced ? "auto" : "smooth", block: "start" });
+    } finally {
+      Element.prototype.scrollIntoView = previous;
+      vi.unstubAllGlobals();
+    }
+  });
+
   it("draws glasses-free metrics only on the glasses-free photo and opens them in its workbench tab", async () => {
     const { p, g } = withNoglasses();
     const v = measureView(p, ID)!;

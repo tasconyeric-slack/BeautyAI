@@ -47,7 +47,7 @@ export function Sheet({ open, onClose, title, kicker, children, footer, classNam
             {kicker && <p className="text-[11px] tracking-[0.18em] text-muted">{kicker}</p>}
             <h2 id={titleId} className="font-serif text-[20px] font-semibold leading-snug">{title}</h2>
           </div>
-          <button type="button" aria-label="关闭" onClick={onClose} className="-mr-1 rounded-full p-1.5 text-muted hover:bg-paper-sunk hover:text-ink">
+          <button type="button" aria-label="关闭" onClick={onClose} className="-mr-1 inline-flex size-11 shrink-0 items-center justify-center rounded-full text-muted hover:bg-paper-sunk hover:text-ink">
             <X className="size-5" />
           </button>
         </div>
