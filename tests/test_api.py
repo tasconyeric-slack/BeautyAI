@@ -336,6 +336,7 @@ def test_stripe_pending_order_unlocks_only_after_signed_paid_webhook(client, mon
     import hashlib
     import hmac
     import time
+
     from aesthetic_passport.payments.base import Checkout
     from aesthetic_passport.payments.stripe import StripePaymentProvider
 
