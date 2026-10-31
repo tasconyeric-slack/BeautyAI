@@ -68,6 +68,27 @@ def production_authorized(cfg: dict[str, Any]) -> bool:
         return False
 
 
+def production_reference_authorized(cfg: dict[str, Any]) -> bool:
+    """Additional owner grant for exactly this production photo-sample comparison.
+
+    Model scoring/research permission alone cannot supply this grant. Reference
+    bytes are independently hash-verified by verified_reference().
+    """
+    try:
+        receipt = json.loads(Path(os.environ["BEAUTYAI_RIDGE_REFERENCE_AUTHORIZATION"]).read_text(encoding="utf-8"))
+        expected = {"contract_version": "image-reference-permission-1",
+                    "scope": "production_image_reference_comparison", "identity": identity(cfg),
+                    "reference_sha256": cfg["reference_sha256"], "cohort_id": cfg["reference_id"],
+                    "distribution_version": cfg["reference_version"]}
+        return (isinstance(receipt, dict) and all(receipt.get(k) == v for k, v in expected.items())
+                and receipt.get("ranking_authorized") is True
+                and receipt.get("aggregate_retention_authorized") is True
+                and isinstance(receipt.get("permission_reference"), str)
+                and bool(receipt["permission_reference"].strip()))
+    except (KeyError, OSError, ValueError, TypeError):
+        return False
+
+
 def evaluate(front: Any, geometry: dict[str, Any] | None) -> tuple[dict[str, Any], dict[str, Any]]:
     cfg = load_config()
     mode = os.environ.get("BEAUTYAI_RIDGE_MODE", "off")
@@ -125,7 +146,8 @@ def evaluate(front: Any, geometry: dict[str, Any] | None) -> tuple[dict[str, Any
     except (ValueError, OSError):
         registry = None
     result = rank_prediction(score, registry, cohort_id=cfg["reference_id"],
-                             distribution_version=cfg["reference_version"], research_mode=research)
+                             distribution_version=cfg["reference_version"], research_mode=research,
+                             image_reference_authorized=authorized and production_reference_authorized(cfg))
     rank = json.loads(json.dumps(asdict(result)))
     tier = tier_for_rank(result)
     rank["tier"] = asdict(tier) if tier else None

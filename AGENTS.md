@@ -30,7 +30,10 @@ You are building **Aesthetic Passport V2**. The governing documents are **`docs/
    metadata. It is OFF by default; research mode is forbidden in production. Production requires a
    model-specific permission receipt; learned ranking uses the #33 identity-matched authorized ECDF,
    never the D37 geometric-score reference. SCUT image ranks retain research provenance in stored data,
-   with unknown unique-subject and adult status, and cannot satisfy production cohort gates. Per the product
+   with unknown unique-subject and adult status, and cannot satisfy production adult-subject cohort gates.
+   D43 permits an explicitly authorized production photo-sample comparison with a separate private receipt
+   bound to model identity and reference hash/version. It retains image units and limitations; web/PDF must
+   name the photo sample and must not imply verified adult subjects or population rank. Per the product
    owner's 2026-10-30 direction, score cards show only the 1–10 result and reference top-percent result;
    native scale, QC, model identity and research metadata stay in data and technical documentation.
 6. **Validate everything that crosses a boundary.** Model output → `validate_analysis` + `check_output_contract`;

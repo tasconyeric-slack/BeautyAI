@@ -60,7 +60,9 @@ describe("PDF report export", () => {
     const r = await build({ data, sample: false, images: null, photoMode: "omitted" }, "learned-summary.pdf");
     const cover = squash(r.pages[0]);
     expect(cover).toContain("颜值分5.5/10");
-    expect(cover).toContain("参考排名前35%");
+    expect(cover).toContain("照片样本排名前35%");
+    expect(cover).toContain("test-onlysample·1,000张照片");
+    expect(cover).toContain("非人口排名");
     expect(cover).not.toContain("均值");
     expect(cover).toContain("几何协调度");
     expect(r.all).not.toContain("比例参考：");

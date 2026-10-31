@@ -56,6 +56,7 @@ def rank_prediction(
     distribution_version: str,
     policy: RankPolicy = DEFAULT_POLICY,
     research_mode: bool = False,
+    image_reference_authorized: bool = False,
 ) -> RankResult:
     """No numerical fields on any unavailable path. Inputs are never mutated."""
     context = {"cohort_id": cohort_id, "distribution_version": distribution_version, "research_only": research_mode}
@@ -79,7 +80,8 @@ def rank_prediction(
     if cohort is None:
         return unavailable("reference_version_missing")
     context.update(cohort_label=cohort["cohort_label"], n_unique_subjects=cohort["n_unique_subjects"])
-    blocker = cohort_blocker(cohort, research_mode=research_mode)
+    blocker = cohort_blocker(cohort, research_mode=research_mode,
+                             image_reference_authorized=image_reference_authorized)
     if blocker:
         return unavailable(blocker)
     if any(prediction[key] != cohort["identity"][key] for key in IDENTITY_FIELDS):
