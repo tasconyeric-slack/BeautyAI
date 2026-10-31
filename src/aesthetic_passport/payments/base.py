@@ -21,6 +21,7 @@ class PaymentProvider(Protocol):
 
     def create_checkout(self, passport_id: str, amount_cny: float) -> Checkout: ...
 
-    def verify_webhook(self, body: dict[str, Any], headers: dict[str, str]) -> tuple[str, str]:
+    def verify_webhook(self, body: dict[str, Any], headers: dict[str, str],
+                       raw_body: bytes | None = None) -> tuple[str, str]:
         """Return (order_id, status) or raise PaymentError for an invalid notification."""
         ...

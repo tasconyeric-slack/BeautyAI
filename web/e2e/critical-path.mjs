@@ -182,7 +182,7 @@ log("studio (free)", "lip + near-face colour composed locally; AI hair behind th
 
 // --- unlock, then hair + colour generation composed with the lip layer -----------------------------------------
 await page.goto(`${BASE}/p/${id}/unlock`);
-await page.getByRole("button", { name: /¥39/ }).click();
+await page.getByRole("button", { name: /¥139/ }).click();
 await page.getByRole("heading", { name: "完整护照已解锁" }).waitFor();
 log("fake checkout → full passport");
 const paidMp = (await api(`/api/passport/${id}`)).body.passport.measurement_profile;
