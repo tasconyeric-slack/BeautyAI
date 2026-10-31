@@ -532,9 +532,12 @@ def create_app(settings: Settings | None = None) -> FastAPI:
             return {"payment": {"status": "paid", "order_id": None, "pay_url": None}, **shell(job)}
         code = (body.get("invite_code") or "").strip()
         if code:
-            if not pricing().get("invite_unlock") or code not in settings.invite_unlock_codes:
+            if not pricing().get("invite_unlock"):
                 raise api_error(403, "bad_invite", "邀请码无效")
-            store.set_paid(pid)
+            if code in settings.invite_unlock_codes:
+                store.set_paid(pid)  # legacy permanent invite codes
+            elif not store.redeem_one_time_invite(code, pid):
+                raise api_error(403, "bad_invite", "邀请码无效、已过期或已被使用")
             store.add_event("paid", hash_pid(pid), None, "invite")
             return {"payment": {"status": "paid", "order_id": None, "pay_url": None}, **shell(store.get(pid))}
         try:
@@ -552,9 +555,11 @@ def create_app(settings: Settings | None = None) -> FastAPI:
         return {"payment": {"status": "pending", "order_id": co.order_id, "pay_url": co.pay_url}, **shell(job)}
 
     @app.post("/api/payments/webhook")
-    def webhook(request: Request, body: Annotated[dict[str, Any], Body()]) -> dict[str, Any]:
+    async def webhook(request: Request, body: Annotated[dict[str, Any], Body()]) -> dict[str, Any]:
         try:
-            order_id, status = payment_from_env().verify_webhook(body, dict(request.headers))
+            # Use the EXACT raw body for payment-provider signature verification.
+            raw_body = await request.body()
+            order_id, status = payment_from_env().verify_webhook(body, dict(request.headers), raw_body)
         except PaymentError as e:
             raise api_error(400, "bad_webhook", "invalid notification") from e
         if status != "paid":
