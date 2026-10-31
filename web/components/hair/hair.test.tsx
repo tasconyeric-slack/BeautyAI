@@ -14,7 +14,7 @@ const data: PassportResponse = {
   id: "ap_sample_0001", status: "full_ready", stage: "done",
   partial: { input_quality: p.input_quality, anchors: p.anchors, quick: null, analysis: "ready", previews: [] },
   passport: p,
-  entitlement: { paid: false, unlock_scope: "free", share_token: null, free_previews_left: 0, price_cny: 39, locked: [] },
+  entitlement: { paid: false, unlock_scope: "free", share_token: null, free_previews_left: 0, price_cny: 139, locked: [] },
   media: { front: "/sample/portrait.svg", thumb: null, expires_at: null, expired: false },
   error: null, created_at: "2026-10-23T09:00:00Z",
 };
