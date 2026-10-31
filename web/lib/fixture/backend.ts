@@ -406,7 +406,7 @@ export const fixtureBackend: Backend = {
     s.paid = true;
     save(s);
     await wait(400);
-    return { payment: { status: "paid", order_id: `fake_${rand()}` }, ...response(s) };
+    return { payment: { status: "paid", order_id: `fake_${rand()}`, pay_url: null }, ...response(s) };
   },
   async event() {
     /* fixture mode records nothing */
