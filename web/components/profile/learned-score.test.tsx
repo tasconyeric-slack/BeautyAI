@@ -19,8 +19,10 @@ const score: NonNullable<Passport["learned_attractiveness"]> = {
 it("keeps old passports compatible and never synthesizes a learned score", () => {
   expect(learnedScore({ ...old, learned_attractiveness: undefined })).toBeNull();
 });
-it("shows only the ten-point score and computed reference rank", () => {
-  const p: Passport = { ...old, learned_attractiveness: score, learned_reference_rank: {
+it.each(["passed", "limited"] as const)("shows the score and computed rank with %s quality", (qc) => {
+  const p: Passport = { ...old, learned_attractiveness: {
+    ...score, qc_status: qc, quality_flags: qc === "limited" ? ["blurry"] : [],
+  }, learned_reference_rank: {
     status: "available", percentile: 65, top_percent: 35, cohort_label: "Test-only sample",
     cohort_id: "test", distribution_version: "test", n_reference: 2128, n_unique_subjects: null,
     method: "empirical_cdf_midrank_v1", limitations: [], unavailable_reason: null,

@@ -117,7 +117,7 @@ def test_same_geometry_features_and_qc_fallback(configured):
     assert score["display_score"] == 5.5
     assert score["status"] == "research_only"
     front.issues = ["low_resolution"]
-    score, rank = service.evaluate(front, measured)
+    score, _ = service.evaluate(front, measured)
     assert score["status"] == "research_only" and score["raw_score"] == 3
     assert score["qc_status"] == "limited" and score["quality_flags"] == ["low_resolution"]
 
