@@ -287,3 +287,10 @@
 - 协调度雷达复用 D36 已有眼、眉、鼻、口、轮廓五项对称分及三庭、五眼、长宽比三项分；没有增加颜值回归特征、权重或新的审美公式。缺测显示破折号，不补零、不画完整面。
 - 报告各部位照片固定4:5容器，完整原图按 contain 映射；SVG 同时使用对应照片原生尺寸和相同映射。更换测量只切换其线点，跨视角使用各自实际来源，保留到期与按住看原图。行只显示指标与数值，移除本区如何测量说明。PDF 同步固定画幅和图表。
 - 用户要求的比例署名行从报告/PDF移除，归属与改编说明保留在 THIRD_PARTY 及关于页“数据来源”；报告方法区只留入口。方案与来源见 [report visual v2](plans/2026-10-30-report-visual-v2.md)。
+
+
+**D44 Report / Studio navigation and shared appearance** (2026-10-31)
+- Amends V2.1 section 0 / D32: only two primary destinations, 报告 and Studio, on both desktop and mobile. Face/color/style/detail, recommendations and the action checklist belong to the report; compare and saved looks belong to Studio. Existing URLs and saved choices continue to work.
+- Completed `/p/[id]` renders the same full report as `/report`, preserving in-progress, QC and topic-entry states. There is no additional profile landing page between completion and the report.
+- Production explicitly uses light mode, with the report's pale gray/blue reading surfaces and restrained green accent. Studio controls inherit shared application tokens instead of enforcing a dark green panel. Photo stages and actual cosmetic swatches keep their functional colors. Developer component theme previews remain available.
+- No changes to analysis, scoring, schemas, paid entitlements, photo handling or retention. Design rationale and validation: [plan](plans/2026-10-31-report-studio-unification.md).

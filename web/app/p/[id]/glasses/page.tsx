@@ -17,7 +17,7 @@ export default function GlassesPage() {
       <PageHeader kicker="眼镜与配饰" title={gd ? gd.frame_shapes.map((s) => SHAPE_ZH[s] ?? s).join(" · ") : "暂不需要换镜框"} />
       <div className="my-5 rounded-[14px] border border-rule bg-paper-raised p-4">
         <p className="mb-2 text-[13px] text-ink-soft">把圆框、长方框和猫眼框放到自己的正脸上比较，可调颜色、宽度和位置。</p>
-        <Link href={`/p/${id}/studio#eyewear`} className="text-accent underline">进入实验室试戴眼镜 →</Link>
+        <Link href={`/p/${id}/studio#eyewear`} className="text-accent underline">进入 Studio试戴眼镜 →</Link>
       </div>
       {gd && (
         <Section title="镜框方向">

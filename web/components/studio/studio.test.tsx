@@ -23,7 +23,7 @@ function photo(w = 120, h = 150): ImageData {
 }
 const diff = (a: ImageData, b: ImageData) => a.data.reduce((n, v, i) => n + (v !== b.data[i] ? 1 : 0), 0);
 
-describe("Look Studio composition (D30)", () => {
+describe("Studio composition (D30)", () => {
   it("hair colour never changes the generation target", () => {
     expect(hairTargetId(null, null)).toBeNull();
     expect(hairTargetId("bold", null)).toBe("bold");

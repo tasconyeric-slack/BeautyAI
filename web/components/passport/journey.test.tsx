@@ -3,8 +3,8 @@ import { fireEvent, render, screen, within } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { sampleReportResponse } from "@/lib/fixture/backend";
 import { StaticPassportProvider } from "@/lib/state/passport-store";
-import { currentStep, JOURNEY, journeyHref, nextStep, type JourneyKey } from "./journey";
-import { JourneyBar, JourneyNext } from "./shell";
+import { currentStep, JOURNEY, PRODUCT_AREAS, journeyHref, nextStep, type JourneyKey } from "./journey";
+import { BottomNav, JourneyBar, JourneyNext } from "./shell";
 import { ErrorState, errorCopy, LoadingState } from "./states";
 
 const nav = vi.hoisted(() => ({ path: "/p/ap_sample_0001" }));
@@ -51,18 +51,34 @@ describe("desktop step bar and next-step bridge", () => {
   );
   beforeEach(() => { nav.path = "/p/ap_sample_0001"; });
 
-  it("lists the six steps, marks the current one and links each to its page", () => {
+  it("lists only Report and Studio and links each to its canonical page", () => {
     nav.path = "/p/ap_sample_0001/report";
     render(wrap(<JourneyBar />));
     const bar = screen.getByRole("navigation", { name: "浏览路径" });
     const links = within(bar).getAllByRole("link");
-    expect(links.map((a) => a.getAttribute("href"))).toEqual(JOURNEY.map((s) => journeyHref(data.id, s.key)));
+    expect(links.map((a) => a.getAttribute("href"))).toEqual(PRODUCT_AREAS.map((s) => `/p/${data.id}${s.sub}`));
     const current = links.filter((a) => a.getAttribute("aria-current") === "page");
     expect(current).toHaveLength(1);
-    expect(current[0].textContent).toContain("完整报告");
-    // hidden on phones (they keep the four-area bottom bar)
+    expect(current[0].textContent).toContain("报告");
+    // hidden on phones (they keep the two-area bottom bar)
     expect(bar.className).toMatch(/\bhidden\b/);
     expect(bar.className).toMatch(/md:block/);
+  });
+
+  it("keeps the same parent active on desktop and mobile for every detail route", () => {
+    for (const sub of ["", "/report", "/face", "/detail", "/color", "/style", "/advice", "/hair", "/makeup", "/outfit", "/glasses", "/plan", "/share", "/more", "/studio", "/compare"]) {
+      nav.path = `/p/ap_sample_0001${sub}`;
+      const { unmount } = render(wrap(<><JourneyBar /><BottomNav /></>));
+      const expected = ["/studio", "/compare"].includes(sub) ? "Studio" : "报告";
+      for (const name of ["浏览路径", "护照导航"]) {
+        const links = within(screen.getByRole("navigation", { name })).getAllByRole("link");
+        expect(links).toHaveLength(2);
+        const active = links.filter(a => a.getAttribute("aria-current") === "page");
+        expect(active, sub).toHaveLength(1);
+        expect(active[0].textContent).toBe(expected);
+      }
+      unmount();
+    }
   });
 
   it("stays out of the way while the passport is still being built and on pages outside the journey", () => {
@@ -74,7 +90,7 @@ describe("desktop step bar and next-step bridge", () => {
   });
 
   it("offers the next step under evidence, advice and plan — and not under the overview, report or studio", () => {
-    for (const [sub, to] of [["/face", "完整报告"], ["/advice", "行动方案"], ["/plan", "形象实验室"]] as const) {
+    for (const [sub, to] of [["/face", "完整报告"], ["/advice", "行动方案"], ["/plan", "Studio"]] as const) {
       nav.path = `/p/ap_sample_0001${sub}`;
       const { unmount } = render(wrap(<JourneyNext />));
       const card = screen.getByTestId("journey-next");

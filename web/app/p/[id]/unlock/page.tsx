@@ -48,7 +48,7 @@ export default function UnlockPage() {
       {paid ? (
         <div className={s.unlockLinks}>
           <Link href={`/p/${id}/report`} className="rounded-full bg-accent px-5 py-2.5 text-[14px] text-[var(--ap-on-primary)]">{paywall.readReport}</Link>
-          <Link href={`/p/${id}/studio`} className="rounded-full border border-rule-strong px-5 py-2.5 text-[14px]">去实验室生成发型试看</Link>
+          <Link href={`/p/${id}/studio`} className="rounded-full border border-rule-strong px-5 py-2.5 text-[14px]">去 Studio生成发型试看</Link>
         </div>
       ) : (
         <>

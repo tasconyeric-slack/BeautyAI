@@ -1,6 +1,6 @@
 "use client";
 
-// V2.1: guidance and swatches here; trying colours on the photo happens in the Look Studio (D30).
+// V2.1: guidance and swatches here; trying colours on the photo happens in the Studio (D30).
 import { Sparkles } from "lucide-react";
 import Link from "next/link";
 import { Card, Locked, NotReady, Page, PageHeader, Section } from "@/components/passport/ui";
@@ -22,7 +22,7 @@ export default function MakeupPage() {
           <ul className="space-y-2">{md.grooming.map((g) => <li key={g} className="rounded-[12px] border border-rule bg-paper-raised px-4 py-3 text-[14px]">{g}</li>)}</ul>
         </Section>
       ) : (
-        <Section title="唇色" kicker="点一个颜色，在实验室里试">
+        <Section title="唇色" kicker="点一个颜色，在 Studio 中试">
           <ul className="grid gap-2 sm:grid-cols-2">
             {lips.map((l) => (
               <li key={l.hex}>
@@ -40,7 +40,7 @@ export default function MakeupPage() {
           </ul>
           <Link href={`/p/${id}/studio${lips[0] ? `?lip=${lips[0].hex.slice(1)}` : ""}`}
             className="mt-3 inline-flex items-center gap-1.5 text-[14px] text-accent underline-offset-4 hover:underline">
-            <Sparkles className="size-4" />在形象实验室里和发型、近脸色一起看
+            <Sparkles className="size-4" />在 Studio 中和发型、近脸色一起看
           </Link>
           <p className="mt-1 text-[12px] text-muted">{guidance.makeupCaution}</p>
           {data.entitlement.locked.includes("makeup.lip_families") && <Locked what="完整唇色色板与浓度档" />}

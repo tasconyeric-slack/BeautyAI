@@ -1,7 +1,7 @@
 "use client";
 
 /** 发型建议 (V2.1 §5.1): three full-width recommendation cards stacked vertically on every width.
- *  Cards are advice, not image editors: "试试这个发型" opens the Look Studio with the direction preselected, and
+ *  Cards are advice, not image editors: "试试这个发型" opens the Studio with the direction preselected, and
  *  "就选这个" opens a short hairstylist brief (copy / save). */
 import { ArrowRight, Check, Copy, Scissors, Sparkles } from "lucide-react";
 import Link from "next/link";
@@ -71,7 +71,7 @@ function StudioEntry({ id, paid }: { id: string; paid: boolean }) {
     <Link href={`/p/${id}/studio`} className="mt-4 flex items-center gap-3 rounded-[14px] bg-ink p-4 text-paper">
       <Sparkles className="size-5 shrink-0" />
       <span className="min-w-0 flex-1">
-        <span className="block text-[15px] font-medium">在形象实验室里试发型</span>
+        <span className="block text-[15px] font-medium">在 Studio 中试发型</span>
         <span className="block text-[12px] text-paper/75">{paid ? "发型、发色、唇色和近脸色组合到同一张照片" : "AI 发型试看包含在完整护照中；唇色与近脸色可以先免费试"}</span>
       </span>
       <ArrowRight className="size-4 shrink-0" />
@@ -97,7 +97,7 @@ function HairCard({ o, first, chosen, onChoose }: { o: HairOptionView; first: bo
           <p className="text-[13px] text-muted">{o.role}</p>
         </div>
         {pv && (
-          <Link href={`/p/${id}/studio?hair=${o.tier}`} className="relative block w-[72px] shrink-0 overflow-hidden rounded-[10px] bg-[var(--ap-stage)]" aria-label={`${o.name}的 AI 试看，在实验室打开`}>
+          <Link href={`/p/${id}/studio?hair=${o.tier}`} className="relative block w-[72px] shrink-0 overflow-hidden rounded-[10px] bg-[var(--ap-stage)]" aria-label={`${o.name}的 AI 试看，在 Studio打开`}>
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img src={pv.after_url!} alt="" className="block aspect-[4/5] w-full object-cover" />
             <span className="absolute inset-x-0 bottom-0 bg-black/55 py-0.5 text-center text-[10px] text-white">AI 试看</span>

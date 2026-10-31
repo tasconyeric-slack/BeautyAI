@@ -1,6 +1,6 @@
 "use client";
 
-/** 形象实验室 Look Studio (V2.1 §4, D30): one portrait, every change composed into the same look.
+/** Studio Studio (V2.1 §4, D30): one portrait, every change composed into the same look.
  *
  *  - Hair shape: one Qwen edit of the ORIGINAL photo, only on an explicit "生成这个造型" (paid, D33).
  *    The result is laid back onto the original at its crop_box, so the local layers below still fit the face.
@@ -192,12 +192,12 @@ function StudioEditor() {
     : { tone: "muted", text: "发型尚未生成，照片上仍是现在的发型" };
 
   return (
-    <Page wide>
-      <div className={s.studioHeading}><div><p>Look Studio</p><h1>留住自己，试一点不同。</h1><span>从发型到配色，找到你喜欢的表达。</span></div><Link href={`/p/${id}/report`}>返回我的报告 <span aria-hidden>↗</span></Link></div>
+    <div className={cn(s.surface, s.studioSurface)}><Page wide>
+      <div className={s.studioHeading}><div><p>Studio</p><h1>留住自己，试一点不同。</h1><span>从发型到配色，找到你喜欢的表达。</span></div><Link href={`/p/${id}/report`}>返回我的报告 <span aria-hidden>↗</span></Link></div>
       <div className={s.studioWorkspace}>
         {/* Stage: sticky under the site header on phones, so controls scroll beneath it. */}
         <div className={s.studioPortrait}>
-          <div className={s.studioStageHeading}><span>Look Studio</span><span>{hold.holding ? "正在比较原图" : "你的照片 · 你的选择"}</span></div>
+          <div className={s.studioStageHeading}><span>Studio</span><span>{hold.holding ? "正在比较原图" : "你的照片 · 你的选择"}</span></div>
           <details className="mb-3 rounded-[4px] border border-rule p-3">
           <summary className="min-h-8 cursor-pointer text-[13px] text-ink-soft">照片来源 · {source.role === "glasses" ? "日常眼镜参考照" : source.role === "noglasses" ? "无眼镜补充照" : "分析正脸照"}</summary>
           <fieldset className="mt-3 border-t border-rule pt-3">
@@ -227,7 +227,7 @@ function StudioEditor() {
               ) : (
                 <div className="absolute inset-0 flex items-center justify-center p-6 text-center text-[13px] leading-6 text-stage-muted">
                   {status === "loading" ? <Loader2 className="size-5 animate-spin" />
-                    : status === "expired" ? "照片已按隐私规则在 24 小时后删除。实验室需要你的正脸照片，可以重新上传一张再试。"
+                    : status === "expired" ? "照片已按隐私规则在 24 小时后删除。Studio 需要你的正脸照片，可以重新上传一张再试。"
                     : "暂时读不到照片，下方的建议仍然可以参考。"}
                 </div>
               )}
@@ -343,7 +343,7 @@ function StudioEditor() {
           </div>
         </Tabs.Root>
       </div>
-    </Page>
+    </Page></div>
   );
 }
 

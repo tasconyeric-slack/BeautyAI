@@ -452,7 +452,7 @@ export const report = {
   previewIllustration: "插画示意 · 不是照片编辑",
   previewAi: "AI 试看",
   previewLocked: "照片级 AI 试看包含在完整护照中",
-  previewNotYet: "还没有生成 AI 试看，可以在形象实验室里生成",
+  previewNotYet: "还没有生成 AI 试看，可以在 Studio 中生成",
   previewExpired: "照片已删除，无法再生成 AI 试看",
   previewFailed: "这一方向的试看没有生成成功，可以只看文字建议",
   planTop: "先做这 3 件事",

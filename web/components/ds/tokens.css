@@ -4,19 +4,19 @@
 :root {
   --ap-reading: #f1f1ee;
   --ap-surface: #fafaf7;
-  --ap-surface-muted: #e9eae5;
-  --ap-ink: #16181a;
-  --ap-ink-soft: #454b4e;
-  --ap-muted: #646c6e;
+  --ap-surface-muted: #e6ebed;
+  --ap-ink: #172125;
+  --ap-ink-soft: #46565d;
+  --ap-muted: #53636b;
   --ap-stage: #141618;
   --ap-stage-ink: #f1f1ee;
   --ap-stage-muted: #c1c7c7;
-  --ap-primary: #1f4e5f;
-  --ap-primary-soft: #e0e8e9;
+  --ap-primary: #3f625e;
+  --ap-primary-soft: #e9edec;
   --ap-amber: #9a5b1f;
   --ap-amber-soft: #f1e8da;
-  --ap-rule: #d8d8d2;
-  --ap-rule-strong: #b6bab5;
+  --ap-rule: #ccd2d3;
+  --ap-rule-strong: #aab6b9;
   --ap-on-primary: #fff;
   --ap-font-display: var(--font-noto-serif, "Noto Serif SC"), "Source Han Serif SC", "Songti SC", serif;
   --ap-font-body: var(--font-noto-sans, "Noto Sans SC"), "Source Han Sans SC", "PingFang SC", system-ui, sans-serif;
@@ -62,11 +62,11 @@
   --ap-rule: #3c4445; --ap-rule-strong: #697271; --ap-on-primary: #112a34;
 }
 [data-ap-theme="light"] {
-  --ap-reading: #f1f1ee; --ap-surface: #fafaf7; --ap-surface-muted: #e9eae5;
-  --ap-ink: #16181a; --ap-ink-soft: #454b4e; --ap-muted: #646c6e;
-  --ap-primary: #1f4e5f; --ap-primary-soft: #e0e8e9;
+  --ap-reading: #f1f1ee; --ap-surface: #fafaf7; --ap-surface-muted: #e6ebed;
+  --ap-ink: #172125; --ap-ink-soft: #46565d; --ap-muted: #53636b;
+  --ap-primary: #3f625e; --ap-primary-soft: #e9edec;
   --ap-amber: #9a5b1f; --ap-amber-soft: #f1e8da;
-  --ap-rule: #d8d8d2; --ap-rule-strong: #b6bab5; --ap-on-primary: #fff;
+  --ap-rule: #ccd2d3; --ap-rule-strong: #aab6b9; --ap-on-primary: #fff;
 }
 
 .ap-ds { color: var(--ap-ink); font-family: var(--ap-font-body); font-size: var(--ap-text-base); line-height: var(--ap-leading); overflow-wrap: anywhere; }

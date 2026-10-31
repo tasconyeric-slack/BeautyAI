@@ -115,7 +115,7 @@ function PlanEditor() {
       </details>
 
       {(chosenHair || choices.looks.length > 0) && (
-        <Section title="我选定的" kicker="来自发型建议与形象实验室">
+        <Section title="我选定的" kicker="来自发型建议与Studio">
           <div className="space-y-2">
             {chosenHair && (
               <Card className="flex items-center gap-3">
@@ -128,7 +128,7 @@ function PlanEditor() {
               <Card key={l.id} className="flex items-center gap-3">
                 <Sparkles className="size-4 shrink-0 text-accent" />
                 <span className="min-w-0 flex-1 truncate text-[14px]">{l.name}</span>
-                <Link href={`/p/${id}/studio${lookQuery(l)}`} className="shrink-0 text-[13px] text-accent underline-offset-4 hover:underline">在实验室打开</Link>
+                <Link href={`/p/${id}/studio${lookQuery(l)}`} className="shrink-0 text-[13px] text-accent underline-offset-4 hover:underline">在 Studio打开</Link>
               </Card>
             ))}
           </div>

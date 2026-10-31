@@ -1,7 +1,7 @@
 "use client";
 
 /** 个性化建议 (V2.1 §3B): one decision per group — what to choose, why, what to avoid, what it takes — with entry
- *  points to the detail page and, where it can be seen on the photo, the Look Studio. Text advice, free (D33). */
+ *  points to the detail page and, where it can be seen on the photo, the Studio. Text advice, free (D33). */
 import { ArrowRight, Sparkles } from "lucide-react";
 import Link from "next/link";
 import { AdjustPanel } from "@/components/adjust/adjust-panel";
@@ -83,8 +83,8 @@ export function AdvicePage() {
   const base = `/p/${id}`;
   return (
     <Page>
-      <PageHeader back={false} kicker="个性化建议" title="选什么、为什么、需要什么"
-        sub="每组只给一个最值得先试的选择；点进去看完整说明，能在照片上看的可以直接去实验室。" />
+      <PageHeader kicker="报告建议" title="选什么、为什么、需要什么"
+        sub="每组只给一个最值得先试的选择；点进去看完整说明，能在照片上看的可以直接去 Studio。" />
       <div className="mb-4 flex justify-end"><AdjustPanel /></div>
       <ol className="space-y-3">
         {groups.map((g) => (
@@ -105,7 +105,7 @@ export function AdvicePage() {
               <div className="mt-3 flex flex-wrap gap-x-5 gap-y-2 border-t border-rule pt-3 text-[14px]">
                 <Link href={`${base}/${g.page}`} className="inline-flex items-center gap-1 text-accent underline-offset-4 hover:underline">怎么做 <ArrowRight className="size-3.5" /></Link>
                 {g.studio !== undefined && (
-                  <Link href={`${base}/studio${g.studio}`} className="inline-flex items-center gap-1 text-ink-soft underline-offset-4 hover:underline"><Sparkles className="size-3.5" />在实验室里试</Link>
+                  <Link href={`${base}/studio${g.studio}`} className="inline-flex items-center gap-1 text-ink-soft underline-offset-4 hover:underline"><Sparkles className="size-3.5" />在 Studio 中试</Link>
                 )}
               </div>
             </article>

@@ -76,7 +76,7 @@ export function ColorPage() {
         {current && <CurrentColor key={current.hex} chip={current} reason={reason(current)} />}
         <Link href={`/p/${id}/studio${current ? `?drape=${current.hex.slice(1)}` : ""}`}
           className="mt-3 inline-block text-[13px] text-accent underline-offset-4 hover:underline">
-          在形象实验室里，和发型、唇色组合着看 →
+          在 Studio 中，和发型、唇色组合着看 →
         </Link>
       </Section>
 

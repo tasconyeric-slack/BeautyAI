@@ -1,4 +1,4 @@
-/** Look Studio composition (D30), pure functions so they can be tested without a browser.
+/** Studio composition (D30), pure functions so they can be tested without a browser.
  *
  *  base     = the original front photo, or the original with the generated hair crop laid back at its crop_box
  *             (outside the edit mask a generated crop equals the original, so geometry still fits)
