@@ -74,7 +74,7 @@ def test_private_reference_permission_binding_and_malformed_inputs(reference_per
 
 
 @pytest.mark.parametrize("warning,yaw", [(None, 0.), ("underexposed", 0.), ("overexposed", 0.),
-                                         ("face_too_small", 0.), (None, 7.)])
+                                         ("face_too_small", 0.), ("beauty_filter_suspect", 0.), (None, 7.)])
 def test_service_production_photo_rank_requires_both_permissions(reference_permission, tmp_path, monkeypatch,
                                                                warning, yaw):
     from aesthetic_passport.attractiveness.artifact import make_artifact
@@ -118,7 +118,7 @@ def test_service_production_photo_rank_requires_both_permissions(reference_permi
     assert score["quality_flags"] == sorted(set(front.issues + geometry["quality_flags"]))
     if yaw:
         assert geometry["status"] == "limited"
-    if warning == "underexposed":
+    if warning in ("underexposed", "beauty_filter_suspect"):
         # Full report path with the local synthetic face/segmentation fixtures,
         # real geometry and Ridge inference, and the fake analysis provider.
         import numpy as np
