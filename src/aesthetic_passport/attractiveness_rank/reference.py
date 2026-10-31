@@ -72,8 +72,17 @@ def model_blocker(prediction: ModelResult, *, research_mode: bool = False) -> st
     return None
 
 
-def cohort_blocker(cohort: dict[str, Any], *, research_mode: bool = False) -> str | None:
+def cohort_blocker(cohort: dict[str, Any], *, research_mode: bool = False,
+                   image_reference_authorized: bool = False) -> str | None:
     provenance = cohort["provenance"]
+    # A separate photo comparison never turns unknown ages/identities into adult subjects.
+    # The service binds this additional production grant to the exact reference file.
+    if (image_reference_authorized and cohort.get("reference_unit") == "image"
+            and provenance["data_kind"] == "research_only"):
+        if (provenance["ranking_authorized"] is not True
+                or provenance["aggregate_retention_authorized"] is not True):
+            return "cohort_not_authorized"
+        return None if cohort["qc"]["status"] == "passed" else "cohort_qc_failed"
     if research_mode and provenance["data_kind"] == "research_only":
         if (provenance.get("research_authorized") is not True
                 or provenance["ranking_authorized"] is not True

@@ -382,6 +382,9 @@ export function learnedScore(p: Passport) {
       n: rank.n_reference, unit: rank.reference_unit, tier: rank.tier?.label_zh ?? null,
       interval: rank.percentile_interval,
       distribution: rank.distribution ?? null,
+      scopeNote: rank.reference_unit === "image"
+        ? `${rank.cohort_label ?? "参考照片样本"} · ${rank.n_reference?.toLocaleString("en-US") ?? "—"} 张照片。非人口排名；照片主体及年龄未核验。`
+        : null,
     } : null,
     rankReason: ranked ? null : rank?.unavailable_reason ?? "reference_missing",
   };

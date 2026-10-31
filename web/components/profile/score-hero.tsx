@@ -172,7 +172,7 @@ export function PredictedScoreHero({ view, harmony }: { view: LearnedScoreView; 
       {harmony && <div className="mt-7"><HarmonyRadar axes={harmony} /></div>}
     </div>
     <div className="min-w-0 border-l border-rule px-3 sm:px-5" aria-label={learnedCopy.rankAccessible}>
-      <h2 className="text-[13px] font-medium text-ink-soft">{learnedCopy.rank}</h2>
+      <h2 className="text-[13px] font-medium text-ink-soft">{view.rank?.unit === "image" ? "照片样本排名" : learnedCopy.rank}</h2>
       {view.available && view.rank ? <>
         <p data-testid="learned-rank" className="mt-3 whitespace-nowrap font-serif text-[30px] font-semibold leading-none tabular-nums sm:text-[40px]">
           <span className="mr-1 font-sans text-[16px] font-normal">前 </span>{view.rank.top}%
@@ -184,6 +184,7 @@ export function PredictedScoreHero({ view, harmony }: { view: LearnedScoreView; 
           <circle cx={8 + 1.44 * view.rank.percentile!} cy="10" r="5" strokeWidth="2" className="fill-paper-raised stroke-accent" />
         </svg>}
       </> : <p data-testid="learned-rank-unavailable" className="mt-3 text-[20px] text-muted">{learnedCopy.rankMissing}</p>}
+      {view.available && view.rank?.scopeNote && <p data-testid="learned-rank-scope" className="mt-3 text-[11px] leading-5 text-muted">{view.rank.scopeNote}</p>}
       {view.available && view.rank?.distribution && <div className="mt-7 flex h-[155px] items-center sm:h-[195px]">
         <ReferenceDensity curve={view.rank.distribution} score={view.score!} />
       </div>}
