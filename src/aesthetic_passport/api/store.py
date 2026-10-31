@@ -200,7 +200,7 @@ class Store:
         row = self._exec("SELECT id FROM passports WHERE share_token=?", (token,)).fetchone()
         return self.get(row[0]) if row else None
 
-    def issue_invite_codes(self, count: int = 100, ttl_hours: int = 24) -> tuple[str, list[str]]:
+    def issue_invite_codes(self, count: int = 100, ttl_hours: int = 24) -> tuple[str, list[str], str]:
         """Create a persistent batch. Plaintext codes are returned only once for private CSV export."""
         if not 1 <= count <= 5000 or not 1 <= ttl_hours <= 8760:
             raise ValueError("count must be 1..5000 and ttl_hours must be 1..8760")
@@ -226,7 +226,7 @@ class Store:
             except Exception:
                 self._db.execute("ROLLBACK")
                 raise
-        return batch_id, codes
+        return batch_id, codes, expires_at
 
     def redeem_one_time_invite(self, code: str, pid: str) -> bool:
         """Redeem at most once globally, with entitlement in the SAME SQLite transaction."""
