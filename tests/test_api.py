@@ -332,6 +332,17 @@ def test_invite_unlock(client):
     assert get(client, pid)["entitlement"]["paid"] is True
 
 
+def test_one_time_invite_endpoint_and_permanent_code(client):
+    first, second = ready(client), ready(client)
+    _, codes, _ = client.app.state.store.issue_invite_codes(1, 24)
+    code = codes[0]
+    assert client.post("/api/checkout", json={"passport_id": first, "invite_code": code}).json()["entitlement"]["paid"]
+    retry = client.post("/api/checkout", json={"passport_id": second, "invite_code": code})
+    assert retry.status_code == 403 and retry.json()["error"]["code"] == "bad_invite"
+    # Legacy permanent code remains usable on another report.
+    assert client.post("/api/checkout", json={"passport_id": second, "invite_code": "FRIEND39"}).json()["entitlement"]["paid"]
+
+
 def test_qc_endpoint_stub(client):
     r = client.post("/api/qc", data={"role": "front"}, files={"file": ("f.jpg", jpeg(), "image/jpeg")})
     assert r.status_code == 200 and r.json()["status"] == "ok"
