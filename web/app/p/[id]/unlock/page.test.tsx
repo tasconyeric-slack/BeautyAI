@@ -15,14 +15,14 @@ vi.mock("next/navigation", () => ({ usePathname: () => "/p/fx_unlock/unlock" }))
 beforeEach(() => {
   store = { id: "fx_unlock", data: structuredClone(sampleReportResponse()), busy: false, unlock: vi.fn().mockResolvedValue(undefined) };
   store.data.entitlement.paid = false;
-  store.data.entitlement.price_cny = 59;
+  store.data.entitlement.price_cny = 139;
   mocks.health.mockResolvedValue({ payment_provider: "fake" });
 });
 
 describe("ENG-05 entitlement presentation", () => {
   it("shows server pricing, free scope and fake-payment disclosure before checkout", async () => {
     render(<UnlockPage />);
-    const buy = await screen.findByRole("button", { name: /¥59/ });
+    const buy = await screen.findByRole("button", { name: /¥139/ });
     await waitFor(() => expect(buy.hasAttribute("disabled")).toBe(false));
     expect(screen.getByTestId("free-scope").textContent).toBe(paywall.freeScope);
     expect(screen.getByText(/模拟支付，不会扣款/)).toBeTruthy();
@@ -34,14 +34,14 @@ describe("ENG-05 entitlement presentation", () => {
     store.busy = true;
     render(<UnlockPage />);
     expect(await screen.findByRole("status")).toHaveProperty("textContent", paywall.pending);
-    expect(screen.getByRole("button", { name: /¥59/ }).hasAttribute("disabled")).toBe(true);
+    expect(screen.getByRole("button", { name: /¥139/ }).hasAttribute("disabled")).toBe(true);
   });
 
   it("shows payment unavailability while keeping the existing invite action", async () => {
     mocks.health.mockResolvedValue({ payment_provider: "unavailable" });
     render(<UnlockPage />);
     await screen.findByText("支付暂未开放，可以使用邀请码解锁。");
-    expect(screen.queryByRole("button", { name: /¥59/ })).toBeNull();
+    expect(screen.queryByRole("button", { name: /¥139/ })).toBeNull();
     fireEvent.change(screen.getByRole("textbox", { name: paywall.invitation }), { target: { value: "  TEST  " } });
     fireEvent.click(screen.getByRole("button", { name: paywall.invitation }));
     await waitFor(() => expect(store.unlock).toHaveBeenCalledWith("TEST"));
@@ -50,7 +50,7 @@ describe("ENG-05 entitlement presentation", () => {
   it("announces a failed unlock and leaves checkout retryable", async () => {
     store.unlock.mockRejectedValue(new Error("offline"));
     render(<UnlockPage />);
-    const buy = await screen.findByRole("button", { name: /¥59/ });
+    const buy = await screen.findByRole("button", { name: /¥139/ });
     await waitFor(() => expect(buy.hasAttribute("disabled")).toBe(false));
     fireEvent.click(buy);
     expect(await screen.findByRole("alert")).toHaveProperty("textContent", paywall.failed);
