@@ -189,5 +189,6 @@ export function PredictedScoreHero({ view, harmony }: { view: LearnedScoreView; 
         <ReferenceDensity curve={view.rank.distribution} score={view.score!} />
       </div>}
     </div>
+    {view.qualityNote && <p data-testid="learned-quality-note" className="col-span-2 mt-5 border-t border-rule px-3 pt-4 text-[12px] leading-6 text-muted sm:px-5">{view.qualityNote}</p>}
   </section>;
 }

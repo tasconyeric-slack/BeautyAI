@@ -40,14 +40,15 @@ async function build(input: ReportPdfInput, name: string) {
 const squash = (t: string) => t.replace(/\s+/g, "");
 
 describe("PDF report export", () => {
-  it("learned cover contains just the ten-point score and reference top-percent", async () => {
+  it.each(["passed", "limited"] as const)("learned cover shows score and rank with %s quality", async (qc) => {
     const data = structuredClone(sampleReportResponse("female"));
     data.passport!.learned_attractiveness = {
       contract_version: "learned-attractiveness-1", status: "research_only", model_id: "test-model",
       checkpoint_id: "sha256:test", preprocessing_version: "test", crop_version: "test", native_scale_id: "test",
       calibration_version: null, raw_score: 3, display_score: 5.5, native_label_range: [1, 5], display_range: [1, 10],
-      display_transform: "test-linear", qc_status: "passed", inference_ms: 0.1, research_only: true,
-      production_authorized: false, provenance: "cv_geometry_ridge_regression", quality_flags: [],
+      display_transform: "test-linear", qc_status: qc, inference_ms: 0.1, research_only: true,
+      production_authorized: false, provenance: "cv_geometry_ridge_regression",
+      quality_flags: qc === "limited" ? ["beauty_filter_suspect"] : [],
       unavailable_reason: null, limitations: [],
     };
     data.passport!.learned_reference_rank = {
@@ -63,6 +64,10 @@ describe("PDF report export", () => {
     expect(cover).toContain("照片样本排名前35%");
     expect(cover).toContain("test-onlysample·1,000张照片");
     expect(cover).toContain("非人口排名");
+    if (qc === "limited") {
+      expect(cover).toContain("皮肤纹理较少或疑似美颜");
+      expect(cover).toContain("可能不准确，仅供参考");
+    }
     expect(cover).not.toContain("均值");
     expect(cover).toContain("几何协调度");
     expect(r.all).not.toContain("比例参考：");

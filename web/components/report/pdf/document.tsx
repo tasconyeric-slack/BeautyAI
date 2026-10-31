@@ -329,6 +329,7 @@ function Cover({ data, sample, demo, images, photoMode, now }: {
         </View>
         </View>
       </View>}
+      {predicted?.qualityNote && <T style={[s.small, { marginTop: 6 }]}>{predicted.qualityNote}</T>}
       {!predicted && score && score.score != null && (
         <View style={[s.box, s.row, { marginTop: 10, alignItems: "center" }]} wrap={false}>
           <View style={{ width: 110, alignItems: "center" }}>

@@ -130,9 +130,9 @@ def evaluate(front: Any, geometry: dict[str, Any] | None) -> tuple[dict[str, Any
         return unavailable("no_landmarks")
     flags = sorted(set(front.issues + (geometry or {}).get("quality_flags", [])))
     score["quality_flags"] = flags
-    # Fail closed on unknown warnings. Only conditions that preserve the measured
-    # feature vector are permitted; keep all warnings in the report for provenance.
-    if front.status == "reject" or set(flags) - set(cfg["quality"]["allowed_warnings"]):
+    # Photo warnings describe uncertainty; the actual feature vector must still
+    # pass the finite/completeness checks below. Rejected uploads remain rejected.
+    if front.status == "reject" or (flags and not cfg["quality"]["allow_quality_warnings"]):
         detail["qc_status"] = "limited"
         return unavailable("image_quality_limited")
     if not geometry:
@@ -149,7 +149,8 @@ def evaluate(front: Any, geometry: dict[str, Any] | None) -> tuple[dict[str, Any
     try:
         start = time.perf_counter()
         raw = predict_features(from_geometry(geometry, front.yaw, front.pitch), artifact)
-        detail.update(inference_ms=round((time.perf_counter() - start) * 1000, 3), qc_status="passed",
+        detail.update(inference_ms=round((time.perf_counter() - start) * 1000, 3),
+                      qc_status="limited" if flags else "passed",
                       display_score=round(display_score(raw, cfg["native_bounds"], cfg["display_bounds"]), 1))
         score.update(status="research_only" if research else "ok", raw_score=raw)
     except (ValueError, TypeError, KeyError):

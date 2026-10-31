@@ -117,14 +117,13 @@ def test_same_geometry_features_and_qc_fallback(configured):
     assert score["display_score"] == 5.5
     assert score["status"] == "research_only"
     front.issues = ["low_resolution"]
-    score, rank = service.evaluate(front, measured)
-    assert score["unavailable_reason"] == "image_quality_limited"
-    assert score["raw_score"] is rank["percentile"] is None
+    score, _ = service.evaluate(front, measured)
+    assert score["status"] == "research_only" and score["raw_score"] == 3
+    assert score["qc_status"] == "limited" and score["quality_flags"] == ["low_resolution"]
 
 
 @pytest.mark.parametrize("case,reason", [
-    ("reject", "image_quality_limited"), ("eyewear", "image_quality_limited"),
-    ("mouth_open", "image_quality_limited"), ("blurry", "image_quality_limited"),
+    ("reject", "image_quality_limited"),
     ("pose", "image_quality_limited"), ("missing_pose", "features_unavailable"),
     ("nan", "features_unavailable"), ("missing", "features_unavailable"),
     ("wrong_shape", "features_unavailable"), ("version", "feature_version_mismatch"),

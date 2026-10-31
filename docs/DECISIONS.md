@@ -299,3 +299,8 @@
 - Completed `/p/[id]` renders the same full report as `/report`, preserving in-progress, QC and topic-entry states. There is no additional profile landing page between completion and the report.
 - Production explicitly uses light mode, with current main's shared brand tokens, warm reading surfaces and restrained green accent. Studio controls inherit shared application tokens instead of enforcing a dark green panel. Photo stages and actual cosmetic swatches keep their functional colors. Developer component theme previews remain available.
 - No changes to analysis, scoring, schemas, paid entitlements, photo handling or retention. Design rationale and validation: [plan](plans/2026-10-31-report-studio-unification.md).
+
+**D45 Warning-level photo quality annotates available Ridge predictions** (2026-10-31)
+- Product owner requests score and sample ranking when measurements are usable, with concrete photo-quality caveats underneath. Warning flags no longer independently suppress Ridge inference; preserve them and mark the existing QC state limited. Smooth-cheek suspicion is a texture heuristic, not evidence of invalid geometry.
+- Rejected uploads and unavailable/incompatible/nonfinite measurements still cannot produce a prediction. Existing geometry pose limits, authorization, model identity/hash validation, reference gates and ECDF tail/precision support remain unchanged; no fabricated score or percentile.
+- Report and exported PDF share the limited-score visibility rule and caveat. No analysis/schema/model/formula changes, no second model call, no infrastructure upgrade or private files in Git.

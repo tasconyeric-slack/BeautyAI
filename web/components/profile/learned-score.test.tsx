@@ -19,8 +19,10 @@ const score: NonNullable<Passport["learned_attractiveness"]> = {
 it("keeps old passports compatible and never synthesizes a learned score", () => {
   expect(learnedScore({ ...old, learned_attractiveness: undefined })).toBeNull();
 });
-it("shows only the ten-point score and computed reference rank", () => {
-  const p: Passport = { ...old, learned_attractiveness: score, learned_reference_rank: {
+it.each(["passed", "limited"] as const)("shows the score and computed rank with %s quality", (qc) => {
+  const p: Passport = { ...old, learned_attractiveness: {
+    ...score, qc_status: qc, quality_flags: qc === "limited" ? ["blurry"] : [],
+  }, learned_reference_rank: {
     status: "available", percentile: 65, top_percent: 35, cohort_label: "Test-only sample",
     cohort_id: "test", distribution_version: "test", n_reference: 2128, n_unique_subjects: null,
     method: "empirical_cdf_midrank_v1", limitations: [], unavailable_reason: null,
@@ -56,4 +58,13 @@ it("withholds a missing percentile while keeping the real score", () => {
   expect(screen.getByTestId("score-value").textContent).toContain("5.5");
   expect(screen.queryByTestId("learned-rank")).toBeNull();
   expect(screen.getByText("暂无排名")).toBeTruthy();
+});
+
+it("shows a limited measured score with its photo-quality caveat", () => {
+  render(<PredictedScoreHero view={learnedScore({ ...old, learned_attractiveness: {
+    ...score, qc_status: "limited", quality_flags: ["beauty_filter_suspect", "unknown_warning"],
+  }, learned_reference_rank: null })!} />);
+  expect(screen.getByTestId("score-value").textContent).toContain("5.5");
+  expect(screen.getByTestId("learned-quality-note").textContent).toContain("皮肤纹理较少或疑似美颜");
+  expect(screen.getByTestId("learned-quality-note").textContent).toContain("可能不准确，仅供参考");
 });
