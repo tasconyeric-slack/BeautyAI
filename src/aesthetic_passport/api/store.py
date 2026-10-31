@@ -339,15 +339,33 @@ class Store:
                    "updated_at) VALUES (?, ?, ?, ?, 'created', ?, ?)", (order_id, pid, provider, amount, t, t))
 
     def mark_payment_paid(self, order_id: str) -> tuple[str | None, bool]:
-        """(passport_id, newly_paid). A replayed webhook returns newly_paid=False and changes nothing."""
-        row = self._exec("SELECT passport_id, status FROM payments WHERE order_id=?", (order_id,)).fetchone()
-        if not row:
-            return None, False
-        if row["status"] == "paid":
-            return row["passport_id"], False
-        self._exec("UPDATE payments SET status='paid', updated_at=? WHERE order_id=?", (iso(now()), order_id))
-        self.set_paid(row["passport_id"])
-        return row["passport_id"], True
+        """Settle an authenticated provider order once; update payment and entitlement atomically."""
+        timestamp = iso(now())
+        with self._lock:
+            self._db.execute("BEGIN IMMEDIATE")
+            try:
+                row = self._db.execute(
+                    "SELECT passport_id, status FROM payments WHERE order_id=?", (order_id,),
+                ).fetchone()
+                if row is None:
+                    self._db.execute("ROLLBACK")
+                    return None, False
+                pid = row["passport_id"]
+                if row["status"] == "paid":
+                    self._db.execute("ROLLBACK")
+                    return pid, False
+                self._db.execute(
+                    "UPDATE payments SET status='paid', updated_at=? WHERE order_id=?", (timestamp, order_id),
+                )
+                self._db.execute(
+                    "UPDATE passports SET paid=1, saved=1, updated_at=? WHERE id=? AND status!='deleted'",
+                    (timestamp, pid),
+                )
+                self._db.execute("COMMIT")
+                return pid, True
+            except Exception:
+                self._db.execute("ROLLBACK")
+                raise
 
     def payments(self, pid: str) -> list[dict[str, Any]]:
         return [dict(r) for r in self._exec("SELECT * FROM payments WHERE passport_id=?", (pid,)).fetchall()]
