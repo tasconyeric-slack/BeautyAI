@@ -625,7 +625,7 @@ function ReportNext({ id }: { id: string }) {
           保存并勾选行动方案<ArrowRight className="size-4" aria-hidden />
         </ReportLink>
         <ReportLink href={journeyHref(id, "studio")} className="inline-flex h-11 items-center rounded-full border border-ink/30 px-5 text-[14px] font-medium hover:border-ink">
-          去 Studio试一试
+          去 Studio 试一试
         </ReportLink>
         <ReportLink href={journeyHref(id, "advice")} className="text-[13.5px] text-accent underline-offset-4 hover:underline">逐项看个性化建议</ReportLink>
       </div>

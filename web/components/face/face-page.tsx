@@ -108,7 +108,7 @@ export function FacePage({ geometry: injected }: { geometry?: FaceGeometry | nul
         sub="每个数字都由照片上的关键点或侧面轮廓计算。鼠标移到一项上就能看到它是怎么量的，点击固定；比例描述的是你的结构，不代表好坏。" />
       <Assessment view={view} id={id} geometry={geometry} src={src} expired={expired} photos={data?.media.photos ?? null}
         ratios={referenceRatios(passport)} passport={passport} />
-      <div className="mx-auto mt-4 max-w-2xl lg:mx-0">
+      <div className="mt-8 max-w-3xl">
         {shapeAndTraits}
       </div>
     </Page>
@@ -149,7 +149,7 @@ function Assessment({ view, id, geometry, src, expired, photos, ratios, passport
 
       <FaceAtlas a={atlas} v={view} id={id} geometry={geometry} photos={urls} expired={expired} onShowMetric={show} onAddSide={openAdd} />
 
-      <div className="mt-10 grid gap-x-10 lg:grid-cols-2">
+      <div className="mt-16 grid gap-x-12 gap-y-8 lg:grid-cols-2">
         <div className="min-w-0">
           {view.highlights.length > 0 && (
             <Section title="最能说明你的三点" kicker="结构画像">

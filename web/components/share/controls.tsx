@@ -6,7 +6,7 @@ import { cn } from "@/lib/utils";
 /** Per-export consent: unchecked by default, the caller resets it after every export (D23 / PRD B8). */
 export function ConsentCheck({ checked, onChange, label, id }: { checked: boolean; onChange: (v: boolean) => void; label: string; id: string }) {
   return (
-    <label htmlFor={id} className="flex cursor-pointer items-start gap-2.5 rounded-[12px] border border-amber/40 bg-amber-soft px-3.5 py-3 text-[13px] leading-6">
+    <label htmlFor={id} className="flex cursor-pointer items-start gap-2.5 rounded-[4px] border border-amber/40 bg-amber-soft px-3.5 py-3 text-[13px] leading-6">
       <input id={id} type="checkbox" checked={checked} onChange={(e) => onChange(e.target.checked)}
         className="mt-1 size-4 shrink-0 accent-[var(--ap-primary)]" />
       <span>{label}<span className="block text-[12px] text-muted">每次导出都需要重新勾选。</span></span>
@@ -22,7 +22,7 @@ export function Segmented<T extends string>({ value, options, onChange, label }:
       {options.map((o) => (
         <button key={o.value} type="button" role="radio" aria-checked={value === o.value} disabled={o.disabled}
           onClick={() => onChange(o.value)}
-          className={cn("rounded-full px-3.5 py-1.5 text-[13px] transition-colors disabled:opacity-40",
+          className={cn("min-h-11 rounded-full px-3.5 py-1.5 text-[13px] transition-colors disabled:opacity-40",
             value === o.value ? "bg-ink text-paper" : "text-ink-soft hover:text-ink")}>
           {o.label}
         </button>

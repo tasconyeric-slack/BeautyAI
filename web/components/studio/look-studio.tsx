@@ -1,6 +1,6 @@
 "use client";
 
-/** Studio Studio (V2.1 §4, D30): one portrait, every change composed into the same look.
+/** Studio (V2.1 §4, D30): one portrait, every change composed into the same look.
  *
  *  - Hair shape: one Qwen edit of the ORIGINAL photo, only on an explicit "生成这个造型" (paid, D33).
  *    The result is laid back onto the original at its crop_box, so the local layers below still fit the face.
@@ -48,6 +48,8 @@ export function LookStudio() {
 
 function StudioEditor() {
   const [panel, setPanel] = React.useState("hair");
+  const [entryTool, setEntryTool] = React.useState<"lip" | "drape" | null>(null);
+  const [lipDetailsOpen, setLipDetailsOpen] = React.useState(false);
   const { id, passport, data, requestPreviews, sendFeedback } = usePassport();
   const params = useSearchParams();
   const hold = useHold();
@@ -94,12 +96,18 @@ function StudioEditor() {
     if (saved) { setLook(restoreLook({ ...saved, hair: saved.hair as HairTier | null })); return; }
     const h = params.get("hair");
     const hc = params.get("hc");
+    const hair = (TIERS as string[]).includes(h ?? "") ? (h as HairTier) : null;
+    const hairColor = hc !== null && /^\d$/.test(hc) && Number(hc) < passport.analysis.color_profile.hair_color_directions.length ? Number(hc) : null;
+    const lip = normHex(params.get("lip"));
+    const drape = normHex(params.get("drape"));
+    if (!hair && hairColor === null && (lip || drape)) {
+      setPanel("makeup");
+      setEntryTool(lip ? "lip" : "drape");
+    }
+    setLipDetailsOpen(Boolean(lip));
     setLook({
       ...EMPTY_LOOK,
-      hair: (TIERS as string[]).includes(h ?? "") ? (h as HairTier) : null,
-      hairColor: hc !== null && /^\d$/.test(hc) && Number(hc) < passport.analysis.color_profile.hair_color_directions.length ? Number(hc) : null,
-      lip: normHex(params.get("lip")),
-      drape: normHex(params.get("drape")),
+      hair, hairColor, lip, drape,
     });
   }, [params, passport, id]);
 
@@ -123,8 +131,9 @@ function StudioEditor() {
   const options = hairOptions(passport, previews);
   const paid = data.entitlement.paid;
   const groups = colorGroups(passport);
-  const nearFace = [...groups[0].colors, ...groups[1].colors.slice(0, 4), ...groups[2].colors.slice(0, 2)];
-  const drapeGroup = (hex: string) => groups.find((g) => g.colors.some((c) => c.hex === hex))?.key;
+  const nearFace = groups.flatMap(g => g.colors).filter((c, i, all) => all.findIndex(other => other.hex.toUpperCase() === c.hex.toUpperCase()) === i);
+  if (look.drape && !nearFace.some(c => c.hex.toUpperCase() === look.drape?.toUpperCase())) nearFace.push({ hex: look.drape, name_zh: "自选近脸色" });
+  const drapeGroup = (hex: string) => groups.find((g) => g.colors.some((c) => c.hex.toUpperCase() === hex.toUpperCase()))?.key;
   const layersOk = Boolean(geometry) && status === "ready";
   const hairOpt = options.find((o) => o.tier === look.hair);
   const colorName = look.hairHex ? HAIR_SHADES.find(h => h.hex === look.hairHex)?.name
@@ -147,6 +156,17 @@ function StudioEditor() {
     lastEdit.current = {key:continuous ? key:"",at:now};
     setLook(l => ({ ...l, ...patch }));
   };
+  const nearFaceControls = <Group title="近脸色" hint="衣领或围巾的颜色，看它对气色的影响">
+    <div className="flex flex-wrap gap-2" role="radiogroup" aria-label="近脸色">
+      <Choice on={look.drape === null} onClick={() => set({ drape: null })}>不加</Choice>
+      {nearFace.map((c) => (
+        <Choice key={c.hex} on={look.drape?.toUpperCase() === c.hex.toUpperCase()} disabled={!layersOk} onClick={() => set({ drape: c.hex })} swatch={c.hex}>
+          {c.name_zh}{drapeGroup(c.hex) === "caution" ? "（慎用）" : ""}
+        </Choice>
+      ))}
+    </div>
+  </Group>;
+  const lipControls = <details className={s.studioAdvanced} open={lipDetailsOpen} onToggle={e => setLipDetailsOpen(e.currentTarget.open)}><summary>调整唇色、腮红与眉形</summary><MakeupControls look={look} set={set} availability={makeup} recommendedBlush={recommendedBlush} recommendedLips={cp.lip_families} /></details>;
 
   const generate = async () => {
     if (!hairTarget) return;
@@ -192,7 +212,7 @@ function StudioEditor() {
     : { tone: "muted", text: "发型尚未生成，照片上仍是现在的发型" };
 
   return (
-    <div className={cn(s.surface, s.studioSurface)}><Page wide>
+    <Page wide>
       <div className={s.studioHeading}><div><p>Studio</p><h1>留住自己，试一点不同。</h1><span>从发型到配色，找到你喜欢的表达。</span></div><Link href={`/p/${id}/report`}>返回我的报告 <span aria-hidden>↗</span></Link></div>
       <div className={s.studioWorkspace}>
         {/* Stage: sticky under the site header on phones, so controls scroll beneath it. */}
@@ -286,20 +306,12 @@ function StudioEditor() {
             </p>
           )}
 
+          {entryTool === "drape" && nearFaceControls}
+          {entryTool === "lip" && lipControls}
           <MakeupPresets look={look} set={set} availability={makeup} />
           <details className={s.studioAdvanced}><summary>精细调整眼妆</summary><EyeMakeupControls look={look} set={set} availability={makeup} /></details>
-          <details className={s.studioAdvanced}><summary>调整唇色、腮红与眉形</summary><MakeupControls look={look} set={set} availability={makeup} recommendedBlush={recommendedBlush} recommendedLips={cp.lip_families} /></details>
-
-          <Group title="近脸色" hint="衣领或围巾的颜色，看它对气色的影响">
-            <div className="flex flex-wrap gap-2" role="radiogroup" aria-label="近脸色">
-              <Choice on={look.drape === null} onClick={() => set({ drape: null })}>不加</Choice>
-              {nearFace.map((c) => (
-                <Choice key={c.hex} on={look.drape?.toUpperCase() === c.hex.toUpperCase()} disabled={!layersOk} onClick={() => set({ drape: c.hex })} swatch={c.hex}>
-                  {c.name_zh}{drapeGroup(c.hex) === "caution" ? "（慎用）" : ""}
-                </Choice>
-              ))}
-            </div>
-          </Group>
+          {entryTool !== "lip" && lipControls}
+          {entryTool !== "drape" && nearFaceControls}
           </Tabs.Content>
           <Tabs.Content value="eyewear" forceMount hidden={panel !== "eyewear"} className={s.studioPanel}>
             <EyewearControls look={look} set={set} reason={expired ? "照片已过期，请重新上传后试戴。" : status !== "ready" ? "照片载入后才能试戴眼镜。" : frontEyewear && !data.media.photos?.noglasses ? "没有无眼镜来源，不能在已有眼镜上叠加新镜框。" : (source.role === "glasses" || (frontEyewear && data.media.photos?.noglasses && !look.eyewear)) ? null : eyewearControlsReason}
@@ -343,7 +355,7 @@ function StudioEditor() {
           </div>
         </Tabs.Root>
       </div>
-    </Page></div>
+    </Page>
   );
 }
 

@@ -19,28 +19,28 @@ export default function MakeupPage() {
         sub={grooming ? md.base_tone : `${md.base_tone}；${md.eye_focus}`} />
       {grooming ? (
         <Section title="日常理容">
-          <ul className="space-y-2">{md.grooming.map((g) => <li key={g} className="rounded-[12px] border border-rule bg-paper-raised px-4 py-3 text-[14px]">{g}</li>)}</ul>
+          <ul className="space-y-2">{md.grooming.map((g) => <li key={g} className="rounded-[4px] border border-rule bg-paper-raised px-6 py-5 text-[14px]">{g}</li>)}</ul>
         </Section>
       ) : (
-        <Section title="唇色" kicker="点一个颜色，在 Studio 中试">
-          <ul className="grid gap-2 sm:grid-cols-2">
+        <Section title="唇色" kicker="点一个颜色，在 Studio 里试">
+          <ul className="grid gap-4 sm:grid-cols-2">
             {lips.map((l) => (
               <li key={l.hex}>
                 <Link href={`/p/${id}/studio?lip=${l.hex.slice(1)}`}
-                  className="flex items-center gap-3 rounded-[12px] border border-rule bg-paper-raised px-3 py-2.5 hover:border-ink/40">
+                  className="flex items-center gap-3 rounded-[4px] border border-rule bg-paper-raised px-5 py-5 hover:border-ink/40">
                   <span className="size-6 shrink-0 rounded-full border border-black/10" style={{ background: l.hex }} aria-hidden />
                   <span className="min-w-0 flex-1">
                     <span className="block text-[14px]">{l.name}</span>
-                    <span className="block truncate text-[12px] text-muted">{l.note}</span>
+                    <span className="mt-1 block text-[13px] leading-6 text-muted">{l.note}</span>
                   </span>
-                  <span className="shrink-0 text-[12px] text-accent">试色</span>
+                  <span className="shrink-0 text-[12px] text-accent">在 Studio 试</span>
                 </Link>
               </li>
             ))}
           </ul>
           <Link href={`/p/${id}/studio${lips[0] ? `?lip=${lips[0].hex.slice(1)}` : ""}`}
-            className="mt-3 inline-flex items-center gap-1.5 text-[14px] text-accent underline-offset-4 hover:underline">
-            <Sparkles className="size-4" />在 Studio 中和发型、近脸色一起看
+            className="mt-4 inline-flex min-h-11 items-center gap-1.5 text-[14px] text-accent underline-offset-4 hover:underline">
+            <Sparkles className="size-4" />在 Studio 里和发型、近脸色一起看
           </Link>
           <p className="mt-1 text-[12px] text-muted">{guidance.makeupCaution}</p>
           {data.entitlement.locked.includes("makeup.lip_families") && <Locked what="完整唇色色板与浓度档" />}

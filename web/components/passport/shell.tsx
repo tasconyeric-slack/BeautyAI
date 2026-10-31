@@ -12,6 +12,7 @@ import { cn } from "@/lib/utils";
 import { currentStep, PRODUCT_AREAS, journeyHref, nextStep } from "./journey";
 import { ErrorState } from "./states";
 import { Sheet } from "./sheet";
+import styles from "./passport.module.css";
 
 export function PassportShell({ id, children }: { id: string; children: React.ReactNode }) {
   return (
@@ -42,7 +43,7 @@ function Inner({ children }: { children: React.ReactNode }) {
       <JourneyBar />
       {children}
       <JourneyNext />
-      <div className="no-print mx-auto mt-10 flex max-w-5xl justify-center px-4">
+      <div className={cn("no-print flex justify-center", styles.settings)}>
         <button type="button" onClick={() => setSheet(true)}
           className="inline-flex min-h-11 items-center gap-1.5 rounded-full border border-rule px-4 py-2 text-[13px] text-muted hover:text-ink">
           <Settings className="size-4" />{settings.title} · 删除数据
@@ -62,7 +63,7 @@ export function JourneyBar() {
   const here = PRODUCT_AREAS.find(a => a.match.test(path))?.key;
   if (!here || data?.status !== "full_ready") return null;
   return (
-    <nav aria-label="浏览路径" data-testid="journey-bar" data-journey-bar className="no-print sticky top-[49px] z-30 hidden h-11 border-b border-rule bg-paper/95 backdrop-blur md:block">
+    <nav aria-label="浏览路径" data-testid="journey-bar" data-journey-bar className={cn("no-print sticky top-[49px] z-30 hidden h-12 border-b backdrop-blur md:block", styles.journey)}>
       <ol className="mx-auto flex h-full max-w-5xl items-center gap-0.5 px-6">
         {PRODUCT_AREAS.map((s) => {
           const active = s.key === here;
@@ -87,7 +88,7 @@ export function JourneyNext() {
   const next = nextStep(currentStep(usePathname()));
   if (!next || data?.status !== "full_ready") return null;
   return (
-    <section aria-labelledby="journey-next" data-testid="journey-next" className="no-print mx-auto mt-10 max-w-5xl px-4 sm:px-6">
+    <section aria-labelledby="journey-next" data-testid="journey-next" className={cn("no-print mx-auto", styles.next)}>
       <div className="flex flex-col gap-3 rounded-[16px] border border-rule bg-paper-raised p-5 sm:flex-row sm:items-center sm:justify-between">
         <div className="min-w-0">
           <h2 id="journey-next" className="text-[11px] tracking-[0.18em] text-muted">下一步</h2>
@@ -132,7 +133,7 @@ function ChangeNote() {
   if (!shown && !busy) return null;
   return (
     <div role="status" aria-live="polite"
-      className="fixed inset-x-0 bottom-[68px] z-40 mx-auto w-fit max-w-[92vw] rounded-full bg-ink px-4 py-2 text-[13px] text-paper shadow-lg ap-rise">
+      className="fixed inset-x-0 bottom-[calc(72px+env(safe-area-inset-bottom))] z-40 mx-auto w-fit max-w-[92vw] rounded-full bg-ink px-4 py-2 text-[13px] text-paper shadow-lg ap-rise">
       {busy && !shown ? "正在调整建议顺序" : shown}
     </div>
   );
@@ -146,7 +147,7 @@ export function BottomNav() {
   const path = usePathname() ?? "";
   const base = `/p/${id}`;
   return (
-    <nav aria-label="护照导航" className="no-print fixed inset-x-0 bottom-0 z-40 border-t border-rule bg-paper/95 pb-[env(safe-area-inset-bottom)] backdrop-blur md:hidden">
+    <nav aria-label="护照导航" className={cn("no-print fixed inset-x-0 bottom-0 z-40 border-t pb-[env(safe-area-inset-bottom)] backdrop-blur md:hidden", styles.bottomNav)}>
       <ul className="mx-auto grid max-w-md grid-cols-2">
         {NAV_AREAS.map(({ key, sub, label, icon: Icon, match }) => {
           const active = match.test(path);

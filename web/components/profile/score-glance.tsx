@@ -17,7 +17,7 @@ export function ScoreGlance({ view, detailHref = "#score", retakeHref, synthetic
 }) {
   const has = view.score != null;
   return (
-    <div data-testid="score-glance" data-state={view.state} className="flex items-start gap-4 rounded-[14px] border border-rule bg-paper-raised p-4">
+    <div data-testid="score-glance" data-state={view.state} className="flex items-start gap-4 rounded-[4px] border border-rule bg-paper-raised p-4">
       <Ring value={view.score} />
       <div className="min-w-0">
         <p className="text-[11px] tracking-[0.14em] text-muted">{view.name} · 模型参考</p>

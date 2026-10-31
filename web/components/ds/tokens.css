@@ -2,25 +2,32 @@
    Import this file in app/globals.css, or import any DS component directly.
    All component styles are scoped; a portrait stage always stays neutral. */
 :root {
-  --ap-reading: #f1f1ee;
-  --ap-surface: #fafaf7;
+  --ap-brand-primary: #3f625e;
+  --ap-brand-primary-light: #b8d3bd;
+  --ap-photo-field: #d7dde0;
+  --ap-photo-stage: #c1c5ca;
+  --ap-reading-width: 1080px;
+  --ap-workspace-width: 1240px;
+  --ap-panel-duration: 240ms;
+  --ap-reading: #f3f1ec;
+  --ap-surface: #f8f7f3;
   --ap-surface-muted: #e6ebed;
   --ap-ink: #172125;
   --ap-ink-soft: #46565d;
-  --ap-muted: #53636b;
+  --ap-muted: #626e6e;
   --ap-stage: #141618;
-  --ap-stage-ink: #f1f1ee;
+  --ap-stage-ink: #f3f1ec;
   --ap-stage-muted: #c1c7c7;
-  --ap-primary: #3f625e;
-  --ap-primary-soft: #e9edec;
+  --ap-primary: var(--ap-brand-primary);
+  --ap-primary-soft: #e5ebe7;
   --ap-amber: #9a5b1f;
   --ap-amber-soft: #f1e8da;
-  --ap-rule: #ccd2d3;
-  --ap-rule-strong: #aab6b9;
+  --ap-rule: #cdd2d0;
+  --ap-rule-strong: #aab6b4;
   --ap-on-primary: #fff;
   --ap-font-display: var(--font-noto-serif, "Noto Serif SC"), "Source Han Serif SC", "Songti SC", serif;
-  --ap-font-body: var(--font-noto-sans, "Noto Sans SC"), "Source Han Sans SC", "PingFang SC", system-ui, sans-serif;
-  --ap-font-number: "IBM Plex Mono", var(--font-jetbrains, ui-monospace), monospace;
+  --ap-font-body: var(--font-inter, "Inter"), var(--font-noto-sans, "Noto Sans SC"), "Source Han Sans SC", "PingFang SC", system-ui, sans-serif;
+  --ap-font-number: var(--font-jetbrains, ui-monospace), monospace;
   --ap-text-xs: .6875rem;
   --ap-text-sm: .8125rem;
   --ap-text-base: .9375rem;
@@ -36,11 +43,11 @@
   --ap-space-6: 2rem;
   --ap-space-7: 3rem;
   --ap-space-8: 4rem;
-  --ap-radius-sm: 3px;
-  --ap-radius-md: 8px;
+  --ap-radius-sm: 4px;
+  --ap-radius-md: 4px;
   --ap-radius-pill: 999px;
   --ap-shadow: 0 8px 30px #14161808;
-  --ap-duration: 150ms;
+  --ap-duration: 200ms;
   --ap-reveal-duration: 800ms;
   --ap-ease: cubic-bezier(.2, .7, .3, 1);
 }
@@ -48,25 +55,25 @@
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme="light"]) {
     --ap-reading: #191c1e; --ap-surface: #222729; --ap-surface-muted: #2b3133;
-    --ap-ink: #f1f1ee; --ap-ink-soft: #d0d5d3; --ap-muted: #a4afae;
-    --ap-primary: #9cc4ce; --ap-primary-soft: #273e46;
+    --ap-ink: #f3f1ec; --ap-ink-soft: #d0d5d3; --ap-muted: #a4afae;
+    --ap-primary: var(--ap-brand-primary-light); --ap-primary-soft: #2e433c;
     --ap-amber: #e2b27f; --ap-amber-soft: #3a2c1f;
-    --ap-rule: #3c4445; --ap-rule-strong: #697271; --ap-on-primary: #112a34;
+    --ap-rule: #3c4445; --ap-rule-strong: #697271; --ap-on-primary: #20322b;
   }
 }
 :root[data-theme="dark"], [data-ap-theme="dark"] {
   --ap-reading: #191c1e; --ap-surface: #222729; --ap-surface-muted: #2b3133;
-  --ap-ink: #f1f1ee; --ap-ink-soft: #d0d5d3; --ap-muted: #a4afae;
-  --ap-primary: #9cc4ce; --ap-primary-soft: #273e46;
+  --ap-ink: #f3f1ec; --ap-ink-soft: #d0d5d3; --ap-muted: #a4afae;
+  --ap-primary: var(--ap-brand-primary-light); --ap-primary-soft: #2e433c;
   --ap-amber: #e2b27f; --ap-amber-soft: #3a2c1f;
-  --ap-rule: #3c4445; --ap-rule-strong: #697271; --ap-on-primary: #112a34;
+  --ap-rule: #3c4445; --ap-rule-strong: #697271; --ap-on-primary: #20322b;
 }
 [data-ap-theme="light"] {
-  --ap-reading: #f1f1ee; --ap-surface: #fafaf7; --ap-surface-muted: #e6ebed;
-  --ap-ink: #172125; --ap-ink-soft: #46565d; --ap-muted: #53636b;
-  --ap-primary: #3f625e; --ap-primary-soft: #e9edec;
+  --ap-reading: #f3f1ec; --ap-surface: #f8f7f3; --ap-surface-muted: #e6ebed;
+  --ap-ink: #172125; --ap-ink-soft: #46565d; --ap-muted: #626e6e;
+  --ap-primary: var(--ap-brand-primary); --ap-primary-soft: #e5ebe7;
   --ap-amber: #9a5b1f; --ap-amber-soft: #f1e8da;
-  --ap-rule: #ccd2d3; --ap-rule-strong: #aab6b9; --ap-on-primary: #fff;
+  --ap-rule: #cdd2d0; --ap-rule-strong: #aab6b4; --ap-on-primary: #fff;
 }
 
 .ap-ds { color: var(--ap-ink); font-family: var(--ap-font-body); font-size: var(--ap-text-base); line-height: var(--ap-leading); overflow-wrap: anywhere; }
@@ -85,7 +92,7 @@
 .ap-compare__image { position: relative; width: 100%; aspect-ratio: 4 / 5; overflow: hidden; }
 .ap-compare__image > img { position: absolute; width: 100%; height: 100%; object-fit: contain; pointer-events: none; user-select: none; }
 .ap-compare__after { inset: 0; }
-.ap-compare__after { transition: opacity 90ms linear; }
+.ap-compare__after { transition: opacity var(--ap-duration) var(--ap-ease); }
 .ap-compare__ai, .ap-compare__original { position: absolute; bottom: 14px; font-size: var(--ap-text-xs); padding: 4px 9px; background: #141618c9; color: #fff; border: 1px solid #ffffff30; border-radius: 2px; pointer-events: none; }
 .ap-compare__ai { left: 14px; }
 .ap-compare__original { left: 14px; }
@@ -155,16 +162,16 @@
 .ap-confidence--low .ap-confidence__mark { color: var(--ap-amber); }
 .ap-confidence strong { font-weight: 500; font-size: var(--ap-text-sm); }
 .ap-confidence p { margin-top: 4px; color: var(--ap-ink-soft); font-size: var(--ap-text-sm); max-width: 34em; }
-.ap-paywall { border: 1px solid var(--ap-rule); background: var(--ap-surface); padding: clamp(24px, 4vw, 40px); box-shadow: var(--ap-shadow); }
+.ap-paywall { border: 1px solid var(--ap-rule); background: var(--ap-surface); padding: clamp(24px, 4vw, 40px); border-radius: var(--ap-radius-md); box-shadow: none; }
 .ap-paywall h3 { margin-top: 16px; font-size: var(--ap-text-title); }
 .ap-paywall ul { list-style: none; padding: 24px 0; display: grid; gap: 12px; }
 .ap-paywall li { display: flex; gap: 12px; color: var(--ap-ink-soft); font-size: var(--ap-text-sm); }
 .ap-paywall li > span { color: var(--ap-amber); }
-.ap-button { display: flex; width: 100%; min-height: 48px; align-items: center; justify-content: space-between; padding: 12px 18px; background: var(--ap-primary); color: var(--ap-on-primary); border: 1px solid var(--ap-primary); border-radius: 2px; font-size: var(--ap-text-sm) !important; }
+.ap-button { display: flex; width: 100%; min-height: 48px; align-items: center; justify-content: space-between; padding: 12px 18px; background: var(--ap-primary); color: var(--ap-on-primary); border: 1px solid var(--ap-primary); border-radius: var(--ap-radius-pill); font-size: var(--ap-text-sm) !important; }
 .ap-button:hover { opacity: .9; }
 .ap-score-teaser { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px 20px; border-block: 1px solid var(--ap-rule); padding: 20px 0; }
 .ap-score-teaser p { color: var(--ap-muted); font-size: var(--ap-text-sm); }
-.ap-score-teaser button { min-height: 44px; padding: 8px 12px; color: var(--ap-primary); border: 1px solid var(--ap-rule-strong); border-radius: 2px; background: transparent; font-size: var(--ap-text-sm); }
+.ap-score-teaser button { min-height: 44px; padding: 8px 18px; color: var(--ap-primary); border: 1px solid var(--ap-rule-strong); border-radius: var(--ap-radius-pill); background: transparent; font-size: var(--ap-text-sm); }
 .ap-score-teaser button:hover { background: var(--ap-primary-soft); }
 .ap-triptych { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); border-block: 1px solid var(--ap-rule); }
 .ap-triptych__panel { min-width: 0; padding: 24px; }

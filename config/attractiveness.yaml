@@ -17,3 +17,9 @@ research_permission: user-authorized-research-2026-10-30
 reference_curve:
   points: 65
   min_bandwidth_native: 0.03
+# Ridge eligibility is independent of D36's full/limited display status.
+# Exposure warnings do not invalidate geometry unless QC rejects the photo.
+# Relative framing can be small while native facial detail remains sufficient.
+# Mild pose is an explicit model feature; enforce D36 limited_max_* bounds.
+quality:
+  allowed_warnings: [underexposed, overexposed, face_too_small, pose_yaw, pose_pitch]

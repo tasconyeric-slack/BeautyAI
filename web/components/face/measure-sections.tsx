@@ -17,7 +17,7 @@ function SaveToPlan({ id, recId }: { id: string; recId: string }) {
   const saved = Boolean(choices.plan[recId]?.saved);
   return (
     <button type="button" onClick={() => setPlan(recId, { saved: !saved })} aria-pressed={saved}
-      className={cn("min-h-9 shrink-0 rounded-full border px-3 text-[12.5px] transition-colors",
+      className={cn("min-h-11 shrink-0 rounded-full border px-3 text-[12.5px] transition-colors",
         saved ? "border-accent bg-accent-soft text-accent" : "border-rule-strong text-ink-soft hover:bg-paper-sunk")}>
       {saved ? "已加入行动方案" : "加入行动方案"}
     </button>
@@ -29,7 +29,7 @@ export function EvidenceCard({ id, v, metric, onShow, compact }: {
   id: string; v: InsightView; metric?: Metric; onShow?: (metricId: string) => void; compact?: boolean;
 }) {
   return (
-    <article className={cn("rounded-[14px] border border-rule bg-paper-raised", compact ? "p-3" : "p-4")} data-insight={v.metricId}>
+    <article className={cn("rounded-[4px] border border-rule bg-paper-raised", compact ? "p-3" : "p-4")} data-insight={v.metricId}>
       <div className="flex flex-wrap items-center gap-2">
         <h3 className="font-serif text-[16px] font-semibold">{v.label}</h3>
         <Pill tone={BAND_TONE[v.band]}>{v.band === "typical" ? "常见范围内" : "较有特点"}</Pill>
@@ -77,7 +77,7 @@ export function PriorityList({ items }: { items: MeasureView["priorities"] }) {
     <ol className="space-y-2" aria-label="优先改善方向">
       {items.map((r, i) => (
         <li key={r.id}>
-          <Link href={r.href} className="flex items-start gap-3 rounded-[12px] border border-rule bg-paper-raised p-3 hover:bg-paper-sunk">
+          <Link href={r.href} className="flex items-start gap-3 rounded-[4px] border border-rule bg-paper-raised p-3 hover:bg-paper-sunk">
             <span className="tnum mt-0.5 font-serif text-[18px] text-accent">{i + 1}</span>
             <span className="min-w-0">
               <span className="block text-[12px] text-muted">{r.category}</span>
@@ -94,7 +94,7 @@ export function PillarGrid({ pillars, onShow }: { pillars: PillarView[]; onShow:
   return (
     <ul className="grid gap-3 sm:grid-cols-2" aria-label="四个观察维度">
       {pillars.map((p) => (
-        <li key={p.key} className="rounded-[14px] border border-rule bg-paper-raised p-4" data-pillar={p.key}>
+        <li key={p.key} className="rounded-[4px] border border-rule bg-paper-raised p-4" data-pillar={p.key}>
           <div className="flex items-baseline justify-between gap-2">
             <h3 className="font-serif text-[16px] font-semibold">{p.name}</h3>
             <span className="tnum text-[12px] text-muted">已测 {p.measured} / {p.total} 项</span>
@@ -122,9 +122,9 @@ function MetricRow({ v, m, id, selected, onSelect }: {
   const insight = v.insights[m.id];
   const comps = components(m);
   return (
-    <li data-metric={m.id} className={cn("rounded-[12px]", selected && "bg-paper-sunk")}>
+    <li data-metric={m.id} className={cn("rounded-[4px]", selected && "bg-paper-sunk")}>
       <button type="button" onClick={() => onSelect(m.id)} aria-pressed={selected} aria-expanded={selected}
-        className="flex min-h-12 w-full items-center gap-3 rounded-[12px] px-3 py-2 text-left focus-visible:outline-2 focus-visible:outline-[var(--ap-primary)]">
+        className="flex min-h-12 w-full items-center gap-3 rounded-[4px] px-3 py-2 text-left focus-visible:outline-2 focus-visible:outline-[var(--ap-primary)]">
         <span className="min-w-0 flex-1">
           <span className="block text-[14px]">{m.name_zh}</span>
           {insight && <span className="block text-[12px] text-muted">{insight.label}</span>}
@@ -166,14 +166,14 @@ export function Workbench({ v, id, selected, onSelect, group, onGroup }: {
           const n = g.metrics.filter((m) => m.availability === "measured").length;
           return (
             <button key={g.key} type="button" role="tab" aria-selected={g.key === active.key} onClick={() => onGroup(g.key)}
-              className={cn("min-h-10 shrink-0 rounded-full border px-3 text-[13px] transition-colors",
+              className={cn("min-h-11 shrink-0 rounded-full border px-3 text-[13px] transition-colors",
                 g.key === active.key ? "border-stage bg-stage text-stage-ink" : "border-rule text-ink-soft hover:bg-paper-sunk")}>
               {g.name}<span className="tnum ml-1 text-[11px] opacity-70">{n}</span>
             </button>
           );
         })}
       </div>
-      <ul role="tabpanel" aria-label={active.name} className="mt-2 divide-y divide-rule rounded-[14px] border border-rule bg-paper-raised p-1">
+      <ul role="tabpanel" aria-label={active.name} className="mt-2 divide-y divide-rule rounded-[4px] border border-rule bg-paper-raised p-1">
         {active.metrics.map((m) => <MetricRow key={m.id} v={v} m={m} id={id} selected={selected === m.id} onSelect={onSelect} />)}
       </ul>
       {active.key === "profile" && (

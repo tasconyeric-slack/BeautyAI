@@ -38,6 +38,23 @@ describe("ColorPage", () => {
     renderPage(response(false));
     fireEvent.click(within(screen.getByRole("group", { name: "慎用色卡" })).getByRole("button", { name: /芥末黄/ }));
     expect(screen.getByText(/搜索词「芥末黄 运动鞋」/)).toBeTruthy();
+    const chosen = within(screen.getByRole("group", { name: "慎用色卡" })).getByRole("button", { name: /芥末黄/ });
+    expect(chosen.getAttribute("aria-pressed")).toBe("true");
+    const hex = sample.analysis.color_profile.caution_families.find(f => f.name === "芥末黄")!.hex_examples[0];
+    expect(screen.getByRole("link", { name: /在 Studio 里试芥末黄/ }).getAttribute("href")).toBe(`/p/ap_sample_0001/studio?drape=${hex.slice(1)}`);
+    expect(screen.getByText("已选：芥末黄")).toBeTruthy();
+    expect(screen.getByRole("link", { name: "把这个颜色带到 Studio" }).getAttribute("href")).toBe(`/p/ap_sample_0001/studio?drape=${hex.slice(1)}`);
+  });
+
+  it("keeps colour guidance here and photo exploration in Studio", () => {
+    const { container } = renderPage(response(false));
+    expect(container.querySelector("canvas")).toBeNull();
+    expect(screen.queryByRole("group", { name: "披布视图" })).toBeNull();
+    expect(screen.getByRole("heading", { name: "你的对比度" })).toBeTruthy();
+    expect(screen.getByRole("heading", { name: "搭配公式" })).toBeTruthy();
+    expect(screen.getByRole("heading", { name: "发色方向" })).toBeTruthy();
+    expect(screen.getByRole("heading", { name: "口红色族" })).toBeTruthy();
+    expect(screen.getByRole("link", { name: /在 Studio 里试/ }).getAttribute("href")).toMatch(/studio\?drape=[A-Fa-f0-9]{6}$/);
   });
 
   it("expired photo: colour cards only, no canvas, says why", () => {

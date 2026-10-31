@@ -36,7 +36,7 @@ export function OutfitBoards({ id, passport, disliked, locked }: { id: string; p
         ) : (
           <>
             {result.status === "single" && <p data-testid="boards-single" className="mb-2 text-[13px] text-amber">{result.reason}</p>}
-            <ul data-testid="boards" className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+            <ul data-testid="boards" className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
               {boards.map((b) => <BoardCard key={b.key} board={b} owned={state.owned} chosen={chosen === b.key} onChoose={() => out.choose(chosen === b.key ? null : b.key)} onOwned={out.setOwned} />)}
             </ul>
           </>

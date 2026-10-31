@@ -166,7 +166,7 @@ function Verdict({ s, role }: { s: SlotState; role: PhotoRole }) {
   // the server's message is role-specific (e.g. a 45° photo in the 90° slot); the shared copy is the fallback
   const msg = qc.messages?.[0] ?? (code ? `${getQcMessage(code).reason}${getQcMessage(code).action}` : null);
   return (
-    <div className={cn("rounded-[10px] border px-3 py-2 text-[12.5px] leading-5", qc.status === "ok" ? "border-accent/30 bg-accent-soft"
+    <div className={cn("rounded-[4px] border px-3 py-2 text-[12.5px] leading-5", qc.status === "ok" ? "border-accent/30 bg-accent-soft"
       : qc.status === "warn" ? "border-amber/30 bg-amber-soft text-[#60420f]" : "border-[#b4442f]/30 bg-[#f6e5e1] text-[#682719]")} data-qc={qc.status}>
       {profileUnclear ? <p>{copy.profileUnclearRejected}</p> : <>
         <p className="flex items-center gap-1 font-medium">
@@ -193,7 +193,7 @@ export function PhotoSlot({ role, state, required, prominent, onChoose, onRefram
   }, [state?.srcUrl]);
   return (
     <section aria-label={r.title} data-slot={role}
-      className={cn("rounded-[16px] border bg-paper-raised p-3", prominent ? "border-rule-strong" : "border-rule")}>
+      className={cn("rounded-[4px] border bg-paper-raised p-3", prominent ? "border-rule-strong" : "border-rule")}>
       <input ref={input} type="file" accept="image/*" className="sr-only" aria-label={`${copy.choose} · ${r.title}`}
         onChange={(e) => { const f = e.target.files?.[0]; if (f) onChoose(f); e.target.value = ""; }} />
       <div className="flex items-start gap-3">
@@ -210,14 +210,14 @@ export function PhotoSlot({ role, state, required, prominent, onChoose, onRefram
 
       {!state ? (
         <button type="button" onClick={() => input.current?.click()} data-testid={`choose-${role}`}
-          className={cn("mt-3 flex w-full items-center justify-center gap-2 rounded-[12px] border border-dashed border-rule-strong text-ink-soft hover:border-accent hover:text-accent",
+          className={cn("mt-3 flex w-full items-center justify-center gap-2 rounded-[4px] border border-dashed border-rule-strong text-ink-soft hover:border-accent hover:text-accent",
             prominent ? "aspect-[4/3] flex-col" : "min-h-12")}>
           <ImagePlus className={prominent ? "size-8" : "size-4"} strokeWidth={1.5} />
           <span className="text-[14px]">{copy.choose}</span>
         </button>
       ) : (
         <div className="mt-3 grid grid-cols-[minmax(0,7.5rem)_1fr] gap-3 sm:grid-cols-[minmax(0,9rem)_1fr]">
-          <div className="overflow-hidden rounded-[10px] bg-[var(--ap-stage)]">
+          <div className="overflow-hidden rounded-[4px] bg-[var(--ap-stage)]">
             {state.url ? (
               // eslint-disable-next-line @next/next/no-img-element
               <img src={state.url} alt={`${r.title}（将用于分析的画面）`} className="block w-full" data-testid={`preview-${role}`} />
@@ -228,17 +228,17 @@ export function PhotoSlot({ role, state, required, prominent, onChoose, onRefram
             <div className="flex flex-wrap gap-1.5">
               {state.srcUrl ? (
                 <button type="button" onClick={() => { setSuggest(false); setEditing(true); }} data-testid={`frame-${role}`}
-                  className="inline-flex min-h-9 items-center gap-1 rounded-full border border-rule-strong px-3 text-[12.5px] hover:bg-paper-sunk">
+                  className="inline-flex min-h-11 items-center gap-1 rounded-full border border-rule-strong px-3 text-[12.5px] hover:bg-paper-sunk">
                   <Crop className="size-3.5" />{state.qc && state.qc.status !== "ok" ? "重新裁剪并检查" : copy.frame}
                 </button>
               ) : <p className="text-[12px] text-muted">{copy.noEditor}</p>}
               <button type="button" onClick={() => input.current?.click()}
-                className="inline-flex min-h-9 items-center gap-1 rounded-full border border-rule-strong px-3 text-[12.5px] hover:bg-paper-sunk">
+                className="inline-flex min-h-11 items-center gap-1 rounded-full border border-rule-strong px-3 text-[12.5px] hover:bg-paper-sunk">
                 <RotateCcw className="size-3.5" />{copy.replace}
               </button>
               {!required && (
                 <button type="button" onClick={onRemove} data-testid={`remove-${role}`}
-                  className="inline-flex min-h-9 items-center gap-1 rounded-full border border-rule-strong px-3 text-[12.5px] hover:bg-paper-sunk">
+                  className="inline-flex min-h-11 items-center gap-1 rounded-full border border-rule-strong px-3 text-[12.5px] hover:bg-paper-sunk">
                   <Trash2 className="size-3.5" />{copy.remove}
                 </button>
               )}

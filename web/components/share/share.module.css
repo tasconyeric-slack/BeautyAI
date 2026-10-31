@@ -1,0 +1,13 @@
+.public { max-width:var(--ap-reading-width,1080px); margin-inline:auto; padding:48px 24px 64px; }
+.public > h1 { max-width:24em; font-family:var(--ap-font-display); font-size:clamp(32px,4vw,46px); line-height:1.4; font-weight:500; margin-top:16px; }
+.public > p { max-width:48em; line-height:1.9; }
+.publicGrid { display:grid; grid-template-columns:minmax(0,400px) minmax(0,1fr); gap:64px; align-items:start; margin-top:40px; padding-top:32px; border-top:1px solid var(--rule); }
+.publicCard { min-width:0; }
+.publicReading { min-width:0; }
+.publicReading dl { margin-top:0; border:0; border-radius:0; padding:0; background:transparent; }
+.publicReading dl > div { gap:24px; padding-block:24px; align-items:start; }
+.publicReading dl dt { flex-shrink:0; }
+.publicReading dl dd { max-width:28em; }
+.loading { min-height:45vh; display:flex; flex-direction:column; justify-content:center; max-width:var(--ap-reading-width,1080px); padding:64px 24px; margin:auto; }
+.modeControls { max-width:640px; margin:32px auto 0; }
+@media(max-width:767px) { .public { padding-top:28px; } .publicGrid { grid-template-columns:1fr; gap:40px; margin-top:28px; padding-top:24px; } .publicCard { max-width:400px; width:100%; margin:auto; } .publicReading dl > div { padding-block:20px; } }

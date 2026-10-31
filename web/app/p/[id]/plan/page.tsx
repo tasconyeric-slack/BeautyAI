@@ -44,7 +44,7 @@ function PlanEditor() {
       <PageHeader kicker="我的行动方案" title="让喜欢的方向，成为日常。"
         sub="你的造型选择，与可以开始的下一步。" />
       <PersonalPlan id={id} passport={passport} />
-      <details className="mt-8 rounded-xl border border-rule p-4">
+      <details className="mt-12 rounded-[4px] border border-rule p-6">
         <summary className="cursor-pointer text-[14px] text-ink-soft">报告原始建议与反馈</summary>
       <p className="mb-3 mt-3 text-[13px] text-muted" aria-live="polite">已完成 {done} / {top.length}</p>
 
@@ -53,7 +53,7 @@ function PlanEditor() {
           const st = choices.plan[r.id] ?? {};
           return (
             <li key={r.id}>
-              <article className={cn("rounded-[16px] border bg-paper-raised p-4", st.done ? "border-accent/40 opacity-75" : "border-rule")}>
+              <article className={cn("rounded-[4px] border bg-paper-raised p-6", st.done ? "border-accent/40 opacity-75" : "border-rule")}>
                 <div className="flex items-start gap-3">
                   <span className="tnum mt-0.5 font-serif text-[22px] leading-none text-amber" aria-label={`优先级 ${i + 1}`}>{i + 1}</span>
                   <div className="min-w-0 flex-1">
@@ -115,7 +115,7 @@ function PlanEditor() {
       </details>
 
       {(chosenHair || choices.looks.length > 0) && (
-        <Section title="我选定的" kicker="来自发型建议与Studio">
+        <Section title="我选定的" kicker="来自发型建议与 Studio">
           <div className="space-y-2">
             {chosenHair && (
               <Card className="flex items-center gap-3">
@@ -128,7 +128,7 @@ function PlanEditor() {
               <Card key={l.id} className="flex items-center gap-3">
                 <Sparkles className="size-4 shrink-0 text-accent" />
                 <span className="min-w-0 flex-1 truncate text-[14px]">{l.name}</span>
-                <Link href={`/p/${id}/studio${lookQuery(l)}`} className="shrink-0 text-[13px] text-accent underline-offset-4 hover:underline">在 Studio打开</Link>
+                <Link href={`/p/${id}/studio${lookQuery(l)}`} className="shrink-0 text-[13px] text-accent underline-offset-4 hover:underline">在 Studio 打开</Link>
               </Card>
             ))}
           </div>

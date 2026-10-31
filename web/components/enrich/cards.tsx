@@ -60,7 +60,7 @@ export function ProfilePhotoCard({ n, onStatus }: EnrichCardSlotProps) {
       canSubmit={Boolean(photo) && !expired} submitLabel={t.profile.submit}
       onSubmit={submit} onSkip={flow.skip} onEdit={flow.edit}>
       <div className="grid grid-cols-[112px_1fr] gap-3">
-        <div className="aspect-square overflow-hidden rounded-[12px] bg-stage text-stage-ink">
+        <div className="aspect-square overflow-hidden rounded-[4px] bg-stage text-stage-ink">
           {photo?.url
             // eslint-disable-next-line @next/next/no-img-element
             ? <img src={photo.url} alt="已选择的侧脸照片" className="size-full object-cover" />
@@ -70,7 +70,7 @@ export function ProfilePhotoCard({ n, onStatus }: EnrichCardSlotProps) {
           {t.profile.tips.map((tip) => <li key={tip} className="flex gap-1.5"><span aria-hidden className="text-accent">·</span>{tip}</li>)}
         </ul>
       </div>
-      <p className="mt-3 flex items-start gap-1.5 rounded-[10px] bg-amber-soft px-3 py-2 text-[12.5px] leading-[1.6] text-amber">
+      <p className="mt-3 flex items-start gap-1.5 rounded-[4px] bg-amber-soft px-3 py-2 text-[12.5px] leading-[1.6] text-amber">
         <ShieldCheck className="mt-0.5 size-3.5 shrink-0" />
         <span>{t.profile.reanalyzeNote} {privacy.facts[0]}</span>
       </p>
@@ -238,7 +238,7 @@ export function BodyCard({ n, onStatus }: EnrichCardSlotProps) {
         {adjustments.height}
         <input type="number" inputMode="numeric" min={120} max={220} value={height} placeholder={t.body.heightPlaceholder}
           onChange={(e) => setHeight(e.target.value)} aria-invalid={!heightOk}
-          className="mt-1.5 block h-10 w-36 rounded-[10px] border border-rule-strong bg-paper px-3 font-mono text-[14px] font-normal outline-none focus:border-accent" />
+          className="mt-1.5 block h-10 w-36 rounded-[4px] border border-rule-strong bg-paper px-3 font-mono text-[14px] font-normal outline-none focus:border-accent" />
       </label>
       {!heightOk && <p className="mt-1 text-[12px] text-[#b4442f]">{t.body.heightInvalid}</p>}
     </EnrichCard>

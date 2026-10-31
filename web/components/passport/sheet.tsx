@@ -4,6 +4,7 @@ import { X } from "lucide-react";
 import * as React from "react";
 import { createPortal } from "react-dom";
 import { cn } from "@/lib/utils";
+import styles from "./passport.module.css";
 
 /** Bottom sheet on phones, centred dialog from `sm` up. Esc, the backdrop and the close button dismiss it; focus moves
  *  into the sheet on open, is kept inside while open, and returns to the opener on close. */
@@ -41,7 +42,7 @@ export function Sheet({ open, onClose, title, kicker, children, footer, classNam
   return createPortal(
     <div className="fixed inset-0 z-[60] flex items-end justify-center bg-black/45 sm:items-center sm:p-6" onClick={onClose}>
       <div ref={panel} role="dialog" aria-modal="true" aria-labelledby={titleId} onClick={(e) => e.stopPropagation()}
-        className={cn("ap-rise flex max-h-[90dvh] w-full max-w-lg flex-col rounded-t-[20px] bg-paper shadow-xl sm:rounded-[18px]", className)}>
+        className={cn("ap-rise flex max-h-[90dvh] w-full max-w-lg flex-col shadow-xl", styles.sheet, className)}>
         <div className="flex items-start justify-between gap-3 px-5 pb-2 pt-5">
           <div className="min-w-0">
             {kicker && <p className="text-[11px] tracking-[0.18em] text-muted">{kicker}</p>}

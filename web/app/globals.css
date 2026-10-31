@@ -149,12 +149,10 @@ html { scroll-padding-top: 4.5rem; }
 .scrollbar-none::-webkit-scrollbar { display: none; }
 
 /* Shared R3.1 navigation keeps the same identity throughout the journey. */
-.site-header { background:#f3f1ecf5; border-color:#c9ceca; color:#172125; }
-.site-header > div { max-width:1240px; }
-.site-header nav a:last-child { background:#3f625e; color:#f3f1ec; }
-
-/* Shared chrome around the photographic report and Studio. */
-body:has([data-testid="full-report"]) > .site-header,
-body:has([data-studio-controls]) > .site-header { background:#d7dde0f2; border-color:#aebbc0; color:#172125; }
-body:has([data-testid="full-report"]) > .site-header > div,
-body:has([data-studio-controls]) > .site-header > div { max-width:1360px; }
+.site-header { background:color-mix(in srgb,var(--paper) 96%,transparent); border-color:var(--rule); color:var(--ink); }
+.site-header > div, .site-footer > div { max-width:var(--ap-workspace-width); }
+.site-header nav a:last-child { background:var(--accent); color:var(--ap-on-primary); }
+.site-footer { background:var(--paper); }
+:where(a,button,summary,input,select,textarea) { -webkit-tap-highlight-color:transparent; }
+:where(a,button,summary) { touch-action:manipulation; transition:color var(--ap-duration) var(--ap-ease),background-color var(--ap-duration) var(--ap-ease),border-color var(--ap-duration) var(--ap-ease),opacity var(--ap-duration) var(--ap-ease); }
+:where(input[type="checkbox"],input[type="radio"],input[type="range"]) { accent-color:var(--accent); }

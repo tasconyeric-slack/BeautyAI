@@ -37,12 +37,12 @@ export function HairPage() {
       <PageHeader kicker="个性化建议 · 发型" title="三个方向，选一个带去发型店"
         sub={`${hd.texture_approach}。稳妥、突破、省心三个方向各有取舍，先看哪个更适合你现在的生活。`} />
 
-      <div className="mb-5 flex flex-wrap items-center justify-between gap-2 rounded-[12px] bg-paper-sunk px-4 py-2.5 text-[13px]">
+      <div className="mb-5 flex flex-wrap items-center justify-between gap-2 rounded-[4px] border border-rule bg-paper-sunk px-6 py-4 text-[13px]">
         <span className="min-w-0 text-ink-soft"><span className="text-muted">按你的条件：</span>{conditions}</span>
-        <AdjustPanel trigger={(open) => <button type="button" onClick={open} className="shrink-0 text-accent underline-offset-4 hover:underline">修改条件</button>} />
+        <AdjustPanel trigger={(open) => <button type="button" onClick={open} className="inline-flex min-h-11 shrink-0 items-center text-accent underline-offset-4 hover:underline">修改条件</button>} />
       </div>
 
-      <ol className="flex flex-col gap-5" aria-label="三个发型方向">
+      <ol className="flex flex-col gap-8" aria-label="三个发型方向">
         {options.map((o, i) => (
           <li key={o.tier}>
             <HairCard o={o} first={i === 0} chosen={choices.hair?.tier === o.tier} onChoose={() => setBriefFor(o.tier)} />
@@ -51,7 +51,7 @@ export function HairPage() {
       </ol>
       {locked.length > 0 && <Locked what="其余发型方向" bullets={["三个方向的完整参数与沟通话术", "AI 发型试看与组合造型"]} />}
 
-      <section className="mt-8 rounded-[14px] border border-rule bg-paper-raised p-4">
+      <section className="mt-8 rounded-[4px] border border-rule bg-paper-raised p-6 sm:p-8">
         <h2 className="font-serif text-[17px] font-semibold">不论选哪个方向</h2>
         <dl className="mt-2 grid gap-2 text-[14px] leading-7">
           {hd.keep.length > 0 && <div><dt className="inline font-medium">保留 · </dt><dd className="inline text-ink-soft">{hd.keep.join("、")}</dd></div>}
@@ -68,11 +68,11 @@ export function HairPage() {
 
 function StudioEntry({ id, paid }: { id: string; paid: boolean }) {
   return (
-    <Link href={`/p/${id}/studio`} className="mt-4 flex items-center gap-3 rounded-[14px] bg-ink p-4 text-paper">
+    <Link href={`/p/${id}/studio`} className="mt-10 flex min-h-11 items-center gap-4 rounded-[4px] bg-accent p-6 text-[var(--ap-on-primary)]">
       <Sparkles className="size-5 shrink-0" />
       <span className="min-w-0 flex-1">
-        <span className="block text-[15px] font-medium">在 Studio 中试发型</span>
-        <span className="block text-[12px] text-paper/75">{paid ? "发型、发色、唇色和近脸色组合到同一张照片" : "AI 发型试看包含在完整护照中；唇色与近脸色可以先免费试"}</span>
+        <span className="block text-[15px] font-medium">在 Studio 里试发型</span>
+        <span className="block text-[12px] opacity-80">{paid ? "发型、发色、唇色和近脸色组合到同一张照片" : "AI 发型试看包含在完整护照中；唇色与近脸色可以先免费试"}</span>
       </span>
       <ArrowRight className="size-4 shrink-0" />
     </Link>
@@ -85,7 +85,7 @@ function HairCard({ o, first, chosen, onChoose }: { o: HairOptionView; first: bo
   const pv = o.preview?.status === "succeeded" && o.preview.after_url ? o.preview : null;
   return (
     <article aria-labelledby={`hair-${o.tier}`}
-      className={cn("rounded-[16px] border bg-paper-raised p-4 sm:p-5", chosen ? "border-accent ring-1 ring-accent" : "border-rule", excluded && "opacity-75")}>
+      className={cn("rounded-[4px] border bg-paper-raised p-6 sm:p-8", chosen ? "border-accent ring-1 ring-accent" : "border-rule", excluded && "opacity-75")}>
       <header className="flex items-start gap-3">
         <div className="min-w-0 flex-1">
           <div className="flex flex-wrap items-center gap-1.5">
@@ -93,11 +93,11 @@ function HairCard({ o, first, chosen, onChoose }: { o: HairOptionView; first: bo
             {first && !excluded && <Pill tone="muted">按你的条件排第一</Pill>}
             {chosen && <Pill tone="accent"><Check className="mr-0.5 size-3" />已选</Pill>}
           </div>
-          <h3 id={`hair-${o.tier}`} className="mt-1.5 font-serif text-[20px] font-semibold leading-snug">{o.name}</h3>
+          <h3 id={`hair-${o.tier}`} className="mt-1.5 font-serif text-[24px] font-medium leading-snug">{o.name}</h3>
           <p className="text-[13px] text-muted">{o.role}</p>
         </div>
         {pv && (
-          <Link href={`/p/${id}/studio?hair=${o.tier}`} className="relative block w-[72px] shrink-0 overflow-hidden rounded-[10px] bg-[var(--ap-stage)]" aria-label={`${o.name}的 AI 试看，在 Studio打开`}>
+          <Link href={`/p/${id}/studio?hair=${o.tier}`} className="relative block w-[72px] shrink-0 overflow-hidden rounded-[4px] bg-[var(--ap-stage)]" aria-label={`${o.name}的 AI 试看，在 Studio 打开`}>
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img src={pv.after_url!} alt="" className="block aspect-[4/5] w-full object-cover" />
             <span className="absolute inset-x-0 bottom-0 bg-black/55 py-0.5 text-center text-[10px] text-white">AI 试看</span>
@@ -178,7 +178,7 @@ export function StylistBriefSheet({ tier, onClose }: { tier: Tier | null; onClos
           <Button variant="outline" size="lg" className="w-full" onClick={save} disabled={saved}>
             {saved ? <><Check />已保存到我的方案</> : "保存到我的方案"}
           </Button>
-          <Link href={`/p/${id}/share#stylist`} className="pt-1 text-center text-[12px] text-muted underline-offset-4 hover:underline">导出沟通卡图片</Link>
+          <Link href={`/p/${id}/share#stylist`} className="inline-flex min-h-11 items-center justify-center pt-1 text-center text-[12px] text-muted underline-offset-4 hover:underline">导出沟通卡图片</Link>
         </div>
       )}>
       {brief && (

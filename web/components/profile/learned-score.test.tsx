@@ -33,7 +33,10 @@ it("shows only the ten-point score and computed reference rank", () => {
   expect(screen.getByTestId("learned-rank").textContent).toBe("前 35%");
   // Position comes from the server percentile (65), not a 5.5/10 → 55 shortcut.
   expect(screen.getByTestId("rank-position").getAttribute("data-percentile")).toBe("65");
-  expect(screen.getByTestId("learned-score").textContent).not.toMatch(/SCUT|原生|照片质量|同模型|研究预览|校准|示意|常见区间|评分与样本说明|test-only-ridge/);
+  expect(screen.getByText("照片样本排名")).toBeTruthy();
+  expect(screen.getByTestId("learned-rank-scope").textContent).toContain("Test-only sample · 2,128 张照片");
+  expect(screen.getByTestId("learned-rank-scope").textContent).toContain("非人口排名");
+  expect(screen.getByTestId("learned-score").textContent).not.toMatch(/原生|照片质量|同模型|研究预览|校准|示意|常见区间|评分与样本说明|test-only-ridge/);
   expect(screen.getByTestId("learned-score").querySelector("details")).toBeNull();
 });
 it("missing model never falls back to a geometric or fake predicted number", () => {
