@@ -1,7 +1,7 @@
-# Single-purchase "完整护照" (D27). One price at launch; A/B ¥59 later (PRD F5). Read by api/entitlement.py.
+# Single-purchase "完整护照" (D27). Experimental price ¥139; no live merchant enabled by this configuration (PRD F5). Read by api/entitlement.py.
 version: 1
 currency: CNY
-full_passport_price: 39
+full_passport_price: 139
 free_previews: 0            # D33: photorealistic hair previews are paid only (V2.1); was 1 free "safe" preview
 paid_preview_cap: 12        # previews per paid passport (all kinds; Look Studio hair + hair-colour combinations)
 invite_unlock: true         # INVITE_UNLOCK_CODES (env) unlock a passport without payment
