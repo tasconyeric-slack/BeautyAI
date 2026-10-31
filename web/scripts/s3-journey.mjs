@@ -104,9 +104,9 @@ try {
     await page.getByText(/模拟支付，不会扣款/).waitFor();
     await shot('unlock-free');
     assert.ok(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth));
-    await page.getByRole('button', { name: /¥39/ }).click(); // existing fake checkout, no charge
+    await page.getByRole('button', { name: /¥139/ }).click(); // existing fake checkout, no charge
     await page.getByRole('heading', { name: '完整护照已解锁', exact: true }).waitFor();
-    assert.equal(await page.getByRole('button', { name: /¥39/ }).count(), 0);
+    assert.equal(await page.getByRole('button', { name: /¥139/ }).count(), 0);
     await shot('unlock-paid');
     await page.getByRole('link', { name: '去实验室生成发型试看', exact: true }).click();
     await page.getByRole('radio', { name: /省心/ }).click();
