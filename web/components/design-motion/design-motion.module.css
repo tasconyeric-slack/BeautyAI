@@ -1,9 +1,9 @@
 /* One editorial language: paper, neutral portrait stages, moss accents and measured motion. */
 .root {
-  --dm-paper:#f3f1ec; --dm-surface:#f7f6f1; --dm-ink:#172125; --dm-muted:#626e6e; --dm-moss:#3f625e;
-  --dm-rule:rgb(23 33 37 / .19); --dm-stage:#d7dde0; --dm-dark:#172125;
-  --dm-gutter:clamp(24px,5vw,80px); --dm-ease:cubic-bezier(.22,.72,.14,1);
-  --dm-small:180ms; --dm-swap:600ms; --dm-arrive:1000ms;
+  --dm-paper:#f3f1ec; --dm-surface:#f7f6f1; --dm-ink:#172125; --dm-muted:#626e6e; --dm-moss:var(--ap-brand-primary);
+  --dm-rule:rgb(23 33 37 / .19); --dm-stage:var(--ap-photo-field); --dm-dark:#172125;
+  --dm-gutter:clamp(24px,5vw,80px); --dm-ease:var(--ap-ease);
+  --dm-small:var(--ap-duration); --dm-swap:600ms; --dm-arrive:1000ms;
   color:var(--dm-ink); background:var(--dm-paper); font-family:var(--sans); overflow-x:clip;
 }
 .root :is(button,a,input) { -webkit-tap-highlight-color:transparent; }

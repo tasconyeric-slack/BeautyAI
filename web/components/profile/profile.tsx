@@ -20,6 +20,7 @@ import { api, backendFor } from "@/lib/api";
 import { guidance, paywall, profile as copy } from "@/lib/copy/zh";
 import { usePassport } from "@/lib/state/passport-store";
 import { atlasKeyFor, availability, type Availability } from "./overview-model";
+import s from "./profile.module.css";
 import { ScoreGlance } from "./score-glance";
 import { PredictedScoreHero, ScoreHero } from "./score-hero";
 import { HarmonyRadar } from "./score-charts";
@@ -49,9 +50,9 @@ export function Profile() {
   // The demo passports use a synthetic face; say so by the number (a live API with mock providers has its own banner).
   const synthetic = backendFor(id).kind === "fixture";
   return (
-    <div className="mx-auto max-w-5xl px-4 pb-10 sm:px-6">
+    <div className={s.page}>
       {/* 1 · what this profile says */}
-      <section className="pt-5 md:grid md:grid-cols-[minmax(0,400px)_1fr] md:gap-10">
+      <section className={s.cover}>
         {/* stays in view while the right column scrolls, below the sticky header and step bar (the wrapper sticks:
             .ap-stage sets its own position, which would override a utility class on the stage itself) */}
         <div className="md:sticky md:top-[7.25rem] md:self-start">
@@ -66,7 +67,7 @@ export function Profile() {
         </div>
         <div className="mt-6 min-w-0 md:mt-0">
           <p className="text-[11px] tracking-[0.18em] text-muted">你的形象档案</p>
-          <h1 className="mt-1 font-serif text-[24px] font-semibold leading-snug sm:text-[28px]">{c.oneLiner}</h1>
+          <h1 className={s.title}>{c.oneLiner}</h1>
 
           {predicted ? <div className="mt-4"><PredictedScoreHero view={predicted} harmony={harmony} /></div>
             : score && <div className="mt-4"><ScoreGlance view={score} retakeHref="/start" synthetic={synthetic} /></div>}
@@ -96,7 +97,7 @@ export function Profile() {
             </Link>
           )}
           <div className="mt-4 flex flex-wrap items-center gap-2 text-[13px]">
-            <Link href={`${base}/share`} className="inline-flex items-center gap-1.5 rounded-full border border-rule px-3.5 py-1.5 text-ink-soft hover:border-ink/40 hover:text-ink">
+            <Link href={`${base}/share`} className="inline-flex min-h-11 items-center gap-1.5 rounded-full border border-rule px-3.5 py-1.5 text-ink-soft hover:border-ink/40 hover:text-ink">
               <Share2 className="size-4" />{copy.share}
             </Link>
             <AdjustPanel />
@@ -111,7 +112,7 @@ export function Profile() {
         </section>
       )}
 
-      <section className="mt-8">
+      <section className={s.section}>
         <ProfileTriptych
           face={<TripCell href={`${base}/face`} value={t.face.value} note={t.face.note} target="face" />}
           color={<TripCell href={`${base}/color`} value={t.color.value} note={t.color.note} target="color" swatches={t.color.swatches} />}
@@ -123,14 +124,14 @@ export function Profile() {
       <Basis base={base} lowColor={t.color.confidence === "low"} limitations={passport.analysis.limitations.slice(0, 2)} avail={avail} />
 
       {/* 3 · the way on */}
-      <section className="mt-10" aria-labelledby="journey-title" data-testid="overview-journey">
+      <section className={s.section} aria-labelledby="journey-title" data-testid="overview-journey">
         <h2 id="journey-title" className="font-serif text-[20px] font-semibold">接下来</h2>
         <p className="mt-1 text-[13px] leading-6 text-muted">沿着证据往下读：先看结论是怎么量出来的，再读报告，最后落到你能做的事。</p>
         <ol className="mt-3 grid gap-3 sm:grid-cols-2 lg:grid-cols-5">
           {JOURNEY.filter((s) => s.key !== "overview").map((s, i) => (
             <li key={s.key}>
               <Link href={journeyHref(id, s.key)} data-testid={s.key === "report" ? "open-report" : `journey-${s.key}`} data-journey={s.key}
-                className="group flex h-full flex-col rounded-[14px] border border-rule bg-paper-raised p-4 hover:border-ink/40">
+                className="group flex h-full flex-col border-t border-rule bg-transparent py-6 pr-4 hover:border-accent">
                 <span className="tnum text-[12px] text-amber">{String(i + 2).padStart(2, "0")}</span>
                 <span className="mt-1 flex items-center gap-1 text-[15px] font-medium group-hover:text-accent">{s.label}<ArrowUpRight className="size-3.5" aria-hidden /></span>
                 <span className="mt-1 text-[12px] leading-5 text-muted">{s.blurb}</span>
@@ -159,7 +160,7 @@ export function journeyFact(key: JourneyKey, { avail, paid }: { avail: Availabil
 /** The one action: the top recommendation after feedback, with why, cost and how to check it worked. */
 function FirstAction({ base, first }: { base: string; first: NonNullable<ReturnType<typeof firstThing>> }) {
   return (
-    <section aria-labelledby="first-action" data-testid="first-action" className="mt-5 rounded-[16px] bg-ink p-5 text-paper">
+    <section aria-labelledby="first-action" data-testid="first-action" className={s.firstAction}>
       <h2 id="first-action" className="flex items-center gap-1.5 text-[11px] tracking-[0.18em] text-paper/70"><Sparkles className="size-3.5" />{copy.firstAction}</h2>
       <p className="mt-2 font-serif text-[19px] leading-8">{first.action}</p>
       <p className="mt-2 text-[13px] leading-6 text-paper/75">{first.why}</p>
@@ -168,7 +169,7 @@ function FirstAction({ base, first }: { base: string; first: NonNullable<ReturnT
         <span>· 怎么验证：{first.successCheck}</span>
       </p>
       <div className="mt-4 flex flex-wrap items-center gap-x-5 gap-y-2">
-        <Link href={`${base}/${first.page}`} className="inline-flex h-10 items-center gap-1 rounded-full bg-paper px-5 text-[14px] font-medium text-ink hover:opacity-90">
+        <Link href={`${base}/${first.page}`} className="inline-flex h-11 items-center gap-1 rounded-full bg-paper px-5 text-[14px] font-medium text-ink hover:opacity-90">
           查看做法 <ArrowUpRight className="size-4" aria-hidden />
         </Link>
         <Link href={`${base}/plan`} className="inline-flex items-center gap-1 text-[14px] text-paper/85 underline-offset-4 hover:underline">
@@ -182,7 +183,7 @@ function FirstAction({ base, first }: { base: string; first: NonNullable<ReturnT
 /** What this profile can and cannot say (V2.1 §3A): where the numbers come from, which photos were used, what is withheld. */
 function Basis({ base, lowColor, limitations, avail }: { base: string; lowColor: boolean; limitations: string[]; avail: Availability | null }) {
   return (
-    <section className="mt-8 rounded-[14px] border border-rule bg-paper-raised p-4" aria-labelledby="basis-title" data-testid="overview-basis">
+    <section className={s.basis} aria-labelledby="basis-title" data-testid="overview-basis">
       <h2 id="basis-title" className="font-serif text-[17px] font-semibold">依据与局限</h2>
       <p className="mt-1 text-[13px] leading-6 text-ink-soft">
         脸型与比例来自照片上的关键点测量；色彩倾向受拍摄光线影响{lowColor ? "，这次判断偏保守" : ""}；

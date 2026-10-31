@@ -25,8 +25,8 @@ export function LookPane({ slot, title, render, front, expired, notes, swatches,
   const src = render ? render.fallbackSrc : front;
   return (
     <figure data-testid={`pane-${slot}`} data-selected={selected ? "yes" : "no"}
-      className={cn("rounded-[14px] border bg-paper-raised p-2.5", selected ? "border-accent ring-2 ring-accent/30" : "border-rule")}>
-      <Stage className="relative overflow-hidden rounded-[10px]">
+      className={cn("rounded-[4px] border bg-paper-raised p-3", selected ? "border-accent ring-2 ring-accent/30" : "border-rule")}>
+      <Stage className="relative overflow-hidden rounded-[4px]">
         <div className="relative aspect-[4/5] w-full">
           {showCanvas ? <canvas ref={render.canvas} className="absolute inset-0 size-full object-cover" role="img" aria-label={`${title}：${render.label}`} data-testid={`canvas-${slot}`} />
             : expired ? <Placeholder>照片已按隐私规则在 24 小时后删除，无法显示画面。可以重新上传一张再比较。</Placeholder>

@@ -22,7 +22,7 @@ export function AccordionTrigger({ className, children, ...props }: React.Compon
         {...props}
       >
         {children}
-        <ChevronDown className="size-4 text-muted transition-transform duration-200 group-data-[state=open]:rotate-180" />
+        <ChevronDown className="size-4 text-muted transition-transform duration-[var(--ap-duration)] group-data-[state=open]:rotate-180" />
       </A.Trigger>
     </A.Header>
   );

@@ -28,7 +28,7 @@ export function ComparePanel({ boards, pair, owned, chosen, onPair, onChoose }: 
         {([a, b] as const).map((x, i) => (
           <label key={i} className="text-[12px] text-muted">{i === 0 ? "A" : "B"}
             <select aria-label={i === 0 ? "对比 A" : "对比 B"} value={x.key} onChange={(e) => select(i as 0 | 1, e.target.value)}
-              className="mt-1 block min-h-10 w-full rounded-lg border border-rule-strong bg-paper px-2 text-[14px] text-ink">
+              className="mt-1 block min-h-11 w-full rounded-[4px] border border-rule-strong bg-paper px-2 text-[14px] text-ink">
               {boards.map((o) => <option key={o.key} value={o.key}>{boardName(o)}</option>)}
             </select>
           </label>
@@ -59,7 +59,7 @@ export function ComparePanel({ boards, pair, owned, chosen, onPair, onChoose }: 
       <div className="mt-3 grid grid-cols-2 gap-2">
         {([a, b] as const).map((x, i) => (
           <button key={x.key} type="button" data-testid={`compare-pick-${i === 0 ? "a" : "b"}`} aria-pressed={chosen === x.key} onClick={() => onChoose(x.key)}
-            className="min-h-10 rounded-full border border-rule-strong px-3 text-[13px] text-accent aria-pressed:border-accent aria-pressed:bg-accent aria-pressed:text-[var(--ap-on-primary)]">
+            className="min-h-11 rounded-full border border-rule-strong px-3 text-[13px] text-accent aria-pressed:border-accent aria-pressed:bg-accent aria-pressed:text-[var(--ap-on-primary)]">
             {chosen === x.key ? `我穿 ${i === 0 ? "A" : "B"}` : `选 ${i === 0 ? "A" : "B"}`}
           </button>
         ))}

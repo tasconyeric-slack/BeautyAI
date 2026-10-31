@@ -87,22 +87,22 @@ function Loaded({ id, passport, data }: { id: string; passport: Passport; data: 
       <PageHeader kicker="完整造型 · 比较与选择" title="我该选哪一个造型？"
         sub="先挑两个完整造型，把它们和原图画在同一张脸上并排看，弄清差别，再做选择，需要时发给朋友帮你看看。" />
       {expired && (
-        <p role="note" className="mb-5 rounded-[12px] bg-amber-soft px-4 py-3 text-[13px] leading-6 text-amber">
+        <p role="note" className="mb-5 rounded-[4px] bg-amber-soft px-4 py-3 text-[13px] leading-6 text-amber">
           照片已按隐私规则在 24 小时后删除，所以下面不再显示画面，只能比较造型的设置。重新上传一张正脸照片后即可恢复。
         </p>
       )}
 
       <DirectionPicker passport={passport} directions={directions} looks={looks} slots={{ a: lookA?.id ?? null, b: lookB?.id ?? null }} onPick={pick} />
 
-      <section aria-labelledby="compare" className="mt-10">
-        <h2 id="compare" className="font-serif text-[20px] font-semibold">并排比较</h2>
+      <section aria-labelledby="compare" className="mt-12 border-t border-rule pt-8 sm:mt-16">
+        <h2 id="compare" className="font-serif text-[26px] font-medium">并排比较</h2>
         <div className="mt-3 grid gap-3 sm:grid-cols-2">
           {(["a", "b"] as const).map((slot) => (
             <label key={slot} className="flex items-center gap-2 text-[13px]">
               <span className="w-12 shrink-0 font-medium">造型 {slot.toUpperCase()}</span>
               <select aria-label={`选择造型 ${slot.toUpperCase()}`} data-testid={`select-${slot}`} value={(slot === "a" ? lookA : lookB)?.id ?? ""}
                 onChange={(e) => setSlot(slot, e.target.value || null)}
-                className="min-h-10 min-w-0 flex-1 rounded-[10px] border border-rule-strong bg-paper-raised px-3 text-[13px]">
+                className="min-h-11 min-w-0 flex-1 rounded-[4px] border border-rule-strong bg-paper-raised px-3 text-[13px]">
                 <option value="">{looks.length ? "请选择" : "还没有保存的造型"}</option>
                 {looks.map((l) => <option key={l.id} value={l.id}>{l.name}</option>)}
               </select>
@@ -111,12 +111,12 @@ function Loaded({ id, passport, data }: { id: string; passport: Passport; data: 
         </div>
 
         {looks.length < 2 && (
-          <p className="mt-4 rounded-[12px] bg-paper-sunk px-4 py-3 text-[13px] leading-6 text-ink-soft" data-testid="need-two">
+          <p className="mt-4 rounded-[4px] bg-paper-sunk px-4 py-3 text-[13px] leading-6 text-ink-soft" data-testid="need-two">
             需要两个造型才能比较。用上面的方向各放进 A 和 B，或在<Link href={`/p/${id}/studio`} className="text-accent underline underline-offset-4">形象实验室</Link>自己调出造型并保存。
           </p>
         )}
 
-        <div className="mt-4 grid gap-3 md:grid-cols-3">
+        <div className="mt-6 grid gap-6 md:grid-cols-3">
           <LookPane slot="原图" title="现在的样子" front={front} expired={expired} />
           <LookPane slot="A" title={lookA?.name ?? "还没选 A"} render={lookA ? ra : undefined} front={front} expired={expired} notes={lookA ? ra.notes : undefined}
             swatches={lookA ? lookSwatches(passport, lookA) : undefined} selected={preferred === lookA?.id && Boolean(lookA)} />
@@ -130,10 +130,10 @@ function Loaded({ id, passport, data }: { id: string; passport: Passport; data: 
 
       {lookA && lookB && diff && (
         <>
-          <section aria-labelledby="diff" className="mt-10">
-            <h2 id="diff" className="font-serif text-[20px] font-semibold">差别在哪里</h2>
+          <section aria-labelledby="diff" className="mt-12 border-t border-rule pt-8 sm:mt-16">
+            <h2 id="diff" className="font-serif text-[26px] font-medium">差别在哪里</h2>
             <p className="mt-1 text-[13px] leading-6 text-ink-soft" data-testid="diff-summary">{diff.summary}</p>
-            <div className="mt-3 overflow-x-auto rounded-[14px] border border-rule bg-paper-raised">
+            <div className="mt-3 overflow-x-auto rounded-[4px] border border-rule bg-paper-raised">
               <table className="w-full text-left text-[13px]" data-testid="diff-table">
                 <caption className="sr-only">造型 A 与造型 B 逐项对比</caption>
                 <thead><tr className="border-b border-rule text-[12px] text-muted"><th className="px-3 py-2 font-normal">项目</th><th className="px-3 py-2 font-normal">A</th><th className="px-3 py-2 font-normal">B</th></tr></thead>
@@ -149,8 +149,8 @@ function Loaded({ id, passport, data }: { id: string; passport: Passport; data: 
             </div>
           </section>
 
-          <section aria-labelledby="choose" className="mt-10">
-            <h2 id="choose" className="font-serif text-[20px] font-semibold">我的选择</h2>
+          <section aria-labelledby="choose" className="mt-12 border-t border-rule pt-8 sm:mt-16">
+            <h2 id="choose" className="font-serif text-[26px] font-medium">我的选择</h2>
             <p className="mt-1 text-[13px] leading-6 text-ink-soft">没有标准答案：选更符合你想要的印象、也做得到的那个。选择只保存在这台设备上。</p>
             <div className="mt-3 flex flex-wrap items-center gap-2" role="group" aria-label="选择造型">
               {([[lookA, "A"], [lookB, "B"]] as const).map(([l, tag]) => (

@@ -4,7 +4,7 @@ import type { Trait } from "./face-model";
 /** A feature description with its evidence and "所以 →" links to the recommendation pages it informs. */
 export function TraitCard({ t, compact }: { t: Trait; compact?: boolean }) {
   return (
-    <li className="rounded-[14px] border border-rule bg-paper-raised px-4 py-3.5" data-trait={t.key}>
+    <li className="rounded-[4px] border border-rule bg-paper-raised px-4 py-3.5" data-trait={t.key}>
       <h3 className={compact ? "text-[14px] font-medium" : "font-serif text-[17px] font-semibold"}>{t.title}</h3>
       {t.text && <p className="mt-1 text-[14px] leading-7 text-ink-soft">{t.text}</p>}
       {!compact && t.evidence.length > 0 && (

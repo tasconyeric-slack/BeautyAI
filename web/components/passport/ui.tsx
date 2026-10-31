@@ -9,6 +9,7 @@ import { api } from "@/lib/api";
 import { paywall } from "@/lib/copy/zh";
 import { usePassport } from "@/lib/state/passport-store";
 import { cn } from "@/lib/utils";
+import styles from "./passport.module.css";
 
 export function PageHeader({ kicker, title, sub, back = true }: { kicker?: string; title: string; sub?: string; back?: boolean }) {
   const { id } = usePassport();
@@ -17,13 +18,13 @@ export function PageHeader({ kicker, title, sub, back = true }: { kicker?: strin
   const top = /\/(advice|studio|plan|compare)$/.test(path);
   const toAdvice = /\/(hair|makeup|outfit|glasses)$/.test(path);
   return (
-    <header className="mb-6 pt-5">
+    <header className={styles.header}>
       {back && !top && (
-        <Link href={toAdvice ? `/p/${id}/advice` : `/p/${id}`} className="mb-4 inline-flex items-center gap-1 text-[13px] text-muted hover:text-ink">
+        <Link href={toAdvice ? `/p/${id}/advice` : `/p/${id}`} className={styles.back}>
           <ArrowLeft className="size-3.5" /> {toAdvice ? "返回建议" : "返回档案"}
         </Link>
       )}
-      {kicker && <p className="mb-1 text-[11px] tracking-[0.18em] text-muted">{kicker}</p>}
+      {kicker && <p className={styles.kicker}>{kicker}</p>}
       <h1 className="font-serif text-[26px] font-semibold leading-snug sm:text-[30px]">{title}</h1>
       {sub && <p className="mt-2 max-w-[34em] text-[14px] leading-7 text-ink-soft">{sub}</p>}
     </header>
@@ -34,11 +35,11 @@ export function Section({ title, kicker, children, className, action }: {
   title?: string; kicker?: string; children: React.ReactNode; className?: string; action?: React.ReactNode;
 }) {
   return (
-    <section className={cn("mt-8", className)}>
+    <section className={cn(styles.section, className)}>
       {(title || kicker) && (
-        <div className="mb-3 flex items-end justify-between gap-3">
+        <div className={styles.sectionHeading}>
           <div>
-            {kicker && <p className="text-[11px] tracking-[0.18em] text-muted">{kicker}</p>}
+            {kicker && <p className={styles.kicker}>{kicker}</p>}
             {title && <h2 className="font-serif text-[19px] font-semibold">{title}</h2>}
           </div>
           {action}
@@ -50,11 +51,11 @@ export function Section({ title, kicker, children, className, action }: {
 }
 
 export function Card({ children, className }: { children: React.ReactNode; className?: string }) {
-  return <div className={cn("rounded-[14px] border border-rule bg-paper-raised p-4", className)}>{children}</div>;
+  return <div className={cn(styles.card, className)}>{children}</div>;
 }
 
 export function Page({ children, wide }: { children: React.ReactNode; wide?: boolean }) {
-  return <div className={cn("mx-auto px-4 pb-10 sm:px-6", wide ? "max-w-5xl" : "max-w-2xl")}>{children}</div>;
+  return <div className={cn(styles.page, wide && styles.wide)}>{children}</div>;
 }
 
 /** Shown on sub-pages while the full passport is still being generated. */
@@ -62,7 +63,7 @@ export function NotReady() {
   const { id, data } = usePassport();
   return (
     <Page>
-      <div className="mt-10 rounded-[14px] border border-rule bg-paper-raised p-6 text-center">
+      <div className={cn(styles.card, "mt-12 text-center")}>
         <p className="font-serif text-[18px]">{data?.status === "analysis_failed" ? "分析暂时中断" : "完整档案还在生成"}</p>
         <p className="mt-2 text-[13px] text-muted">先回到档案页看看已经出来的发现。</p>
         <Link href={`/p/${id}`} className="mt-4 inline-block text-[14px] text-accent underline-offset-4 hover:underline">返回档案</Link>

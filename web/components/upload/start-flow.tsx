@@ -103,7 +103,7 @@ export function StartFlow() {
       {step === "consent" ? (
         <section aria-labelledby="consent-title">
           <h1 id="consent-title" className="font-serif text-[24px] font-semibold leading-snug">{consentCopy.title}</h1>
-          <div className="mt-5 space-y-3 rounded-[14px] border border-rule bg-paper-raised p-4 text-[14px] leading-7">
+          <div className="mt-5 space-y-3 rounded-[4px] border border-rule bg-paper-raised p-4 text-[14px] leading-7">
             <p><b className="font-medium">用途</b> · {consentCopy.purpose}</p>
             <p><b className="font-medium">保留</b> · {consentCopy.retention}</p>
             <p><b className="font-medium">删除</b> · {consentCopy.deleteInstruction}</p>
@@ -111,7 +111,7 @@ export function StartFlow() {
           </div>
           <div className="mt-5 space-y-3">
             {([["processing", consentCopy.processingConfirmation], ["age", consentCopy.ageConfirmation]] as const).map(([k, label]) => (
-              <label key={k} className="flex cursor-pointer items-center gap-3 rounded-[12px] border border-rule bg-paper-raised px-4 py-3 text-[14px]">
+              <label key={k} className="flex cursor-pointer items-center gap-3 rounded-[4px] border border-rule bg-paper-raised px-4 py-3 text-[14px]">
                 <input type="checkbox" className="size-4 accent-[var(--ap-primary)]" checked={agreed[k]}
                   onChange={(e) => setAgreed((a) => ({ ...a, [k]: e.target.checked }))} />
                 {label}
@@ -145,7 +145,7 @@ export function StartFlow() {
               onReframe={(f) => reframe("glasses", f)} onRemove={() => remove("glasses")} />
           </div>
 
-          <div className="mt-3 rounded-[14px] border border-rule">
+          <div className="mt-3 rounded-[4px] border border-rule">
             <button type="button" aria-expanded={moreOpen} onClick={() => setMoreOpen((v) => !v)}
               className="flex min-h-12 w-full items-center justify-between gap-2 px-4 text-left text-[14px] font-medium">
               <span>{photoCopy.more}<span className="ml-2 text-[12px] font-normal text-muted">{photoCopy.moreHint}</span></span>
@@ -176,7 +176,7 @@ export function StartFlow() {
               <div className="grid gap-2">
                 {PRES.map((p) => (
                   <button key={p.key} type="button" aria-pressed={pres === p.value} onClick={() => setPres(p.value)}
-                    className={cn("rounded-[12px] border px-4 py-3 text-left transition-colors",
+                    className={cn("rounded-[4px] border px-4 py-3 text-left transition-colors",
                       pres === p.value ? "border-accent bg-accent-soft" : "border-rule bg-paper-raised hover:border-ink/40")}>
                     <span className="block text-[15px] font-medium">{presCopy.options[p.key].label}</span>
                     <span className="block text-[12px] text-muted">{presCopy.options[p.key].description}</span>
@@ -187,7 +187,7 @@ export function StartFlow() {
           )}
 
           {pres && (
-            <fieldset className="mt-6 rounded-[14px] border border-rule bg-paper-raised p-4">
+            <fieldset className="mt-6 rounded-[4px] border border-rule bg-paper-raised p-4">
               <legend className="px-1 font-serif text-[16px] font-semibold">{onboarding.optionalTitle}</legend>
               <p className="text-[12px] leading-5 text-muted">{onboarding.optionalHint}</p>
               <p className="mt-4 text-[14px] font-medium">{onboarding.goalQuestion}<span className="ml-2 text-[12px] font-normal text-muted">{onboarding.goalHint}</span></p>

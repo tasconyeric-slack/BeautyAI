@@ -32,7 +32,7 @@ export function PieceRow({ piece, owned, onOwned, compact, extra }: { piece: Pie
           <span className={cn("rounded-full px-2 py-0.5", tag.tone === "own" ? "bg-accent text-[var(--ap-on-primary)]" : tag.tone === "suggest" ? "bg-accent-soft text-accent" : "bg-paper-sunk text-muted")}>{tag.text}</span>
           {piece.disliked && <span className="text-amber">你标记过不喜欢这件</span>}
           {onOwned && piece.garmentId && (
-            <label className="inline-flex min-h-8 cursor-pointer items-center gap-1 text-ink-soft">
+            <label className="inline-flex min-h-11 cursor-pointer items-center gap-1 text-ink-soft">
               <input type="checkbox" checked={owned} onChange={(e) => onOwned(e.target.checked)} className="size-4 accent-[var(--ap-primary)]" />
               我已有
             </label>

@@ -1,0 +1,6 @@
+.plane { margin-top:32px; padding:32px; border:1px solid var(--rule); border-radius:4px; background:var(--paper-sunk); }
+.layers { margin-top:40px; display:grid; gap:32px; grid-template-columns:repeat(2,minmax(0,1fr)); }
+.layer { min-width:0; border-top:1px solid var(--rule-strong); padding:24px 0; }
+.layer h2 { margin:12px 0 20px; font-size:26px; line-height:1.5; font-weight:500; }
+.layer > p { max-width:40em; }
+@media(max-width:639px) { .plane { padding:16px; margin-top:24px; } .layers { grid-template-columns:1fr; gap:8px; margin-top:32px; } .layer h2 { font-size:23px; } }

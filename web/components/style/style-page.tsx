@@ -11,6 +11,7 @@ import { api } from "@/lib/api";
 import { style as copy } from "@/lib/copy/zh";
 import { usePassport } from "@/lib/state/passport-store";
 import { cn } from "@/lib/utils";
+import s from "./style.module.css";
 import { styleLocal as L } from "./copy";
 import { styleView, type StyleKey, type StyleView } from "./view";
 
@@ -24,11 +25,11 @@ export function StylePage() {
   return (
     <Page>
       <PageHeader kicker={L.kicker} title={low ? v.looks.region : cover(passport).styleLine} sub={L.disclaimer} />
-      <div data-testid="style-plane">
+      <div data-testid="style-plane" className={s.plane}>
         <StylePlane {...plane} between={low ? undefined : plane.between} />
       </div>
 
-      <div className="mt-4 grid gap-3 sm:grid-cols-2">
+      <div className={s.layers}>
         <FeaturesLayer v={v} />
         <LooksLayer v={v} low={low} id={id} />
         <LikesLayer v={v} />
@@ -66,7 +67,7 @@ function Layer({ which, children, testId }: { which: keyof typeof L.layers; chil
   const meta = L.layers[which];
   return (
     <section aria-label={meta.title} data-testid={testId}
-      className="rounded-[14px] border border-rule bg-paper-raised p-4">
+      className={s.layer}>
       <p className="text-[11px] tracking-[0.18em] text-muted">{meta.n} {meta.kicker}</p>
       <h2 className="mb-2 font-serif text-[18px] font-semibold">{meta.title}</h2>
       {children}
@@ -177,7 +178,7 @@ export function StylePicker({ v }: { v: StyleView }) {
       <div role="radiogroup" aria-label="选择方式" className="mb-3 inline-flex rounded-full bg-paper-sunk p-1">
         {(Object.keys(L.picker.modes) as Mode[]).map((m) => (
           <button key={m} type="button" role="radio" aria-checked={mode === m} onClick={() => setMode(m)}
-            className={cn("rounded-full px-3 py-1.5 text-[13px] transition-colors",
+            className={cn("min-h-11 rounded-full px-3 py-1.5 text-[13px] transition-colors",
               mode === m ? "bg-paper-raised font-medium text-ink shadow-sm" : "text-muted")}>
             {L.picker.modes[m]}
           </button>
@@ -192,7 +193,7 @@ export function StylePicker({ v }: { v: StyleView }) {
             <li key={s.key}>
               <button type="button" aria-pressed={on} disabled={busy} onClick={() => pick(s.key)}
                 data-style={s.key}
-                className={cn("flex h-full min-h-[60px] w-full flex-col items-start rounded-[12px] border px-3 py-2.5 text-left transition-colors disabled:opacity-60",
+                className={cn("flex h-full min-h-[60px] w-full flex-col items-start rounded-[4px] border px-3 py-2.5 text-left transition-colors disabled:opacity-60",
                   on
                     ? mode === "target" ? "border-amber bg-amber-soft" : mode === "dislike" ? "border-rule-strong bg-paper-sunk" : "border-accent bg-accent-soft"
                     : "border-rule bg-paper hover:bg-paper-sunk")}>
@@ -205,7 +206,7 @@ export function StylePicker({ v }: { v: StyleView }) {
       </ul>
       <p className="mt-3 text-[12px] leading-5 text-muted">{copy.explanation}</p>
       {v.note && (
-        <p role="status" data-testid="style-change-note" className="mt-3 rounded-[10px] bg-accent-soft px-3 py-2 text-[13px] text-accent">
+        <p role="status" data-testid="style-change-note" className="mt-3 rounded-[4px] bg-accent-soft px-3 py-2 text-[13px] text-accent">
           {L.picker.lastChange}：{v.note}
         </p>
       )}

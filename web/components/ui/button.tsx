@@ -4,21 +4,21 @@ import * as React from "react";
 import { cn } from "@/lib/utils";
 
 const buttonVariants = cva(
-  "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-full text-sm font-medium transition-colors disabled:pointer-events-none disabled:opacity-45 [&_svg]:size-4 [&_svg]:shrink-0",
+  "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-full text-sm font-medium transition-[background-color,color,border-color,opacity] duration-[var(--ap-duration)] disabled:pointer-events-none disabled:opacity-45 [&_svg]:size-4 [&_svg]:shrink-0",
   {
     variants: {
       variant: {
-        primary: "bg-ink text-paper hover:bg-ink-soft",
+        primary: "bg-accent text-[var(--ap-on-primary)] hover:opacity-90",
         accent: "bg-accent text-[var(--ap-on-primary)] hover:opacity-90",
         outline: "border border-rule-strong bg-transparent text-ink hover:bg-paper-sunk",
         ghost: "text-ink hover:bg-paper-sunk",
         link: "text-accent underline-offset-4 hover:underline px-0 h-auto",
       },
       size: {
-        sm: "h-8 px-3 text-[13px]",
-        md: "h-10 px-4",
+        sm: "min-h-11 px-4 text-[13px]",
+        md: "min-h-11 px-5",
         lg: "h-12 px-6 text-[15px]",
-        icon: "size-8",
+        icon: "size-11",
       },
     },
     defaultVariants: { variant: "primary", size: "md" },

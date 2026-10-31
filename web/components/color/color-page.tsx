@@ -1,6 +1,6 @@
 "use client";
 
-/** 个人色彩与数字披布 (F7 · A6): three colour groups, a local digital drape, two-colour compare, shopping phrases. */
+/** Colour guidance and shopping phrases. Photo-based colour exploration lives in the shared Look Studio. */
 import Link from "next/link";
 import * as React from "react";
 import { FeedbackFor, ResembleFor } from "@/components/adjust/feedback-for";
@@ -11,25 +11,19 @@ import { colorGroups, confidenceLevel } from "@/lib/adapters";
 import { guidance } from "@/lib/copy/zh";
 import { usePassport } from "@/lib/state/passport-store";
 import { cn } from "@/lib/utils";
-import { DrapeStage, stageNote } from "./drape-stage";
+import { ArrowRight } from "lucide-react";
+import s from "./color.module.css";
 import {
   colorSearchPhrase, colorTargetId, contrastAdvice, contrastZh, GROUP_USE, toChips, type Chip, type GroupKey,
 } from "./helpers";
-import { useDrape } from "./use-drape";
 
 export function ColorPage() {
-  const { id, passport } = usePassport();
-  const drape = useDrape();
+  const { id, passport, data } = usePassport();
   const groups = React.useMemo(() => (passport ? colorGroups(passport) : []).map((g) => ({
     ...g, chips: toChips(g.colors, g.key),
   })), [passport]);
   const all = React.useMemo(() => groups.flatMap((g) => g.chips), [groups]);
   const [selected, setSelected] = React.useState<string | null>(null);
-  const [compare, setCompare] = React.useState(false);
-  const [pair, setPair] = React.useState<[string | null, string | null]>([null, null]);
-  const [slot, setSlot] = React.useState(0);
-
-
   if (!passport) return <NotReady />;
   const cp = passport.analysis.color_profile;
   const label = passport.derived.display_labels.color;
@@ -38,16 +32,6 @@ export function ColorPage() {
   const find = (hex: string | null) => all.find((c) => c.hex === hex) ?? null;
   const first = (k: GroupKey) => groups.find((g) => g.key === k)?.chips[0] ?? null;
   const current = find(selected) ?? first("favor") ?? all[0] ?? null;
-  const left = find(pair[0]) ?? first("favor");
-  const right = find(pair[1]) ?? first("caution") ?? first("neutral");
-  const photo = drape.status === "ready" || drape.status === "loading";
-
-  const pick = (chip: Chip) => {
-    setSelected(chip.hex);
-    if (!compare) return;
-    setPair((p) => (slot === 0 ? [chip.hex, p[1] ?? right?.hex ?? null] : [p[0] ?? left?.hex ?? null, chip.hex]));
-    setSlot((s) => 1 - s);
-  };
   const families = { favor: cp.favor_families, neutral: cp.neutral_families, caution: cp.caution_families };
   const reason = (chip: Chip) => families[chip.group].find((f) => f.name === chip.family)?.reason ?? "";
   const hairMeasured = passport.color_measurements?.regions?.hair?.hex;
@@ -56,27 +40,13 @@ export function ColorPage() {
   return (
     <Page>
       <PageHeader kicker="个人色彩" title={label.summary_zh}
-        sub="点一个色块，照片下巴下方就换一块“布”。同一张脸、同一光线，只换颜色。" />
-      <Section title="数字披布" kicker={photo ? (compare ? "两色并排" : "点色块切换") : undefined}
-        action={photo ? (
-          <div className="flex rounded-full border border-rule bg-paper-raised p-0.5 text-[12px]" role="group" aria-label="披布视图">
-            {([[false, "逐个切换"], [true, "两色并排"]] as const).map(([v, t]) => (
-              <button key={t} type="button" aria-pressed={compare === v} onClick={() => { setCompare(v); setSlot(0); }}
-                className={cn("whitespace-nowrap rounded-full px-3 py-1", compare === v ? "bg-ink text-paper" : "text-ink-soft")}>{t}</button>
-            ))}
-          </div>
-        ) : undefined}>
-        {photo ? (
-          <DrapeStage status={drape.status} paint={drape.paint} shown={compare ? [left, right] : [current]}
-            activeSlot={slot} onSlot={setSlot} />
-        ) : (
-          <Card className="text-[13px] leading-6 text-ink-soft"><p role="note">{stageNote(drape.status)}</p></Card>
-        )}
-        {photo && compare && <p className="mt-2 text-[12px] text-muted">点下方色块，填入高亮的一侧；点照片下方的名字可切换要换的一侧。</p>}
+        sub="先读懂适合你的颜色，再把喜欢的色彩带到实验室，和发型、唇色一起比较。" />
+      <Section title="先选一个颜色">
+        <p className="text-[14px] leading-7 text-ink-soft">点下方色卡，查看选择理由和购物搜索词；照片上的近脸色预览统一在形象实验室中完成。</p>
+        {data?.media.expired && <p role="note" className="mt-3 text-[13px] text-muted">{guidance.photoExpired}</p>}
         {current && <CurrentColor key={current.hex} chip={current} reason={reason(current)} />}
-        <Link href={`/p/${id}/studio${current ? `?drape=${current.hex.slice(1)}` : ""}`}
-          className="mt-3 inline-block text-[13px] text-accent underline-offset-4 hover:underline">
-          在形象实验室里，和发型、唇色组合着看 →
+        <Link href={`/p/${id}/studio${current ? `?drape=${current.hex.slice(1)}` : ""}`} className={s.studioLink}>
+          <span>{current ? `在实验室里试${current.label}` : "在实验室里试近脸色"}</span><ArrowRight className="size-4" aria-hidden />
         </Link>
       </Section>
 
@@ -94,14 +64,14 @@ export function ColorPage() {
 
       {groups.map((g) => (
         <Section key={g.key} title={g.title} kicker={GROUP_USE[g.key].role}>
-          <div className="grid grid-cols-3 gap-2 sm:grid-cols-4" role="group" aria-label={`${g.title}色卡`}>
+          <div className={s.swatches} role="group" aria-label={`${g.title}色卡`}>
             {g.chips.map((chip) => {
-              const on = compare ? chip.hex === left?.hex || chip.hex === right?.hex : chip.hex === current?.hex;
+              const on = chip.hex === current?.hex;
               return (
-                <button key={chip.hex} type="button" aria-pressed={on} onClick={() => pick(chip)}
-                  className={cn("rounded-[12px] border bg-paper-raised p-1.5 text-left transition-colors",
-                    on ? "border-ink ring-1 ring-ink" : "border-rule hover:border-rule-strong")}>
-                  <span className="block h-12 rounded-[8px] border border-black/10" style={{ background: chip.hex }} aria-hidden="true" />
+                <button key={chip.hex} type="button" aria-pressed={on} onClick={() => setSelected(chip.hex)}
+                  className={cn(s.swatch,
+                    on && "ring-1 ring-accent")}>
+                  <span className="block h-20 rounded-[2px] border border-black/10" style={{ background: chip.hex }} aria-hidden="true" />
                   <span className="mt-1.5 block truncate px-0.5 text-[13px]">{chip.label}</span>
                   <span className="tnum block px-0.5 text-[10px] uppercase text-muted">{chip.hex}</span>
                 </button>
@@ -109,6 +79,12 @@ export function ColorPage() {
             })}
           </div>
           <ul className="mt-2 space-y-1 text-[13px] leading-6 text-ink-soft">{g.reasons.map((r) => <li key={r}>{r}</li>)}</ul>
+          {current?.group === g.key && <div className="mt-4 flex flex-wrap items-center justify-between gap-3 border-t border-rule pt-4 text-[13px]">
+            <p className="text-ink-soft">已选：{current.label}</p>
+            <Link href={`/p/${id}/studio?drape=${current.hex.slice(1)}`} className="inline-flex min-h-11 items-center gap-2 text-accent underline underline-offset-4">
+              把这个颜色带到实验室<ArrowRight className="size-4" aria-hidden />
+            </Link>
+          </div>}
         </Section>
       ))}
 
@@ -131,7 +107,7 @@ export function ColorPage() {
               const names = c.hexes.map((h) => find(h)?.family).filter(Boolean) as string[];
               const phrase = `${names.length ? names.join(" ") : c.name} 穿搭`;
               return (
-                <li key={c.name} className="flex items-center gap-3 rounded-[12px] border border-rule bg-paper-raised px-3 py-2.5">
+                <li key={c.name} className="flex items-center gap-3 rounded-[4px] border border-rule bg-paper-raised px-3 py-2.5">
                   <span className="flex shrink-0 overflow-hidden rounded-[6px] border border-black/10" aria-hidden="true">
                     {c.hexes.map((h) => <span key={h} className="block h-8 w-6" style={{ background: h }} />)}
                   </span>
@@ -151,10 +127,10 @@ export function ColorPage() {
         <Section title="发色方向" kicker="染发前参考" action={<Link href={`/p/${id}/hair`} className="text-[13px] text-accent">看发型 →</Link>}>
           <ul className="grid gap-2 sm:grid-cols-3">
             {cp.hair_color_directions.map((h) => (
-              <li key={h.name} className="flex items-start gap-3 rounded-[12px] border border-rule bg-paper-raised p-3">
+              <li key={h.name} className="flex items-start gap-3 rounded-[4px] border border-rule bg-paper-raised p-3">
                 <span className="mt-0.5 size-8 shrink-0 rounded-full border border-black/10" style={{ background: h.hex }} aria-hidden="true" />
                 <span className="min-w-0">
-                  <span className="flex items-center gap-1.5 text-[14px]">{h.name}{h.requires_dye ? <Pill>需要染发</Pill> : <Pill tone="accent">不用染</Pill>}</span>
+                  <span className="flex flex-wrap items-center gap-1.5 text-[14px]">{h.name}{h.requires_dye ? <Pill>需要染发</Pill> : <Pill tone="accent">不用染</Pill>}</span>
                   <span className="mt-0.5 block text-[12px] leading-5 text-muted">{h.note}</span>
                 </span>
               </li>
@@ -181,9 +157,9 @@ export function ColorPage() {
 function CurrentColor({ chip, reason }: { chip: Chip; reason: string }) {
   const phrase = colorSearchPhrase(chip);
   return (
-    <div className="mt-3 rounded-[14px] border border-rule bg-paper-raised p-3" aria-live="polite">
+    <div className={s.current} role="status" aria-live="polite">
       <div className="flex items-center gap-3">
-        <span className="size-10 shrink-0 rounded-[10px] border border-black/10" style={{ background: chip.hex }} aria-hidden="true" />
+        <span className="size-10 shrink-0 rounded-[4px] border border-black/10" style={{ background: chip.hex }} aria-hidden="true" />
         <div className="min-w-0 flex-1">
           <p className="text-[15px] font-medium">{chip.label}
             <span className={cn("ml-2 text-[12px] font-normal", chip.group === "caution" ? "text-amber" : "text-muted")}>{GROUP_USE[chip.group].role}</span>

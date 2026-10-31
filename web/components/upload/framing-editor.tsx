@@ -66,7 +66,7 @@ export function FramingEditor({ role, src, width: w, height: h, initial, suggest
     <div role="dialog" aria-modal="true" aria-label={`${copy.editor.title} · ${copy.roles[role].title}`}
       className="fixed inset-0 z-50 flex items-end justify-center bg-black/60 sm:items-center" data-testid="framing-editor">
       <div ref={dialog} tabIndex={0} onKeyDown={onKey}
-        className="max-h-[100dvh] w-full max-w-2xl overflow-y-auto rounded-t-[18px] bg-paper p-4 outline-none sm:rounded-[18px]">
+        className="max-h-[100dvh] w-full max-w-2xl overflow-y-auto rounded-t-[18px] bg-paper p-4 outline-none sm:rounded-[4px]">
         <h2 className="font-serif text-[18px] font-semibold">裁剪与构图 · {copy.roles[role].title}</h2>
         <p className="mb-3 mt-1 text-[12.5px] leading-5 text-ink-soft">拖动照片调整位置，拖动边角改变裁剪范围。滚轮或双指缩放，保留头发、额头、双耳和下巴。</p>
         <div className={cn(saving && "pointer-events-none opacity-60")}>

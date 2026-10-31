@@ -33,7 +33,7 @@ export function DeleteData() {
 
   return (
     <Section title={settings.title} kicker="数据控制">
-      <div className="rounded-[14px] border border-rule bg-paper-raised p-4 text-[13px] leading-6">
+      <div className="rounded-[4px] border border-rule bg-paper-raised p-4 text-[13px] leading-6">
         {deletedAt ? (
           <div role="status">
             <p className="font-medium">{settings.deleted}</p>
@@ -52,7 +52,7 @@ export function DeleteData() {
                 <Trash2 />{settings.deleteAction}
               </Button>
             ) : (
-              <div className="mt-3 rounded-[12px] bg-paper-sunk p-3.5" role="alertdialog" aria-label={settings.deleteAction}>
+              <div className="mt-3 rounded-[4px] bg-paper-sunk p-3.5" role="alertdialog" aria-label={settings.deleteAction}>
                 <p>{settings.deleteConfirm}</p>
                 <div className="mt-3 flex gap-2">
                   <Button className="flex-1 bg-[#b4442f] text-white hover:bg-[#9c3a28]" disabled={step === "deleting"} onClick={doDelete}>

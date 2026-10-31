@@ -34,7 +34,7 @@ export default function OutfitPage() {
         {locked.includes("outfit.formulas") && <Locked what="更多搭配公式与场合方案" />}
       </Section>
       <Section title="核心单品" kicker="点复制，直接去搜">
-        <ul className="grid gap-3 sm:grid-cols-2">
+        <ul className="grid gap-6 sm:grid-cols-2">
           {od.items.map((it) => {
             const c = checks.get(it.garment_id);
             const search = c?.search_zh ?? `${it.color_name} ${it.name_zh}`;
@@ -46,7 +46,7 @@ export default function OutfitPage() {
                     <p className="text-[15px] font-medium">{it.color_name}{it.name_zh}</p>
                     <p className="text-[13px] text-ink-soft">{stripRefs(it.why)}</p>
                     {c?.issues.map((x) => <p key={x} className="text-[12px] text-amber">{x}</p>)}
-                    <button type="button" className="mt-1 inline-flex items-center gap-1 text-[12px] text-accent"
+                    <button type="button" className="mt-2 inline-flex min-h-11 items-center gap-1 text-[12px] text-accent"
                       onClick={() => navigator.clipboard?.writeText(search).then(() => toast.success("已复制搜索词"), () => toast(search))}>
                       <Copy className="size-3" />{search}
                     </button>

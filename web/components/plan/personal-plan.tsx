@@ -52,23 +52,23 @@ function PlanSurface({ id, passport }: { id: string; passport: Passport }) {
           onChange={() => update({ goal })} className="accent-[var(--color-accent)]" />{GOALS[goal].label}
       </label>)}
     </div>
-    <details className={s.planPreferences}><summary>调整时间与预算</summary><div className="my-4 grid gap-3 rounded-xl bg-paper-sunk p-4 sm:grid-cols-2">
+    <details className={s.planPreferences}><summary>调整时间与预算</summary><div className="my-4 grid gap-5 rounded-[4px] bg-paper-sunk p-6 sm:grid-cols-2">
       <label className="grid gap-1 text-[13px]">每项花费上限
         <select aria-label="每项花费上限" value={budgets[Math.min(budgets.indexOf(preferences.budget), maxBudget)]}
-          onChange={e => update({ budget: e.target.value as PlanPreferences["budget"] })} className="min-h-10 rounded-lg border border-rule bg-paper px-2">
+          onChange={e => update({ budget: e.target.value as PlanPreferences["budget"] })} className="min-h-11 rounded-[4px] border border-rule bg-paper px-2">
           {budgets.slice(0, maxBudget + 1).map(b => <option key={b} value={b}>{COST_LABEL[b]}</option>)}
         </select>
       </label>
       <label className="grid gap-1 text-[13px]">每项每天最多 {Math.min(preferences.minutes, passport.user_context.constraints.daily_minutes)} 分钟
         <input aria-label="每项每天最多分钟" type="range" min={0} max={passport.user_context.constraints.daily_minutes} step={1}
-          value={Math.min(preferences.minutes, passport.user_context.constraints.daily_minutes)} onChange={e => update({ minutes: Number(e.target.value) })} className="w-full accent-[var(--color-accent)]" />
+          value={Math.min(preferences.minutes, passport.user_context.constraints.daily_minutes)} onChange={e => update({ minutes: Number(e.target.value) })} className="min-h-11 w-full accent-[var(--color-accent)]" />
       </label>
       <p className="text-[12px] leading-5 text-muted sm:col-span-2">每项分别估算，沿用你已填写的打理与预算条件。</p>
     </div>
     </details>
-    {constraintText && <div className="mb-3 rounded-xl border border-rule p-3 text-[13px] leading-6">
+    {constraintText && <div className="mb-3 rounded-[4px] border border-rule p-6 text-[13px] leading-6">
       <p>你写的额外限制：「{constraintText}」。我们不会替你解读它，所以涉及发型、妆容和穿搭的项目会标为待核对；拍照比较类建议不受影响。</p>
-      <label className="mt-2 flex min-h-10 items-center gap-2"><input type="checkbox" checked={!needsCheck}
+      <label className="mt-2 flex min-h-11 items-center gap-2"><input type="checkbox" checked={!needsCheck}
         onChange={e => update({ confirmedOther: e.target.checked ? constraintText : "" })} className="accent-[var(--color-accent)]" />
         我已核对：下面的做法与这条限制没有冲突</label>
     </div>}
@@ -76,11 +76,11 @@ function PlanSurface({ id, passport }: { id: string; passport: Passport }) {
     {cards.length ? <ol className="space-y-4">{visible.map((card, index) => <InterventionCard key={progressKey(preferences.goal, card)}
       id={id} card={card} rank={index + 1} state={progress(card)} onDecline={() => decline(card.id)}
       setPlan={patch => setPlan(progressKey(preferences.goal, card), patch)} />)}</ol>
-      : <p role="status" className="rounded-xl border border-rule p-4 text-[14px] leading-7">{"当前观察与条件下，没有需要强行改变的项目。可以保持现状，或调整目标与每项投入；缺少观察时不会编造个人建议。"}</p>}
+      : <p role="status" className="rounded-[4px] border border-rule p-4 text-[14px] leading-7">{"当前观察与条件下，没有需要强行改变的项目。可以保持现状，或调整目标与每项投入；缺少观察时不会编造个人建议。"}</p>}
     {replacements.length > 0 && <section aria-label="已跳过与替代" className="mt-5 space-y-3">
       <h3 className="font-serif text-[18px]">已跳过的项目与替代</h3>
-      {replacements.map(r => <div key={r.declined.id} data-testid={`replacement-${r.declined.id}`} className="rounded-xl bg-paper-sunk p-3 text-[13px] leading-6">
-        <p>已跳过：{r.declined.action} <button type="button" onClick={() => restore(r.declined.id)} className="ml-1 text-accent underline underline-offset-4">恢复</button></p>
+      {replacements.map(r => <div key={r.declined.id} data-testid={`replacement-${r.declined.id}`} className="rounded-[4px] bg-paper-sunk p-6 text-[13px] leading-6">
+        <p>已跳过：{r.declined.action} <button type="button" onClick={() => restore(r.declined.id)} className="ml-1 inline-flex min-h-11 items-center text-accent underline underline-offset-4">恢复</button></p>
         {r.replacement
           ? <ol className="mt-2"><InterventionCard id={id} card={r.replacement} rank={1} note={r.note} state={progress(r.replacement)}
             onDecline={() => decline(r.replacement!.id)} setPlan={patch => setPlan(progressKey(preferences.goal, r.replacement!), patch)} /></ol>
@@ -88,7 +88,7 @@ function PlanSurface({ id, passport }: { id: string; passport: Passport }) {
       </div>)}
     </section>}
     {cards.length > 3 && <button type="button" aria-expanded={more} onClick={() => setMore(v => !v)}
-      className="mt-3 min-h-11 w-full rounded-xl border border-rule text-[14px]">{more ? "收起其余项目" : `其余 ${cards.length - 3} 项可尝试`}</button>}
+      className="mt-6 min-h-11 w-full rounded-full border border-rule text-[14px] hover:bg-accent-soft aria-expanded:bg-accent-soft">{more ? "收起其余项目" : `其余 ${cards.length - 3} 项可尝试`}</button>}
     <p className="mt-4 text-[12px] leading-6 text-muted">{persistent ? "目标与进度保存在此设备，随护照删除。" : "浏览器未能保存目标，当前页面仍可使用。"}这里只保存选项，不保存照片。视觉效果因人而异，不承诺分数提升；AI 预览不是进步证明。</p>
   </section>;
 }

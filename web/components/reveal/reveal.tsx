@@ -104,7 +104,7 @@ export function Reveal() {
   const title = failed ? copy.failed : copy.stages[Math.min(current, copy.stages.length - 1)];
   return (
     <div className={`${s.surface} ${s.revealSurface}`}><div className={s.revealLayout}>
-      <Stage className="relative mx-auto w-full max-w-[min(100%,calc(44dvh*0.8))] overflow-hidden rounded-[14px] md:max-w-none">
+      <Stage className="relative mx-auto w-full max-w-[min(100%,calc(44dvh*0.8))] overflow-hidden rounded-[4px] md:max-w-none">
         {photo ? (
           // eslint-disable-next-line @next/next/no-img-element
           <img src={photo} alt="你上传的正脸照片" className="block aspect-[4/5] w-full object-cover" />

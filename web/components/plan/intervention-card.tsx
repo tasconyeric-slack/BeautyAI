@@ -12,7 +12,7 @@ export function InterventionCard({ id, card, rank, state, setPlan, onDecline, no
   const locked = Boolean(card.needsCheck);
   return <li>
     <article data-testid={`intervention-${card.id}`} aria-label={card.action}
-      className={cn("rounded-[16px] border bg-paper-raised p-4", state.done ? "border-accent/40" : "border-rule")}>
+      className={cn("rounded-[4px] border bg-paper-raised p-6 sm:p-8", state.done ? "border-accent/40" : "border-rule")}>
       <p className="text-[12px] text-accent">{rank} · {card.category} · {PURPOSE[card.purpose]}</p>
       <h3 className="mt-1 font-serif text-[18px] leading-7">{card.action}</h3>
       {note && <p className="mt-1 text-[12px] leading-5 text-accent">{note}</p>}
@@ -32,15 +32,15 @@ export function InterventionCard({ id, card, rank, state, setPlan, onDecline, no
       </details>
       <div className="mt-4 flex flex-wrap gap-2 border-t border-rule pt-3 text-[13px]">
         <button type="button" disabled={locked} aria-pressed={Boolean(state.saved)} onClick={() => setPlan({ saved: !state.saved })}
-          className="min-h-10 rounded-full border border-rule-strong px-3 text-accent">{state.saved ? "已加入我的方案" : "加入我的方案"}</button>
+          className="min-h-11 rounded-full border border-rule-strong px-4 text-accent hover:bg-accent-soft aria-pressed:border-accent aria-pressed:bg-accent-soft disabled:cursor-not-allowed disabled:opacity-45">{state.saved ? "已加入我的方案" : "加入我的方案"}</button>
         <button type="button" disabled={locked} aria-pressed={Boolean(state.done)} onClick={() => setPlan({ done: !state.done })}
-          className="min-h-10 rounded-full border border-rule-strong px-3 text-accent">{state.done ? "已完成" : "标记完成"}</button>
+          className="min-h-11 rounded-full border border-rule-strong px-4 text-accent hover:bg-accent-soft aria-pressed:border-accent aria-pressed:bg-accent-soft disabled:cursor-not-allowed disabled:opacity-45">{state.done ? "已完成" : "标记完成"}</button>
         {card.id.startsWith("photo-")
-          ? <span className="inline-flex min-h-10 items-center text-muted">现实中操作，无需实验室</span>
+          ? <span className="inline-flex min-h-11 items-center text-muted">现实中操作，无需实验室</span>
           : <Link href={`/p/${id}/studio${card.studioQuery ? `?${card.studioQuery}` : ""}`}
-            className="inline-flex min-h-10 items-center text-accent underline underline-offset-4">{card.studioLabel}</Link>}
+            className="inline-flex min-h-11 items-center text-accent underline underline-offset-4">{card.studioLabel}</Link>}
         {onDecline && <button type="button" onClick={onDecline}
-          className="ml-auto min-h-10 rounded-full px-3 text-muted underline underline-offset-4">不适合我</button>}
+          className="ml-auto min-h-11 rounded-full px-3 text-muted underline underline-offset-4">不适合我</button>}
       </div>
     </article>
   </li>;

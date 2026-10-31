@@ -24,7 +24,7 @@ export function DirectionPicker({ passport, directions, looks, slots, onPick }: 
         {directions.map((d) => {
           const saved = savedDirection(looks, d);
           return (
-            <li key={d.key} data-testid={`direction-${d.key}`} className="flex flex-col rounded-[14px] border border-rule bg-paper-raised p-4">
+            <li key={d.key} data-testid={`direction-${d.key}`} className="flex flex-col rounded-[4px] border border-rule bg-paper-raised p-6">
               <div className="flex items-baseline justify-between gap-2">
                 <h3 className="font-serif text-[17px] font-semibold">{d.title}</h3>
                 {d.matchesGoal && <span className="rounded-full bg-accent-soft px-2 py-0.5 text-[11px] text-accent">贴近你的目标</span>}

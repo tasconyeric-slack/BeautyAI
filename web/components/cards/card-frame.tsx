@@ -1,7 +1,7 @@
 import type { CSSProperties, ReactNode, Ref } from "react";
 
 export const cardTheme = {
-  paper: "#F1F1EE", ink: "#16181A", stage: "#141618", teal: "#1F4E5F", line: "#D8D8D2",
+  paper: "#F3F1EC", ink: "#172125", stage: "#141618", teal: "#3F625E", line: "#CDD2D0",
   serif: '"Noto Serif CJK SC", "Source Han Serif SC", "Songti SC", serif',
   sans: '"Noto Sans CJK SC", "Source Han Sans SC", system-ui, sans-serif',
   mono: '"IBM Plex Mono", ui-monospace, monospace',

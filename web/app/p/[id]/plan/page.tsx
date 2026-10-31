@@ -44,7 +44,7 @@ function PlanEditor() {
       <PageHeader kicker="我的行动方案" title="让喜欢的方向，成为日常。"
         sub="你的造型选择，与可以开始的下一步。" />
       <PersonalPlan id={id} passport={passport} />
-      <details className="mt-8 rounded-xl border border-rule p-4">
+      <details className="mt-12 rounded-[4px] border border-rule p-6">
         <summary className="cursor-pointer text-[14px] text-ink-soft">报告原始建议与反馈</summary>
       <p className="mb-3 mt-3 text-[13px] text-muted" aria-live="polite">已完成 {done} / {top.length}</p>
 
@@ -53,7 +53,7 @@ function PlanEditor() {
           const st = choices.plan[r.id] ?? {};
           return (
             <li key={r.id}>
-              <article className={cn("rounded-[16px] border bg-paper-raised p-4", st.done ? "border-accent/40 opacity-75" : "border-rule")}>
+              <article className={cn("rounded-[4px] border bg-paper-raised p-6", st.done ? "border-accent/40 opacity-75" : "border-rule")}>
                 <div className="flex items-start gap-3">
                   <span className="tnum mt-0.5 font-serif text-[22px] leading-none text-amber" aria-label={`优先级 ${i + 1}`}>{i + 1}</span>
                   <div className="min-w-0 flex-1">

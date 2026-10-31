@@ -23,8 +23,8 @@ const subscribe = (change: () => void) => {
 };
 
 /** Shared art direction across the continuous home, the existing R2 report and a Studio interaction study. */
-export function DesignMotion({ hero, readings, view, production = false }: { hero: HeroView; readings: Chapter[]; view: View; production?: boolean }) {
-  const pageRoute = (target: View) => production ? target === "report" ? "/report/sample?v=p002" : target === "studio" ? "/start" : "/" : route(target);
+export function DesignMotion({ hero, readings, view, production = false, uploadHref = "/start", headline, subtitle }: { hero: HeroView; readings: Chapter[]; view: View; production?: boolean; uploadHref?: string; headline?: string; subtitle?: string }) {
+  const pageRoute = (target: View) => production ? target === "report" ? "/report/sample?v=p002" : target === "studio" ? uploadHref : "/" : route(target);
   const root = useRef<HTMLDivElement>(null);
   const reduced = useSyncExternalStore(subscribe, () => window.matchMedia("(prefers-reduced-motion: reduce)").matches, () => true);
   const [autoplay, setAutoplay] = useState(true);
@@ -46,7 +46,7 @@ export function DesignMotion({ hero, readings, view, production = false }: { her
   }, [view]);
   return <div ref={root} className={`${s.root} ${heroStyles.root}`} data-design-motion data-auto={auto} data-view={view}>
     <style>{`body:has([data-design-motion])>header,body:has([data-design-motion])>footer{display:none}`}</style>
-    {view === "home" && <Hero v={hero} />}
+    {view === "home" && <Hero v={hero} uploadHref={uploadHref} headline={headline} subtitle={subtitle} />}
     <div className={s.content}>
     <header className={s.nav}>
       <Link href={pageRoute("home")} className={s.wordmark}>BeautyAI <span>形象护照</span></Link>
@@ -54,7 +54,7 @@ export function DesignMotion({ hero, readings, view, production = false }: { her
         {([ ["home", "发现"], ["report", "报告"], ["studio", "Studio"] ] as const).map(([key, label]) =>
           <Link key={key} href={pageRoute(key)} aria-current={view === key ? "page" : undefined}>{label}</Link>)}
       </nav>
-      <Link href="/start" className={s.navCta}>开始了解自己 <ArrowUpRight size={14} /></Link>
+      <Link href={uploadHref} className={s.navCta}>开始了解自己 <ArrowUpRight size={14} /></Link>
     </header>
     <div>
       {view === "home" ? <>
@@ -77,7 +77,7 @@ export function DesignMotion({ hero, readings, view, production = false }: { her
         </section>
         <section className={s.studioSection} id="studio-preview">
           <div className={s.studioHead} data-reveal><p className={s.eyebrow}>04 / LOOK STUDIO</p><h2>把想法，<em>放进照片里。</em></h2><p>从一个方向开始，慢慢找到自己的选择。</p></div>
-          <Studio auto={auto} compact production={production} />
+          <Studio auto={auto} compact production={production} uploadHref={uploadHref} />
           <Link href={pageRoute("studio")} className={s.lightLink}>{production ? "上传照片，进入自己的 Studio" : "进入 Studio 交互演示"} <ArrowUpRight size={18} /></Link>
         </section>
         <section className={s.takeaway}>
@@ -85,7 +85,7 @@ export function DesignMotion({ hero, readings, view, production = false }: { her
           <Link href={pageRoute("report")} className={s.reportBook} data-reveal aria-label="翻开形象护照"><div className={s.bookTop}><b>BeautyAI</b><span>AESTHETIC<br />PASSPORT</span></div><div className={s.bookPortrait}><img src={hero.plate.src} alt="形象护照封面" width={hero.plate.width} height={hero.plate.height} loading="lazy" /></div><div className={s.bookBottom}><span>属于自己的风格线索</span><b>形象护照 <ArrowUpRight size={21} /></b><span>发现 · 选择 · 行动</span></div></Link>
           <div className={s.planLine} data-reveal>{[["01", "看见特点", "从照片到理解"], ["02", "试一个方向", "从理解到选择"], ["03", "带进日常", "从选择到行动"]].map(([n, title, detail]) => <div key={n}><span>{n}</span><h3>{title}</h3><p>{detail}</p></div>)}</div>
         </section>
-        <section className={s.closing} data-reveal><p className={s.eyebrow}>MAKE IT YOURS.</p><h2>从了解自己开始。</h2><Link href="/start" className={s.button}>上传照片，开始分析 <ArrowUpRight size={18} /></Link><Link href="/about" className={s.textLink}>了解分析方法与照片隐私 <ArrowUpRight size={14} /></Link></section>
+        <section className={s.closing} data-reveal><p className={s.eyebrow}>MAKE IT YOURS.</p><h2>从了解自己开始。</h2><Link href={uploadHref} className={s.button}>上传照片，开始分析 <ArrowUpRight size={18} /></Link><Link href="/about" className={s.textLink}>了解分析方法与照片隐私 <ArrowUpRight size={14} /></Link></section>
       </> : view === "report" ? <div className={s.reportPage}><div className={s.pageHeading}><p className={s.eyebrow}>YOUR AESTHETIC PASSPORT</p><p>同一套视觉语言，从发现到理解。</p></div><SampleReport variant="p002" /></div>
         : <section className={s.studioPage}><div className={s.pageHeading}><p className={s.eyebrow}>Look Studio</p><h1>试一种可能，<em>找到自己的选择。</em></h1><p>发型与配色在同一处比较；保存你想继续尝试的方向。</p></div><Studio auto={auto} /></section>}
     </div>
@@ -171,7 +171,7 @@ function Comparison({ auto }: { auto: boolean }) {
 }
 
 /** A short visible-only sequence introduces the working controls, then leaves the choice to the visitor. */
-function Studio({ auto, compact = false, production = false }: { auto: boolean; compact?: boolean; production?: boolean }) {
+function Studio({ auto, compact = false, production = false, uploadHref = "/start" }: { auto: boolean; compact?: boolean; production?: boolean; uploadHref?: string }) {
   const [ref, visible] = useVisible<HTMLDivElement>();
   const [hair, setHair] = useState("orig");
   const [tab, setTab] = useState("hair");
@@ -209,7 +209,7 @@ function Studio({ auto, compact = false, production = false }: { auto: boolean; 
           : tab === "color" ? <div className={s.colorStudy}><p>把颜色放在照片旁边，观察不同的搭配氛围。</p><div>{colors.map(([name, hex], i) => <button key={name} type="button" aria-pressed={color === i} onClick={() => { setColor(i); setSaved(false); }}><i style={{ background: hex }} />{name}</button>)}</div><p className={s.optionDescription}>此处演示近脸配色的版式与切换；照片保留原色。</p></div>
           : <div className={s.optionalGlasses}><span>可选探索</span><h4>平时戴眼镜，<br />再来选适合的镜框。</h4><p>人物默认不添加眼镜。选镜作为独立选项继续细化，先把关注点留给自己的轮廓与风格。</p></div>}
       </div>
-      <div className={s.studioSave}><span>{saved ? "已保存到本次演示" : hairName}</span>{production ? <Link href="/start" className={s.button}>用自己的照片试试 <ArrowUpRight size={16} /></Link> : <button type="button" className={s.button} onClick={() => setSaved(true)}>{saved ? <Check size={16} /> : <Bookmark size={16} />}{saved ? "已保存这个方向" : "保存这个方向"}</button>}{saved && <p role="status" className={s.savedNote}>已保留「{hairName}」。<button type="button" onClick={() => { setSaved(false); setHair("orig"); }}>再试一个方向 <RotateCcw size={12} /></button></p>}</div>
+      <div className={s.studioSave}><span>{saved ? "已保存到本次演示" : hairName}</span>{production ? <Link href={uploadHref} className={s.button}>用自己的照片试试 <ArrowUpRight size={16} /></Link> : <button type="button" className={s.button} onClick={() => setSaved(true)}>{saved ? <Check size={16} /> : <Bookmark size={16} />}{saved ? "已保存这个方向" : "保存这个方向"}</button>}{saved && <p role="status" className={s.savedNote}>已保留「{hairName}」。<button type="button" onClick={() => { setSaved(false); setHair("orig"); }}>再试一个方向 <RotateCcw size={12} /></button></p>}</div>
       <div className={s.studioSteps} aria-label="探索过程">{["选择", "比较", "保存"].map((label, i) => <span key={label} data-active={(saved ? 2 : compare || hold.holding ? 1 : 0) === i}><i>0{i + 1}</i>{label}</span>)}</div>
       <p className={s.demoNote}>{production ? "找到喜欢的方向，用自己的照片继续探索。" : "交互演示 · 使用已有示例图，保存仅在本页生效"}</p>
     </div>
