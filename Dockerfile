@@ -31,4 +31,4 @@ RUN useradd --create-home app && mkdir -p /data/runs && chown -R app /data
 USER app
 EXPOSE 8000
 HEALTHCHECK --interval=30s --timeout=5s CMD curl -fsS http://127.0.0.1:${PORT}/api/health || exit 1
-CMD ["sh", "-c", "uvicorn --factory aesthetic_passport.api.app:create_app --host 0.0.0.0 --port ${PORT} --proxy-headers --forwarded-allow-ips='*'"]
+CMD ["sh", "-c", "uvicorn --factory aesthetic_passport.api.app:create_app --host 0.0.0.0 --port ${PORT} --workers 1 --proxy-headers --forwarded-allow-ips='*'"]

@@ -1,0 +1,25 @@
+# Prepare only. Run from the repository root with the approved exact Git SHA.
+# TLS must terminate at an existing reverse proxy on this host; API is loopback-only.
+services:
+  api:
+    image: beautyai-api:${RELEASE_SHA:?set approved full Git SHA}
+    build:
+      context: ../..
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    init: true
+    mem_limit: 2g
+    cpus: 1.5
+    env_file:
+      - /etc/beautyai/api.env
+    environment:
+      APP_ENV: production
+      ALLOW_MOCK_PROVIDERS: "0"
+      PREVIEW_DEBUG: "0"
+      RUNS_DIR: /data/runs
+      MEDIA_TTL_HOURS: "24"
+      PORT: "8000"
+    volumes:
+      - /srv/beautyai/runs:/data/runs
+    ports:
+      - "127.0.0.1:8000:8000"
