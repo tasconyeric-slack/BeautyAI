@@ -3,6 +3,7 @@ from __future__ import annotations
 
 import hashlib
 import json
+import math
 import os
 import time
 from dataclasses import asdict
@@ -14,6 +15,7 @@ import yaml
 from ..attractiveness_rank import rank_prediction, validate_registry
 from ..attractiveness_rank.tiers import tier_for_rank
 from ..runtime import is_production
+from ..scoring.engine import load_scoring_config
 from .artifact import predict_features, validate_artifact
 from .distribution import density_curve
 from .features import from_geometry
@@ -128,11 +130,22 @@ def evaluate(front: Any, geometry: dict[str, Any] | None) -> tuple[dict[str, Any
         return unavailable("no_landmarks")
     flags = sorted(set(front.issues + (geometry or {}).get("quality_flags", [])))
     score["quality_flags"] = flags
-    if front.status == "reject" or flags or not geometry or geometry["status"] != "full":
+    # Fail closed on unknown warnings. Only conditions that preserve the measured
+    # feature vector are permitted; keep all warnings in the report for provenance.
+    if front.status == "reject" or set(flags) - set(cfg["quality"]["allowed_warnings"]):
         detail["qc_status"] = "limited"
         return unavailable("image_quality_limited")
-    if geometry["scoring_version"] != cfg["geometry_version"]:
+    if not geometry:
+        return unavailable("features_unavailable")
+    if geometry.get("scoring_version") != cfg["geometry_version"]:
         return unavailable("feature_version_mismatch")
+    pose = (front.yaw, front.pitch)
+    if any(isinstance(v, bool) or not isinstance(v, (int, float)) or not math.isfinite(v) for v in pose):
+        return unavailable("features_unavailable")
+    q = load_scoring_config()["quality"]
+    if abs(front.yaw) > q["limited_max_yaw"] or abs(front.pitch) > q["limited_max_pitch"]:
+        detail["qc_status"] = "limited"
+        return unavailable("image_quality_limited")
     try:
         start = time.perf_counter()
         raw = predict_features(from_geometry(geometry, front.yaw, front.pitch), artifact)
@@ -145,7 +158,11 @@ def evaluate(front: Any, geometry: dict[str, Any] | None) -> tuple[dict[str, Any
         registry = verified_reference(cfg)
     except (ValueError, OSError):
         registry = None
-    result = rank_prediction(score, registry, cohort_id=cfg["reference_id"],
+    # Ranking's generic boundary rejects every warning. This service has already
+    # validated Ridge-specific eligibility; pass that decision without discarding
+    # the original warnings from the stored score or weakening other model callers.
+    eligible_score = score | {"quality_flags": []}
+    result = rank_prediction(eligible_score, registry, cohort_id=cfg["reference_id"],
                              distribution_version=cfg["reference_version"], research_mode=research,
                              image_reference_authorized=authorized and production_reference_authorized(cfg))
     rank = json.loads(json.dumps(asdict(result)))

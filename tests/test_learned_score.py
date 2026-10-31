@@ -120,3 +120,52 @@ def test_same_geometry_features_and_qc_fallback(configured):
     score, rank = service.evaluate(front, measured)
     assert score["unavailable_reason"] == "image_quality_limited"
     assert score["raw_score"] is rank["percentile"] is None
+
+
+@pytest.mark.parametrize("case,reason", [
+    ("reject", "image_quality_limited"), ("eyewear", "image_quality_limited"),
+    ("mouth_open", "image_quality_limited"), ("blurry", "image_quality_limited"),
+    ("pose", "image_quality_limited"), ("missing_pose", "features_unavailable"),
+    ("nan", "features_unavailable"), ("missing", "features_unavailable"),
+    ("wrong_shape", "features_unavailable"), ("version", "feature_version_mismatch"),
+])
+def test_ridge_essential_feature_gates(configured, case, reason):
+    from aesthetic_passport.face_metrics.synthetic import synthetic_face
+    from aesthetic_passport.scoring import score_face
+
+    face, _ = synthetic_face()
+    front = SimpleNamespace(face=face, yaw=0., pitch=0., status="ok", issues=[])
+    measured = score_face(face.landmarks, yaw=0., pitch=0.)
+    if case == "reject":
+        front.status = "reject"
+    elif case in ("eyewear", "mouth_open", "blurry"):
+        measured["quality_flags"] = [case]
+    elif case == "pose":
+        front.yaw = 30.
+    elif case == "missing_pose":
+        front.pitch = None
+    elif case == "nan":
+        measured["components"][0]["measured"]["mean_residual"] = float("nan")
+    elif case == "missing":
+        measured["components"][0]["measured"] = None
+    elif case == "wrong_shape":
+        measured["components"][1]["measured"]["shares"].pop()
+        measured["components"][2]["measured"]["segments_eye_widths"].append(1.)
+    elif case == "version":
+        measured["scoring_version"] = "other"
+    score, rank = service.evaluate(front, measured)
+    assert score["unavailable_reason"] == reason
+    assert score["raw_score"] is rank["percentile"] is None
+
+
+@pytest.mark.parametrize("failure,reason", [("missing", "model_missing"), ("incompatible", "model_incompatible")])
+def test_model_failure_precedes_quality_reason(configured, failure, reason):
+    cfg, path = configured
+    if failure == "missing":
+        path.unlink()
+    else:
+        path.write_text("{}", encoding="utf-8")
+        cfg["artifact_sha256"] = hashlib.sha256(path.read_bytes()).hexdigest()
+    front = SimpleNamespace(face=None, issues=["blurry"], status="reject")
+    score, rank = service.evaluate(front, None)
+    assert score["unavailable_reason"] == rank["unavailable_reason"] == reason
