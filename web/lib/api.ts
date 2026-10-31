@@ -100,7 +100,7 @@ export interface Backend {
   share(id: string): Promise<{ share_token: string; url: string }>;
   shared(token: string): Promise<{ passport: Passport; created_at: string }>;
   remove(id: string): Promise<{ deleted_at: string }>;
-  checkout(id: string, inviteCode?: string): Promise<PassportResponse & { payment: { status: string; order_id: string | null } }>;
+  checkout(id: string, inviteCode?: string): Promise<PassportResponse & { payment: { status: string; order_id: string | null; pay_url: string | null } }>;
   event(name: EventName, extra?: { passport_id?: string; topic?: string | null; ref?: string | null }): Promise<void>;
 }
 
