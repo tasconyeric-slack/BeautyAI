@@ -1,6 +1,6 @@
 "use client";
 
-/** Colour guidance and shopping phrases. Photo-based colour exploration lives in the shared Look Studio. */
+/** Colour guidance and shopping phrases. Photo-based colour exploration lives in the shared Studio. */
 import Link from "next/link";
 import * as React from "react";
 import { FeedbackFor, ResembleFor } from "@/components/adjust/feedback-for";
@@ -40,13 +40,13 @@ export function ColorPage() {
   return (
     <Page>
       <PageHeader kicker="个人色彩" title={label.summary_zh}
-        sub="先读懂适合你的颜色，再把喜欢的色彩带到实验室，和发型、唇色一起比较。" />
+        sub="先读懂适合你的颜色，再把喜欢的色彩带到 Studio，和发型、唇色一起比较。" />
       <Section title="先选一个颜色">
-        <p className="text-[14px] leading-7 text-ink-soft">点下方色卡，查看选择理由和购物搜索词；照片上的近脸色预览统一在形象实验室中完成。</p>
+        <p className="text-[14px] leading-7 text-ink-soft">点下方色卡，查看选择理由和购物搜索词；照片上的近脸色预览统一在 Studio 中完成。</p>
         {data?.media.expired && <p role="note" className="mt-3 text-[13px] text-muted">{guidance.photoExpired}</p>}
         {current && <CurrentColor key={current.hex} chip={current} reason={reason(current)} />}
         <Link href={`/p/${id}/studio${current ? `?drape=${current.hex.slice(1)}` : ""}`} className={s.studioLink}>
-          <span>{current ? `在实验室里试${current.label}` : "在实验室里试近脸色"}</span><ArrowRight className="size-4" aria-hidden />
+          <span>{current ? `在 Studio 里试${current.label}` : "在 Studio 里试近脸色"}</span><ArrowRight className="size-4" aria-hidden />
         </Link>
       </Section>
 
@@ -82,7 +82,7 @@ export function ColorPage() {
           {current?.group === g.key && <div className="mt-4 flex flex-wrap items-center justify-between gap-3 border-t border-rule pt-4 text-[13px]">
             <p className="text-ink-soft">已选：{current.label}</p>
             <Link href={`/p/${id}/studio?drape=${current.hex.slice(1)}`} className="inline-flex min-h-11 items-center gap-2 text-accent underline underline-offset-4">
-              把这个颜色带到实验室<ArrowRight className="size-4" aria-hidden />
+              把这个颜色带到 Studio<ArrowRight className="size-4" aria-hidden />
             </Link>
           </div>}
         </Section>

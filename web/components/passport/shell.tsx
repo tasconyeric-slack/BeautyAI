@@ -1,6 +1,6 @@
 "use client";
 
-import { ArrowRight, ChevronRight, Compass, IdCard, ListChecks, Settings, Sparkles } from "lucide-react";
+import { ArrowRight, IdCard, Settings, Sparkles } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import * as React from "react";
@@ -9,7 +9,7 @@ import { backendFor } from "@/lib/api";
 import { privacy, settings } from "@/lib/copy/zh";
 import { PassportProvider, usePassport } from "@/lib/state/passport-store";
 import { cn } from "@/lib/utils";
-import { currentStep, JOURNEY, journeyHref, nextStep } from "./journey";
+import { currentStep, PRODUCT_AREAS, journeyHref, nextStep } from "./journey";
 import { ErrorState } from "./states";
 import { Sheet } from "./sheet";
 import styles from "./passport.module.css";
@@ -56,25 +56,23 @@ function Inner({ children }: { children: React.ReactNode }) {
   );
 }
 
-/** Desktop: where you are in overview → evidence → report → advice → plan → studio, one click from every step.
- *  Phones keep the four-area bottom bar (below); this bar is desktop only and never replaces it there. */
+/** Desktop and mobile share the same two product destinations. */
 export function JourneyBar() {
   const { id, data } = usePassport();
   const path = usePathname() ?? "";
-  const here = currentStep(path);
+  const here = PRODUCT_AREAS.find(a => a.match.test(path))?.key;
   if (!here || data?.status !== "full_ready") return null;
   return (
     <nav aria-label="浏览路径" data-testid="journey-bar" data-journey-bar className={cn("no-print sticky top-[49px] z-30 hidden h-12 border-b backdrop-blur md:block", styles.journey)}>
       <ol className="mx-auto flex h-full max-w-5xl items-center gap-0.5 px-6">
-        {JOURNEY.map((s, i) => {
+        {PRODUCT_AREAS.map((s) => {
           const active = s.key === here;
           return (
             <li key={s.key} className="flex items-center gap-0.5">
-              {i > 0 && <ChevronRight aria-hidden className="size-3.5 text-rule-strong" />}
-              <Link href={journeyHref(id, s.key)} aria-current={active ? "page" : undefined} title={s.blurb}
+              <Link href={`/p/${id}${s.sub}`} aria-current={active ? "page" : undefined} title={s.blurb}
                 className={cn("inline-flex h-8 items-center gap-1.5 rounded-full px-3 text-[13px] transition-colors",
                   active ? "bg-accent-soft font-medium text-accent" : "text-ink-soft hover:bg-paper-sunk hover:text-ink")}>
-                <span aria-hidden className="tnum text-[11px] opacity-70">{i + 1}</span>{s.label}
+                {s.label}
               </Link>
             </li>
           );
@@ -141,21 +139,16 @@ function ChangeNote() {
   );
 }
 
-/** The four product areas (V2.1 §3, D32): profile · advice · Look Studio · action plan. */
-export const NAV_AREAS = [
-  { key: "profile", sub: "", label: "档案", icon: IdCard, match: /^\/p\/[^/]+(\/(face|color|style|detail|share|more|report))?$/ },
-  { key: "advice", sub: "/advice", label: "建议", icon: Compass, match: /\/(advice|hair|makeup|outfit|glasses)$/ },
-  { key: "studio", sub: "/studio", label: "实验室", icon: Sparkles, match: /\/(studio|compare)$/ },
-  { key: "plan", sub: "/plan", label: "行动", icon: ListChecks, match: /\/plan$/ },
-] as const;
+/** Shared desktop/mobile destinations; each detail route has exactly one parent. */
+export const NAV_AREAS = PRODUCT_AREAS.map(area => ({ ...area, icon: area.key === "report" ? IdCard : Sparkles }));
 
-function BottomNav() {
+export function BottomNav() {
   const { id } = usePassport();
   const path = usePathname() ?? "";
   const base = `/p/${id}`;
   return (
     <nav aria-label="护照导航" className={cn("no-print fixed inset-x-0 bottom-0 z-40 border-t pb-[env(safe-area-inset-bottom)] backdrop-blur md:hidden", styles.bottomNav)}>
-      <ul className="mx-auto grid max-w-md grid-cols-4">
+      <ul className="mx-auto grid max-w-md grid-cols-2">
         {NAV_AREAS.map(({ key, sub, label, icon: Icon, match }) => {
           const active = match.test(path);
           return (

@@ -293,3 +293,9 @@
 - 复用 D42 冻结模型及 SCUT 留出照片 ECDF，新增独立生产授权凭据，绑定完整模型身份、参考文件 SHA256、cohort/version，缺失或不匹配不放行。评分授权不能替代排名授权；研究模式仍禁止在生产开启。
 - 新路径只计算具名照片样本的位置。保留 reference_unit=image、n_unique_subjects=null、未核验年龄/主体与非人口排名限制；不改变成年人群的成年/去重门槛，不伪造样本证据。网页和 PDF 明示照片样本、数量及范围。
 - 模型、QC、版本、最小样本、精度和尾部支持检查不变，无新增模型、依赖、API 调用或基础设施。沿用现有 Passport 字段，无 schema/analysis/prompt/rules.yaml 版本变化。
+
+**D44 Report / Studio navigation and shared appearance** (2026-10-31)
+- Amends V2.1 section 0 / D32: only two primary destinations, 报告 and Studio, on both desktop and mobile. Face/color/style/detail, recommendations and the action checklist belong to the report; compare and saved looks belong to Studio. Existing URLs and saved choices continue to work.
+- Completed `/p/[id]` renders the same full report as `/report`, preserving in-progress, QC and topic-entry states. There is no additional profile landing page between completion and the report.
+- Production explicitly uses light mode, with current main's shared brand tokens, warm reading surfaces and restrained green accent. Studio controls inherit shared application tokens instead of enforcing a dark green panel. Photo stages and actual cosmetic swatches keep their functional colors. Developer component theme previews remain available.
+- No changes to analysis, scoring, schemas, paid entitlements, photo handling or retention. Design rationale and validation: [plan](plans/2026-10-31-report-studio-unification.md).

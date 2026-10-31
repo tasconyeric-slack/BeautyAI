@@ -18,15 +18,12 @@ export const metadata: Metadata = {
 export const viewport: Viewport = {
   width: "device-width",
   initialScale: 1,
-  themeColor: [
-    { media: "(prefers-color-scheme: light)", color: "#f3f1ec" },
-    { media: "(prefers-color-scheme: dark)", color: "#191c1e" },
-  ],
+  themeColor: "#f3f1ec",
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="zh-CN" className={`${serif.variable} ${sans.variable} ${inter.variable} ${mono.variable}`}>
+    <html lang="zh-CN" data-theme="light" className={`${serif.variable} ${sans.variable} ${inter.variable} ${mono.variable}`}>
       <body className="min-h-dvh bg-paper text-ink antialiased">
         <header className="site-header no-print sticky top-0 z-40 border-b border-rule bg-paper/90 backdrop-blur-sm">
           <div className="mx-auto flex h-12 items-center justify-between px-6">

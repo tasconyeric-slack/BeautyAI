@@ -80,7 +80,7 @@ test("all shipped strings use Chinese without untranslated UI words", () => {
   for (const [path, value] of strings(zh)) {
     assert.ok(value.trim(), `${path} is empty`);
     assert.match(value, /[\p{Script=Han}]/u, `${path} has no Chinese`);
-    assert.doesNotMatch(value.replace(/AI|PNG|PDF/g, ""), /[A-Za-z]/, `${path} contains untranslated text`);
+    assert.doesNotMatch(value.replace(/AI|PNG|PDF|Studio/g, ""), /[A-Za-z]/, `${path} contains untranslated text`);
   }
 });
 

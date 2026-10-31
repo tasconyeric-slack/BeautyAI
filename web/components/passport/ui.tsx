@@ -14,14 +14,15 @@ import styles from "./passport.module.css";
 export function PageHeader({ kicker, title, sub, back = true }: { kicker?: string; title: string; sub?: string; back?: boolean }) {
   const { id } = usePassport();
   const path = usePathname() ?? "";
-  // Area pages (advice, studio, plan) are top level; advice detail pages go back to advice, profile details to the profile.
-  const top = /\/(advice|studio|plan|compare)$/.test(path);
+  // Report details return to their parent report; recommendation details retain their local index.
+  const top = /\/(report|studio)$/.test(path);
+  const toStudio = /\/compare$/.test(path);
   const toAdvice = /\/(hair|makeup|outfit|glasses)$/.test(path);
   return (
     <header className={styles.header}>
       {back && !top && (
-        <Link href={toAdvice ? `/p/${id}/advice` : `/p/${id}`} className={styles.back}>
-          <ArrowLeft className="size-3.5" /> {toAdvice ? "返回建议" : "返回档案"}
+        <Link href={toStudio ? `/p/${id}/studio` : toAdvice ? `/p/${id}/advice` : `/p/${id}/report`} className={styles.back}>
+          <ArrowLeft className="size-3.5" /> {toStudio ? "返回 Studio" : toAdvice ? "返回报告建议" : "返回报告"}
         </Link>
       )}
       {kicker && <p className={styles.kicker}>{kicker}</p>}
@@ -64,9 +65,9 @@ export function NotReady() {
   return (
     <Page>
       <div className={cn(styles.card, "mt-12 text-center")}>
-        <p className="font-serif text-[18px]">{data?.status === "analysis_failed" ? "分析暂时中断" : "完整档案还在生成"}</p>
-        <p className="mt-2 text-[13px] text-muted">先回到档案页看看已经出来的发现。</p>
-        <Link href={`/p/${id}`} className="mt-4 inline-block text-[14px] text-accent underline-offset-4 hover:underline">返回档案</Link>
+        <p className="font-serif text-[18px]">{data?.status === "analysis_failed" ? "分析暂时中断" : "完整报告还在生成"}</p>
+        <p className="mt-2 text-[13px] text-muted">返回报告查看分析进度。</p>
+        <Link href={`/p/${id}/report`} className="mt-4 inline-block text-[14px] text-accent underline-offset-4 hover:underline">返回报告</Link>
       </div>
     </Page>
   );

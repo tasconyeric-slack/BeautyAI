@@ -2,13 +2,13 @@
 
 import { useRouter } from "next/navigation";
 import * as React from "react";
-import { Profile } from "@/components/profile/profile";
+import { FullReport } from "@/components/report/full-report";
 import { landTopicKey } from "@/components/upload/start-flow";
 import { Reveal } from "@/components/reveal/reveal";
 import { usePassport } from "@/lib/state/passport-store";
 import { LoadingState } from "@/components/passport/states";
 
-/** /p/[id]: the reveal while the passport is being built (A3), then the profile's first layer (A4). */
+/** Legacy report root: progress while building, then the same full report as /report (D44). */
 export default function PassportPage() {
   const { id, data, loading } = usePassport();
   const router = useRouter();
@@ -29,7 +29,7 @@ export default function PassportPage() {
   if (loading || !data) return <LoadingState />;
   if (data.status === "qc_failed") return <QcFailed />;
   if (data.status !== "full_ready" || !data.passport) return <Reveal />;
-  return <Profile />;
+  return <FullReport />;
 }
 
 function QcFailed() {

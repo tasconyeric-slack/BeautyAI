@@ -619,13 +619,13 @@ function ReportNext({ id }: { id: string }) {
   return (
     <section aria-labelledby="report-next" data-testid="report-next" className="no-print mt-10 rounded-[16px] border border-rule bg-paper-raised p-5">
       <h2 id="report-next" className="font-serif text-[18px] font-semibold">读完了，下一步</h2>
-      <p className="mt-1 text-[13.5px] leading-6 text-ink-soft">把报告变成能做的事：先存下最值得做的 3 件，再到实验室里看看效果。</p>
+      <p className="mt-1 text-[13.5px] leading-6 text-ink-soft">把报告变成能做的事：先存下最值得做的 3 件，再到 Studio 中看看效果。</p>
       <div className="mt-3 flex flex-wrap items-center gap-x-5 gap-y-3">
         <ReportLink href={journeyHref(id, "plan")} className="inline-flex h-11 items-center gap-1.5 rounded-full bg-accent px-5 text-[14px] font-medium text-[var(--ap-on-primary)] hover:opacity-90">
           保存并勾选行动方案<ArrowRight className="size-4" aria-hidden />
         </ReportLink>
         <ReportLink href={journeyHref(id, "studio")} className="inline-flex h-11 items-center rounded-full border border-ink/30 px-5 text-[14px] font-medium hover:border-ink">
-          去形象实验室试一试
+          去 Studio 试一试
         </ReportLink>
         <ReportLink href={journeyHref(id, "advice")} className="text-[13.5px] text-accent underline-offset-4 hover:underline">逐项看个性化建议</ReportLink>
       </div>
