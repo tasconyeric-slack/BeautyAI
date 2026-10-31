@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
-import { Landing } from "@/components/landing/landing";
+import { HomePage } from "@/components/home/homepage";
 import { TOPIC_KEYS, cleanRef, isTopic } from "@/components/landing/cases";
 import { topics } from "@/lib/copy/zh";
 
@@ -22,5 +22,5 @@ export default async function TopicPage({ params, searchParams }: {
   const { topic } = await params;
   if (!isTopic(topic)) notFound();
   const { ref } = await searchParams;
-  return <Landing topic={topic} refCode={cleanRef(ref)} />;
+  return <HomePage topic={topic} refCode={cleanRef(ref)} />;
 }

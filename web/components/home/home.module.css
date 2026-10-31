@@ -12,7 +12,7 @@
   --stage-ink-2: #46565d;
   --stage-muted: #53636b;
   --stage-rule: rgb(23 33 37 / 0.18);
-  --champagne: #3f625e;
+  --champagne: var(--ap-brand-primary);
   --serif: var(--font-noto-serif), "Noto Serif SC", "Songti SC", serif;
   --sans: var(--font-inter), var(--font-noto-sans), "PingFang SC", system-ui, sans-serif;
   --mono: var(--font-jetbrains), ui-monospace, monospace;

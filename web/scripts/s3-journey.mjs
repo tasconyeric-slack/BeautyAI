@@ -13,6 +13,8 @@ mkdirSync(evidence, { recursive: true });
 const art = readFileSync(new URL('../public/sample/portrait.svg', import.meta.url), 'utf8');
 const browser = await chromium.launch({ executablePath: process.env.CHROMIUM_PATH });
 const results = [];
+const fullSite = process.env.FULL_SITE === '1';
+const captures = [];
 try {
   for (const [name, viewport] of [['desktop', { width: 1440, height: 1000 }], ['mobile', { width: 390, height: 844 }]]) {
     const context = await browser.newContext({ viewport, colorScheme: 'light' });
@@ -20,7 +22,32 @@ try {
     const errors = [];
     page.on('pageerror', error => errors.push(error.message));
     page.setDefaultTimeout(20000);
-    const shot = async suffix => { await page.evaluate(() => scrollTo(0, 0)); await page.screenshot({ path: join(evidence, `${name}-${suffix}.png`), fullPage: true, animations: 'disabled' }); };
+    const shot = async suffix => {
+      await page.evaluate(() => document.fonts.ready);
+      if (fullSite) {
+        await page.locator('img').evaluateAll(async images => {
+          for (const image of images) image.loading = 'eager';
+          await Promise.all(images.map(image => image.decode().catch(() => {})));
+        });
+        for (const element of await page.locator('[data-reveal]').all()) await element.scrollIntoViewIfNeeded();
+        await page.evaluate(() => new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve))));
+      }
+      await page.evaluate(() => scrollTo(0, 0));
+      await page.screenshot({ path: join(evidence, `${name}-${suffix}.png`), fullPage: true, animations: 'disabled' });
+      if (fullSite) {
+        await page.screenshot({ path: join(evidence, `${name}-${suffix}-top.png`), animations: 'disabled' });
+        const content = await page.evaluate(() => ({
+          heading: document.querySelector('h1')?.textContent ?? document.title,
+          images: document.images.length,
+          brokenImages: [...document.images].filter(image => !image.complete || !image.naturalWidth).length,
+          overflow: document.documentElement.scrollWidth > innerWidth,
+        }));
+        captures.push({ name, suffix, route: new URL(page.url()).pathname, ...content });
+        writeFileSync(join(evidence, 'captures.json'), JSON.stringify(captures, null, 2));
+        assert.equal(content.brokenImages, 0, `${name}/${suffix}: images must decode`);
+        assert.equal(content.overflow, false, `${name}/${suffix}: no horizontal overflow`);
+      }
+    };
     await page.goto(`${base}/start`);
     await shot('consent');
     for (const check of await page.getByRole('checkbox').all()) await check.check();
@@ -44,6 +71,7 @@ try {
     await page.waitForURL(/\/p\/fx_[^/]+\/report$/);
     const id = new URL(page.url()).pathname.split('/')[2];
     await page.getByTestId('full-report').waitFor();
+    if (fullSite) await shot('report');
     await page.reload();
     await page.getByTestId('full-report').waitFor();
     await page.getByRole('radio', { name: /省心/ }).click();
@@ -127,7 +155,7 @@ try {
     writeFileSync(join(evidence, `${name}-interaction.json`), JSON.stringify({ motion, settingsFocusLoop: true, escapeRestoresFocus: true, disclosureVisible: true }, null, 2));
     await page.emulateMedia({ reducedMotion: 'no-preference' });
     const routes = [];
-    for (const suffix of ['', '/face', '/color', '/style', '/detail', '/advice', '/hair', '/makeup', '/outfit', '/glasses', '/more', '/share', '/compare', '/plan']) {
+    for (const suffix of ['', '/face', '/color', '/style', '/detail', '/advice', '/hair', '/makeup', '/outfit', '/glasses', '/more', '/share', '/compare', '/plan', ...(fullSite ? ['/studio', '/report', '/unlock'] : [])]) {
       const response = await page.goto(`${base}/p/${id}${suffix}`);
       await page.locator('main').waitFor();
       await page.evaluate(() => document.fonts.ready);
@@ -159,12 +187,78 @@ try {
         await page.keyboard.press('Escape');
         routes.at(-1).adjustmentCancelRestores = true;
       }
-      if (['/face', '/color', '/advice'].includes(suffix)) await shot(`route-${suffix.slice(1)}`);
+      if (fullSite && suffix === '/face') {
+        const metric = page.getByTestId('workbench').locator('button[data-metric]').first();
+        await metric.click();
+        assert.equal(await metric.getAttribute('aria-pressed'), 'true');
+        await page.getByTestId('workbench').locator('[data-testid="detail-value"]:visible').waitFor();
+        routes.at(-1).measurementSelection = true;
+      }
+      if (fullSite && suffix === '/style') {
+        const pickerMode = page.getByRole('radiogroup', { name: '选择方式' }).getByRole('radio').nth(1);
+        await pickerMode.click();
+        assert.equal(await pickerMode.getAttribute('aria-checked'), 'true');
+        routes.at(-1).stylePickerSelection = true;
+      }
+      if (fullSite || ['/face', '/color', '/advice'].includes(suffix)) await shot(`route-${suffix.slice(1) || 'profile'}`);
+      if (fullSite && suffix === '/color') {
+        const color = page.getByRole('group', { name: /色卡$/ }).first().getByRole('button').nth(1);
+        await color.click();
+        assert.equal(await color.getAttribute('aria-pressed'), 'true');
+        const toStudio = page.getByRole('link', { name: '把这个颜色带到实验室' });
+        const target = await toStudio.getAttribute('href');
+        const selectedHex = new URL(target, base).searchParams.get('drape');
+        await toStudio.click();
+        await page.getByTestId('studio-canvas').waitFor();
+        assert.equal(await page.getByRole('tab', { name: '妆容与配色' }).getAttribute('aria-selected'), 'true');
+        const picked = page.getByRole('radiogroup', { name: '近脸色' }).getByRole('radio', { checked: true });
+        await picked.waitFor();
+        const selectedBackground = await picked.locator('[style]').first().evaluate(el => el.style.backgroundColor);
+        const expected = await page.evaluate(hex => { const e = document.createElement('span'); e.style.backgroundColor = '#' + hex; return e.style.backgroundColor; }, selectedHex);
+        assert.equal(selectedBackground, expected, 'Color handoff preserves the selected swatch');
+        await shot('color-to-studio');
+        routes.at(-1).colorToStudio = { selectedHex, activeTab: 'makeup', selected: true };
+      }
+      if (fullSite && suffix === '/share') {
+        await page.getByRole('button', { name: '生成只读链接', exact: true }).click();
+        const publicUrl = await page.getByTestId('share-url').innerText();
+        await page.goto(publicUrl);
+        await page.getByRole('heading', { name: '一份形象档案', exact: true }).waitFor();
+        await page.getByRole('radio', { name: '色卡艺术', exact: true }).click();
+        await shot('public-share');
+        routes.at(-1).publicSharing = true;
+      }
     }
     writeFileSync(join(evidence, `${name}-routes.json`), JSON.stringify(routes, null, 2));
     await page.goto(`${base}/report/sample`);
     await page.getByTestId('full-report').waitFor();
     assert.equal(await page.locator('a[href^="/p/"]').count(), 0);
+    if (fullSite) {
+      await shot('public-sample');
+      for (const [label, path] of [['home', '/'], ...['face','hair','style','color','outfit'].map(topic => [`topic-${topic}`, `/t/${topic}?ref=design-review`]), ['start','/start'], ['about','/about'], ['check','/check']]) {
+        await page.goto(base + path);
+        await page.locator('h1').first().waitFor();
+        if (label.startsWith('topic-')) {
+          const topic = label.slice('topic-'.length);
+          await page.locator('section[aria-labelledby="home-title"]').waitFor();
+          const starts = await page.locator('a[href^="/start"]:visible').evaluateAll(links => links.map(link => link.getAttribute('href')));
+          assert.ok(starts.length > 0, `${topic}: shared photographic homepage has start actions`);
+          for (const href of starts) {
+            const target = new URL(href, base);
+            assert.equal(target.searchParams.get('topic'), topic, `${topic}: start link preserves topic`);
+            assert.equal(target.searchParams.get('ref'), 'design-review', `${topic}: start link preserves attribution`);
+          }
+        }
+        await shot(label);
+      }
+      await page.emulateMedia({ colorScheme: 'dark', reducedMotion: 'reduce' });
+      await page.goto(`${base}/p/${id}/advice`);
+      await page.getByRole('button', { name: '调整', exact: true }).waitFor();
+      await shot('dark-reduced-advice');
+      await page.goto(`${base}/p/${id}/studio?drape=6F8790`);
+      await page.getByTestId('studio-canvas').waitFor();
+      await shot('dark-reduced-studio');
+    }
     assert.deepEqual(errors, []);
     assert.ok(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth));
     results.push({ viewport, name, path: 'upload → crop/QC fixture → job → R2 → tabs → save → plan → complete → reload → restore → fake checkout → fixture generation → read-only sample', passed: true, realProvider: false, errors });
@@ -174,6 +268,11 @@ try {
   await gallery.goto(new URL('../../docs/design/QC_TEACHING.html', import.meta.url).href);
   await gallery.screenshot({ path: join(evidence, 'qc-teaching.png'), fullPage: true });
   await gallery.close();
+  writeFileSync(join(evidence, 'captures.json'), JSON.stringify(captures, null, 2));
+  if (fullSite) {
+    const escape = text => String(text).replaceAll('&','&amp;').replaceAll('<','&lt;').replaceAll('\"','&quot;');
+    writeFileSync(join(evidence, 'index.html'), `<!doctype html><html lang=zh-CN><meta charset=utf-8><title>BeautyAI — 全站设计验收</title><style>body{font:15px system-ui;background:#f3f1ec;color:#242a29;margin:32px}h1{font-weight:500}.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:24px}figure{margin:0;padding:16px;background:#fff;border:1px solid #d4d8d3}img{width:100%;height:420px;object-fit:contain;object-position:top;background:#e5e8e5}figcaption{line-height:1.8;overflow-wrap:anywhere}a{color:#3f625e}</style><h1>BeautyAI · 全站设计与交互验收</h1><p>每张缩略图链接完整页面截图；${captures.length} 个页面与交互状态。</p><div class=grid>${captures.map(c=>`<figure><a href="${c.name}-${c.suffix}.png"><img loading=lazy src="${c.name}-${c.suffix}-top.png"></a><figcaption>${escape(c.name)} · ${escape(c.heading)}<br>${escape(c.route)}<br>${c.images} images · ${c.brokenImages} broken · overflow ${c.overflow}</figcaption></figure>`).join('')}</div></html>`);
+  }
   writeFileSync(join(evidence, 'journey.json'), JSON.stringify(results, null, 2));
   console.log(JSON.stringify(results));
 } finally { await browser.close(); }

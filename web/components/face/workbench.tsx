@@ -126,7 +126,7 @@ function WorkStage({ src, tab, overlay, metric, expired, onAdd, reasonText }: {
   const hold = useHold();
   if (tab.role === "profile90" && tab.status !== "measured") {
     return (
-      <div className="flex aspect-[4/5] flex-col items-center justify-center gap-3 rounded-[14px] border border-dashed border-rule-strong bg-paper-raised p-6 text-center"
+      <div className="flex aspect-[4/5] flex-col items-center justify-center gap-3 rounded-[4px] border border-dashed border-rule-strong bg-paper-raised p-6 text-center"
         data-testid="side-empty">
         <p className="font-serif text-[17px] font-semibold">{tab.status === "not_provided" ? "还没有侧脸照" : "侧脸照未能测量"}</p>
         <p className="max-w-xs text-[13px] leading-6 text-ink-soft">
@@ -134,7 +134,7 @@ function WorkStage({ src, tab, overlay, metric, expired, onAdd, reasonText }: {
             ? `侧脸的鼻唇角、E 线、颏唇角等 ${tab.total} 项只能在一张接近 90° 的侧脸照上测量，不会用正脸推算。正脸报告已经完整。`
             : <span data-missing={tab.reason ?? ""}>{reasonText}</span>}
         </p>
-        {onAdd && <button type="button" onClick={onAdd} className="min-h-10 rounded-full bg-accent px-4 text-[14px] text-[var(--ap-on-primary)]">补充一张侧脸照</button>}
+        {onAdd && <button type="button" onClick={onAdd} className="min-h-11 rounded-full bg-accent px-4 text-[14px] text-[var(--ap-on-primary)]">补充一张侧脸照</button>}
       </div>
     );
   }
@@ -143,7 +143,7 @@ function WorkStage({ src, tab, overlay, metric, expired, onAdd, reasonText }: {
   return (
     <div>
       {src && !expired ? (
-        <Stage className="relative mx-auto overflow-hidden rounded-[14px]"
+        <Stage className="relative mx-auto overflow-hidden rounded-[4px]"
           style={{ aspectRatio: `${aspect}`, width: `min(100%, calc(var(--stage-h) * ${aspect}))` }}>
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img src={src} alt={`你的${tab.name}照片${metric ? `，标注：${metric.name_zh}` : ""}`}
@@ -191,7 +191,7 @@ export function MetricDetail({ v, m, id, tab, onAddSide }: {
   const measured = m.availability === "measured" && !m.locked;
   const pts = pointList(m);
   return (
-    <article className="rounded-[14px] border border-rule bg-paper-raised p-4" data-detail={m.id} aria-label={`${m.name_zh} 详情`}>
+    <article className="rounded-[4px] border border-rule bg-paper-raised p-4" data-detail={m.id} aria-label={`${m.name_zh} 详情`}>
       <div className="flex flex-wrap items-baseline gap-x-2 gap-y-1">
         <h3 className="font-serif text-[17px] font-semibold">{m.name_zh}</h3>
         <span className="text-[11.5px] text-muted">{m.id} · {tab.name}</span>
@@ -278,7 +278,7 @@ export function Workbench2({ v, id, geometry, photos, expired, onAddSide }: {
           {v.views.map((t) => (
             <button key={t.role} type="button" role="tab" aria-selected={t.role === role} onClick={() => switchView(t.role)}
               data-view-tab={t.role}
-              className={cn("flex min-h-12 shrink-0 items-center gap-2 rounded-[12px] border px-2 py-1 text-left transition-colors",
+              className={cn("flex min-h-12 shrink-0 items-center gap-2 rounded-[4px] border px-2 py-1 text-left transition-colors",
                 t.role === role ? "border-stage bg-stage text-stage-ink" : "border-rule bg-paper-raised hover:bg-paper-sunk")}>
               {photos[t.role] && !expired ? (
                 // eslint-disable-next-line @next/next/no-img-element
@@ -309,22 +309,22 @@ export function Workbench2({ v, id, geometry, photos, expired, onAddSide }: {
           {tab.name}：已测 <span className="tnum">{tab.measured}</span>，未测 <span className="tnum">{unavailable}</span>
           {locked ? <>，其中 <span className="tnum">{locked}</span> 项明细在完整护照</> : null}。
         </p>
-        <div className="mt-2 flex items-center gap-2 rounded-[10px] border border-rule bg-paper-raised px-2.5">
+        <div className="mt-2 flex items-center gap-2 rounded-[4px] border border-rule bg-paper-raised px-2.5">
           <Search className="size-4 text-muted" aria-hidden />
           <input type="search" value={query} onChange={(e) => setQuery(e.target.value)} placeholder="搜索测量项，如“眉”“E 线”"
-            aria-label="搜索测量项" className="min-h-10 w-full bg-transparent text-[13.5px] outline-none" />
+            aria-label="搜索测量项" className="min-h-11 w-full bg-transparent text-[13.5px] outline-none" />
         </div>
         <div role="tablist" aria-label="测量分组" className="-mx-1 mt-2 flex gap-1 overflow-x-auto px-1 pb-1 lg:flex-wrap">
           {[{ key: "all", name: "全部", metrics: list }, ...groups].map((g) => (
             <button key={g.key} type="button" role="tab" aria-selected={group === g.key} onClick={() => setGroup(g.key)}
-              className={cn("min-h-9 shrink-0 rounded-full border px-3 text-[12.5px]",
+              className={cn("min-h-11 shrink-0 rounded-full border px-3 text-[12.5px]",
                 group === g.key ? "border-stage bg-stage text-stage-ink" : "border-rule text-ink-soft hover:bg-paper-sunk")}>
               {g.name}<span className="tnum ml-1 text-[10.5px] opacity-70" title={`已测 ${g.metrics.filter((m) => m.availability === "measured").length} 项，共 ${g.metrics.length} 项`}>
                 {g.metrics.filter((m) => m.availability === "measured").length}</span>
             </button>
           ))}
         </div>
-        <ul className="mt-2 divide-y divide-rule overflow-hidden rounded-[14px] border border-rule bg-paper-raised lg:max-h-[calc(100vh-15rem)] lg:overflow-y-auto"
+        <ul className="mt-2 divide-y divide-rule overflow-hidden rounded-[4px] border border-rule bg-paper-raised lg:max-h-[calc(100vh-15rem)] lg:overflow-y-auto"
           aria-label={`${tab.name}测量项`} data-testid="metric-list">
           {filtered.map((m) => (
             <li key={m.id}>

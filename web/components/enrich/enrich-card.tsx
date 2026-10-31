@@ -8,6 +8,7 @@ import { ApiError, type ContextPatch } from "@/lib/api";
 import { common, feedback } from "@/lib/copy/zh";
 import { usePassport } from "@/lib/state/passport-store";
 import { cn } from "@/lib/utils";
+import s from "./enrich.module.css";
 import { enrichCopy as t } from "./copy";
 
 export type CardStatus = "open" | "done" | "skipped";
@@ -52,7 +53,7 @@ export function useEnrichSubmit() {
 export function OutcomeNote({ outcome }: { outcome: Outcome }) {
   const re = outcome.mode === "reanalyze";
   return (
-    <div role="status" data-mode={outcome.mode} className="ap-rise mt-3 rounded-[12px] bg-paper-sunk px-3 py-2.5">
+    <div role="status" data-mode={outcome.mode} className="ap-rise mt-3 rounded-[4px] bg-paper-sunk px-3 py-2.5">
       <div className="flex items-center gap-2">
         <Pill tone={re ? "amber" : "accent"}>
           {re ? <Loader2 className="mr-1 size-3 animate-spin" /> : <Check className="mr-1 size-3" />}
@@ -70,7 +71,7 @@ export function Chip({ on, children, onClick, disabled, label }: {
 }) {
   return (
     <button type="button" aria-pressed={on} aria-label={label} disabled={disabled} onClick={onClick}
-      className={cn("inline-flex min-h-9 items-center gap-1.5 rounded-full border px-3 py-1.5 text-[13px] transition-colors disabled:opacity-40",
+      className={cn("inline-flex min-h-11 items-center gap-1.5 rounded-full border px-3 py-1.5 text-[13px] transition-colors disabled:opacity-40",
         on ? "border-accent bg-accent text-[var(--ap-on-primary)]" : "border-rule-strong bg-paper-raised text-ink hover:border-ink/50")}>
       {children}
     </button>
@@ -84,7 +85,7 @@ export function ChoiceTile({ on, onClick, picture, label, desc, dark, disabled, 
 }) {
   return (
     <button type="button" aria-pressed={on} disabled={disabled} onClick={onClick}
-      className={cn("group flex flex-col overflow-hidden rounded-[12px] border text-left transition-colors disabled:opacity-40",
+      className={cn("group flex flex-col overflow-hidden rounded-[4px] border text-left transition-colors disabled:opacity-40",
         on ? "border-accent ring-2 ring-accent/40" : "border-rule hover:border-ink/40", className)}>
       <span className={cn("relative block w-full overflow-hidden", pictureClassName ?? "aspect-square",
         dark ? "bg-stage text-stage-ink" : "bg-paper-sunk text-ink-soft")}>
@@ -139,7 +140,7 @@ export function EnrichCard({ id, n, title, badge, why, notice, status, pending, 
   const headingId = `${id}-title`;
   return (
     <section id={id} aria-labelledby={headingId} data-status={status}
-      className={cn("scroll-mt-4 rounded-[16px] border bg-paper-raised p-4 transition-colors",
+      className={cn(s.card,
         status === "open" ? "border-rule" : "border-rule/70 bg-paper")}>
       <header className="flex items-start gap-3">
         <span aria-hidden className={cn("mt-0.5 grid size-7 shrink-0 place-items-center rounded-full font-mono text-[12px]",
@@ -157,7 +158,7 @@ export function EnrichCard({ id, n, title, badge, why, notice, status, pending, 
           {notice}
         </div>
         {status !== "open" && (
-          <Button variant="ghost" size="sm" className="shrink-0" onClick={onEdit}>
+          <Button variant="ghost" size="sm" className="min-h-11 shrink-0" onClick={onEdit}>
             {status === "skipped" ? t.fillIn : t.edit}
           </Button>
         )}
@@ -167,12 +168,12 @@ export function EnrichCard({ id, n, title, badge, why, notice, status, pending, 
         <>
           <div className="mt-4">{children}</div>
           {error && <p role="alert" className="mt-3 text-[13px] text-[#b4442f]">{error}</p>}
-          <div className="mt-4 flex items-center gap-2 border-t border-rule pt-3">
-            <Button size="sm" variant="accent" disabled={!canSubmit || pending} onClick={onSubmit}>
+          <div className="mt-6 flex flex-wrap items-center gap-3 border-t border-rule pt-5">
+            <Button size="md" variant="accent" disabled={!canSubmit || pending} onClick={onSubmit}>
               {pending && <Loader2 className="animate-spin" />}
               {pending ? t.submitting : submitLabel ?? common.save}
             </Button>
-            <Button size="sm" variant="ghost" disabled={pending} onClick={onSkip}>{common.skip}</Button>
+            <Button size="md" variant="ghost" disabled={pending} onClick={onSkip}>{common.skip}</Button>
           </div>
         </>
       )}

@@ -1,0 +1,5 @@
+.card { scroll-margin-top:140px; border-top:1px solid var(--rule-strong); padding:32px 0; background:transparent; }
+.card h2 { font-size:26px; font-weight:500; line-height:1.5; }
+.card header { margin-bottom:24px; }
+.card header p { max-width:52em; margin-top:12px; font-size:14px; line-height:1.9; }
+@media(max-width:639px) { .card { padding-top:24px; } .card h2 { font-size:23px; } }

@@ -30,7 +30,7 @@ export function AddPhotoPanel({ role, onDone }: { role: ExtraRole; onDone: () =>
     }
   };
   return (
-    <div className="mt-4 rounded-[16px] border border-accent/30 bg-accent-soft/40 p-3" data-testid="add-photo">
+    <div className="mt-4 rounded-[4px] border border-accent/30 bg-accent-soft/40 p-3" data-testid="add-photo">
       <PhotoSlot role={role} state={st} prominent onChoose={(f) => choose(role, f)} onReframe={(f) => reframe(role, f)}
         onRemove={() => remove(role)} />
       <div className="mt-3 flex items-center gap-2">

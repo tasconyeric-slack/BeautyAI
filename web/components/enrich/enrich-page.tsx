@@ -39,7 +39,7 @@ export function EnrichPage() {
             const st = status[s.key] ?? "open";
             return (
               <li key={s.key} className="min-w-0 flex-1">
-                <a href={`#enrich-${s.key}`} className="flex flex-col items-center gap-0.5 text-[11px]">
+                <a href={`#enrich-${s.key}`} className="flex min-h-14 flex-col items-center justify-center gap-1 text-[12px]">
                   <span className={cn("grid size-6 place-items-center rounded-full font-mono text-[11px]",
                     st === "done" ? "bg-accent text-[var(--ap-on-primary)]" : st === "skipped" ? "bg-paper-sunk text-muted line-through" : "border border-rule-strong text-ink-soft")}>
                     {st === "done" ? <Check className="size-3" strokeWidth={3} /> : i + 1}
@@ -51,7 +51,7 @@ export function EnrichPage() {
           })}
         </ol>
       </nav>
-      <div className="space-y-4">
+      <div className="space-y-8">
         {STEPS.map(({ key, Card }, i) => <Card key={key} n={i + 1} onStatus={handlers[key]} />)}
       </div>
       <div className="mt-8 flex flex-col items-center gap-2 text-center">

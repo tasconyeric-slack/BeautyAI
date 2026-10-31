@@ -1,4 +1,5 @@
 "use client";
+import s from "./share.module.css";
 
 /** /p/[id]/share — 档案卡分享 (A10 · F17 increment 1, PRD B8 / wireframe 12).
  *
@@ -113,14 +114,14 @@ export function ShareStudio() {
     <Page>
       <PageHeader kicker="分享" title={copy.title} sub="3:4 竖版，和小红书笔记首图比例一致。卡片只有档案、色卡与风格方向，不含任何评分。" />
 
-      <div role="radiogroup" aria-label="卡片视觉" className="grid grid-cols-3 gap-2">
+      <div role="radiogroup" aria-label="卡片视觉" className={s.modeControls + " grid grid-cols-3 gap-3"}>
         {MODES.map((m) => {
           const disabled = m === "portrait" && !portraitOk;
           const selected = activeMode === m;
           return (
             <button key={m} type="button" role="radio" aria-checked={selected} disabled={disabled} onClick={() => choose(m)}
               data-mode={m}
-              className={cn("flex flex-col items-center gap-1.5 rounded-[14px] border px-2 pb-2.5 pt-2 text-[13px] transition-colors",
+              className={cn("flex flex-col items-center gap-1.5 rounded-[4px] border px-2 pb-2.5 pt-2 text-[13px] transition-colors",
                 selected ? "border-accent bg-accent-soft text-ink" : "border-rule bg-paper-raised text-ink-soft hover:border-rule-strong",
                 disabled && "cursor-not-allowed opacity-45 hover:border-rule")}>
               <ModeThumb mode={m} passport={passport} disabled={disabled} />
@@ -135,7 +136,7 @@ export function ShareStudio() {
       </p>
 
       <div ref={cardRef} className="mt-4">
-        <Scaled className="mx-auto max-w-sm overflow-hidden rounded-[14px] border border-rule shadow-[0_10px_30px_-12px_rgba(0,0,0,0.25)]">
+        <Scaled className="mx-auto max-w-sm overflow-hidden rounded-[4px] border border-rule shadow-[0_10px_30px_-12px_rgba(0,0,0,0.25)]">
           <ProfileCard {...props} />
         </Scaled>
       </div>
@@ -155,10 +156,10 @@ export function ShareStudio() {
       </div>
 
       <Section title="只读链接" kicker="不含照片">
-        <div className="rounded-[14px] border border-rule bg-paper-raised p-4 text-[13px] leading-6">
+        <div className="rounded-[4px] border border-rule bg-paper-raised p-4 text-[13px] leading-6">
           <p>{copy.readOnlyLink}打开的人只能看到文字档案、色卡与风格方向，看不到照片、试看图和面部标注；删除护照后链接立即失效。</p>
           {url ? (
-            <div className="mt-3 flex items-center gap-2 rounded-[10px] bg-paper-sunk px-3 py-2">
+            <div className="mt-3 flex items-center gap-2 rounded-[4px] bg-paper-sunk px-3 py-2">
               <span className="min-w-0 flex-1 truncate font-mono text-[12px]" data-testid="share-url">{url}</span>
               <button type="button" className="shrink-0 text-[12px] text-accent" onClick={() => copyText(url, copy.linkCopied)}>复制</button>
             </div>
@@ -170,7 +171,7 @@ export function ShareStudio() {
 
       <Section title="小红书文案" kicker="可直接复制"
         action={<button type="button" onClick={copyCaption} className="inline-flex items-center gap-1 text-[13px] text-accent"><ClipboardCopy className="size-3.5" />复制</button>}>
-        <div className="rounded-[14px] border border-rule bg-paper-raised p-4 text-[13px] leading-6" data-testid="caption">
+        <div className="rounded-[4px] border border-rule bg-paper-raised p-4 text-[13px] leading-6" data-testid="caption">
           <p className="font-medium">{caption.title}</p>
           <p className="mt-2 whitespace-pre-line text-ink-soft">{caption.body}</p>
           <p className="mt-2 text-accent">{caption.tags}</p>

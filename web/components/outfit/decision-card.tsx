@@ -20,7 +20,7 @@ export function DecisionCard({ board, owned, dressed, onDressed, onClear }: {
       <ol className="mt-2 divide-y divide-rule">
         {board.pieces.map((p) => (
           <li key={p.key} className="py-1">
-            <label className="flex min-h-10 cursor-pointer items-center gap-3 text-[14px]">
+            <label className="flex min-h-11 cursor-pointer items-center gap-3 text-[14px]">
               <input type="checkbox" checked={Boolean(dressed[p.key])} onChange={(e) => onDressed(p.key, e.target.checked)} className="size-4 accent-[var(--ap-primary)]" />
               <Swatch hex={p.hex} className="size-5" />
               <span className="min-w-0 flex-1"><span className="text-[12px] text-muted">{SLOT_LABEL[p.slot]} · </span>{p.origin === "generic" && !p.search ? p.name : `${p.colorName ?? ""}${p.name}`}
@@ -29,7 +29,7 @@ export function DecisionCard({ board, owned, dressed, onDressed, onClear }: {
           </li>
         ))}
       </ol>
-      <pre data-testid="decision-text" className="mt-3 max-h-56 overflow-auto whitespace-pre-wrap rounded-xl bg-paper-sunk p-3 text-[12px] leading-5 text-ink-soft">{text}</pre>
+      <pre data-testid="decision-text" className="mt-3 max-h-56 overflow-auto whitespace-pre-wrap rounded-[4px] bg-paper-sunk p-3 text-[12px] leading-5 text-ink-soft">{text}</pre>
       <div className="mt-3 flex flex-wrap items-center gap-3">
         <ShareActions text={text} title={`${board.label}穿搭清单`} testId="decision" />
         <button type="button" onClick={onClear} className="text-[13px] text-muted underline-offset-4 hover:underline">换一套</button>

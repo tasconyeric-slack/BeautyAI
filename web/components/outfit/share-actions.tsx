@@ -23,7 +23,7 @@ export function ShareActions({ text, title, testId }: { text: string; title: str
       /* dismissed the sheet */
     }
   };
-  const cls = "inline-flex min-h-10 items-center gap-1.5 rounded-full border border-rule-strong px-4 text-[13px] text-accent";
+  const cls = "inline-flex min-h-11 items-center gap-1.5 rounded-full border border-rule-strong px-4 text-[13px] text-accent";
   return (
     <div className="flex flex-wrap gap-2">
       <button type="button" data-testid={`${testId}-copy`} className={cls} onClick={copy}><Copy className="size-3.5" />复制清单</button>

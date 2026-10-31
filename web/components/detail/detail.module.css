@@ -1,0 +1,9 @@
+.observations { margin-top:32px; }
+.row { display:grid; grid-template-columns:80px minmax(0,1fr); gap:24px; padding:28px 0; border-bottom:1px solid var(--rule); }
+.row:first-child { border-top:1px solid var(--rule); }
+.row dt { font-size:12px; color:var(--muted); font-variant-numeric:tabular-nums; }
+.row dd { max-width:62ch; font-size:16px; line-height:1.9; }
+.limitations { max-width:72ch; padding:24px; border-radius:4px; background:var(--paper-sunk); font-size:14px; line-height:1.9; }
+.limitations li + li { margin-top:12px; }
+.next { display:inline-flex; align-items:center; min-height:48px; margin-top:24px; padding:12px 24px; border-radius:999px; background:var(--accent); color:var(--ap-on-primary); font-size:14px; }
+@media(max-width:639px) { .row { grid-template-columns:48px minmax(0,1fr); gap:16px; padding-block:24px; } .row dd { font-size:15px; } }

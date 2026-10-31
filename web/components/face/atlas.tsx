@@ -54,7 +54,7 @@ function CropFigure({ crop, src, region, label, expired }: {
     const text = expired ? copy.cropExpired : region.state === "needs_photo" ? copy.cropNeedsPhoto
       : !src ? copy.cropNoPhoto : copy.cropNone;
     return (
-      <div className="flex aspect-square w-full items-center justify-center rounded-[14px] bg-[var(--ap-stage)] p-4 text-center text-[12px] leading-5 text-stage-muted"
+      <div className="flex aspect-square w-full items-center justify-center rounded-[4px] bg-[var(--ap-stage)] p-4 text-center text-[12px] leading-5 text-stage-muted"
         data-testid="atlas-crop-empty">{text}</div>
     );
   }
@@ -65,7 +65,7 @@ function CropFigure({ crop, src, region, label, expired }: {
   const r = Math.max(bw * W, bh * H);
   return (
     <figure className="w-full">
-      <div className="relative w-full overflow-hidden rounded-[14px] bg-[var(--ap-stage)]" style={{ aspectRatio: `${(bw * W) / (bh * H)}` }}
+      <div className="relative w-full overflow-hidden rounded-[4px] bg-[var(--ap-stage)]" style={{ aspectRatio: `${(bw * W) / (bh * H)}` }}
         data-testid="atlas-crop" data-crop-role={crop.role}>
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img src={src} alt={`${region.name}${copy.cropAlt}`} className="absolute max-w-none"
@@ -118,7 +118,7 @@ function RegionPanel({ r, v, id, geometry, photos, expired, onShowMetric, onAddS
 
   return (
     <div role="tabpanel" id={`atlas-panel-${r.key}`} aria-labelledby={`atlas-tab-${r.key}`} data-atlas-region={r.key} data-state={r.state}
-      className="min-w-0 rounded-[16px] border border-rule bg-paper-raised p-4 sm:p-5">
+      className="min-w-0 rounded-[4px] border border-rule bg-paper-raised p-4 sm:p-5">
       <div className="flex flex-wrap items-baseline gap-x-3 gap-y-1">
         <h3 className="font-serif text-[20px] font-semibold">{r.name}</h3>
         <span className="tnum text-[12px] text-muted">
@@ -132,12 +132,12 @@ function RegionPanel({ r, v, id, geometry, photos, expired, onShowMetric, onAddS
         <CropFigure crop={crop} src={src} region={r} label={shown?.name_zh ?? null} expired={expired} />
         <div className="min-w-0 space-y-4">
           {r.state === "unavailable" ? (
-            <p className="rounded-[10px] bg-paper px-3 py-2.5 text-[13px] leading-6 text-ink-soft" data-testid="atlas-unavailable">{copy.regionUnavailable}</p>
+            <p className="rounded-[4px] bg-paper px-3 py-2.5 text-[13px] leading-6 text-ink-soft" data-testid="atlas-unavailable">{copy.regionUnavailable}</p>
           ) : r.state === "needs_photo" ? (
-            <div className="rounded-[10px] bg-paper px-3 py-2.5 text-[13px] leading-6 text-ink-soft" data-testid="atlas-needs-photo">
+            <div className="rounded-[4px] bg-paper px-3 py-2.5 text-[13px] leading-6 text-ink-soft" data-testid="atlas-needs-photo">
               <p>{r.missing[0]?.reason ?? copy.regionNeedsPhoto}</p>
               {r.role === "profile90" && onAddSide && (
-                <button type="button" onClick={onAddSide} className="mt-2 min-h-10 rounded-full bg-accent px-4 text-[13.5px] text-[var(--ap-on-primary)]">{copy.addSide}</button>
+                <button type="button" onClick={onAddSide} className="mt-2 min-h-11 rounded-full bg-accent px-4 text-[13.5px] text-[var(--ap-on-primary)]">{copy.addSide}</button>
               )}
             </div>
           ) : null}
@@ -160,7 +160,7 @@ function RegionPanel({ r, v, id, geometry, photos, expired, onShowMetric, onAddS
               <h4 className="text-[12px] tracking-wide text-muted">{r.state === "observed" ? copy.implicationsTitle : copy.implicationsContext}</h4>
               <ul className="mt-1.5 space-y-2" data-testid="atlas-implications">
                 {r.implications.map((m) => (
-                  <li key={m.text} className="rounded-[10px] border border-rule bg-paper px-3 py-2">
+                  <li key={m.text} className="rounded-[4px] border border-rule bg-paper px-3 py-2">
                     <p className="text-[14px] leading-6">{m.text}</p>
                     <div className="mt-1 flex flex-wrap items-center gap-x-2 gap-y-1 text-[12px] text-muted">
                       <ProvenanceBadge p={m.provenance} />
@@ -180,7 +180,7 @@ function RegionPanel({ r, v, id, geometry, photos, expired, onShowMetric, onAddS
       {r.facts.length > 0 && (
         <div className="mt-5">
           <h4 className="flex items-center gap-2 text-[12px] tracking-wide text-muted">{copy.factsTitle}<ProvenanceBadge p="measured" /></h4>
-          <ul className="mt-1.5 divide-y divide-rule overflow-hidden rounded-[12px] border border-rule" data-testid="atlas-facts">
+          <ul className="mt-1.5 divide-y divide-rule overflow-hidden rounded-[4px] border border-rule" data-testid="atlas-facts">
             {r.facts.map((f) => {
               const drawable = focusIds.includes(f.metricId);
               const isShown = shownId === f.metricId;
@@ -205,7 +205,7 @@ function RegionPanel({ r, v, id, geometry, photos, expired, onShowMetric, onAddS
                   </button>
                   {onShowMetric && (
                     <button type="button" onClick={() => onShowMetric(f.metricId, f.role)} aria-label={`${copy.inWorkbench}：${f.name}`}
-                      className="mr-1 min-h-9 rounded-full px-2.5 text-[12px] text-accent hover:bg-accent-soft">{copy.inWorkbenchShort}</button>
+                      className="mr-1 min-h-11 rounded-full px-2.5 text-[12px] text-accent hover:bg-accent-soft">{copy.inWorkbenchShort}</button>
                   )}
                 </li>
               );
@@ -247,8 +247,8 @@ function RegionPanel({ r, v, id, geometry, photos, expired, onShowMetric, onAddS
         </div>
       )}
 
-      <details className="group mt-5 rounded-[12px] border border-rule bg-paper px-3 py-2" data-testid="atlas-coverage">
-        <summary className="flex min-h-9 cursor-pointer list-none items-center justify-between gap-2 text-[13px]">
+      <details className="group mt-5 rounded-[4px] border border-rule bg-paper px-3 py-2" data-testid="atlas-coverage">
+        <summary className="flex min-h-11 cursor-pointer list-none items-center justify-between gap-2 text-[13px]">
           <span>{copy.coverageTitle}<span className="ml-2 text-[11.5px] text-muted">{r.concepts.length}{copy.coverageCount}</span></span>
           <span className="text-[12px] text-accent group-open:hidden">{copy.expand}</span>
         </summary>
@@ -275,7 +275,7 @@ function Overview({ a, onPick }: { a: Atlas; onPick: (key: string) => void }) {
   const o = a.overview;
   return (
     <div className="grid gap-3 lg:grid-cols-3" data-testid="atlas-overview">
-      <div className="rounded-[14px] border border-rule bg-paper-raised p-4">
+      <div className="rounded-[4px] border border-rule bg-paper-raised p-4">
         <h3 className="text-[13px] font-medium">{copy.strongestTitle}</h3>
         <ul className="mt-2 space-y-1.5">
           {o.strongest.map((s) => (
@@ -290,7 +290,7 @@ function Overview({ a, onPick }: { a: Atlas; onPick: (key: string) => void }) {
           {!o.strongest.length && <li className="text-[13px] text-muted">{copy.strongestNone}</li>}
         </ul>
       </div>
-      <div className="rounded-[14px] border border-rule bg-paper-raised p-4">
+      <div className="rounded-[4px] border border-rule bg-paper-raised p-4">
         <h3 className="text-[13px] font-medium">{copy.relationsTitle}</h3>
         <ul className="mt-2 space-y-1.5 text-[13px]" data-testid="atlas-relations">
           {o.relations.map((x) => (
@@ -304,7 +304,7 @@ function Overview({ a, onPick }: { a: Atlas; onPick: (key: string) => void }) {
           {!o.relations.length && <li className="text-muted">{copy.relationsNone}</li>}
         </ul>
       </div>
-      <div className="rounded-[14px] border border-rule bg-paper-raised p-4">
+      <div className="rounded-[4px] border border-rule bg-paper-raised p-4">
         <h3 className="text-[13px] font-medium">{copy.opportunitiesTitle}</h3>
         <ol className="mt-2 space-y-2 text-[13px] leading-6" data-testid="atlas-opportunities">
           {o.opportunities.map((x, i) => (
@@ -393,7 +393,7 @@ export function FaceAtlas({ a, v, id, geometry, photos, expired, onShowMetric, o
             <button key={r.key} ref={(el) => { tabs.current[r.key] = el; }} type="button" role="tab" id={`atlas-tab-${r.key}`}
               aria-selected={r.key === region.key} aria-controls={`atlas-panel-${r.key}`} tabIndex={r.key === region.key ? 0 : -1}
               onClick={() => setSel(r.key)} data-atlas-tab={r.key}
-              className={cn("flex min-h-11 shrink-0 items-center gap-2 rounded-[10px] border px-2.5 py-1 text-left transition-colors lg:w-full",
+              className={cn("flex min-h-11 shrink-0 items-center gap-2 rounded-[4px] border px-2.5 py-1 text-left transition-colors lg:w-full",
                 r.key === region.key ? "border-stage bg-stage text-stage-ink" : "border-rule bg-paper-raised hover:bg-paper-sunk",
                 r.state !== "observed" && r.key !== region.key && "opacity-70")}>
               <span className="tnum w-5 shrink-0 text-[11px] opacity-60">{String(i + 1).padStart(2, "0")}</span>

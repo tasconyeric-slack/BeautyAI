@@ -9,6 +9,7 @@ import { NotReady, Page, PageHeader, Pill } from "@/components/passport/ui";
 import { colorGroups, cover, hairOptions, rankedRecs, stripRefs } from "@/lib/adapters";
 import type { Passport } from "@/lib/api";
 import { usePassport } from "@/lib/state/passport-store";
+import s from "./advice.module.css";
 
 const SHAPE_ZH: Record<string, string> = { round: "圆框", oval: "椭圆框", rectangular: "长方框", square: "方框", cat_eye: "猫眼框",
   aviator: "飞行员框", browline: "眉线框", geometric: "多边形框", rimless: "无框" };
@@ -86,34 +87,35 @@ export function AdvicePage() {
       <PageHeader back={false} kicker="个性化建议" title="选什么、为什么、需要什么"
         sub="每组只给一个最值得先试的选择；点进去看完整说明，能在照片上看的可以直接去实验室。" />
       <div className="mb-4 flex justify-end"><AdjustPanel /></div>
-      <ol className="space-y-3">
+      <ol className={s.groups}>
         {groups.map((g) => (
           <li key={g.key}>
-            <article className="rounded-[16px] border border-rule bg-paper-raised p-4">
-              <div className="flex items-start justify-between gap-3">
+            <article className={s.group}>
+              <div className={s.groupHeading}>
                 <h2 className="font-serif text-[18px] font-semibold">{g.title}</h2>
                 {g.swatches && g.swatches.length > 0 && (
                   <span className="flex shrink-0 gap-1" aria-hidden>{g.swatches.slice(0, 5).map((h, i) => <span key={`${h}${i}`} className="size-4 rounded-full border border-black/10" style={{ background: h }} />)}</span>
                 )}
               </div>
-              <dl className="mt-2 space-y-1.5 text-[14px] leading-7">
+              <div className={s.reading}><dl className="space-y-2">
                 <div><dt className="inline text-muted">选什么 · </dt><dd className="inline font-medium">{g.choose}</dd></div>
                 {g.why && <div><dt className="inline text-muted">为什么 · </dt><dd className="inline text-ink-soft">{g.why}</dd></div>}
                 {g.avoid && <div><dt className="inline text-muted">避免 · </dt><dd className="inline text-ink-soft">{g.avoid}</dd></div>}
               </dl>
               {g.needs && g.needs.length > 0 && <div className="mt-2 flex flex-wrap gap-1.5">{g.needs.map((n) => <Pill key={n}>{n}</Pill>)}</div>}
-              <div className="mt-3 flex flex-wrap gap-x-5 gap-y-2 border-t border-rule pt-3 text-[14px]">
+              <div className={s.actions}>
                 <Link href={`${base}/${g.page}`} className="inline-flex items-center gap-1 text-accent underline-offset-4 hover:underline">怎么做 <ArrowRight className="size-3.5" /></Link>
                 {g.studio !== undefined && (
                   <Link href={`${base}/studio${g.studio}`} className="inline-flex items-center gap-1 text-ink-soft underline-offset-4 hover:underline"><Sparkles className="size-3.5" />在实验室里试</Link>
                 )}
               </div>
+              </div>
             </article>
           </li>
         ))}
       </ol>
-      <Link href={`${base}/plan`} className="mt-6 flex items-center justify-between rounded-[14px] bg-ink p-4 text-paper">
-        <span><span className="block text-[15px] font-medium">把建议变成行动方案</span><span className="block text-[12px] text-paper/75">按优先级排好的 3 件事，可以保存和勾选完成</span></span>
+      <Link href={`${base}/plan`} className={s.handoff}>
+        <span><span className="block text-[17px] font-medium">把建议变成行动方案</span><small>按优先级排好的 3 件事，可以保存和勾选完成</small></span>
         <ArrowRight className="size-4" />
       </Link>
     </Page>

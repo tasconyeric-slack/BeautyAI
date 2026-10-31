@@ -23,7 +23,7 @@ export function ScoreHero({ view, rank = null, workbenchHref, retakeHref, sample
   const link = cta ?? (workbenchHref ? { href: workbenchHref, label: copy.workbench } : null);
   return (
     <section aria-label={copy.title} data-testid="score-hero" data-state={view.state}
-      className="overflow-hidden rounded-[18px] border border-rule bg-paper-raised">
+      className="overflow-hidden rounded-[4px] border border-rule bg-paper-raised">
       <div className="grid gap-6 p-5 sm:p-6 md:grid-cols-[220px_1fr] md:gap-8">
         {/* number */}
         <div className="flex flex-col items-center text-center md:items-start md:text-left">
@@ -54,7 +54,7 @@ export function ScoreHero({ view, rank = null, workbenchHref, retakeHref, sample
         {/* breakdown */}
         <div className="min-w-0">
           {!hasScore && (
-            <div className="mb-4 rounded-[12px] bg-paper p-3 text-[13px] leading-6">
+            <div className="mb-4 rounded-[4px] bg-paper p-3 text-[13px] leading-6">
               <p className="font-medium">{copy.unavailable}</p>
               <p className="text-ink-soft">{copy.retake}</p>
               {retakeHref && <Link href={retakeHref} className="mt-1 inline-block text-accent underline-offset-4 hover:underline">{copy.retakeAction}</Link>}
@@ -110,7 +110,7 @@ export function ScoreHero({ view, rank = null, workbenchHref, retakeHref, sample
 
 function RankBox({ rank }: { rank: RankView }) {
   return (
-    <div className="mt-3 w-full rounded-[12px] bg-paper p-3 text-left" data-testid="score-rank" data-state={rank.state}>
+    <div className="mt-3 w-full rounded-[4px] bg-paper p-3 text-left" data-testid="score-rank" data-state={rank.state}>
       <p className="text-[11px] tracking-[0.12em] text-muted">{rank.title}</p>
       {rank.state === "ranked" ? (
         <>
@@ -163,7 +163,7 @@ function Gauge({ value, maximum = 100 }: { value: number; maximum?: number }) {
 /** Two user-facing results; calculation provenance stays in the Passport data. */
 export function PredictedScoreHero({ view, harmony }: { view: LearnedScoreView; harmony?: HarmonyAxis[] | null }) {
   return <section data-testid="learned-score" data-state={view.available ? "available" : "unavailable"}
-    aria-label={learnedCopy.title} className="grid grid-cols-2 rounded-[18px] border border-rule bg-paper-raised py-5 sm:py-6">
+    aria-label={learnedCopy.title} className="grid grid-cols-2 rounded-[4px] border border-rule bg-paper-raised py-5 sm:py-6">
     <div className="min-w-0 px-3 sm:px-5">
       <h2 className="text-[13px] font-medium text-ink-soft">{learnedCopy.title}</h2>
       {view.available ? <p data-testid="score-value" className="mt-3 whitespace-nowrap font-serif text-[34px] font-semibold leading-none tabular-nums sm:text-[44px]">
