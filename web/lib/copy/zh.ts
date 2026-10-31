@@ -613,4 +613,11 @@ export const learnedAttractiveness = {
   rankAccessible: "参考样本内排名",
   rankMissing: "暂无排名",
   unavailable: "暂不可用",
+  qualityNote: "当前分数和参考排名可能不准确，仅供参考。建议用清晰、无遮挡的自然正脸照重新分析。",
+  qualityReasons: {
+    beauty_filter_suspect: "皮肤纹理较少或疑似美颜", blurry: "照片较模糊", low_resolution: "照片细节不足",
+    underexposed: "光线偏暗", overexposed: "光线过亮", face_too_small: "脸部占比较小",
+    pose_yaw: "头部偏转", pose_pitch: "头部俯仰", eyewear: "眼镜可能遮挡", eyewear_detected: "眼镜可能遮挡",
+    mouth_open: "张嘴或表情变化", eyes_closed: "眼部闭合", upper_third_occluded: "额头区域遮挡",
+  } as Record<string, string>,
 };

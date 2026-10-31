@@ -3,6 +3,7 @@
 import type { IllustratedAvatarProps, ProfileCardProps, StylistCardProps } from "@/components/cards";
 import type { StylePlaneProps, SwatchColor } from "@/components/ds";
 import type { Passport, PassportResponse, PreviewState } from "../passport";
+import { learnedAttractiveness as learnedCopy } from "../copy/zh";
 
 type Analysis = Passport["analysis"];
 type HairOption = Analysis["hair_options"][number];
@@ -368,7 +369,7 @@ export function aestheticScore(p: Passport): ScoreView | null {
 export function learnedScore(p: Passport) {
   const s = p.learned_attractiveness;
   if (!s) return null;
-  const available = (s.status === "ok" || s.status === "research_only") && s.qc_status === "passed"
+  const available = (s.status === "ok" || s.status === "research_only") && (s.qc_status === "passed" || s.qc_status === "limited")
     && s.raw_score != null && s.display_score != null;
   const rank = p.learned_reference_rank;
   const ranked = available && rank?.status === "available" && rank.percentile != null && rank.top_percent != null;
@@ -377,6 +378,9 @@ export function learnedScore(p: Passport) {
     native: available ? s.raw_score!.toFixed(2) : null,
     research: s.research_only, model: s.model_id, checkpoint: s.checkpoint_id,
     qc: s.qc_status, reason: s.unavailable_reason,
+    qualityNote: available && (s.qc_status === "limited" || s.quality_flags.length > 0)
+      ? `由于${[...new Set(s.quality_flags.map(f => learnedCopy.qualityReasons[f] ?? "其他照片质量局限"))].join("、") || "照片质量局限"}，${learnedCopy.qualityNote}`
+      : null,
     rank: ranked ? {
       label: rank.cohort_label, top: rank.top_percent, percentile: rank.percentile,
       n: rank.n_reference, unit: rank.reference_unit, tier: rank.tier?.label_zh ?? null,

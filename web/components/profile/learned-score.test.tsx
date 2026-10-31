@@ -57,3 +57,12 @@ it("withholds a missing percentile while keeping the real score", () => {
   expect(screen.queryByTestId("learned-rank")).toBeNull();
   expect(screen.getByText("暂无排名")).toBeTruthy();
 });
+
+it("shows a limited measured score with its photo-quality caveat", () => {
+  render(<PredictedScoreHero view={learnedScore({ ...old, learned_attractiveness: {
+    ...score, qc_status: "limited", quality_flags: ["beauty_filter_suspect", "unknown_warning"],
+  }, learned_reference_rank: null })!} />);
+  expect(screen.getByTestId("score-value").textContent).toContain("5.5");
+  expect(screen.getByTestId("learned-quality-note").textContent).toContain("皮肤纹理较少或疑似美颜");
+  expect(screen.getByTestId("learned-quality-note").textContent).toContain("可能不准确，仅供参考");
+});
