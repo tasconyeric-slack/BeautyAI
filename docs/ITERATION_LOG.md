@@ -102,3 +102,8 @@
 
 PR #68 preview used the old Person001 snapshot without learned score/rank. Refreshed only its frozen Ridge inference from existing real CV measurements and PhotoCheck pose, preserving the real analysis and research reference provenance; added reproducible hash-verifying refresh script. All public sample variants now show Person001. Score/rank and their compact charts remain side by side on mobile and desktop; PDF uses the same arrangement and omits numeric chart labels. Renamed overview label to 面域解析. Model/reference authorization and stored-report compatibility remain unchanged.
 | 2026-10-31 | D43：独立且绑定模型/参考哈希的生产照片比较授权；保留研究来源、未知主体/年龄及现有人群门槛；网页/PDF 标明照片样本范围 | 产品负责人明确确认生产排名和聚合保留授权并要求执行 | 新增授权边界与服务集成测试；冻结模型/分布实测及测试结果见 PR；无 schema/prompt/rules 版本变化 |
+
+
+## 2026-10-31 · Ridge eligibility correction
+
+The Ridge service rejected every QC/geometry warning and every D36 `limited` status; the generic rank boundary also rejected all warnings. Ridge now permits only configured exposure/framing and mild-pose warnings, preserving warnings in the stored score and passing the successful eligibility decision to ranking. Unknown warnings, rejected photos, occlusion/expression/detail warnings, missing/nonfinite pose, pose beyond existing D36 limited bounds, incomplete/nonfinite features, and incompatible feature shapes remain blocked. Model authorization/artifact checks still precede photo checks; reference failures remain independent. No change to D36, coefficients, feature order, model identity, mappings, reference distribution, ECDF, schema, or prompts. Regression coverage includes an authorized synthetic production-equivalent report pipeline smoke test; no private production artifacts/receipts are bundled.

@@ -13,6 +13,8 @@ def from_geometry(score: dict[str, Any], yaw: float | None, pitch: float | None)
     sym, thirds, fifths, ratio = (components[k] for k in ("symmetry", "thirds", "fifths", "golden_ratio"))
     if any(c is None for c in (sym, thirds, fifths, ratio)):
         raise ValueError("incomplete_geometry")
+    if len(thirds["shares"]) != 3 or len(fifths["segments_eye_widths"]) != 5:
+        raise ValueError("incompatible_feature_shape")
     return [float(v) for v in [sym["mean_residual"],
             *(sym["features"][key] for key in ("eyes", "brows", "nose", "mouth", "jaw")),
             *thirds["shares"], *fifths["segments_eye_widths"], ratio["ratio"], yaw or 0.0, pitch or 0.0]]
