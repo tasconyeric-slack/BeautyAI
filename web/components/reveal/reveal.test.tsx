@@ -13,7 +13,7 @@ type Over = Omit<Partial<PassportResponse>, "partial"> & { partial?: Partial<Pas
 function resp(over: Over): PassportResponse {
   return {
     id: ID, status: "scanning", stage: "qc", passport: null, error: null, created_at: "2026-10-23T09:00:00Z",
-    entitlement: { paid: false, unlock_scope: "free", share_token: null, free_previews_left: 0, price_cny: 39, locked: [] },
+    entitlement: { paid: false, unlock_scope: "free", share_token: null, free_previews_left: 0, price_cny: 139, locked: [] },
     media: { front: "/sample/portrait.svg", thumb: null, expires_at: null, expired: false },
     ...over,
     partial: { input_quality: null, anchors: null, quick: null, analysis: "pending", previews: [], ...over.partial },
