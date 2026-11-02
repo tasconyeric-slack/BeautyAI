@@ -239,8 +239,8 @@ export function ReportDocument({ data, sample, demo = null, images, photoMode, n
   const no = passportNo(p);
   return (
     <Document title={meta.title} author="形象护照 Aesthetic Passport" creator="形象护照 Aesthetic Passport" producer="形象护照 · react-pdf"
-      subject={`${scoreCopy.title}、面部测量、解读、改善建议、形象方案与行动计划（${meta.edition}）`}
-      keywords="形象护照, 面部评估报告, AI 面部美学参考分, 面部测量, 发型, 个人色彩, 行动计划"
+      subject={`${learnedCopy.title}、面部测量、解读、改善建议、形象方案与行动计划（${meta.edition}）`}
+      keywords="形象护照, 面部评估报告, Ridge 颜值参考分, 面部测量, 发型, 个人色彩, 行动计划"
       language="zh-CN" creationDate={now} pageMode="useOutlines">
       <Page size="A4" style={s.page}>
         <View fixed style={[s.rule, { top: 40 }]} />
