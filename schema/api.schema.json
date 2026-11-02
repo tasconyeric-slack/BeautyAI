@@ -25,6 +25,7 @@
       "enum": [
         "scanning",
         "quick_ready",
+        "free_ready",
         "full_ready",
         "qc_failed",
         "analysis_failed",
@@ -219,6 +220,37 @@
     },
     "created_at": {
       "type": "string"
+    },
+    "free_result": {
+      "description": "CV-only free teaser; only six metric values; no generative analysis.",
+      "anyOf": [
+        {
+          "type": "null"
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "score",
+            "rank",
+            "metrics"
+          ],
+          "properties": {
+            "score": {
+              "type": "object"
+            },
+            "rank": {
+              "type": "object"
+            },
+            "metrics": {
+              "type": "array",
+              "items": {
+                "type": "object"
+              }
+            }
+          }
+        }
+      ]
     }
   },
   "$defs": {
