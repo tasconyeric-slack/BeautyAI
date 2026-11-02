@@ -172,6 +172,7 @@ def create_app(settings: Settings | None = None) -> FastAPI:
         elif passport is not None and not ent["paid"]:
             passport, ent["locked"] = free_view(passport)
         partial_anchors = job["anchors"] or {}
+        free_locked = bool(stored and (not ent["paid"] or (stored or {}).get("kind") == "free_cv_v1") and settings.free_cv_only)
         analysis_state = "ready" if passport else ("failed" if job["status"] == "failed" else "pending")
         return {
             "id": pid,
@@ -179,9 +180,9 @@ def create_app(settings: Settings | None = None) -> FastAPI:
             "stage": job["stage"],
             "partial": {
                 "input_quality": partial_anchors.get("input_quality") or (job["error"] or {}).get("payload", {}).get("input_quality"),
-                "anchors": partial_anchors.get("anchors"),
-                "quick": job["quick"],
-                "analysis": analysis_state,
+                "anchors": None if free_locked else partial_anchors.get("anchors"),
+                "quick": None if free_locked else job["quick"],
+                "analysis": "ready" if free_locked and job["status"] == "done" else analysis_state,
                 "previews": preview_jobs.public_previews(store, pid, expired, settings.runs_dir),
             },
             "passport": passport,
