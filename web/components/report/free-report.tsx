@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { RankPosition } from "@/components/profile/score-hero";
 import { LockKeyhole } from "lucide-react";
 import type { PassportResponse } from "@/lib/api";
 
@@ -37,11 +38,12 @@ export function FreeReport({ data }: { data: PassportResponse }) {
             : <p className="mt-4 text-[12px] leading-6 text-muted">基于面部几何特征的 Ridge 回归预测；结果受照片质量和训练样本影响。</p>}
         </div>
         <div className="rounded-[14px] border border-rule bg-paper-raised p-6">
-          <p className="text-[13px] text-muted">参考样本百分位</p>
+          <p className="text-[13px] text-muted">照片样本排名</p>
           <div className="mt-2 font-serif text-[38px] text-ink" data-testid="free-rank">
-            {showRank ? String(rank.percentile) + "%" : "校准中"}
+            {showRank ? "Top " + Number((100 - rank.percentile!).toFixed(2)) + "%" : "校准中"}
           </div>
-          <p className="mt-2 text-[12px] leading-6 text-muted">{showRank ? "参考样本：" + (rank.label ?? "已验证对照样本") + "。并非全人群排名。" : "尚未建立可靠的评分尺度与对照样本映射，不提供虚构排名。"}</p>
+          {showRank && <RankPosition percentile={rank.percentile!} />}
+          <p className="mt-2 text-[12px] leading-6 text-muted">{showRank ? "参考样本：" + (rank.label ?? "参考照片样本") + "。按照片比较；主体与年龄未核验，并非全人群排名。" : "尚未建立可靠的评分尺度与对照样本映射，不提供虚构排名。"}</p>
         </div>
       </section>
     </div>

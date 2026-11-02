@@ -320,7 +320,7 @@ function Cover({ data, sample, demo, images, photoMode, now }: {
         </View>
         <View style={{ width: "50%", borderLeftWidth: 0.5, borderLeftColor: C.rule, paddingLeft: 12 }}>
           <T style={s.small}>{predicted.rank?.unit === "image" ? "照片样本排名" : learnedCopy.rank}</T>
-          <T style={{ fontSize: 24 }}>{predicted.available && predicted.rank ? `前 ${predicted.rank.top}%` : learnedCopy.rankMissing}</T>
+          <T style={{ fontSize: 24 }}>{predicted.available && predicted.rank ? `Top ${predicted.rank.top}%` : learnedCopy.rankMissing}</T>
           {predicted.available && predicted.rank?.scopeNote && <T style={s.small}>{predicted.rank.scopeNote}</T>}
           {predicted.available && predicted.rank?.distribution && <DensityChart curve={predicted.rank.distribution} score={predicted.score!} />}
         </View>

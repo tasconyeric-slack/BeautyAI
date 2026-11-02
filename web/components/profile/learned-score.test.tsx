@@ -27,12 +27,12 @@ it.each(["passed", "limited"] as const)("shows the score and computed rank with 
     cohort_id: "test", distribution_version: "test", n_reference: 2128, n_unique_subjects: null,
     method: "empirical_cdf_midrank_v1", limitations: [], unavailable_reason: null,
     percentile_interval: [60, 70], display_step_percent: 5, reference_unit: "image", research_only: true,
-    tier: { id: "top_35", label_zh: "参考样本前 35% 区间", min_percentile: 65 },
+    tier: { id: "top_35", label_zh: "参考样本Top 35% 区间", min_percentile: 65 },
   } };
   render(<PredictedScoreHero view={learnedScore(p)!} />);
   expect(screen.getByTestId("learned-score").textContent).toContain("5.5");
   expect(screen.getByTestId("score-value").textContent).toMatch(/5.5\s*\/\s*10/);
-  expect(screen.getByTestId("learned-rank").textContent).toBe("前 35%");
+  expect(screen.getByTestId("learned-rank").textContent).toBe("Top 35%");
   // Position comes from the server percentile (65), not a 5.5/10 → 55 shortcut.
   expect(screen.getByTestId("rank-position").getAttribute("data-percentile")).toBe("65");
   expect(screen.getByText("照片样本排名")).toBeTruthy();
