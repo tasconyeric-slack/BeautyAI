@@ -250,8 +250,7 @@
                 "kind": {
                   "type": "string",
                   "enum": [
-                    "learned",
-                    "geometry"
+                    "learned"
                   ]
                 },
                 "value": {
