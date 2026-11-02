@@ -15,14 +15,13 @@ import { ResembleFor } from "@/components/adjust/feedback-for";
 import { measureView } from "@/components/face/measure-model";
 import { JOURNEY, journeyHref, type JourneyKey } from "@/components/passport/journey";
 import { Portrait } from "@/components/passport/portrait";
-import { aestheticScore, cover, firstThing, harmonyRadar, learnedScore, referenceRank, triptych } from "@/lib/adapters";
+import { cover, firstThing, learnedScore, triptych } from "@/lib/adapters";
 import { api, backendFor } from "@/lib/api";
 import { guidance, paywall, profile as copy } from "@/lib/copy/zh";
 import { usePassport } from "@/lib/state/passport-store";
 import { atlasKeyFor, availability, type Availability } from "./overview-model";
 import s from "./profile.module.css";
-import { ScoreGlance } from "./score-glance";
-import { PredictedScoreHero, ScoreHero } from "./score-hero";
+import { PredictedScoreHero } from "./score-hero";
 import { HarmonyRadar } from "./score-charts";
 
 export function Profile() {
@@ -40,15 +39,12 @@ export function Profile() {
   const c = cover(passport);
   const t = triptych(passport);
   const first = firstThing(passport);
-  const score = aestheticScore(passport);
   const predicted = learnedScore(passport);
-  const harmony = harmonyRadar(passport);
   const avail = availability(mv);
   const paid = data.entitlement.paid;
   const base = `/p/${id}`;
   const num = passport.passport_id.replace(/^\w+_/, "").slice(-6).toUpperCase();
   // The demo passports use a synthetic face; say so by the number (a live API with mock providers has its own banner).
-  const synthetic = backendFor(id).kind === "fixture";
   return (
     <div className={s.page}>
       {/* 1 · what this profile says */}
@@ -69,8 +65,8 @@ export function Profile() {
           <p className="text-[11px] tracking-[0.18em] text-muted">你的形象档案</p>
           <h1 className={s.title}>{c.oneLiner}</h1>
 
-          {predicted ? <div className="mt-4"><PredictedScoreHero view={predicted} harmony={harmony} /></div>
-            : score && <div className="mt-4"><ScoreGlance view={score} retakeHref="/start" synthetic={synthetic} /></div>}
+          {predicted ? <div className="mt-4"><PredictedScoreHero view={predicted} /></div>
+            : <div className="mt-4 rounded border border-rule p-4 text-[14px] text-muted" data-testid="ridge-unavailable">Ridge 颜值参考分与对应排名暂不可用；不会使用几何规则分替代。</div>}
 
           <h2 className="mt-5 text-[13px] font-medium text-ink-soft">相对突出的特点 · 对造型的意义</h2>
           <ul className="mt-2 space-y-2" data-testid="overview-strengths">
@@ -106,12 +102,6 @@ export function Profile() {
       </section>
 
       {/* 2 · the score's parts and method, the archive cards, what the evidence covers */}
-      {!predicted && score && (
-        <section id="score" className="mt-10 scroll-mt-28">
-          <ScoreHero view={score} rank={referenceRank(passport)} workbenchHref={`${base}/face`} retakeHref="/start" sample={synthetic} />
-        </section>
-      )}
-
       <section className={s.section}>
         <ProfileTriptych
           face={<TripCell href={`${base}/face`} value={t.face.value} note={t.face.note} target="face" />}
