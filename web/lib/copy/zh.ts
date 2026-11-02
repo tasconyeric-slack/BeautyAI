@@ -357,7 +357,7 @@ export const entitlements = {
     { area: "分数与参考位置", free: "本地面部参考分、可用时的样本百分位", full: "分数来源、参考位置依据及详细解读" },
     { area: "面部测量", free: "六个分区各 1 项", full: "全部可靠指标、图解与详细解读" },
     { area: "AI 分析", free: "不使用生成式 AI", full: "完整个性化报告及改善建议" },
-    { area: "Studio", free: "不可使用", full: "完整配镜、配色、妆容及 3 张 AI 发型效果图" },
+    { area: "Studio 形象实验室", free: "不可使用", full: "完整配镜、配色、妆容及 3 张 AI 发型效果图" },
     { area: "PDF 下载", free: "不可使用", full: "完整 PDF" },
   ],
   previewNote: "AI 发型效果图仅付费用户可生成，每份护照初始包含 3 张；免费测评不调用图像生成服务。",
