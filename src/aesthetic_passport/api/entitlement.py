@@ -135,7 +135,8 @@ def cv_teaser(stored: dict[str, Any]) -> dict[str, Any]:
             "status": "available" if rank_valid or geo_valid else "unavailable",
             "percentile": learned_rank.get("percentile") if rank_valid else
                           (geo_rank.get("percentile_estimate") if geo_valid else None),
-            "label": learned_rank.get("cohort_label") if rank_valid else\n                     ((geo_rank.get("cohort") or {}).get("publisher") if geo_valid else None),
+            "label": learned_rank.get("cohort_label") if rank_valid else
+                     ((geo_rank.get("cohort") or {}).get("publisher") if geo_valid else None),
         },
         "metrics": metrics,
     }
