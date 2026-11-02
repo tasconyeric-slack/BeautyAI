@@ -36,7 +36,8 @@ def _run(settings: Settings, store: Store, pid: str, user_context: dict, photos:
         passport = run_pipeline(photos, user_context, run_dir=settings.runs_dir / pid, passport_id=pid,
                                 on_stage=lambda s: store.set_stage(pid, s),
                                 on_partial=lambda k, v: store.set_partial(pid, k, v) if k != "analysis" else None,
-                                media_dir=media_dir(settings.runs_dir, pid), photo_meta=photo_meta,\n                                cv_only=settings.free_cv_only)
+                                media_dir=media_dir(settings.runs_dir, pid), photo_meta=photo_meta,
+                                cv_only=settings.free_cv_only)
         if pricing()["free_previews"] <= 0:
             # D33: no automatic preview, so no placeholder entry either (a "pending" one would never resolve).
             passport["previews"] = []
@@ -108,7 +109,8 @@ def run_reanalysis_job(settings: Settings, store: Store, pid: str, user_context:
     photos["front"] = front
     try:
         passport = run_pipeline(photos, user_context, run_dir=settings.runs_dir / pid, passport_id=pid,
-                                on_stage=lambda s: store.set_stage(pid, s), media_dir=mdir, photo_meta=photo_meta,\n                                cv_only=settings.free_cv_only and not bool(job["paid"]))
+                                on_stage=lambda s: store.set_stage(pid, s), media_dir=mdir, photo_meta=photo_meta,
+                                cv_only=settings.free_cv_only and not bool(job["paid"]))
         if preference_events and passport.get("kind") != "free_cv_v1":
             passport = rerank_passport(passport, user_context, preference_events, context_changed=False)
         if passport.get("kind") != "free_cv_v1":
@@ -145,7 +147,8 @@ def run_paid_passport_job(settings: Settings, store: Store, pid: str) -> None:
     try:
         passport = run_pipeline(photos, job["passport"]["user_context"],
                                 run_dir=settings.runs_dir / pid, passport_id=pid,
-                                on_stage=lambda s: store.set_stage(pid, s), media_dir=mdir)
+                                on_stage=lambda s: store.set_stage(pid, s), media_dir=mdir,
+                                skip_quick=True)
         passport["previews"] = []
         store.finish(pid, passport)
     except Exception:
