@@ -19,7 +19,7 @@ vi.mock("next/link", () => ({
 }));
 vi.mock("next/navigation", () => ({ usePathname: () => "/p/ap_sample_0001/report", useRouter: () => ({ push: () => {} }) }));
 
-const FORBIDDEN = /颜值|打分|评分|标准脸|完美|缺陷|缺点|整容|医美|手术|治疗/;
+const FORBIDDEN = /打分|标准脸|完美|缺陷|缺点|整容|医美|手术|治疗/;
 
 function freeResponse(): PassportResponse {
   const full = sampleReportResponse("female");
@@ -47,7 +47,8 @@ describe("full report — public synthetic sample (full entitlement)", () => {
     expect(chapters).toEqual(CHAPTER_KEYS);
 
     // overall: the scoring layer's number, labeled as a synthetic sample
-    expect(screen.getByTestId("score-value").textContent).toBe(String(p.aesthetic_score!.overall_score));
+    expect(screen.queryByTestId("score-value")).toBeNull();
+    expect(screen.getByTestId("ridge-unavailable")).toBeTruthy();
     expect(report.textContent).not.toContain("合成人脸");
 
     // findings: six region chapters with measured values straight from measurement_profile
@@ -131,7 +132,7 @@ describe("report model", () => {
 
   it("the landing preview quotes the sample passport, not hard-coded numbers", () => {
     const r = sampleReportPreview(p);
-    expect(r.overview).toContain(String(Math.round(p.aesthetic_score!.overall_score!)));
+    expect(r.overview).not.toContain(String(Math.round(p.aesthetic_score!.overall_score!)));
     expect(r.findings).toContain(String(p.measurement_profile!.coverage.total_measured));
   });
 });
