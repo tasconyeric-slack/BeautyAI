@@ -24,6 +24,9 @@ export function PassportShell({ id, children }: { id: string; children: React.Re
 
 function Inner({ children }: { children: React.ReactNode }) {
   const { deletedAt, error, data, refresh } = usePassport();
+  const pathname = usePathname() ?? "";
+  const area = pathname.match(/^\/p\/[^/]+\/([^/]+)/)?.[1];
+  const gated = Boolean(area && area !== "report" && area !== "unlock" && data && (!data.entitlement.paid || !data.passport));
   const [sheet, setSheet] = React.useState(false);
   const closeSheet = React.useCallback(() => setSheet(false), []);
   if (deletedAt) return <Deleted at={deletedAt} />;
@@ -31,6 +34,19 @@ function Inner({ children }: { children: React.ReactNode }) {
   // disappeared after a backend restart. Preserve any already-loaded report.
   // Nothing loaded and the request keeps failing: say so and offer a retry, instead of a page that stays blank.
   if (error && !data) return <ErrorState error={error} onRetry={refresh} />;
+  if (gated && data) return <main className="mx-auto max-w-3xl px-6 py-16">
+    <p className="text-[12px] tracking-[.18em] text-muted">BEAUTYAI / 完整护照</p>
+    <h1 className="mt-4 font-serif text-[29px]">此功能包含在完整形象护照中</h1>
+    <p className="mt-4 text-[14px] leading-7 text-ink-soft">
+      {data.entitlement.paid ? "付款已确认，完整 AI 报告正在生成。" : "免费测评提供评分、参考排名及六项代表性测量。完整建议、Studio 与 PDF 需解锁。"}
+    </p>
+    <div className="mt-6 flex flex-wrap gap-3">
+      <Link className="rounded-full bg-accent px-5 py-3 text-[14px] text-[var(--ap-on-primary)]" href={"/p/" + data.id + "/unlock"}>
+        {data.entitlement.paid ? "查看生成状态" : "解锁完整版 · ¥39"}
+      </Link>
+      <Link className="rounded-full border border-rule px-5 py-3 text-[14px]" href={"/p/" + data.id + "/report"}>返回测评结果</Link>
+    </div>
+  </main>;
   return (
     <>
       {error?.status === 404 && data && (
