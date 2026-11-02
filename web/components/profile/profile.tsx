@@ -16,13 +16,12 @@ import { measureView } from "@/components/face/measure-model";
 import { JOURNEY, journeyHref, type JourneyKey } from "@/components/passport/journey";
 import { Portrait } from "@/components/passport/portrait";
 import { cover, firstThing, learnedScore, triptych } from "@/lib/adapters";
-import { api, backendFor } from "@/lib/api";
+import { api } from "@/lib/api";
 import { guidance, paywall, profile as copy } from "@/lib/copy/zh";
 import { usePassport } from "@/lib/state/passport-store";
 import { atlasKeyFor, availability, type Availability } from "./overview-model";
 import s from "./profile.module.css";
 import { PredictedScoreHero } from "./score-hero";
-import { HarmonyRadar } from "./score-charts";
 
 export function Profile() {
   const { id, data, passport } = usePassport();
