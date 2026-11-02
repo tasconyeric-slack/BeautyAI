@@ -95,6 +95,7 @@ def run_pipeline(
     provider: Provider | None = None,
     media_dir: Path | None = None,
     photo_meta: dict[str, Any] | None = None,
+    cv_only: bool = False,
 ) -> dict[str, Any]:
     """Run the whole pipeline. `media_dir` (default run_dir/media) receives geometry.json, which lives and dies with
     the front photo (retention). `photo_meta` = per-role capture info from the upload page: {"front": {"eyewear": true,
@@ -182,6 +183,22 @@ def run_pipeline(
     from .attractiveness.service import evaluate as evaluate_learned
 
     learned_attractiveness, learned_reference_rank = evaluate_learned(front, aesthetic_score)
+
+    # Free entry: stop before load_images, run_quick and run_analysis.
+    # This is a separately shaped CV result, NOT a fabricated model Passport.
+    if cv_only:
+        stage("assemble")
+        result = {
+            "kind": "free_cv_v1", "passport_id": passport_id,
+            "user_context": user_context, "input_quality": input_quality,
+            "measurement_profile": measurement_profile,
+            "aesthetic_score": aesthetic_score,
+            "reference_percentiles": reference_percentiles,
+            "learned_attractiveness": learned_attractiveness,
+            "learned_reference_rank": learned_reference_rank,
+        }
+        (run_dir / "free_cv.json").write_text(json.dumps(result, ensure_ascii=False) + "\n", encoding="utf-8")
+        return result
 
     # 4a. Quick first look (front only). Never blocks the full analysis.
     images = load_images({r: photos[r] for r in usable if r in MODEL_ROLES})
