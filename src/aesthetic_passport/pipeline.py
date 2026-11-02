@@ -96,6 +96,7 @@ def run_pipeline(
     media_dir: Path | None = None,
     photo_meta: dict[str, Any] | None = None,
     cv_only: bool = False,
+    skip_quick: bool = False,
 ) -> dict[str, Any]:
     """Run the whole pipeline. `media_dir` (default run_dir/media) receives geometry.json, which lives and dies with
     the front photo (retention). `photo_meta` = per-role capture info from the upload page: {"front": {"eyewear": true,
@@ -204,14 +205,15 @@ def run_pipeline(
     images = load_images({r: photos[r] for r in usable if r in MODEL_ROLES})
     stage("quick")
     quick_meta: dict[str, Any] | None = None
-    try:
-        q = run_quick(images, user_context, input_quality, anchors, provider=provider, run_dir=run_dir)
-        quick_meta = {"model": q.model, "prompt_version": q.prompt_version, "latency_ms": q.latency_ms, "ok": True}
-        partial("quick", q.analysis)
-    except Exception as e:  # noqa: BLE001 — any quick failure (invalid, provider error) only skips the first look
-        cv_log["quick_error"] = type(e).__name__
-        quick_meta = {"model": "unknown", "prompt_version": "analyzer-quick-0.1", "latency_ms": None, "ok": False}
-        partial("quick_failed", None)
+    if not skip_quick:
+        try:
+            q = run_quick(images, user_context, input_quality, anchors, provider=provider, run_dir=run_dir)
+            quick_meta = {"model": q.model, "prompt_version": q.prompt_version, "latency_ms": q.latency_ms, "ok": True}
+            partial("quick", q.analysis)
+        except Exception as e:  # noqa: BLE001 — a failed quick impression never blocks the full analysis
+            cv_log["quick_error"] = type(e).__name__
+            quick_meta = {"model": "unknown", "prompt_version": "analyzer-quick-0.1", "latency_ms": None, "ok": False}
+            partial("quick_failed", None)
 
     # 4b. The full production model call (+ at most one repair turn).
     stage("analysis")
