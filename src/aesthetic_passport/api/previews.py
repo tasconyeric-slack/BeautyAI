@@ -131,6 +131,7 @@ def request_previews(settings: Settings, store: Store, job: dict[str, Any], kind
     paid = bool(job.get("paid"))
     free_left = max(0, pricing()["free_previews"] - free_used(store, pid))
     paid_used = sum(1 for p in existing.values() if p["paid"] and p["status"] in ACTIVE)
+    paid_cap = min(settings.preview_cap, pricing()["paid_preview_cap"])
     states, start = [], []
     disabled = resolve_image_provider() == "none"
     for t in dict.fromkeys(target_ids):
@@ -141,13 +142,13 @@ def request_previews(settings: Settings, store: Store, job: dict[str, Any], kind
         if (kind, t) in FREE_TARGETS and free_left > 0:
             use_paid = False
             free_left -= 1
-        elif paid and paid_used < settings.preview_cap:
+        elif paid and paid_used < paid_cap:
             use_paid = True
             paid_used += 1
         elif not paid:
             raise PreviewRequestError(402, "payment_required", "这个方向的试看包含在完整护照中")
         else:
-            raise PreviewRequestError(429, "preview_cap", f"每份护照最多生成 {settings.preview_cap} 张试看")
+            raise PreviewRequestError(429, "preview_cap", f"每份护照最多生成 {paid_cap} 张试看")
         if disabled:
             store.upsert_preview(pid, kind, t, "skipped", paid=use_paid, error="试看功能未启用")
             states.append({"target_id": t, "kind": kind, "status": "skipped"})
