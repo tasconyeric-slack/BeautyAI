@@ -3,7 +3,7 @@ version: 1
 currency: CNY
 full_passport_price: 39
 free_previews: 0            # D33: photorealistic hair previews are paid only (V2.1); was 1 free "safe" preview
-paid_preview_cap: 12        # previews per paid passport (all kinds; Look Studio hair + hair-colour combinations)
+paid_preview_cap: 3        # previews per paid passport (all kinds; Look Studio hair + hair-colour combinations)
 invite_unlock: true         # INVITE_UNLOCK_CODES (env) unlock a passport without payment
 # What the free view keeps; everything else in these blocks is removed server-side (not hidden by the UI).
 free_view:
