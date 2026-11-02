@@ -134,7 +134,7 @@ describe("PDF report export", () => {
     const r = await build({ data, sample: false, demo: "fixture", images: null, photoMode: "omitted" }, "demo-free.pdf");
     expect(r.info.Title).toContain("演示");
     expect(squash(r.pages[0])).toContain(squash(copyPdf.demo.fixture));
-    expect(squash(r.pages[0])).toContain(squash(copyPdf.demoScore));
+    expect(squash(r.pages[0])).toContain("Ridge颜值参考分暂不可用");
     for (const t of r.pages.slice(1)) expect(squash(t)).toContain(squash(copyPdf.demoBand.fixture));
     // simulated, but never claims the viewer's own photo is a synthetic face
     expect(r.all).not.toContain("合成人脸");
