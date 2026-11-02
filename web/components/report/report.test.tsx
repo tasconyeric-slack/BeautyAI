@@ -95,7 +95,7 @@ describe("full report — free view of a real passport", () => {
 
   it("paywall copy matches free_previews: 0", () => {
     expect(paywall.freeScope).not.toMatch(/稳妥发型试看/);
-    expect(paywall.freeScope).toMatch(/不调用 DeepSeek/);
+    expect(paywall.freeScope).toMatch(/不使用生成式 AI/);
     expect(entitlements.rows.find((r) => r.area === "Studio")!.full).toMatch(/3 张 AI 发型效果图/);
     expect(entitlements.rows.find((r) => r.area === "Studio")!.free).toMatch(/不可使用/);
   });
