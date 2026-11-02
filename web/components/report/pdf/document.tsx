@@ -8,7 +8,7 @@
  *  Images are optional and come only from `images`, which the caller fills from photos the viewer is already
  *  allowed to see, and only when they asked for a photo-inclusive export. Without them the PDF is complete: every
  *  number and text stays, region crops and try-on images are simply omitted. */
-import { Circle, Document, Font, Image, Line, Link, Page, Path, Polygon, StyleSheet, Svg, Text, View } from "@react-pdf/renderer";
+import { Document, Font, Image, Line, Link, Page, Path, StyleSheet, Svg, Text, View } from "@react-pdf/renderer";
 import type { Style } from "@react-pdf/types";
 import * as React from "react";
 import { adviceGroups } from "@/components/advice/advice-page";
