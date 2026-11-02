@@ -237,15 +237,118 @@
           ],
           "properties": {
             "score": {
-              "type": "object"
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "kind",
+                "value",
+                "scale",
+                "status",
+                "label"
+              ],
+              "properties": {
+                "kind": {
+                  "type": "string",
+                  "enum": [
+                    "learned",
+                    "geometry"
+                  ]
+                },
+                "value": {
+                  "type": [
+                    "number",
+                    "null"
+                  ]
+                },
+                "scale": {
+                  "type": "number"
+                },
+                "status": {
+                  "type": "string"
+                },
+                "label": {
+                  "type": "string"
+                }
+              }
             },
             "rank": {
-              "type": "object"
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "status",
+                "percentile",
+                "label"
+              ],
+              "properties": {
+                "status": {
+                  "type": "string"
+                },
+                "percentile": {
+                  "type": [
+                    "number",
+                    "null"
+                  ]
+                },
+                "label": {
+                  "type": [
+                    "string",
+                    "null"
+                  ]
+                }
+              }
             },
             "metrics": {
               "type": "array",
               "items": {
-                "type": "object"
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                  "chapter",
+                  "id",
+                  "name",
+                  "value",
+                  "decimals",
+                  "unit",
+                  "availability"
+                ],
+                "properties": {
+                  "chapter": {
+                    "type": "string"
+                  },
+                  "id": {
+                    "type": [
+                      "string",
+                      "null"
+                    ]
+                  },
+                  "name": {
+                    "type": [
+                      "string",
+                      "null"
+                    ]
+                  },
+                  "value": {
+                    "type": [
+                      "number",
+                      "null"
+                    ]
+                  },
+                  "decimals": {
+                    "type": [
+                      "integer",
+                      "null"
+                    ]
+                  },
+                  "unit": {
+                    "type": [
+                      "string",
+                      "null"
+                    ]
+                  },
+                  "availability": {
+                    "type": "string"
+                  }
+                }
               }
             }
           }
