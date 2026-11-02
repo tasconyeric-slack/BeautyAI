@@ -2,6 +2,7 @@
 
 import { Download, Loader2 } from "lucide-react";
 import * as React from "react";
+import Link from "next/link";
 import type { PassportResponse } from "@/lib/api";
 import { report as copy } from "@/lib/copy/zh";
 import type { FaceGeometry } from "@/lib/tint";
@@ -45,6 +46,7 @@ export function ReportPdfExport({ data, sample, demo, geometry, className, compa
     </label>
     <p className="mt-1 text-[11px] text-muted">{expired ? copy.pdf.photosExpired : sample ? "包含当前报告的照片与图表。" : "默认不含照片。"}{!data.entitlement.paid && <span className="block">{copy.pdf.free}</span>}</p>
   </div>;
+  if (!data.entitlement.paid) return <div className="no-print mt-4 text-[13px]"><Link href={sample ? "/start" : "/p/" + data.id + "/unlock"} className="inline-flex min-h-11 items-center rounded-full border border-rule px-4 font-medium">完整 PDF · 付费解锁</Link></div>;
   return <div className={cn(compact ? "no-print relative mt-4" : "no-print rounded-[4px] border border-rule bg-paper-raised p-4", className)} data-testid="report-pdf" id="report-download">
     <div className="flex flex-wrap items-center gap-4">
       <button type="button" onClick={run} disabled={busy} aria-busy={busy} data-testid="report-pdf-download"
