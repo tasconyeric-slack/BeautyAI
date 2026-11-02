@@ -1589,6 +1589,14 @@ export interface QuickAnalysis {
   observations: Observation[];
 }
 
+/** A CV-only free report, computed without DeepSeek or Qwen. */
+export interface FreeResult {
+  score: { kind: "learned" | "geometry"; value: number | null; scale: number; status: string; label: string };
+  rank: { status: string; percentile: number | null; label: string | null };
+  metrics: { chapter: string; id: string | null; name: string | null; value: number | null;
+    decimals: number | null; unit: string | null; availability: string }[];
+}
+
 /* api.schema.json */
 
 /**
@@ -1596,7 +1604,7 @@ export interface QuickAnalysis {
  */
 export interface PassportResponse {
   id: string;
-  status: "scanning" | "quick_ready" | "full_ready" | "qc_failed" | "analysis_failed" | "deleted";
+  status: "scanning" | "quick_ready" | "free_ready" | "full_ready" | "qc_failed" | "analysis_failed" | "deleted";
   stage: string | null;
   partial: {
     input_quality: null | Passport["input_quality"];
@@ -1609,6 +1617,7 @@ export interface PassportResponse {
    * The passport. For a free entitlement the server removes paid content first (entitlement.locked lists what); that trimmed view keeps the passport's shape but may hold fewer items than passport.schema requires.
    */
   passport: null | Passport;
+  free_result?: FreeResult | null;
   entitlement: {
     paid: boolean;
     unlock_scope: "free" | "full";
