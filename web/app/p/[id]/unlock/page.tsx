@@ -59,7 +59,7 @@ export default function UnlockPage() {
           ) : (
             <>
               <Button variant="accent" size="lg" className="mt-6 w-full" disabled={busy || !data || payMode === "unknown"} onClick={() => go()}>
-                {busy ? <Loader2 className="animate-spin" /> : null}¥{data?.entitlement.price_cny ?? 39} {paywall.priceSuffix}
+                {busy ? <Loader2 className="animate-spin" /> : null}¥{data?.entitlement.price_cny ?? 139} {paywall.priceSuffix}
               </Button>
               <p className="mt-2 text-center text-[12px] text-muted">
                 {paywall.noSubscription}{payMode === "fake" ? "（演示环境：模拟支付，不会扣款）" : ""}
