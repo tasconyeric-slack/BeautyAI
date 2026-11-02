@@ -1,13 +1,13 @@
-"""Payment providers (D27). PAYMENT_PROVIDER=fake (default) needs no credentials; real WeChat Pay / Alipay H5 adapters
-are added later with merchant credentials (D3)."""
+"""Payment providers (D27). Fake mode is development only; optional Stripe-hosted checkout requires merchant credentials."""
 from __future__ import annotations
 
 import os
 
 from .base import Checkout, PaymentError, PaymentProvider
 from .fake import FakePaymentProvider
+from .stripe import StripePaymentProvider
 
-__all__ = ["Checkout", "FakePaymentProvider", "PaymentError", "PaymentProvider", "payment_from_env"]
+__all__ = ["Checkout", "FakePaymentProvider", "PaymentError", "PaymentProvider", "StripePaymentProvider", "payment_from_env"]
 
 
 def payment_from_env() -> PaymentProvider:
@@ -15,7 +15,9 @@ def payment_from_env() -> PaymentProvider:
 
     name = os.environ.get("PAYMENT_PROVIDER", "fake").strip().lower() or "fake"
     if name == "fake":
-        if not mocks_allowed():  # never "charge" ¥39 through a fake provider in production
+        if not mocks_allowed():  # never "charge" money through a fake provider in production
             raise PaymentError("payment is not available yet")
         return FakePaymentProvider()
+    if name == "stripe":
+        return StripePaymentProvider()
     raise PaymentError(f"payment provider {name!r} is not configured (merchant credentials required)")

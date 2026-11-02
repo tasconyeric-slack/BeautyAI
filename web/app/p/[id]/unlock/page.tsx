@@ -13,14 +13,26 @@ import s from "@/components/journey/journey.module.css";
 
 /** Single purchase (D27). PAYMENT_PROVIDER=fake settles at once; invite codes unlock without payment. */
 export default function UnlockPage() {
-  const { id, data, unlock, busy } = usePassport();
+  const { id, data, unlock, refresh, busy } = usePassport();
   const [code, setCode] = React.useState("");
   const [err, setErr] = React.useState<string | null>(null);
   const [health, setHealth] = React.useState<Health | null>(null);
+  const [paymentReturned, setPaymentReturned] = React.useState(false);
   React.useEffect(() => { api.track("paywall_view", { passport_id: id }); }, [id]);
   React.useEffect(() => { backendFor(id).health().then(setHealth, () => setHealth(null)); }, [id]);
   const payMode = health?.payment_provider ?? "unknown";
   const paid = data?.entitlement.paid;
+  React.useEffect(() => { setPaymentReturned(new URLSearchParams(window.location.search).get("payment") === "return"); }, []);
+  React.useEffect(() => {
+    if (!paymentReturned || paid) return;
+    let polls = 0;
+    void refresh();
+    const timer = window.setInterval(() => {
+      if (++polls >= 24) { window.clearInterval(timer); return; }
+      void refresh();
+    }, 2500);
+    return () => window.clearInterval(timer);
+  }, [paymentReturned, paid, refresh]);
   const go = async (invite?: string) => {
     setErr(null);
     api.track("checkout_start", { passport_id: id });
@@ -45,6 +57,7 @@ export default function UnlockPage() {
       </div>
       <aside className={s.unlockAction} aria-label={paywall.onUnlock}>
       <p className={s.unlockStatus}>{paid ? paywall.fullStatus : paywall.freeStatus}</p>
+      {paymentReturned && !paid && <p role="status" className="mt-3 text-[13px] text-muted">支付结果确认中；仅在支付平台确认成功后自动解锁。如果暂未更新，请稍后刷新。</p>}
       {paid ? (
         <div className={s.unlockLinks}>
           <Link href={`/p/${id}/report`} className="rounded-full bg-accent px-5 py-2.5 text-[14px] text-[var(--ap-on-primary)]">{paywall.readReport}</Link>
@@ -57,7 +70,7 @@ export default function UnlockPage() {
           ) : (
             <>
               <Button variant="accent" size="lg" className="mt-6 w-full" disabled={busy || !data || payMode === "unknown"} onClick={() => go()}>
-                {busy ? <Loader2 className="animate-spin" /> : null}¥{data?.entitlement.price_cny ?? 39} {paywall.priceSuffix}
+                {busy ? <Loader2 className="animate-spin" /> : null}¥{data?.entitlement.price_cny ?? 139} {paywall.priceSuffix}
               </Button>
               <p className="mt-2 text-center text-[12px] text-muted">
                 {paywall.noSubscription}{payMode === "fake" ? "（演示环境：模拟支付，不会扣款）" : ""}

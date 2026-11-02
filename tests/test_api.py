@@ -64,7 +64,7 @@ def get(client, pid):
 def test_health_reports_fake_providers(client):
     h = client.get("/api/health").json()
     assert h["analysis_provider"] == "fake" and h["qc_mode"] == "stub" and h["payment_provider"] == "fake"
-    assert h["price_cny"] == 39
+    assert h["price_cny"] == 139
 
 
 def test_front_only_flow_partials_and_retention(client):
@@ -330,6 +330,48 @@ def test_invite_unlock(client):
     assert client.post("/api/checkout", json={"passport_id": pid, "invite_code": "nope"}).status_code == 403
     assert client.post("/api/checkout", json={"passport_id": pid, "invite_code": "FRIEND39"}).json()["payment"]["status"] == "paid"
     assert get(client, pid)["entitlement"]["paid"] is True
+
+
+def test_stripe_pending_order_unlocks_only_after_signed_paid_webhook(client, monkeypatch):
+    import hashlib
+    import hmac
+    import time
+
+    from aesthetic_passport.payments.base import Checkout
+    from aesthetic_passport.payments.stripe import StripePaymentProvider
+
+    pid = ready(client)
+    monkeypatch.setenv("PAYMENT_PROVIDER", "stripe")
+    monkeypatch.setenv("STRIPE_SECRET_KEY", "sk_test_not_real")
+    monkeypatch.setenv("STRIPE_WEBHOOK_SECRET", "whsec_not_real")
+    monkeypatch.setenv("PAYMENT_RETURN_BASE_URL", "https://beautytest.byliyz.com")
+    monkeypatch.setattr(StripePaymentProvider, "create_checkout",
+                        lambda self, _pid, amount: Checkout("cs_test_mock123", "https://checkout.stripe.com/test", False))
+    checkout = client.post("/api/checkout", json={"passport_id": pid}).json()
+    assert checkout["payment"]["status"] == "pending" and checkout["payment"]["pay_url"]
+    assert get(client, pid)["entitlement"]["paid"] is False
+    event = {"type": "checkout.session.completed", "data": {"object": {
+        "id": "cs_test_mock123", "mode": "payment", "payment_status": "paid",
+        "amount_total": 13900, "currency": "cny",
+    }}}
+    raw = json.dumps(event, separators=(",", ":")).encode()
+    ts = str(int(time.time()))
+    sig = hmac.new(b"whsec_not_real", ts.encode() + b"." + raw, hashlib.sha256).hexdigest()
+    headers = {"stripe-signature": f"t={ts},v1={sig}", "content-type": "application/json"}
+    assert client.post("/api/payments/webhook", content=raw, headers=headers).json()["changed"] is True
+    assert get(client, pid)["entitlement"]["paid"] is True
+    assert client.post("/api/payments/webhook", content=raw, headers=headers).json()["changed"] is False
+
+
+def test_one_time_invite_endpoint_and_permanent_code(client):
+    first, second = ready(client), ready(client)
+    _, codes, _ = client.app.state.store.issue_invite_codes(1, 24)
+    code = codes[0]
+    assert client.post("/api/checkout", json={"passport_id": first, "invite_code": code}).json()["entitlement"]["paid"]
+    retry = client.post("/api/checkout", json={"passport_id": second, "invite_code": code})
+    assert retry.status_code == 403 and retry.json()["error"]["code"] == "bad_invite"
+    # Legacy permanent code remains usable on another report.
+    assert client.post("/api/checkout", json={"passport_id": second, "invite_code": "FRIEND39"}).json()["entitlement"]["paid"]
 
 
 def test_qc_endpoint_stub(client):

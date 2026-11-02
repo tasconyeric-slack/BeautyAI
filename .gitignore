@@ -58,3 +58,7 @@ node_modules/
 web/out/
 web/next-env.d.ts
 *.tsbuildinfo
+
+# Private one-time invitation CSV exports (bearer secrets)
+invites-*.csv
+invite-codes-*.csv

@@ -277,7 +277,7 @@ function response(s: FxState): PassportResponse {
     passport,
     entitlement: {
       paid: s.paid, unlock_scope: s.paid ? "full" : "free", share_token: s.shareToken,
-      free_previews_left: 0, price_cny: 39, locked,
+      free_previews_left: 0, price_cny: 139, locked,
     },
     media: {
       // a sample passport (createdAt 0) is a fixed synthetic image that never expires, like the public sample report;
@@ -300,7 +300,7 @@ export const fixtureBackend: Backend = {
   kind: "fixture",
   async health() {
     return { environment: "development", demo: true, analysis_provider: "fixture", image_edit_provider: "fixture",
-      payment_provider: "fake", qc_mode: "fixture", invite_required: false, price_cny: 39 };
+      payment_provider: "fake", qc_mode: "fixture", invite_required: false, price_cny: 139 };
   },
   async qc(role): Promise<PhotoQC> {
     await wait(250);
@@ -406,7 +406,7 @@ export const fixtureBackend: Backend = {
     s.paid = true;
     save(s);
     await wait(400);
-    return { payment: { status: "paid", order_id: `fake_${rand()}` }, ...response(s) };
+    return { payment: { status: "paid", order_id: `fake_${rand()}`, pay_url: null }, ...response(s) };
   },
   async event() {
     /* fixture mode records nothing */

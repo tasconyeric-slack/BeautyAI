@@ -201,3 +201,9 @@ MVP 之后（按顺序）：评测脚本与 `/eval` 页面（`docs/EVAL.md`）·
 ## 致谢与许可
 
 改编与参考的第三方代码、数据和模型见 [`THIRD_PARTY.md`](THIRD_PARTY.md)。
+
+## ¥139 完整护照与一次性邀请码（实验）
+
+现有网站支持免费/完整护照分层。实验价格为 ¥139/报告。可通过服务器端批量生成 100 个、24 小时有效的一次性解锁码；使用一次即失效，永久 `INVITE_UNLOCK_CODES` 不变。真实支付可选择 `PAYMENT_PROVIDER=stripe` 适配器（需商户密钥和签名回调），验证付款成功后直接解锁同一报告，不另发邀请码。未配置商户时生产环境不可真实支付。
+
+部署和 CSV 生成说明：[docs/ops/checkout-invites.md](docs/ops/checkout-invites.md)。

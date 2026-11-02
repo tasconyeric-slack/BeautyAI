@@ -7,12 +7,15 @@ Tables
     preference_events  user feedback (D26) — only ever feeds the rules layer
     events             minimal funnel events: name, hashed passport id, topic, ref, time (no photo-derived data)
     payments           single-purchase records (D27), idempotent per provider order id
+    invite_codes       hashed single-use premium unlock codes, atomically redeemed
 
 Client IPs are stored as salted hashes for rate limiting and are never logged.
 """
 from __future__ import annotations
 
+import hashlib
 import json
+import secrets
 import sqlite3
 import threading
 from datetime import UTC, datetime, timedelta
@@ -73,6 +76,16 @@ CREATE TABLE IF NOT EXISTS payments (
     created_at TEXT NOT NULL,
     updated_at TEXT NOT NULL
 );
+CREATE TABLE IF NOT EXISTS invite_codes (
+    code_hash TEXT PRIMARY KEY,
+    batch_id TEXT NOT NULL,
+    created_at TEXT NOT NULL,
+    expires_at TEXT NOT NULL,
+    redeemed_at TEXT,
+    redeemed_passport_id TEXT,
+    revoked_at TEXT
+);
+CREATE INDEX IF NOT EXISTS ix_invite_batch ON invite_codes(batch_id);
 """
 # Columns added after V1 (ALTER TABLE on existing databases).
 PASSPORT_COLUMNS = {
@@ -187,6 +200,62 @@ class Store:
         row = self._exec("SELECT id FROM passports WHERE share_token=?", (token,)).fetchone()
         return self.get(row[0]) if row else None
 
+    def issue_invite_codes(self, count: int = 100, ttl_hours: int = 24) -> tuple[str, list[str], str]:
+        """Create a persistent batch. Plaintext codes are returned only once for private CSV export."""
+        if not 1 <= count <= 5000 or not 1 <= ttl_hours <= 8760:
+            raise ValueError("count must be 1..5000 and ttl_hours must be 1..8760")
+        alphabet = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789"
+        batch_id = secrets.token_hex(8)
+        created = now()
+        issued_at, expires_at = iso(created), iso(created + timedelta(hours=ttl_hours))
+        codes: list[str] = []
+        with self._lock:
+            self._db.execute("BEGIN IMMEDIATE")
+            try:
+                for _ in range(count):
+                    # 20 random characters from a 32-character alphabet: ~100 bits.
+                    code = "BAI-" + "-".join("".join(secrets.choice(alphabet) for _ in range(5))
+                                            for _ in range(4))
+                    digest = hashlib.sha256(code.encode("ascii")).hexdigest()
+                    self._db.execute(
+                        "INSERT INTO invite_codes (code_hash, batch_id, created_at, expires_at) VALUES (?, ?, ?, ?)",
+                        (digest, batch_id, issued_at, expires_at),
+                    )
+                    codes.append(code)
+                self._db.execute("COMMIT")
+            except Exception:
+                self._db.execute("ROLLBACK")
+                raise
+        return batch_id, codes, expires_at
+
+    def redeem_one_time_invite(self, code: str, pid: str) -> bool:
+        """Redeem at most once globally, with entitlement in the SAME SQLite transaction."""
+        digest = hashlib.sha256(code.strip().upper().encode("utf-8")).hexdigest()
+        redeemed_at = iso(now())
+        with self._lock:
+            self._db.execute("BEGIN IMMEDIATE")
+            try:
+                updated = self._db.execute(
+                    "UPDATE invite_codes SET redeemed_at=?, redeemed_passport_id=? "
+                    "WHERE code_hash=? AND redeemed_at IS NULL AND revoked_at IS NULL AND expires_at>?",
+                    (redeemed_at, pid, digest, redeemed_at),
+                )
+                if updated.rowcount != 1:
+                    self._db.execute("ROLLBACK")
+                    return False
+                awarded = self._db.execute(
+                    "UPDATE passports SET paid=1, saved=1, updated_at=? WHERE id=? AND status!='deleted' "
+                    "AND paid=0", (redeemed_at, pid),
+                )
+                if awarded.rowcount != 1:
+                    self._db.execute("ROLLBACK")
+                    return False
+                self._db.execute("COMMIT")
+                return True
+            except Exception:
+                self._db.execute("ROLLBACK")
+                raise
+
     def set_paid(self, pid: str) -> None:
         self._exec("UPDATE passports SET paid=1, saved=1, updated_at=? WHERE id=?", (iso(now()), pid))
 
@@ -270,15 +339,33 @@ class Store:
                    "updated_at) VALUES (?, ?, ?, ?, 'created', ?, ?)", (order_id, pid, provider, amount, t, t))
 
     def mark_payment_paid(self, order_id: str) -> tuple[str | None, bool]:
-        """(passport_id, newly_paid). A replayed webhook returns newly_paid=False and changes nothing."""
-        row = self._exec("SELECT passport_id, status FROM payments WHERE order_id=?", (order_id,)).fetchone()
-        if not row:
-            return None, False
-        if row["status"] == "paid":
-            return row["passport_id"], False
-        self._exec("UPDATE payments SET status='paid', updated_at=? WHERE order_id=?", (iso(now()), order_id))
-        self.set_paid(row["passport_id"])
-        return row["passport_id"], True
+        """Settle an authenticated provider order once; update payment and entitlement atomically."""
+        timestamp = iso(now())
+        with self._lock:
+            self._db.execute("BEGIN IMMEDIATE")
+            try:
+                row = self._db.execute(
+                    "SELECT passport_id, status FROM payments WHERE order_id=?", (order_id,),
+                ).fetchone()
+                if row is None:
+                    self._db.execute("ROLLBACK")
+                    return None, False
+                pid = row["passport_id"]
+                if row["status"] == "paid":
+                    self._db.execute("ROLLBACK")
+                    return pid, False
+                self._db.execute(
+                    "UPDATE payments SET status='paid', updated_at=? WHERE order_id=?", (timestamp, order_id),
+                )
+                self._db.execute(
+                    "UPDATE passports SET paid=1, saved=1, updated_at=? WHERE id=? AND status!='deleted'",
+                    (timestamp, pid),
+                )
+                self._db.execute("COMMIT")
+                return pid, True
+            except Exception:
+                self._db.execute("ROLLBACK")
+                raise
 
     def payments(self, pid: str) -> list[dict[str, Any]]:
         return [dict(r) for r in self._exec("SELECT * FROM payments WHERE passport_id=?", (pid,)).fetchall()]

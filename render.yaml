@@ -21,6 +21,15 @@ services:
         value: auto
       - key: IMAGE_EDIT_PROVIDER
         value: auto
+      # Optional merchant-backed checkout; leave unset for invite-only production mode.
+      - key: PAYMENT_PROVIDER
+        sync: false
+      - key: STRIPE_SECRET_KEY
+        sync: false
+      - key: STRIPE_WEBHOOK_SECRET
+        sync: false
+      - key: PAYMENT_RETURN_BASE_URL
+        sync: false
       - key: WEB_ORIGINS
         sync: false             # e.g. https://aesthetic-passport.vercel.app
       - key: INVITE_CODES

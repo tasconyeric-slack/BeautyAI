@@ -13,7 +13,7 @@ const id='ap_eyewear_smoke',base=process.env.BASE_URL ?? 'http://localhost:3000'
 const output=process.env.EYEWEAR_SMOKE_OUTPUT;
 if(output)mkdirSync(output,{recursive:true});
 let supported=true,expired=false;
-const response=()=>({id,status:'full_ready',stage:'done',passport,partial:{input_quality:passport.input_quality,anchors:passport.anchors,quick:null,analysis:'ready',previews:[]},entitlement:{paid:false,unlock_scope:'free',free_previews_left:0,locked:[],price_cny:39,share_token:null},media:{front:'/api/test-front',thumb:'/api/test-front',expires_at:new Date(Date.now()+3600000).toISOString(),expired},error:null,created_at:new Date().toISOString()});
+const response=()=>({id,status:'full_ready',stage:'done',passport,partial:{input_quality:passport.input_quality,anchors:passport.anchors,quick:null,analysis:'ready',previews:[]},entitlement:{paid:false,unlock_scope:'free',free_previews_left:0,locked:[],price_cny: 139,share_token:null},media:{front:'/api/test-front',thumb:'/api/test-front',expires_at:new Date(Date.now()+3600000).toISOString(),expired},error:null,created_at:new Date().toISOString()});
 const browser=await chromium.launch({executablePath:process.env.CHROMIUM_PATH || '/usr/bin/chromium',args:['--no-sandbox']});
 try {
  const page=await browser.newPage({viewport:{width:1365,height:1000}}),errors=[],generation=[];
