@@ -334,7 +334,7 @@ export const paywall = {
   onUnlock: "解锁完整护照",
   priceSuffix: "元 · 一次解锁",
   noSubscription: "一次解锁本份护照，无自动续费。",
-  freeScope: "免费包含：本地计算的评分、在参考样本有效时的百分位排名、六个面部分析分区各一项代表性测量。免费测评不调用 DeepSeek 或 Qwen，不提供完整报告、Studio 与 PDF。",
+  freeScope: "免费包含：本地计算的面部参考分、在参考样本有效时的百分位排名、六个面部分析分区各一项代表性测量。免费测评不调用 DeepSeek 或 Qwen，不提供完整报告、Studio 与 PDF。",
   sampleReport: "先看一份完整示例报告",
   readReport: "阅读完整评估报告",
   invitation: "使用邀请码",
