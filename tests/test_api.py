@@ -34,7 +34,7 @@ def client(tmp_path, monkeypatch):
     monkeypatch.setenv("QC_MODE", "stub")
     monkeypatch.setenv("IMAGE_EDIT_PROVIDER", "fake")
     monkeypatch.setenv("PAYMENT_PROVIDER", "fake")
-    settings = Settings(runs_dir=tmp_path / "runs", run_jobs_inline=True, ip_passports_per_hour=5,
+    settings = Settings(runs_dir=tmp_path / "runs", run_jobs_inline=True, free_cv_only=False, ip_passports_per_hour=5,
                         invite_unlock_codes={"FRIEND39"})
     with TestClient(create_app(settings)) as c:
         c.settings = settings
