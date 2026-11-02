@@ -4,10 +4,9 @@ import type { ReactNode } from "react";
 import type { SwatchColor } from "@/components/ds";
 import { IllustratedAvatar, ProfileCard } from "@/components/cards";
 import { Scaled } from "@/components/passport/scaled";
-import { ScoreHero } from "@/components/profile/score-hero";
-import { aestheticScore as scoreCopy, common, landing, privacy, report as reportCopy, topics } from "@/lib/copy/zh";
+import { common, landing, privacy, report as reportCopy, topics } from "@/lib/copy/zh";
 import {
-  HERO_SAMPLE, LANDING_CASES, SAMPLE_HREF, SAMPLE_REPORT_HREF, SAMPLE_SCORE, SAMPLE_SCORE_HREF, SHOWCASE, sampleReportPreview, TOPIC_KEYS, TOPIC_NAMES, heroCase, heroRows, startHref,
+  HERO_SAMPLE, LANDING_CASES, SAMPLE_HREF, SAMPLE_REPORT_HREF, SHOWCASE, sampleReportPreview, TOPIC_KEYS, TOPIC_NAMES, heroCase, heroRows, startHref,
   type LandingCase, type Topic,
 } from "./cases";
 import { LandingView } from "./client";
@@ -20,7 +19,6 @@ export function Landing({ topic = null, refCode = null }: { topic?: Topic | null
     <div className="relative overflow-x-clip">
       <LandingView topic={topic} refCode={refCode} />
       <Hero topic={topic} title={t?.title ?? landing.screens[0].title} subtitle={t?.subtitle ?? landing.screens[0].body} start={start} />
-      <ScoreShowcase />
       <ReportPreview />
       <Cases cases={LANDING_CASES} />
       <SeeIt />
@@ -97,11 +95,11 @@ function TopicLine({ current }: { current: Topic | null }) {
   );
 }
 
-/** The deliverable, up front: the sample passport's result sheet — drawn synthetic face, its computed score, the facts the
+/** The deliverable, up front: the sample passport's result sheet — drawn synthetic face, its measurements, the facts the
  * topic asked about and the first action — labeled as a synthetic example at the top, not a live analysis. */
 function HeroSample({ c, topic }: { c: LandingCase; topic: Topic | null }) {
   const href = c.passportId ? `/p/${c.passportId}${topic ? `/${topic}` : ""}` : SAMPLE_HREF;
-  const { score, portrait, firstAction } = HERO_SAMPLE;
+  const { portrait, firstAction } = HERO_SAMPLE;
   return (
     <aside aria-label="示例成果" data-testid="hero-sample" className="overflow-hidden rounded-[18px] border border-rule bg-paper-raised shadow-[0_18px_40px_-26px_rgba(20,22,24,0.45)]">
       <div className="flex flex-wrap items-center justify-between gap-x-3 gap-y-0.5 border-b border-rule bg-amber-soft px-4 py-2 text-[11.5px] text-amber">
@@ -114,13 +112,6 @@ function HeroSample({ c, topic }: { c: LandingCase; topic: Topic | null }) {
           <img src={portrait} alt="合成示例人脸（程序绘制，非真人）" className="block aspect-[4/5] w-full object-cover" />
         </div>
         <div className="min-w-0">
-          {score?.score != null && (
-            <p className="flex items-baseline gap-2" data-testid="hero-score">
-              <span className="font-serif text-[40px] font-semibold leading-none tabular-nums">{score.score}</span>
-              <span className="text-[11px] leading-4 text-muted">/ 100<br />{scoreCopy.title}</span>
-            </p>
-          )}
-          {score?.tier && <p className="mt-1 text-[12.5px] font-medium">{score.tier} · <span className="font-normal text-muted">模型参考，不评价长相</span></p>}
           <dl className="mt-3 space-y-1.5 text-[13px] leading-[1.6]">
             {heroRows(c, topic).map((r, i) => (
               <div key={i} className="flex gap-3">
@@ -157,23 +148,6 @@ function Chips({ colors, spaced, dark = true }: { colors: SwatchColor[]; spaced?
       ))}
       <span className="sr-only">{colors.map((s) => s.name_zh).join("、")}</span>
     </span>
-  );
-}
-
-// --- AI 面部美学参考分 (D36): the sample passport's real computed score ----------------------------------------
-
-function ScoreShowcase() {
-  if (!SAMPLE_SCORE) return null;
-  return (
-    <section className="border-t border-rule py-10 md:py-14" aria-labelledby="score-title">
-      <div className="mx-auto max-w-5xl px-4 sm:px-6">
-        <h2 id="score-title" className="font-serif text-[22px] font-semibold leading-snug sm:text-[26px]">{scoreCopy.landingTitle}</h2>
-        <p className="mt-2 max-w-[36em] text-[14px] leading-7 text-ink-soft">{scoreCopy.landingBody}</p>
-        <div className="mt-5">
-          <ScoreHero view={SAMPLE_SCORE} workbenchHref={null} sample cta={{ href: SAMPLE_SCORE_HREF, label: scoreCopy.landingOpen }} />
-        </div>
-      </div>
-    </section>
   );
 }
 
