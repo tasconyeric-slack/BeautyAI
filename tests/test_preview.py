@@ -577,7 +577,7 @@ def api(tmp_path, monkeypatch):
     policy = {**previews_mod.pricing(), "free_previews": 1}
     monkeypatch.setattr(previews_mod, "pricing", lambda: policy)
     monkeypatch.setattr(entitlement_mod, "pricing", lambda: policy)
-    settings = Settings(runs_dir=tmp_path / "runs", run_jobs_inline=True)
+    settings = Settings(runs_dir=tmp_path / "runs", run_jobs_inline=True, free_cv_only=False)
     with TestClient(create_app(settings)) as c:
         yield c
 
