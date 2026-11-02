@@ -121,7 +121,8 @@ def cv_teaser(stored: dict[str, Any]) -> dict[str, Any]:
     ref = stored.get("reference_percentiles") or {}
     learning_valid = learned.get("status") == "ok" and learned.get("production_authorized") is True
     rank_valid = learning_valid and learned_rank.get("status") == "available"
-    geo_rank = ref.get("score_rank") or ref.get("score") or {}
+    geo_rank = ref.get("rank") or {}
+    geo_valid = geo_rank.get("status") == "ok"
     return {
         "score": {
             "kind": "learned" if learning_valid else "geometry",
@@ -131,10 +132,10 @@ def cv_teaser(stored: dict[str, Any]) -> dict[str, Any]:
             "label": "颜值参考分" if learning_valid else "面部几何参考分",
         },
         "rank": {
-            "status": "available" if rank_valid else geo_rank.get("status", "unavailable"),
+            "status": "available" if rank_valid or geo_valid else "unavailable",
             "percentile": learned_rank.get("percentile") if rank_valid else
-                          (geo_rank.get("percentile") if geo_rank.get("status") in ("ranked", "available") else None),
-            "label": learned_rank.get("cohort_label") if rank_valid else None,
+                          (geo_rank.get("percentile_estimate") if geo_valid else None),
+            "label": learned_rank.get("cohort_label") if rank_valid else\n                     ((geo_rank.get("cohort") or {}).get("publisher") if geo_valid else None),
         },
         "metrics": metrics,
     }
