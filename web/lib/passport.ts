@@ -1589,14 +1589,6 @@ export interface QuickAnalysis {
   observations: Observation[];
 }
 
-/** A CV-only free report, computed without DeepSeek or Qwen. */
-export interface FreeResult {
-  score: { kind: "learned" | "geometry"; value: number | null; scale: number; status: string; label: string };
-  rank: { status: string; percentile: number | null; label: string | null };
-  metrics: { chapter: string; id: string | null; name: string | null; value: number | null;
-    decimals: number | null; unit: string | null; availability: string }[];
-}
-
 /* api.schema.json */
 
 /**
@@ -1617,7 +1609,6 @@ export interface PassportResponse {
    * The passport. For a free entitlement the server removes paid content first (entitlement.locked lists what); that trimmed view keeps the passport's shape but may hold fewer items than passport.schema requires.
    */
   passport: null | Passport;
-  free_result?: FreeResult | null;
   entitlement: {
     paid: boolean;
     unlock_scope: "free" | "full";
@@ -1646,6 +1637,32 @@ export interface PassportResponse {
     detail: string;
   };
   created_at: string;
+  /**
+   * CV-only free teaser; only six metric values; no generative analysis.
+   */
+  free_result?: null | {
+    score: {
+      kind: "learned" | "geometry";
+      value: number | null;
+      scale: number;
+      status: string;
+      label: string;
+    };
+    rank: {
+      status: string;
+      percentile: number | null;
+      label: string | null;
+    };
+    metrics: {
+      chapter: string;
+      id: string | null;
+      name: string | null;
+      value: number | null;
+      decimals: number | null;
+      unit: string | null;
+      availability: string;
+    }[];
+  };
 }
 /**
  * This interface was referenced by `PassportResponse`'s JSON-Schema
