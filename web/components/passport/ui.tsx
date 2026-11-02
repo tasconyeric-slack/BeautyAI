@@ -87,7 +87,7 @@ export function Locked({ what, bullets }: { what: string; bullets?: string[] }) 
   return (
     <div className="mt-4">
       <p className="mb-2 flex items-center gap-1.5 text-[12px] text-muted"><Lock className="size-3.5" />{what}包含在完整护照中</p>
-      <PaywallCard title={`${paywall.title} · ¥${data?.entitlement.price_cny ?? 39}`} bullets={bullets ?? [...paywall.bullets]}
+      <PaywallCard title={`${paywall.title} · ¥${data?.entitlement.price_cny ?? 139}`} bullets={bullets ?? [...paywall.bullets]}
         onUnlock={() => { window.location.href = `/p/${id}/unlock`; }} />
     </div>
   );
