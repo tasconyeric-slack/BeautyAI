@@ -352,7 +352,7 @@ export const paywall = {
 export const entitlements = {
   title: "免费与完整护照分别包含什么",
   free: "免费",
-  full: "完整护照 · 一次解锁 ¥39",
+  full: "完整护照 · 一次解锁 ¥139",
   rows: [
     { area: "分数与参考位置", free: "本地面部参考分、可用时的样本百分位", full: "分数来源、参考位置依据及详细解读" },
     { area: "面部测量", free: "六个分区各 1 项", full: "全部可靠指标、图解与详细解读" },
