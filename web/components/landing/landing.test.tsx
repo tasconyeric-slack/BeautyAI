@@ -62,18 +62,13 @@ describe("Landing", () => {
     expect(track).toHaveBeenCalledWith("style", "dy7");
   });
 
-  it("shows the sample passport's computed score with four parts, strengths and a direction — no teaser", () => {
+  it("does not advertise a geometry score as the Ridge prediction", () => {
     render(<Landing />);
-    const female = JSON.parse(readFileSync(path.resolve(__dirname, "../../lib/fixtures/sample_passport.json"), "utf8"));
-    const hero = screen.getByTestId("score-hero");
-    expect(screen.getByTestId("score-value").textContent).toBe(String(Math.round(female.aesthetic_score.overall_score)));
-    for (const k of ["symmetry", "thirds", "fifths", "golden_ratio"]) expect(screen.getByTestId(`score-part-${k}`)).toBeTruthy();
-    expect(screen.getByTestId("score-strengths").querySelectorAll("li")).toHaveLength(2);
-    expect(screen.getByTestId("score-improvement").textContent).toBeTruthy();
-    expect(hero.textContent).toContain("示例报告");
-    expect(screen.getByTestId("score-cta").getAttribute("href")).toBe("/p/ap_sample_0001");
-    expect(screen.queryByText("颜值评分 · 即将上线")).toBeNull();
+    expect(screen.queryByTestId("score-hero")).toBeNull();
+    expect(screen.queryByTestId("score-value")).toBeNull();
+    expect(screen.queryByTestId("hero-score")).toBeNull();
   });
+
 });
 
 describe("case data", () => {
@@ -112,9 +107,8 @@ describe("first screen (Issue #2)", () => {
     const card = screen.getByTestId("hero-sample");
     expect(card.textContent).toContain("形象护照 · 示例报告");
     expect(card.textContent).toContain("不是实时分析结果");
-    expect(card.textContent).toContain("参考分来自这张照片的面部几何测量");
     expect(card.querySelector("img")!.getAttribute("alt")).toMatch(/非真人/);
-    expect(screen.getByTestId("hero-score").textContent).toContain(String(Math.round(female().aesthetic_score.overall_score)));
+    expect(screen.queryByTestId("hero-score")).toBeNull();
     const f = female();
     const top = f.analysis.recommendations.find((r: { id: string }) => r.id === f.derived.top5[0]);
     expect(card.textContent).toContain(top.action.replace(/\s*\[[^\]]*\]/g, ""));
