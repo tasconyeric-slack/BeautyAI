@@ -53,6 +53,19 @@ function StudioEditor() {
   const { id, passport, data, requestPreviews, sendFeedback } = usePassport();
   const params = useSearchParams();
   const hold = useHold();
+  const workspaceRef = React.useRef<HTMLDivElement>(null);
+  const portraitRef = React.useRef<HTMLDivElement>(null);
+  React.useEffect(() => {
+    const portrait = portraitRef.current;
+    const workspace = workspaceRef.current;
+    if (!portrait || !workspace) return;
+    const update = () => workspace.style.setProperty("--studio-portrait-height", `${portrait.getBoundingClientRect().height}px`);
+    update();
+    if (typeof ResizeObserver === "undefined") return;
+    const observer = new ResizeObserver(update);
+    observer.observe(portrait);
+    return () => observer.disconnect();
+  }, [Boolean(passport)]);
   const { choices, saveLook, removeLook, chooseHair, setPlan } = useChoices(id);
   const [measured, setMeasured] = React.useState<{ key: string; value: FaceGeometry | null } | null>(null);
   const [portrait, setPortrait] = React.useState<PortraitChoice>("front");
@@ -214,9 +227,9 @@ function StudioEditor() {
   return (
     <Page wide>
       <div className={s.studioHeading}><div><p>Studio</p><h1>留住自己，试一点不同。</h1><span>从发型到配色，找到你喜欢的表达。</span></div><Link href={`/p/${id}/report`}>返回我的报告 <span aria-hidden>↗</span></Link></div>
-      <div className={s.studioWorkspace}>
+      <div ref={workspaceRef} className={s.studioWorkspace}>
         {/* Stage: sticky under the site header on phones, so controls scroll beneath it. */}
-        <div className={s.studioPortrait}>
+        <div ref={portraitRef} className={s.studioPortrait}>
           <div className={s.studioStageHeading}><span>Studio</span><span>{hold.holding ? "正在比较原图" : "你的照片 · 你的选择"}</span></div>
           <details className="mb-3 rounded-[4px] border border-rule p-3">
           <summary className="min-h-8 cursor-pointer text-[13px] text-ink-soft">照片来源 · {source.role === "glasses" ? "日常眼镜参考照" : source.role === "noglasses" ? "无眼镜补充照" : "分析正脸照"}</summary>
@@ -266,7 +279,7 @@ function StudioEditor() {
           {backendFor(id).kind === "fixture" && <p className="mt-2 text-[12px] text-muted">示例插画 · 不代表真人妆效；请在上传的正脸照片上试妆。</p>}
           <div className="mt-2 flex items-center justify-between gap-3">
             <p className="min-w-0 truncate text-[12px] text-ink-soft" aria-live="polite">{summary}</p>
-            <HoldButton holding={hold.holding} props={hold.props} disabled={status !== "ready" || summary === "原图"} className="shrink-0 !min-h-9 !px-3.5" />
+            <HoldButton holding={hold.holding} props={hold.props} disabled={status !== "ready" || summary === "原图"} className="shrink-0 !min-h-11 !px-3.5" />
           </div>
         </div>
 
