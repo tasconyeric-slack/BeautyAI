@@ -537,7 +537,7 @@ def test_api_misaligned_preview_retries_then_falls_back(tmp_path, monkeypatch, s
     monkeypatch.setattr(previews, "pricing", lambda: policy)
     provider = Drift(0, eye_gap=22)
     monkeypatch.setattr(previews, "image_from_config", lambda: provider)
-    settings = Settings(runs_dir=tmp_path / "runs", run_jobs_inline=True)
+    settings = Settings(runs_dir=tmp_path / "runs", run_jobs_inline=True, free_cv_only=False)
     buf = io.BytesIO()
     Image.fromarray(ORIGINAL).save(buf, format="PNG")
     ctx = (ROOT / "examples" / "sample_context.json").read_text(encoding="utf-8")
