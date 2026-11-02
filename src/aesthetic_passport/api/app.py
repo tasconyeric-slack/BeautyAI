@@ -363,7 +363,7 @@ def create_app(settings: Settings | None = None) -> FastAPI:
         photo_meta: Annotated[str | None, Form()] = None,
     ) -> dict[str, Any]:
         job = ready_job(pid)
-        if not job["paid"] or job["passport"].get("kind") == "free_cv_v1":
+        if settings.free_cv_only and (not job["paid"] or job["passport"].get("kind") == "free_cv_v1"):
             raise api_error(402, "payment_required", "完整解读与补充分析需要先解锁护照")
         passport = job["passport"]
         try:
@@ -408,7 +408,7 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     def feedback(pid: str, request: Request, body: Annotated[dict[str, Any], Body()],
                  rerank: Annotated[bool, Query()] = False) -> dict[str, Any]:
         job = ready_job(pid)
-        if not job["paid"] or job["passport"].get("kind") == "free_cv_v1":
+        if settings.free_cv_only and (not job["paid"] or job["passport"].get("kind") == "free_cv_v1"):
             raise api_error(402, "payment_required", "反馈与调整需要先解锁完整护照")
         if not feedback_limiter.allow(hash_ip(client_ip(request))):
             raise api_error(429, "rate_limited", "操作太频繁，请稍后再试")
@@ -436,7 +436,7 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     @app.post("/api/passport/{pid}/rerank")
     def do_rerank(pid: str, body: Annotated[dict[str, Any] | None, Body()] = None) -> dict[str, Any]:
         job = ready_job(pid)
-        if not job["paid"] or job["passport"].get("kind") == "free_cv_v1":
+        if settings.free_cv_only and (not job["paid"] or job["passport"].get("kind") == "free_cv_v1"):
             raise api_error(402, "payment_required", "调整建议需要先解锁完整护照")
         passport = job["passport"]
         patch = (body or {}).get("user_context") or {}
@@ -456,9 +456,9 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     def previews(pid: str, request: Request, background: BackgroundTasks,
                  body: Annotated[dict[str, Any], Body()]) -> dict[str, Any]:
         job = ready_job(pid)
-        if not job["paid"]:
+        if settings.free_cv_only and not job["paid"]:
             raise api_error(402, "payment_required", "AI 试看需要先解锁完整护照")
-        if job["passport"].get("kind") == "free_cv_v1":
+        if settings.free_cv_only and job["passport"].get("kind") == "free_cv_v1":
             raise api_error(409, "not_ready", "付费报告还在生成中")
         if media_expired(job):
             raise api_error(410, "media_expired", "照片已按隐私规则删除，无法再生成试看")
@@ -479,7 +479,7 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     @app.get("/api/passport/{pid}/geometry")
     def geometry(pid: str, source: str = "front") -> JSONResponse:
         job = job_or_404(pid)
-        if not job["paid"] or (job["passport"] or {}).get("kind") == "free_cv_v1":
+        if settings.free_cv_only and (not job["paid"] or (job["passport"] or {}).get("kind") == "free_cv_v1"):
             raise api_error(402, "payment_required", "完整测量图层包含在付费护照中")
         if source not in STUDIO_ROLES:
             raise api_error(422, "bad_source", "照片来源不可用")
@@ -513,7 +513,7 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     @app.post("/api/passport/{pid}/share")
     def share(pid: str) -> dict[str, Any]:
         job = ready_job(pid)
-        if not job["paid"] or job["passport"].get("kind") == "free_cv_v1":
+        if settings.free_cv_only and (not job["paid"] or job["passport"].get("kind") == "free_cv_v1"):
             raise api_error(402, "payment_required", "完整报告分享包含在付费护照中")
         token = job["share_token"] or secrets.token_urlsafe(12)
         if not job["share_token"]:
