@@ -66,10 +66,10 @@ export function FreeReport({ data }: { data: PassportResponse }) {
       <h2 className="font-serif text-[25px]">{pending ? "完整护照正在生成" : "解锁完整形象护照"}</h2>
       <p className="max-w-2xl text-[14px] leading-7 text-ink-soft">
         {pending ? "付款已确认。正在生成完整个性化报告，完成后即可访问全部测量、Studio 和 PDF。" :
-          "¥39 一次解锁：所有可靠测量与解读、个性化分析、完整形象建议、Studio、3 张 AI 发型效果图与 PDF 下载。"}
+          "¥139 一次解锁：所有可靠测量与解读、个性化分析、完整形象建议、Studio、3 张 AI 发型效果图与 PDF 下载。"}
       </p>
       <Link href={"/p/" + data.id + "/unlock"} className="inline-flex min-h-11 w-fit items-center rounded-full bg-accent px-6 text-[14px] text-[var(--ap-on-primary)]">
-        {pending ? "查看生成状态" : "解锁完整护照 · ¥39"}
+        {pending ? "查看生成状态" : "解锁完整护照 · ¥139"}
       </Link>
       {!pending && <p className="text-[12px] text-muted">免费报告不提供 PDF 下载。照片按告知的保留期限自动删除。</p>}
     </section>
