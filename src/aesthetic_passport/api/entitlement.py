@@ -122,7 +122,7 @@ def cv_teaser(stored: dict[str, Any]) -> dict[str, Any]:
     learning_valid = learned.get("status") == "ok" and learned.get("production_authorized") is True
     rank_valid = learning_valid and learned_rank.get("status") == "available"
     geo_rank = ref.get("rank") or {}
-    geo_valid = geo_rank.get("status") == "ok"
+    geo_valid = not learning_valid and geo_rank.get("status") == "ok"
     return {
         "score": {
             "kind": "learned" if learning_valid else "geometry",
