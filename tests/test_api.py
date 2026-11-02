@@ -64,7 +64,7 @@ def get(client, pid):
 def test_health_reports_fake_providers(client):
     h = client.get("/api/health").json()
     assert h["analysis_provider"] == "fake" and h["qc_mode"] == "stub" and h["payment_provider"] == "fake"
-    assert h["price_cny"] == 39
+    assert h["price_cny"] == 139
 
 
 def test_front_only_flow_partials_and_retention(client):
