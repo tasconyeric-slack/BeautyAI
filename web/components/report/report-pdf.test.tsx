@@ -69,7 +69,7 @@ describe("PDF report export", () => {
       expect(cover).toContain("可能不准确，仅供参考");
     }
     expect(cover).not.toContain("均值");
-    expect(cover).toContain("几何协调度");
+    expect(cover).not.toContain("几何协调度");
     expect(r.all).not.toContain("比例参考：");
     expect(cover).not.toMatch(/SCUT|原生|照片质量|研究预览|校准|评分与样本说明|test-model|AI面部美学参考分/);
   }, 60_000);
