@@ -327,14 +327,14 @@ export const paywall = {
   title: "带走完整形象护照",
   bullets: [
     "所有可靠测量指标、图形依据与详细解读。",
-    "DeepSeek 完整个性化形象分析、发型、配镜、配色与妆容建议。",
-    "Studio 形象实验室与 3 张 Qwen AI 发型效果图。",
+    "完整个性化形象分析、发型、配镜、配色与妆容建议。",
+    "Studio 形象实验室与 3 张 AI 发型效果图。",
     "完整形象改善行动计划与 PDF 下载。",
   ],
   onUnlock: "解锁完整护照",
   priceSuffix: "元 · 一次解锁",
   noSubscription: "一次解锁本份护照，无自动续费。",
-  freeScope: "免费包含：本地计算的面部参考分、在参考样本有效时的百分位排名、六个面部分析分区各一项代表性测量。免费测评不调用 DeepSeek 或 Qwen，不提供完整报告、Studio 与 PDF。",
+  freeScope: "免费包含：本地计算的面部参考分、在参考样本有效时的百分位排名、六个面部分析分区各一项代表性测量。免费测评不使用生成式 AI 或图像生成服务，不提供完整报告、Studio 与 PDF。",
   sampleReport: "先看一份完整示例报告",
   readReport: "阅读完整评估报告",
   invitation: "使用邀请码",
@@ -354,13 +354,13 @@ export const entitlements = {
   free: "免费",
   full: "完整护照 · 一次解锁 ¥39",
   rows: [
-    { area: "评分与排名", free: "本地评分、可用时的真实参考百分位", full: "评分与详细解释、排名依据及解读" },
+    { area: "分数与参考位置", free: "本地面部参考分、可用时的样本百分位", full: "分数来源、参考位置依据及详细解读" },
     { area: "面部测量", free: "六个分区各 1 项", full: "全部可靠指标、图解与详细解读" },
-    { area: "AI 分析", free: "不调用 DeepSeek", full: "完整个性化报告及改善建议" },
+    { area: "AI 分析", free: "不使用生成式 AI", full: "完整个性化报告及改善建议" },
     { area: "Studio", free: "不可使用", full: "完整配镜、配色、妆容及 3 张 AI 发型效果图" },
     { area: "PDF 下载", free: "不可使用", full: "完整 PDF" },
   ],
-  previewNote: "AI 发型效果图仅付费用户可生成，每份护照初始包含 3 张；免费测评不调用 Qwen。",
+  previewNote: "AI 发型效果图仅付费用户可生成，每份护照初始包含 3 张；免费测评不调用图像生成服务。",
 } as const;
 
 /** AI 面部美学参考分 (Issue #31, D36). A geometry reference on one photo — never called attractiveness, never a rank. */
