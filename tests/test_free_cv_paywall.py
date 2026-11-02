@@ -97,8 +97,9 @@ def test_invite_unlock_starts_paid_analysis(client):
 
 
 def test_expired_media_cannot_be_charged_for_unfulfillable_report(client):
-    from aesthetic_passport.api.store import iso, now
     from datetime import timedelta
+
+    from aesthetic_passport.api.store import iso, now
 
     pid = create(client)
     client.app.state.store._exec("UPDATE passports SET media_expires_at=? WHERE id=?",
