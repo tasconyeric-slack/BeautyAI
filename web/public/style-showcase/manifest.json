@@ -1,0 +1,122 @@
+[
+  {
+    "path": "p001-easy.png",
+    "source_file": "person001-省心 · 耳下短直发.png",
+    "person": "001",
+    "tier": "easy",
+    "sha256": "c7970ff4158725970e42d7bbe017213e28b20bd3cca55129a8889561425c4fe6",
+    "permission": "Commercial use confirmed by project owner in chat, 2026-10-29",
+    "purpose": "AI hairstyle visualization, no measurement overlays"
+  },
+  {
+    "path": "p001-safe.png",
+    "source_file": "person001-稳妥 · 偏分蓬松中长发.png",
+    "person": "001",
+    "tier": "safe",
+    "sha256": "a32ef4e8d768821358408a545d7aa413f8edd81b9370b0ea73659b7dfba5a01e",
+    "permission": "Commercial use confirmed by project owner in chat, 2026-10-29",
+    "purpose": "AI hairstyle visualization, no measurement overlays"
+  },
+  {
+    "path": "p001-bold.png",
+    "source_file": "person001-突破 · 锁骨法式波浪.png",
+    "person": "001",
+    "tier": "bold",
+    "sha256": "17e016c2c69d7b2196ce3ea6bd81f73f067b46f69c2a7cdea48507b0c53194ef",
+    "permission": "Commercial use confirmed by project owner in chat, 2026-10-29",
+    "purpose": "AI hairstyle visualization, no measurement overlays"
+  },
+  {
+    "path": "p004-easy.png",
+    "source_file": "person004-省心 低层次直发中长发.png",
+    "person": "004",
+    "tier": "easy",
+    "sha256": "5d69682766eed49f1b595ea1ee03079dd3afc86ab3e234da458497d2072614b2",
+    "permission": "Commercial use confirmed by project owner in chat, 2026-10-29",
+    "purpose": "AI hairstyle visualization, no measurement overlays"
+  },
+  {
+    "path": "p004-safe.png",
+    "source_file": "person004-稳妥 柔和偏分内扣长发.png",
+    "person": "004",
+    "tier": "safe",
+    "sha256": "d19323e8a82a7004be9d2b7b04c8166afada463faa7ffd50a1b558f69d46926e",
+    "permission": "Commercial use confirmed by project owner in chat, 2026-10-29",
+    "purpose": "AI hairstyle visualization, no measurement overlays"
+  },
+  {
+    "path": "p004-bold.png",
+    "source_file": "person004-突破 锁骨法式波浪.png",
+    "person": "004",
+    "tier": "bold",
+    "sha256": "9ad3ca9ee22986b64284cf0cfd4a1ab75d19f77a527cc649d706b0115bbea229",
+    "permission": "Commercial use confirmed by project owner in chat, 2026-10-29",
+    "purpose": "AI hairstyle visualization, no measurement overlays"
+  },
+  {
+    "path": "p005-easy.png",
+    "source_file": "person005-省心 短寸渐变.png",
+    "person": "005",
+    "tier": "easy",
+    "sha256": "170b2bfb5b40b33ed0b4080d598473959634ed90814ece7effc27e8f015f7f99",
+    "permission": "Commercial use confirmed by project owner in chat, 2026-10-29",
+    "purpose": "AI hairstyle visualization, no measurement overlays"
+  },
+  {
+    "path": "p005-bold.png",
+    "source_file": "person005-突破 短卷纹理烫.png",
+    "person": "005",
+    "tier": "bold",
+    "sha256": "144225272f5aeea79dff6ef2578b7cca50b3f7e31398498bfd6aad029bb48f28",
+    "permission": "Commercial use confirmed by project owner in chat, 2026-10-29",
+    "purpose": "AI hairstyle visualization, no measurement overlays"
+  },
+  {
+    "path": "p006-easy.png",
+    "source_file": "person006-省心 · 短层次自然直.png",
+    "person": "006",
+    "tier": "easy",
+    "sha256": "42185806f30d86b77aae7e2df252608231e5c84936574bd7e43ecdc1237cc12a",
+    "permission": "Commercial use confirmed by project owner in chat, 2026-10-29",
+    "purpose": "AI hairstyle visualization, no measurement overlays"
+  },
+  {
+    "path": "p006-safe.png",
+    "source_file": "person006-稳妥 · 齐肩内扣偏分.png",
+    "person": "006",
+    "tier": "safe",
+    "sha256": "191d5f659c6cfd32de88422d02ed2ac95b4f8047a2a2aad220e2066d45333852",
+    "permission": "Commercial use confirmed by project owner in chat, 2026-10-29",
+    "purpose": "AI hairstyle visualization, no measurement overlays"
+  },
+  {
+    "path": "p006-bold.png",
+    "source_file": "person006-突破 · 锁骨法式波浪.png",
+    "person": "006",
+    "tier": "bold",
+    "sha256": "3ffc18005b68dd12e22e4a41f187518d8d5f85325061a203a84896e8230221cf",
+    "permission": "Commercial use confirmed by project owner in chat, 2026-10-29",
+    "purpose": "AI hairstyle visualization, no measurement overlays"
+  },
+  {
+    "path": "cat-eye.png",
+    "source_file": "cat-eye.png",
+    "sha256": "a619cf64e288e65e293c7e34a4ffa04c18aa37d96208751392c7fd930e7ccebc",
+    "permission": "Commercial use confirmed by project owner in chat, 2026-10-29",
+    "purpose": "Eyewear catalog image"
+  },
+  {
+    "path": "round-metal.png",
+    "source_file": "round-metal.png",
+    "sha256": "c959c95e2aa73e9c78d1a2501febecc51e465f66587dc1dd537ffd4154f8e900",
+    "permission": "Commercial use confirmed by project owner in chat, 2026-10-29",
+    "purpose": "Eyewear catalog image"
+  },
+  {
+    "path": "square-acetate.png",
+    "source_file": "square-acetate.png",
+    "sha256": "84e7c6b38f1d9b7432ca7ad16e6f592fb116516757d830ee7815a5651ec47009",
+    "permission": "Commercial use confirmed by project owner in chat, 2026-10-29",
+    "purpose": "Eyewear catalog image"
+  }
+]
