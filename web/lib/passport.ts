@@ -1642,7 +1642,7 @@ export interface PassportResponse {
    */
   free_result?: null | {
     score: {
-      kind: "learned" | "geometry";
+      kind: "learned";
       value: number | null;
       scale: number;
       status: string;
