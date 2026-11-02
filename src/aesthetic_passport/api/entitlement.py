@@ -80,3 +80,61 @@ def entitlement(job: dict[str, Any], free_previews_used: int) -> dict[str, Any]:
     return {"paid": paid, "unlock_scope": "full" if paid else "free", "share_token": job.get("share_token"),
             "free_previews_left": max(0, pr["free_previews"] - free_previews_used),
             "price_cny": pr["full_passport_price"], "locked": []}
+
+# Exactly one representative from each of the six report chapters.
+# Do not expose the remaining measurement values or DeepSeek-derived fields.
+FREE_METRICS = (
+    ("比例与对称", ("M001", "M025", "M114")),
+    ("眼与眉", ("M033", "M041", "M054")),
+    ("鼻", ("M062",)),
+    ("口唇与微笑", ("M076", "M080")),
+    ("下颌、下巴与侧脸", ("M098",)),
+    ("皮相与拍摄条件", ("M139", "M148")),
+)
+
+
+def cv_teaser(stored: dict[str, Any]) -> dict[str, Any]:
+    """Allowlisted CV-only result for a free user, including legacy full passports.
+
+    This response never includes analysis, derived, all measured values, or model prompts.
+    """
+    profile = stored.get("measurement_profile") or {}
+    by_id = {m["id"]: m for m in profile.get("metrics", [])}
+    metrics = []
+    for chapter, candidates in FREE_METRICS:
+        available = next((by_id[mid] for mid in candidates
+                          if mid in by_id and by_id[mid].get("availability") == "measured"), None)
+        metric = available or next((by_id[mid] for mid in candidates if mid in by_id), None)
+        metrics.append({
+            "chapter": chapter,
+            "id": metric["id"] if metric else None,
+            "name": metric["name_zh"] if metric else None,
+            "value": metric.get("value") if metric and metric.get("availability") == "measured" else None,
+            "decimals": metric.get("decimals") if metric else None,
+            "unit": metric.get("unit") if metric else None,
+            "availability": metric.get("availability", "unavailable") if metric else "unavailable",
+        })
+    # Only the public headline and the availability/provenance needed to interpret it.
+    learned = stored.get("learned_attractiveness") or {}
+    learned_rank = stored.get("learned_reference_rank") or {}
+    geo = stored.get("aesthetic_score") or {}
+    ref = stored.get("reference_percentiles") or {}
+    learning_valid = learned.get("status") == "ok" and learned.get("production_authorized") is True
+    rank_valid = learning_valid and learned_rank.get("status") == "available"
+    geo_rank = ref.get("score_rank") or ref.get("score") or {}
+    return {
+        "score": {
+            "kind": "learned" if learning_valid else "geometry",
+            "value": learned.get("display_score") if learning_valid else geo.get("overall_score"),
+            "scale": 10 if learning_valid else 100,
+            "status": "ok" if learning_valid else geo.get("status", "unavailable"),
+            "label": "颜值参考分" if learning_valid else "面部几何参考分",
+        },
+        "rank": {
+            "status": "available" if rank_valid else geo_rank.get("status", "unavailable"),
+            "percentile": learned_rank.get("percentile") if rank_valid else
+                          (geo_rank.get("percentile") if geo_rank.get("status") in ("ranked", "available") else None),
+            "label": learned_rank.get("cohort_label") if rank_valid else None,
+        },
+        "metrics": metrics,
+    }
