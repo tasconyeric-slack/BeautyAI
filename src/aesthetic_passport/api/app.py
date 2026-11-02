@@ -547,18 +547,42 @@ def create_app(settings: Settings | None = None) -> FastAPI:
         pid = body.get("passport_id")
         store.add_event(name, hash_pid(pid) if isinstance(pid, str) and PASSPORT_ID.match(pid) else None, topic, ref)
 
+    def start_paid_analysis(pid: str, job: dict[str, Any], background: BackgroundTasks) -> None:
+        if job["passport"] and job["passport"].get("kind") == "free_cv_v1" and job["status"] != "running":
+            if media_expired(job) or not (media_dir(settings.runs_dir, pid) / "front.jpg").is_file():
+                raise api_error(410, "media_expired", "原照片已过期，无法生成完整报告，请重新上传")
+            store.set_stage(pid, "analysis")
+            run(background, run_paid_passport_job, settings, store, pid)
+
+    @app.post("/api/passport/{pid}/complete")
+    def complete_paid(pid: str, background: BackgroundTasks) -> dict[str, Any]:
+        job = job_or_404(pid)
+        if not job["paid"]:
+            raise api_error(402, "payment_required", "请先解锁")
+        start_paid_analysis(pid, job, background)
+        return shell(store.get(pid))
+
     @app.post("/api/checkout")
-    def checkout(body: Annotated[dict[str, Any], Body()]) -> dict[str, Any]:
+    def checkout(background: BackgroundTasks, body: Annotated[dict[str, Any], Body()]) -> dict[str, Any]:
         pid = body.get("passport_id") or ""
-        job = ready_job(pid)
+        job = job_or_404(pid)
+        if job["passport"] is None or job["status"] not in ("done", "failed", "running"):
+            raise api_error(409, "not_ready", "初步分析尚未完成")
         if job["paid"]:
-            return {"payment": {"status": "paid", "order_id": None, "pay_url": None}, **shell(job)}
+            start_paid_analysis(pid, job, background)
+            return {"payment": {"status": "paid", "order_id": None, "pay_url": None}, **shell(store.get(pid))}
+        if job["status"] != "done":
+            raise api_error(409, "not_ready", "初步分析尚未完成")
+        if job["passport"].get("kind") == "free_cv_v1" and (media_expired(job) or
+                not (media_dir(settings.runs_dir, pid) / "front.jpg").is_file()):
+            raise api_error(410, "media_expired", "原照片已过期，请重新上传后再购买")
         code = (body.get("invite_code") or "").strip()
         if code:
             if not pricing().get("invite_unlock") or code not in settings.invite_unlock_codes:
                 raise api_error(403, "bad_invite", "邀请码无效")
             store.set_paid(pid)
             store.add_event("paid", hash_pid(pid), None, "invite")
+            start_paid_analysis(pid, store.get(pid), background)
             return {"payment": {"status": "paid", "order_id": None, "pay_url": None}, **shell(store.get(pid))}
         try:
             provider = payment_from_env()
@@ -571,11 +595,12 @@ def create_app(settings: Settings | None = None) -> FastAPI:
         if co.settled:
             store.mark_payment_paid(co.order_id)
             store.add_event("paid", hash_pid(pid), None, None)
+            start_paid_analysis(pid, store.get(pid), background)
             return {"payment": {"status": "paid", "order_id": co.order_id, "pay_url": None}, **shell(store.get(pid))}
         return {"payment": {"status": "pending", "order_id": co.order_id, "pay_url": co.pay_url}, **shell(job)}
 
     @app.post("/api/payments/webhook")
-    def webhook(request: Request, body: Annotated[dict[str, Any], Body()]) -> dict[str, Any]:
+    def webhook(request: Request, background: BackgroundTasks, body: Annotated[dict[str, Any], Body()]) -> dict[str, Any]:
         try:
             order_id, status = payment_from_env().verify_webhook(body, dict(request.headers))
         except PaymentError as e:
@@ -587,6 +612,7 @@ def create_app(settings: Settings | None = None) -> FastAPI:
             raise api_error(404, "unknown_order", "unknown order")
         if changed:
             store.add_event("paid", hash_pid(pid), None, None)
+            start_paid_analysis(pid, store.get(pid), background)
         return {"ok": True, "changed": changed}
 
     # --- media -----------------------------------------------------------------------------------
