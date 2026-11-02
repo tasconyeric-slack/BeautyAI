@@ -3,9 +3,8 @@
 import * as React from "react";
 import Link from "next/link";
 import { ArrowDown, ArrowUpRight } from "lucide-react";
-import { aestheticScore, harmonyRadar, learnedScore, rankedRecs, referenceRank } from "@/lib/adapters";
+import { learnedScore, rankedRecs } from "@/lib/adapters";
 import { PredictedScoreHero } from "@/components/profile/score-hero";
-import { HarmonyRadar } from "@/components/profile/score-charts";
 import type { PassportResponse } from "@/lib/api";
 import type { FaceGeometry } from "@/lib/tint";
 import type { MeasureView } from "@/components/face/measure-model";
@@ -16,9 +15,7 @@ import s from "./full-report.module.css";
 /** Shared public/personal cover; every personal finding comes from this passport. */
 export function ReportOverview({ data, mv, sample, gone, geometry, exportAction }: { data: PassportResponse; mv: MeasureView | null; sample: boolean; gone: boolean; geometry: FaceGeometry | null; exportAction?: React.ReactNode }) {
   const p = data.passport!;
-  const score = aestheticScore(p), rank = referenceRank(p);
   const predicted = learnedScore(p);
-  const harmony = harmonyRadar(p);
   const highlight = p.derived.measurement_insights?.items.find(i => i.highlight);
   const first = rankedRecs(p)[0];
   const [failed, setFailed] = React.useState<string | null>(null);
@@ -36,17 +33,15 @@ export function ReportOverview({ data, mv, sample, gone, geometry, exportAction 
         <p className={s.lead}>{p.analysis.profile_summary.one_liner}</p>
         <p className={s.bestDirection}>{p.analysis.profile_summary.best_direction}</p>
         <div className={s.coverActions}><a href="#improvements">找到适合的改变 <ArrowDown size={16} /></a>{sample ? <Link href="/start">建立我的护照 <ArrowUpRight size={16} /></Link> : <Link href={`/p/${data.id}/studio`}>在照片上试试 <ArrowUpRight size={16} /></Link>}</div>
-        {predicted && <PredictedScoreHero view={predicted} harmony={harmony} />}
-        {!predicted && <div className={s.scoreSummary}>
-          <div className={s.scoreHeadline}><span>{score?.name ?? "AI 面部美学参考分"}</span><strong data-testid={score?.state === "scored" && score.score !== null ? "score-value" : undefined}>{score?.state === "scored" && score.score !== null ? p.aesthetic_score!.overall_score : score?.state === "limited" ? "部分可用" : "暂不可用"}</strong>{score?.state === "scored" && <small>/ 100</small>}</div>
-          <p data-testid="rank-state" className={s.rankLine}>{rank?.state === "ranked" ? <>{rank.label} <span>{rank.note}</span></> : score?.state === "scored" ? "参考人群位置校准中" : "当前照片暂无参考位置"}</p>
-          <div className={s.harmonyChart} aria-label="面部几何参考"><span className={s.caption}>几何协调度参考</span>{score?.components.map(c => <div key={c.key}><span>{c.name}</span>{c.score === null ? <small>未测得</small> : <meter min={0} max={100} value={c.score} aria-label={`${c.name} ${c.score}`} />}<small>{c.score ?? "—"}</small></div>)}</div>
+        {predicted && <PredictedScoreHero view={predicted} />}
+        {!predicted && <div className={s.scoreSummary} data-testid="ridge-unavailable">
+          <div className={s.scoreHeadline}><span>颜值参考分 · Ridge 回归</span><strong>暂不可用</strong><small>/ 10</small></div>
+          <p data-testid="rank-state" className={s.rankLine}>对应的参考样本排名暂不可用。没有 Ridge 预测时不会用几何分替代。</p>
         </div>}
         {exportAction}
 
       </div>
     </div>
-    {!predicted && harmony && <div className={s.harmonySummary}><HarmonyRadar axes={harmony} /></div>}
     <div className={s.glance} data-testid="report-glance">
       <div><span>面域解析</span><h2>{highlight?.label_zh ?? "看见自己的特点"}</h2><p>{highlight?.seen_zh ?? p.analysis.profile_summary.one_liner}</p><a href="#findings">读懂面部特点 <ArrowUpRight size={14} /></a></div>
       <div><span>风格方向</span><h2>{p.analysis.profile_summary.best_direction}</h2><a href="#options">探索发型与配色 <ArrowUpRight size={14} /></a></div>
