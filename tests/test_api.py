@@ -34,7 +34,7 @@ def client(tmp_path, monkeypatch):
     monkeypatch.setenv("QC_MODE", "stub")
     monkeypatch.setenv("IMAGE_EDIT_PROVIDER", "fake")
     monkeypatch.setenv("PAYMENT_PROVIDER", "fake")
-    settings = Settings(runs_dir=tmp_path / "runs", run_jobs_inline=True, ip_passports_per_hour=5,
+    settings = Settings(runs_dir=tmp_path / "runs", run_jobs_inline=True, free_cv_only=False, ip_passports_per_hour=5,
                         invite_unlock_codes={"FRIEND39"})
     with TestClient(create_app(settings)) as c:
         c.settings = settings
@@ -64,7 +64,7 @@ def get(client, pid):
 def test_health_reports_fake_providers(client):
     h = client.get("/api/health").json()
     assert h["analysis_provider"] == "fake" and h["qc_mode"] == "stub" and h["payment_provider"] == "fake"
-    assert h["price_cny"] == 39
+    assert h["price_cny"] == 139
 
 
 def test_front_only_flow_partials_and_retention(client):

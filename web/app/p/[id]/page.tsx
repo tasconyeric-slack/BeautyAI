@@ -3,6 +3,7 @@
 import { useRouter } from "next/navigation";
 import * as React from "react";
 import { FullReport } from "@/components/report/full-report";
+import { FreeReport } from "@/components/report/free-report";
 import { landTopicKey } from "@/components/upload/start-flow";
 import { Reveal } from "@/components/reveal/reveal";
 import { usePassport } from "@/lib/state/passport-store";
@@ -28,6 +29,7 @@ export default function PassportPage() {
   }, [id, ready, router]);
   if (loading || !data) return <LoadingState />;
   if (data.status === "qc_failed") return <QcFailed />;
+  if (data.free_result && (!data.passport || !data.entitlement.paid)) return <FreeReport data={data} />;
   if (data.status !== "full_ready" || !data.passport) return <Reveal />;
   return <FullReport />;
 }

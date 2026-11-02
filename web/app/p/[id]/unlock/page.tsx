@@ -47,8 +47,10 @@ export default function UnlockPage() {
       <p className={s.unlockStatus}>{paid ? paywall.fullStatus : paywall.freeStatus}</p>
       {paid ? (
         <div className={s.unlockLinks}>
-          <Link href={`/p/${id}/report`} className="rounded-full bg-accent px-5 py-2.5 text-[14px] text-[var(--ap-on-primary)]">{paywall.readReport}</Link>
-          <Link href={`/p/${id}/studio`} className="rounded-full border border-rule-strong px-5 py-2.5 text-[14px]">去 Studio 生成发型试看</Link>
+          {!data?.passport && <p role="status" className="text-[13px] leading-6">{data?.status === "analysis_failed" ? "完整 AI 分析暂未完成，请点击下方重试。" : "付款已确认，正在生成完整个性化报告。完成前不会开放 Studio 与 PDF。"}</p>}
+          {!data?.passport && data?.status === "analysis_failed" && <Button type="button" variant="outline" disabled={busy} onClick={() => go()}>{busy ? "重试中…" : "重试生成完整报告"}</Button>}
+          <Link href={`/p/${id}/report`} className="rounded-full bg-accent px-5 py-2.5 text-[14px] text-[var(--ap-on-primary)]">{data?.passport ? paywall.readReport : "查看分析进度"}</Link>
+          {data?.passport && <Link href={`/p/${id}/studio`} className="rounded-full border border-rule-strong px-5 py-2.5 text-[14px]">去 Studio 生成发型试看</Link>}
         </div>
       ) : (
         <>
@@ -57,7 +59,7 @@ export default function UnlockPage() {
           ) : (
             <>
               <Button variant="accent" size="lg" className="mt-6 w-full" disabled={busy || !data || payMode === "unknown"} onClick={() => go()}>
-                {busy ? <Loader2 className="animate-spin" /> : null}¥{data?.entitlement.price_cny ?? 39} {paywall.priceSuffix}
+                {busy ? <Loader2 className="animate-spin" /> : null}¥{data?.entitlement.price_cny ?? 139} {paywall.priceSuffix}
               </Button>
               <p className="mt-2 text-center text-[12px] text-muted">
                 {paywall.noSubscription}{payMode === "fake" ? "（演示环境：模拟支付，不会扣款）" : ""}

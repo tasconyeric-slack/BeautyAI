@@ -36,7 +36,8 @@ def _run(settings: Settings, store: Store, pid: str, user_context: dict, photos:
         passport = run_pipeline(photos, user_context, run_dir=settings.runs_dir / pid, passport_id=pid,
                                 on_stage=lambda s: store.set_stage(pid, s),
                                 on_partial=lambda k, v: store.set_partial(pid, k, v) if k != "analysis" else None,
-                                media_dir=media_dir(settings.runs_dir, pid), photo_meta=photo_meta)
+                                media_dir=media_dir(settings.runs_dir, pid), photo_meta=photo_meta,
+                                cv_only=settings.free_cv_only)
         if pricing()["free_previews"] <= 0:
             # D33: no automatic preview, so no placeholder entry either (a "pending" one would never resolve).
             passport["previews"] = []
@@ -85,8 +86,7 @@ def run_passport_job(settings: Settings, store: Store, pid: str, user_context: d
         elif not ok:
             shutil.rmtree(mdir, ignore_errors=True)
         shutil.rmtree(up, ignore_errors=True)
-    if ok:
-        # The profile is already visible; the free preview arrives asynchronously and never blocks it.
+    if ok and not settings.free_cv_only:
         start_free_preview(settings, store, pid)
 
 
@@ -109,11 +109,13 @@ def run_reanalysis_job(settings: Settings, store: Store, pid: str, user_context:
     photos["front"] = front
     try:
         passport = run_pipeline(photos, user_context, run_dir=settings.runs_dir / pid, passport_id=pid,
-                                on_stage=lambda s: store.set_stage(pid, s), media_dir=mdir, photo_meta=photo_meta)
-        if preference_events:
+                                on_stage=lambda s: store.set_stage(pid, s), media_dir=mdir, photo_meta=photo_meta,
+                                cv_only=settings.free_cv_only and not bool(job["paid"]))
+        if preference_events and passport.get("kind") != "free_cv_v1":
             passport = rerank_passport(passport, user_context, preference_events, context_changed=False)
-        passport["previews"] = previous.get("previews", [])
-        passport["meta"]["quick"] = passport["meta"].get("quick") or previous["meta"].get("quick")
+        if passport.get("kind") != "free_cv_v1":
+            passport["previews"] = previous.get("previews", [])
+            passport["meta"]["quick"] = passport["meta"].get("quick") or previous.get("meta", {}).get("quick")
         keep_glasses_reference(up, mdir, store, pid)
         store.finish(pid, passport)
         _keep_measurement_photos(up, mdir, passport)
@@ -124,3 +126,31 @@ def run_reanalysis_job(settings: Settings, store: Store, pid: str, user_context:
         store.finish(pid, previous)
     finally:
         shutil.rmtree(up, ignore_errors=True)
+
+
+def run_paid_passport_job(settings: Settings, store: Store, pid: str) -> None:
+    """After confirmed payment, generate the full DeepSeek Passport from retained photos.
+
+    A failed generation never revokes the paid entitlement or invents a full report.
+    Retried by the paid completion endpoint while the original photos still exist.
+    """
+    job = store.get(pid)
+    if not job or not job["paid"] or not job["passport"]:
+        return
+    if job["passport"].get("kind") != "free_cv_v1":
+        return
+    mdir = media_dir(settings.runs_dir, pid)
+    photos = {r: mdir / f"{r}.jpg" for r in ("front", *KEPT_ROLES) if (mdir / f"{r}.jpg").is_file()}
+    if "front" not in photos:
+        store.fail(pid, "media_expired", "原照片已过期，请重新上传后联系客服补发已付费报告")
+        return
+    try:
+        passport = run_pipeline(photos, job["passport"]["user_context"],
+                                run_dir=settings.runs_dir / pid, passport_id=pid,
+                                on_stage=lambda s: store.set_stage(pid, s), media_dir=mdir,
+                                skip_quick=True)
+        passport["previews"] = []
+        store.finish(pid, passport)
+    except Exception:
+        log.exception("paid analysis %s failed", pid)
+        store.fail(pid, "paid_analysis_failed", "完整分析暂未完成，可在解锁页重试")

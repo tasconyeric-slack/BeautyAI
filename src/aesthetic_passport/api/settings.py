@@ -23,7 +23,8 @@ class Settings:
     ip_qc_per_minute: int = 30
     max_upload_mb: int = 15
     media_ttl_hours: int = 24
-    preview_cap: int = 12                                  # previews per paid passport (= pricing.yaml paid_preview_cap)
+    free_cv_only: bool = True                      # Free uploads never invoke DeepSeek; explicit tests can opt out
+    preview_cap: int = 3                                  # previews per paid passport (= pricing.yaml paid_preview_cap)
     passport_ttl_days: int = 7                             # unsaved passport JSON (photos: media_ttl_hours)
     share_base_url: str = ""                               # prefix for share links (web origin); empty = relative
     invite_unlock_codes: set[str] = field(default_factory=set)

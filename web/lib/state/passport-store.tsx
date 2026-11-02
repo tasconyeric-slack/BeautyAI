@@ -87,7 +87,7 @@ const uid = () =>
 export function settled(r: PassportResponse | null): boolean {
   if (!r) return false;
   if (r.status === "deleted" || r.status === "qc_failed" || r.status === "analysis_failed") return true;
-  return r.status === "full_ready" && !r.partial.previews.some((p) => p.status === "pending");
+  return (r.status === "full_ready" || r.status === "free_ready") && !r.partial.previews.some((p) => p.status === "pending");
 }
 
 export function PassportProvider({ id, initial, children }: { id: string; initial?: PassportResponse; children: React.ReactNode }) {
@@ -261,10 +261,11 @@ export function PassportProvider({ id, initial, children }: { id: string; initia
     try {
       const r = await backend.checkout(id, inviteCode);
       apply(r);
+      if (r.entitlement.paid && !r.passport) restartPolling();
     } finally {
       setBusy(false);
     }
-  }, [apply, backend, id]);
+  }, [apply, backend, id, restartPolling]);
 
   const value: PassportStore = {
     id, data, passport: data?.passport ?? null, loading: !data && !error, error, deletedAt, changeNote, busy, queued,

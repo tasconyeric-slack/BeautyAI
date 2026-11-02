@@ -325,18 +325,16 @@ export const settings = {
 
 export const paywall = {
   title: "带走完整形象护照",
-  // What the server actually removes from a free view (config/pricing.yaml free_view, D33): keep these in step.
   bullets: [
-    "全部面部测量明细、参考范围与测量线。",
-    "照片级 AI 发型试看与发色组合。",
-    "完整穿搭公式、单品与场合方案，全部唇色与镜框毫米尺寸。",
-    "按“今天 / 下次剪发 / 值得投入”排好的完整行动计划。",
+    "所有可靠测量指标、图形依据与详细解读。",
+    "完整个性化形象分析、发型、配镜、配色与妆容建议。",
+    "Studio 形象实验室与 3 张 AI 发型效果图。",
+    "完整形象改善行动计划与 PDF 下载。",
   ],
   onUnlock: "解锁完整护照",
   priceSuffix: "元 · 一次解锁",
   noSubscription: "一次解锁本份护照，无自动续费。",
-  // free_previews: 0 (D33): photorealistic hair previews are never part of the free scope.
-  freeScope: "免费包含：基础档案、AI 面部美学参考分、核心面部测量、三个发型方向的文字建议与发型师简报、数字披布、2 个唇色、档案卡、基础反馈与删除。照片级 AI 发型试看只在完整护照中提供，没有免费次数。",
+  freeScope: "免费包含：本地计算的面部参考分、在参考样本有效时的百分位排名、六个面部分析分区各一项代表性测量。免费测评不使用生成式 AI 或图像生成服务，不提供完整报告、Studio 与 PDF。",
   sampleReport: "先看一份完整示例报告",
   readReport: "阅读完整评估报告",
   invitation: "使用邀请码",
@@ -345,25 +343,24 @@ export const paywall = {
   pending: "正在确认解锁结果",
   paymentChecking: "正在读取支付可用状态",
   paymentUnavailable: "支付暂未开放，可以使用邀请码解锁。",
-  freeStatus: "当前为免费护照",
-  fullStatus: "当前为完整护照",
+  freeStatus: "当前为免费测评",
+  fullStatus: "完整护照已解锁",
   unlocked: "完整护照已解锁",
   failed: "解锁暂未完成，请查看订单状态后再试。",
 } as const;
 
-/** Free vs full passport, as the server trims it (V2.1 §7 table, D33). Shown on the paywall and in the report. */
 export const entitlements = {
   title: "免费与完整护照分别包含什么",
   free: "免费",
-  full: "完整护照 · 一次解锁",
+  full: "完整护照 · 一次解锁 ¥139",
   rows: [
-    { area: "评估报告", free: "完整章节结构、AI 面部美学参考分、核心测量与各部位解读", full: "全部测量明细、参考范围与测量线" },
-    { area: "发型", free: "三个方向的文字建议、参数与发型师简报", full: "照片级 AI 发型试看与发色组合" },
-    { area: "色彩与妆容", free: "色卡、近脸色、2 个唇色与本地试色", full: "全部唇色" },
-    { area: "穿搭与眼镜", free: "2 条穿搭公式、4 件单品、镜框形状", full: "全部公式、单品、场合方案与镜框毫米尺寸" },
-    { area: "行动计划", free: "最优先的 3 件事", full: "按今天、下次剪发、值得投入排好的完整计划" },
+    { area: "分数与参考位置", free: "本地面部参考分、可用时的样本百分位", full: "分数来源、参考位置依据及详细解读" },
+    { area: "面部测量", free: "六个分区各 1 项", full: "全部可靠指标、图解与详细解读" },
+    { area: "AI 分析", free: "不使用生成式 AI", full: "完整个性化报告及改善建议" },
+    { area: "Studio 形象实验室", free: "不可使用", full: "完整配镜、配色、妆容及 3 张 AI 发型效果图" },
+    { area: "PDF 下载", free: "不可使用", full: "完整 PDF" },
   ],
-  previewNote: "照片级发型试看没有免费次数；免费时可以先读三个方向的文字建议。",
+  previewNote: "AI 发型效果图仅付费用户可生成，每份护照初始包含 3 张；免费测评不调用图像生成服务。",
 } as const;
 
 /** AI 面部美学参考分 (Issue #31, D36). A geometry reference on one photo — never called attractiveness, never a rank. */

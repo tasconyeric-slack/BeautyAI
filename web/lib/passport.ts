@@ -1596,7 +1596,7 @@ export interface QuickAnalysis {
  */
 export interface PassportResponse {
   id: string;
-  status: "scanning" | "quick_ready" | "full_ready" | "qc_failed" | "analysis_failed" | "deleted";
+  status: "scanning" | "quick_ready" | "free_ready" | "full_ready" | "qc_failed" | "analysis_failed" | "deleted";
   stage: string | null;
   partial: {
     input_quality: null | Passport["input_quality"];
@@ -1637,6 +1637,32 @@ export interface PassportResponse {
     detail: string;
   };
   created_at: string;
+  /**
+   * CV-only free teaser; only six metric values; no generative analysis.
+   */
+  free_result?: null | {
+    score: {
+      kind: "learned" | "geometry";
+      value: number | null;
+      scale: number;
+      status: string;
+      label: string;
+    };
+    rank: {
+      status: string;
+      percentile: number | null;
+      label: string | null;
+    };
+    metrics: {
+      chapter: string;
+      id: string | null;
+      name: string | null;
+      value: number | null;
+      decimals: number | null;
+      unit: string | null;
+      availability: string;
+    }[];
+  };
 }
 /**
  * This interface was referenced by `PassportResponse`'s JSON-Schema

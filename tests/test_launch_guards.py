@@ -62,7 +62,7 @@ def client(tmp_path, monkeypatch):
     for k, v in {"ANALYSIS_PROVIDER": "fake", "FAKE_ANALYSIS_DELAY_S": "0", "QC_MODE": "stub",
                  "IMAGE_EDIT_PROVIDER": "fake", "PAYMENT_PROVIDER": "fake"}.items():
         monkeypatch.setenv(k, v)
-    s = Settings(runs_dir=tmp_path / "runs", run_jobs_inline=True, invite_unlock_codes={"FRIEND39"})
+    s = Settings(runs_dir=tmp_path / "runs", run_jobs_inline=True, free_cv_only=False, invite_unlock_codes={"FRIEND39"})
     with TestClient(create_app(s)) as c:
         c.settings = s
         yield c

@@ -164,7 +164,7 @@ def test_api_response_shell(analysis):
                         "quick": _quick(analysis), "analysis": "ready", "previews": []},
             "passport": passport,
             "entitlement": {"paid": False, "unlock_scope": "free", "share_token": None, "free_previews_left": 1,
-                            "price_cny": 39, "locked": []},
+                            "price_cny": 139, "locked": []},
             "media": {"front": None, "thumb": None, "expires_at": None, "expired": True},
             "error": None, "created_at": passport["created_at"]}
     assert validate_api_response(body) == []
