@@ -32,9 +32,9 @@ export function FreeReport({ data }: { data: PassportResponse }) {
             {score.value != null ? score.value.toFixed(1) : "—"}
             <span className="ml-2 text-[18px] text-muted">/ {score.scale}</span>
           </div>
-          {score.kind === "geometry"
-            ? <p className="mt-4 text-[12px] leading-6 text-muted">仅反映照片中的几何协调程度，不等于经过人类审美标注校准的颜值预测。</p>
-            : <p className="mt-4 text-[12px] leading-6 text-muted">参考模型评分，受照片角度、光线与样本构成影响。</p>}
+          {score.value == null
+            ? <p className="mt-4 text-[12px] leading-6 text-muted">Ridge 评分暂不可用。请勿将几何协调分替代为颜值预测；模型及参考样本需在生产环境就绪。</p>
+            : <p className="mt-4 text-[12px] leading-6 text-muted">基于面部几何特征的 Ridge 回归预测；结果受照片质量和训练样本影响。</p>}
         </div>
         <div className="rounded-[14px] border border-rule bg-paper-raised p-6">
           <p className="text-[13px] text-muted">参考样本百分位</p>
