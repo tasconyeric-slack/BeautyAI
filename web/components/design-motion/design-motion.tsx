@@ -71,6 +71,27 @@ export function DesignMotion({ hero, readings, view, production = false, uploadH
           <div><p>轮廓、比例、色彩，是风格的线索。<br />我们把线索变成看得懂、试得到的选择。</p><a href="#reading" className={s.down}>从一张照片开始 <ArrowDown size={18} /></a></div>
         </section>
         <ReadingStory hero={hero} readings={readings} reportHref={pageRoute("report")} />
+        <section className={s.assessment} aria-labelledby="home-assessment-title" data-reveal>
+          <div className={s.assessmentIntro}>
+            <p className={s.eyebrow}>AESTHETIC ASSESSMENT</p>
+            <h2 id="home-assessment-title">一个分数，<br /><em>一份有边界的比较。</em></h2>
+            <p>照片符合分析条件时，你可以看到 1–10 分的颜值预测，以及在明确的照片参考样本中的近似位置。分数是模型预测，不是对一个人的定论。</p>
+            <Link href={uploadHref} className={s.textLink}>查看我的评估结果 <ArrowUpRight size={17} /></Link>
+          </div>
+          <div className={s.assessmentEvidence}>
+            <article>
+              <span>颜值预测分</span>
+              <h3>1–10 分</h3>
+              <p>基于已授权的评分模型；照片不符合要求时，会明确说明无法评估。</p>
+            </article>
+            <article>
+              <span>照片样本排名</span>
+              <h3>比较对象要清楚</h3>
+              <p>仅在同一模型存在匹配的参考照片数据时展示。它不代表全人群排名。</p>
+            </article>
+            <Link href="/report/sample?v=p002" className={s.assessmentSample}>阅读完整示例报告 <ArrowUpRight size={16} /></Link>
+          </div>
+        </section>
         <section className={s.individuals} aria-labelledby="individuals-title">
           <div className={s.editorialHead} data-reveal><p className={s.eyebrow}>02 / INDIVIDUALITY</p><h2 id="individuals-title">风格有很多种。<br /><em>答案，因你而异。</em></h2><p>不同的轮廓、发质和日常习惯，<br />值得各自的选择。</p></div>
           <div className={s.portraitComposition}>{editorialPortraits.map(({ person, role, caption }, i) => {
