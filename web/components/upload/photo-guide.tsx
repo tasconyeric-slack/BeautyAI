@@ -10,6 +10,13 @@ const GUIDES = [
   { id: "dark", tab: "光线", title: "面向柔和、均匀的光", text: "白天面向窗户，避免背光、直射阳光和强闪光。尽量关掉美颜与滤镜。" },
   { id: "covered", tab: "遮挡", title: "把眉眼露出来", text: "撩开遮眼头发、摘下墨镜。日常眼镜照片可以放在选填的参考位置。" },
 ] as const;
+const GUIDE_VISUAL_LABELS = {
+  ready: "正脸示例",
+  blur: "模糊示例 · 避免",
+  angle: "倾斜示例 · 避免",
+  dark: "欠曝示例 · 避免",
+  covered: "眉眼无遮挡",
+} as const satisfies Record<(typeof GUIDES)[number]["id"], string>;
 export function PhotoGuide() {
   const [selected, setSelected] = React.useState(0);
   const [touched, setTouched] = React.useState(false);
@@ -30,13 +37,16 @@ export function PhotoGuide() {
     return () => { clearTimeout(timer); observer.disconnect(); document.removeEventListener("visibilitychange", schedule); };
   }, [touched]);
   const current = GUIDES[selected];
-  const frontalExample = current.id === "ready" ? demoPortraits["person-004"].frontal : null;
-  return <aside ref={root} onPointerDown={() => setTouched(true)} onFocusCapture={() => setTouched(true)} className={s.guide} aria-label="拍照指引">
-    <img key={current.id}
-      src={frontalExample?.src ?? `/guides/qc/${current.id}.svg`}
-      alt={frontalExample ? `${frontalExample.alt}（正脸拍摄示例，非质检结果）` : `${current.title}，拍照示意图`}
-      width={frontalExample?.width ?? 320}
-      height={frontalExample?.height ?? 280} />
+  const frontalExample = demoPortraits["person-004"].frontal;
+  return <aside ref={root} onPointerDown={() => setTouched(true)} onFocusCapture={() => setTouched(true)} className={s.guide} data-guide={current.id} aria-label="拍照指引">
+    <div className={s.guidePhotoStage}>
+      <img key={current.id}
+        src={frontalExample.src}
+        alt={`${frontalExample.alt}，${GUIDE_VISUAL_LABELS[current.id]}（拍照教学示意，非质检结果）`}
+        width={frontalExample.width}
+        height={frontalExample.height} />
+      <span className={s.guidePhotoTag} aria-hidden="true">{GUIDE_VISUAL_LABELS[current.id]}</span>
+    </div>
     <div className={s.guideContent}><div><h2>{current.title}</h2><p>{current.text}</p></div>
       <div className={s.guideChoices} aria-label="切换拍照提示">{GUIDES.map((g, i) => <button key={g.id} type="button" aria-pressed={i === selected} onClick={() => setSelected(i)}>{g.tab}</button>)}</div>
     </div>
