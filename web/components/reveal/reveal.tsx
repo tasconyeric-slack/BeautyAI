@@ -134,7 +134,7 @@ export function Reveal() {
           })}
         </ol>
         {failed ? (
-          <div className="mt-5"><p className="text-[13px] leading-6">{journey.failedAnalysis}</p><Link className="mt-3 inline-flex min-h-11 items-center rounded-full border border-rule-strong px-5 text-[14px]" href="/start">{journey.restartAnalysis}</Link></div>
+          <div className="mt-5"><p className="text-[13px] leading-6">{data?.entitlement.paid ? "完整报告生成中断，可以重试。" : journey.failedAnalysis}</p><Link className="mt-3 inline-flex min-h-11 items-center rounded-full border border-rule-strong px-5 text-[14px]" href={data?.entitlement.paid ? `/p/${id}/unlock` : "/start"}>{data?.entitlement.paid ? "重试生成完整报告" : journey.restartAnalysis}</Link></div>
         ) : (
           <p className="mt-5 text-[13px] leading-6 text-ink-soft">{copy.readyNote}</p>
         )}

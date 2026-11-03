@@ -9,7 +9,7 @@ describe("report route follows the current job", () => {
     const data = structuredClone(sampleReportResponse("female")); data.id = "ap_route"; data.status = status; data.stage = "analysis"; data.passport = null;
     render(<StaticPassportProvider value={{ data }}><ReportPage /></StaticPassportProvider>);
     expect(screen.queryByText("R2 报告")).toBeNull();
-    if (status === "analysis_failed") expect(screen.getByRole("link", { name: "重新开始分析" })).toBeTruthy();
+    if (status === "analysis_failed") expect(screen.getByRole("link", { name: "重试生成完整报告" })).toBeTruthy();
     else expect(screen.getByRole("list", { name: "分析进度" })).toBeTruthy();
   });
   it("shows real progress after invite unlock even when the free CV teaser still exists", () => {
