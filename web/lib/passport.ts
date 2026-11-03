@@ -1652,7 +1652,14 @@ export interface PassportResponse {
       status: string;
       percentile: number | null;
       label: string | null;
+      distribution?: null | ReferenceDensity;
     };
+    /** Recorded geometric subscores only; not a separate attractiveness prediction. */
+    harmony?: null | {
+      id: string;
+      label: string;
+      value: number | null;
+    }[];
     metrics: {
       chapter: string;
       id: string | null;
