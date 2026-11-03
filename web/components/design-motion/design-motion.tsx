@@ -9,6 +9,7 @@ import { MetricLines } from "@/components/home/overlay";
 import { useSize } from "@/components/home/use-size";
 import { HoldButton, useHold } from "@/components/ds/HoldButton";
 import { SampleReport } from "@/components/report/sample-report";
+import { demoPortraits } from "@/lib/assets/portraits";
 import heroStyles from "@/components/home/home.module.css";
 import s from "./design-motion.module.css";
 
@@ -16,6 +17,12 @@ type View = "home" | "report" | "studio";
 const route = (view: View) => `/dev/design-motion${view === "home" ? "" : `?view=${view}`}`;
 const image = (key: string) => `/demo/generated/p001/${key === "orig" ? "safe-before" : `${key}-after`}.jpg`;
 const titles = ["先看轮廓", "再看重心", "找到配色"];
+const editorialPortraits = [
+  { person: "person-004", role: "lead", caption: "波浪发与自然体量" },
+  { person: "person-003", role: "support-short", caption: "短发与清晰轮廓" },
+  { person: "person-005", role: "support-texture", caption: "卷发与短胡须" },
+  { person: "person-006", role: "secondary", caption: "灰黑发与柔和层次" },
+] as const;
 const subscribe = (change: () => void) => {
   const mq = window.matchMedia("(prefers-reduced-motion: reduce)");
   mq.addEventListener("change", change);
@@ -66,9 +73,14 @@ export function DesignMotion({ hero, readings, view, production = false, uploadH
         <ReadingStory hero={hero} readings={readings} reportHref={pageRoute("report")} />
         <section className={s.individuals} aria-labelledby="individuals-title">
           <div className={s.editorialHead} data-reveal><p className={s.eyebrow}>02 / INDIVIDUALITY</p><h2 id="individuals-title">风格有很多种。<br /><em>答案，因你而异。</em></h2><p>不同的轮廓、发质和日常习惯，<br />值得各自的选择。</p></div>
-          <div className={s.portraitStrip}>{["003", "004", "001", "002", "006", "005"].map((id, i) => <figure key={id} data-reveal style={{ "--delay": `${i * 65}ms` } as CSSProperties}>
-            <div><img src={`/demo/portraits/person-${id}-frontal.webp`} alt="人物风格肖像" width={960} height={1200} loading="lazy" /></div>
-          </figure>)}</div>
+          <div className={s.portraitComposition}>{editorialPortraits.map(({ person, role, caption }, i) => {
+            const portrait = demoPortraits[person].frontal;
+            return <figure key={person} data-reveal data-portrait-role={role} style={{ "--delay": `${i * 55}ms` } as CSSProperties}>
+              <div className={s.portraitFrame}><img src={portrait.src} alt={portrait.alt} width={portrait.width} height={portrait.height} loading="lazy" decoding="async" /></div>
+              <figcaption>{caption}</figcaption>
+            </figure>;
+          })}</div>
+          <p className={s.disclosure} data-reveal>合成示例肖像，仅用于展示，不用于分析。</p>
         </section>
         <section className={s.styleSection} id="possibility">
           <div className={s.styleIntro} data-reveal><p className={s.eyebrow}>03 / POSSIBILITIES</p><h2>改变多少，<br /><em>由你决定。</em></h2><p>先看一个发型方向。<br />在同一张照片里比较，保留喜欢的部分。</p><Link href={pageRoute("studio")} className={s.textLink}>在 Studio 里继续探索 <ArrowUpRight size={18} /></Link></div>

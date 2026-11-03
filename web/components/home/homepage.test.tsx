@@ -1,8 +1,9 @@
-import { render, screen } from "@testing-library/react";
+import { render, screen, within } from "@testing-library/react";
 import { beforeAll, describe, expect, it, vi } from "vitest";
 import { HomePage } from "./homepage";
 import { TOPIC_KEYS, startHref } from "@/components/landing/cases";
 import { topics } from "@/lib/copy/zh";
+import { demoPortraits } from "@/lib/assets/portraits";
 const trackLandingView = vi.hoisted(() => vi.fn(() => Promise.resolve()));
 vi.mock("@/lib/landing-event", () => ({ trackLandingView }));
 beforeAll(() => {
@@ -35,5 +36,25 @@ describe("production homepage", () => {
     expect(screen.getByRole("img", { name: "偏分内扣中长发效果" }).getAttribute("src")).toBe("/demo/generated/p001/safe-after.jpg");
     expect(screen.getByRole("link", { name: /阅读对应人物报告/ }).getAttribute("href")).toBe("/report/sample?v=p001");
     expect(document.querySelector('img[src*="/design-motion/p001-b-"]')).toBeNull();
+  });
+  it("composes the individuality scene as an honest editorial hierarchy", () => {
+    render(<HomePage />);
+    const heading = screen.getByRole("heading", { name: /风格有很多种/ });
+    const section = heading.closest("section");
+    expect(section).not.toBeNull();
+    const figures = [...section!.querySelectorAll("figure")];
+    expect(figures.map(figure => figure.getAttribute("data-portrait-role"))).toEqual([
+      "lead",
+      "support-short",
+      "support-texture",
+      "secondary",
+    ]);
+    expect(figures.map(figure => within(figure).getByRole("img").getAttribute("alt"))).toEqual([
+      demoPortraits["person-004"].frontal.alt,
+      demoPortraits["person-003"].frontal.alt,
+      demoPortraits["person-005"].frontal.alt,
+      demoPortraits["person-006"].frontal.alt,
+    ]);
+    expect(within(section!).getByText("合成示例肖像，仅用于展示，不用于分析。")).toBeTruthy();
   });
 });
