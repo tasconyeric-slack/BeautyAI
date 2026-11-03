@@ -3,7 +3,7 @@
 import * as React from "react";
 import Link from "next/link";
 import { ArrowDown, ArrowUpRight } from "lucide-react";
-import { learnedScore, rankedRecs } from "@/lib/adapters";
+import { harmonyRadar, learnedScore, rankedRecs } from "@/lib/adapters";
 import { PredictedScoreHero } from "@/components/profile/score-hero";
 import type { PassportResponse } from "@/lib/api";
 import type { FaceGeometry } from "@/lib/tint";
@@ -16,6 +16,7 @@ import s from "./full-report.module.css";
 export function ReportOverview({ data, mv, sample, gone, geometry, exportAction }: { data: PassportResponse; mv: MeasureView | null; sample: boolean; gone: boolean; geometry: FaceGeometry | null; exportAction?: React.ReactNode }) {
   const p = data.passport!;
   const predicted = learnedScore(p);
+  const harmony = harmonyRadar(p);
   const highlight = p.derived.measurement_insights?.items.find(i => i.highlight);
   const first = rankedRecs(p)[0];
   const [failed, setFailed] = React.useState<string | null>(null);
@@ -33,7 +34,7 @@ export function ReportOverview({ data, mv, sample, gone, geometry, exportAction 
         <p className={s.lead}>{p.analysis.profile_summary.one_liner}</p>
         <p className={s.bestDirection}>{p.analysis.profile_summary.best_direction}</p>
         <div className={s.coverActions}><a href="#improvements">找到适合的改变 <ArrowDown size={16} /></a>{sample ? <Link href="/start">建立我的护照 <ArrowUpRight size={16} /></Link> : <Link href={`/p/${data.id}/studio`}>在照片上试试 <ArrowUpRight size={16} /></Link>}</div>
-        {predicted && <PredictedScoreHero view={predicted} />}
+        {predicted && <PredictedScoreHero view={predicted} harmony={harmony} />}
         {!predicted && <div className={s.scoreSummary} data-testid="ridge-unavailable">
           <div className={s.scoreHeadline}><span>颜值参考分 · Ridge 回归</span><strong>暂不可用</strong><small>/ 10</small></div>
           <p data-testid="rank-state" className={s.rankLine}>对应的参考样本排名暂不可用。没有 Ridge 预测时不会用几何分替代。</p>
