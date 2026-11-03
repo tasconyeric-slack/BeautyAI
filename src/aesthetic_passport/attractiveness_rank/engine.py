@@ -1,4 +1,4 @@
-"""Pure empirical ranking in an explicitly selected, version-matched sample."""
+"""Version-matched sample ranking with opt-in continuous Ridge tail estimates."""
 
 from __future__ import annotations
 
@@ -8,6 +8,7 @@ from pathlib import Path
 
 import yaml
 
+from .continuous import continuous_rank
 from .contracts import ModelResult, RankResult, ReferenceRegistry
 from .reference import IDENTITY_FIELDS, ROOT, ReferenceDataError, cohort_blocker, model_blocker, validate_registry
 
@@ -21,6 +22,11 @@ class RankPolicy:
     coarse_step_percent: int
     fine_step_percent: int
     uncertainty_alpha: float
+    continuous_model_id: str
+    continuous_distribution_version: str
+    tail_fit_low: float
+    tail_fit_high: float
+    tail_join_quantile: float
 
 
 def load_policy(path: str | Path | None = None) -> RankPolicy:
@@ -29,10 +35,16 @@ def load_policy(path: str | Path | None = None) -> RankPolicy:
         if data.pop("policy_version") != "attractiveness-rank-1":
             raise ValueError
         policy = RankPolicy(**data)
-        integer_fields = list(data.keys() - {"uncertainty_alpha"})
+        integer_fields = ["min_unique_subjects", "min_tail_observations", "min_distinct_scores",
+                          "fine_precision_min_subjects", "coarse_step_percent", "fine_step_percent"]
         if any(type(data[key]) is not int or data[key] <= 0 for key in integer_fields):
             raise ValueError
         if not 0 < policy.uncertainty_alpha < 1 or type(policy.uncertainty_alpha) is bool:
+            raise ValueError
+        if not .5 < policy.tail_fit_low < policy.tail_join_quantile < policy.tail_fit_high < 1:
+            raise ValueError
+        if not all(isinstance(data[k], str) and data[k] for k in
+                   ("continuous_model_id", "continuous_distribution_version")):
             raise ValueError
         if policy.fine_precision_min_subjects < policy.min_unique_subjects:
             raise ValueError
@@ -97,6 +109,20 @@ def rank_prediction(
     lo, hi = cohort["native_score_bounds"]
     if not lo <= score <= hi:
         return unavailable("score_out_of_native_scale")
+    if (prediction["model_id"] == policy.continuous_model_id
+            and distribution_version == policy.continuous_distribution_version):
+        try:
+            top, estimated = continuous_rank(cohort["distribution"], score, policy.tail_fit_low,
+                                             policy.tail_fit_high, policy.tail_join_quantile)
+        except (ValueError, ZeroDivisionError):
+            return unavailable("invalid_tail_reference")
+        limitations = ("named_reference_sample_only", "not_a_population_rank", cohort["sampling"])
+        if estimated:
+            limitations += ("model_estimated_tail", "tail_fit_uncertainty_not_quantified")
+        if cohort.get("reference_unit") == "image":
+            limitations += ("image_independence_and_ages_unverified",)
+        return RankResult(status="available", percentile=100 - top, top_percent=top,
+                          method="ridge_ecdf_normal_tail_v1", limitations=limitations, **context)
     lower = sum(point["count"] for point in cohort["distribution"] if point["score"] < score)
     equal = sum(point["count"] for point in cohort["distribution"] if point["score"] == score)
     position = lower + equal / 2
