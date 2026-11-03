@@ -15,7 +15,7 @@ import { ResembleFor } from "@/components/adjust/feedback-for";
 import { measureView } from "@/components/face/measure-model";
 import { JOURNEY, journeyHref, type JourneyKey } from "@/components/passport/journey";
 import { Portrait } from "@/components/passport/portrait";
-import { cover, firstThing, learnedScore, triptych } from "@/lib/adapters";
+import { cover, firstThing, harmonyRadar, learnedScore, triptych } from "@/lib/adapters";
 import { api } from "@/lib/api";
 import { guidance, paywall, profile as copy } from "@/lib/copy/zh";
 import { usePassport } from "@/lib/state/passport-store";
@@ -39,6 +39,7 @@ export function Profile() {
   const t = triptych(passport);
   const first = firstThing(passport);
   const predicted = learnedScore(passport);
+  const harmony = harmonyRadar(passport);
   const avail = availability(mv);
   const paid = data.entitlement.paid;
   const base = `/p/${id}`;
@@ -64,7 +65,7 @@ export function Profile() {
           <p className="text-[11px] tracking-[0.18em] text-muted">你的形象档案</p>
           <h1 className={s.title}>{c.oneLiner}</h1>
 
-          {predicted ? <div className="mt-4"><PredictedScoreHero view={predicted} /></div>
+          {predicted ? <div className="mt-4"><PredictedScoreHero view={predicted} harmony={harmony} /></div>
             : <div className="mt-4 rounded border border-rule p-4 text-[14px] text-muted" data-testid="ridge-unavailable">Ridge 颜值参考分与对应排名暂不可用；不会使用几何规则分替代。</div>}
 
           <h2 className="mt-5 text-[13px] font-medium text-ink-soft">相对突出的特点 · 对造型的意义</h2>
