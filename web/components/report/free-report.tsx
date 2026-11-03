@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { RankPosition } from "@/components/profile/score-hero";
+import { HarmonyRadar, ReferenceDensity } from "@/components/profile/score-charts";
 import { LockKeyhole } from "lucide-react";
 import type { PassportResponse } from "@/lib/api";
 
@@ -42,11 +43,18 @@ export function FreeReport({ data }: { data: PassportResponse }) {
           <div className="mt-2 font-serif text-[38px] text-ink" data-testid="free-rank">
             {showRank ? "Top " + Number((100 - rank.percentile!).toFixed(2)) + "%" : "校准中"}
           </div>
-          {showRank && <RankPosition percentile={rank.percentile!} />}
+          {showRank && rank.distribution && score.value != null
+            ? <div className="mt-6"><ReferenceDensity curve={rank.distribution} score={score.value} /></div>
+            : showRank ? <RankPosition percentile={rank.percentile!} /> : null}
           <p className="mt-2 text-[12px] leading-6 text-muted">{showRank ? "参考样本：" + (rank.label ?? "参考照片样本") + "。按照片比较；主体与年龄未核验，并非全人群排名。" : "尚未建立可靠的评分尺度与对照样本映射，不提供虚构排名。"}</p>
         </div>
       </section>
     </div>
+    {result.harmony && <section aria-label="面部几何协调度" className="border-t border-rule py-8">
+      <h2 className="font-serif text-[25px]">面部几何协调度</h2>
+      <p className="mt-2 text-[12px] leading-6 text-muted">以下是照片测量得到的几何子项参考，与上方的 Ridge 颜值预测分属于不同指标，不用于换算颜值排名。</p>
+      <div className="mt-5 max-w-[330px]"><HarmonyRadar axes={result.harmony} /></div>
+    </section>}
     <section aria-label="代表性面部测量" className="border-t border-rule pt-8">
       <h2 className="font-serif text-[25px]">六个部位，一项基础测量</h2>
       <p className="mt-2 text-[13px] text-muted">这里只展示各分区的一项指标，其余可信测量、图解与专业解读在完整护照中提供。</p>
