@@ -27,6 +27,22 @@ describe("completed analysis lands on the report", () => {
     expect(screen.getByText("分析进度")).toBeTruthy();
     expect(screen.queryByText("完整报告内容")).toBeNull();
   });
+  it("keeps unlocked users in progress instead of reverting to their free report", () => {
+    const data = structuredClone(sampleReportResponse("female"));
+    data.status = "free_ready";
+    data.stage = "analysis";
+    data.passport = null;
+    data.entitlement.paid = true;
+    data.free_result = {
+      score: { kind: "learned", value: 7.2, scale: 10, status: "ok", label: "颜值参考分" },
+      rank: { status: "unavailable", percentile: null, label: null },
+      metrics: [],
+    };
+    state.value.data = data;
+    render(<PassportPage />);
+    expect(screen.getByText("分析进度")).toBeTruthy();
+    expect(screen.queryByTestId("free-cv-report")).toBeNull();
+  });
   it("retains topic entry without making the profile an extra destination", () => {
     sessionStorage.setItem("topic-ap_x", "hair");
     render(<PassportPage />);
