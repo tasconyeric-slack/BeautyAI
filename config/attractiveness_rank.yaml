@@ -7,3 +7,9 @@ fine_precision_min_subjects: 1000
 coarse_step_percent: 10
 fine_step_percent: 5
 uncertainty_alpha: 0.05
+# Continuous ranking applies only after all existing identity/permission gates.
+continuous_model_id: geometry-ridge17-scut-60-40-v1
+continuous_distribution_version: scut-heldout-ridge17-ecdf-v1
+tail_fit_low: 0.90
+tail_fit_high: 0.99
+tail_join_quantile: 0.95

@@ -304,3 +304,11 @@
 - Product owner requests score and sample ranking when measurements are usable, with concrete photo-quality caveats underneath. Warning flags no longer independently suppress Ridge inference; preserve them and mark the existing QC state limited. Smooth-cheek suspicion is a texture heuristic, not evidence of invalid geometry.
 - Rejected uploads and unavailable/incompatible/nonfinite measurements still cannot produce a prediction. Existing geometry pose limits, authorization, model identity/hash validation, reference gates and ECDF tail/precision support remain unchanged; no fabricated score or percentile.
 - Report and exported PDF share the limited-score visibility rule and caveat. No analysis/schema/model/formula changes, no second model call, no infrastructure upgrade or private files in Git.
+
+
+**D46 Continuous Ridge sample percentiles and estimated tails (#86)** (2026-11-03)
+- Owner's attached specification supersedes the bounded-tail proposal in #86. Preserve Ridge17 weights, native/display transforms, reference bytes/hash, identity and permission checks. No population-rank claim.
+- For the configured model/reference version only, interpolate empirical midrank knots; join at the 95th percentile to a normal survival curve fitted by probability-plot regression over the 90th–99th percentiles. Mirror the construction for the lower tail. Join probabilities are anchored exactly, preserving continuity and monotonicity. Other ranking callers retain their existing empirical policy.
+- Store unrounded `top_percent`; all reports use adaptive display precision. Tail results carry `model_estimated_tail` and show 模型估计. No DKW interval is presented as tail-model uncertainty. The density chart remains descriptive KDE of observed scores, not the extrapolation model.
+- Passport v0.10 adds the method enum; prompt analyzer-0.3.3 (analysis ownership unchanged). Free teaser exposes probability, method, estimate flag and unavailable reason. Old documents remain valid.
+- Statistical comparison and diagnostics: docs/ridge-percentile-diagnostics.md. Extrapolated Top 0.01% is not empirically established by 2,128 images.

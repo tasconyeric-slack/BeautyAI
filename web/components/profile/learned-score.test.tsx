@@ -23,18 +23,19 @@ it.each(["passed", "limited"] as const)("shows the score and computed rank with 
   const p: Passport = { ...old, learned_attractiveness: {
     ...score, qc_status: qc, quality_flags: qc === "limited" ? ["blurry"] : [],
   }, learned_reference_rank: {
-    status: "available", percentile: 65, top_percent: 35, cohort_label: "Test-only sample",
+    status: "available", percentile: qc === "limited" ? 99.992 : 65, top_percent: qc === "limited" ? .008 : 35, cohort_label: "Test-only sample",
     cohort_id: "test", distribution_version: "test", n_reference: 2128, n_unique_subjects: null,
-    method: "empirical_cdf_midrank_v1", limitations: [], unavailable_reason: null,
+    method: "ridge_ecdf_normal_tail_v1", limitations: qc === "limited" ? ["model_estimated_tail"] : [], unavailable_reason: null,
     percentile_interval: [60, 70], display_step_percent: 5, reference_unit: "image", research_only: true,
     tier: { id: "top_35", label_zh: "参考样本Top 35% 区间", min_percentile: 65 },
   } };
   render(<PredictedScoreHero view={learnedScore(p)!} />);
   expect(screen.getByTestId("learned-score").textContent).toContain("5.5");
   expect(screen.getByTestId("score-value").textContent).toMatch(/5.5\s*\/\s*10/);
-  expect(screen.getByTestId("learned-rank").textContent).toBe("Top 35%");
+  expect(screen.getByTestId("learned-rank").textContent).toBe(qc === "limited" ? "Top 0.008%" : "Top 35%");
+  if (qc === "limited") expect(screen.getByText(/模型估计/)).toBeTruthy();
   // Position comes from the server percentile (65), not a 5.5/10 → 55 shortcut.
-  expect(screen.getByTestId("rank-position").getAttribute("data-percentile")).toBe("65");
+  expect(screen.getByTestId("rank-position").getAttribute("data-percentile")).toBe(qc === "limited" ? "99.992" : "65");
   expect(screen.getByText("照片样本排名")).toBeTruthy();
   expect(screen.getByTestId("learned-rank-scope").textContent).toContain("Test-only sample · 2,128 张照片");
   expect(screen.getByTestId("learned-rank-scope").textContent).toContain("非人口排名");
