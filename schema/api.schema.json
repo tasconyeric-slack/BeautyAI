@@ -293,6 +293,16 @@
                     "string",
                     "null"
                   ]
+                },
+                "distribution": {
+                  "anyOf": [
+                    {
+                      "type": "null"
+                    },
+                    {
+                      "$ref": "#/$defs/free_reference_density"
+                    }
+                  ]
                 }
               }
             },
@@ -349,6 +359,43 @@
                   }
                 }
               }
+            },
+            "harmony": {
+              "anyOf": [
+                {
+                  "type": "null"
+                },
+                {
+                  "type": "array",
+                  "minItems": 8,
+                  "maxItems": 8,
+                  "items": {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "required": [
+                      "id",
+                      "label",
+                      "value"
+                    ],
+                    "properties": {
+                      "id": {
+                        "type": "string"
+                      },
+                      "label": {
+                        "type": "string"
+                      },
+                      "value": {
+                        "type": [
+                          "number",
+                          "null"
+                        ],
+                        "minimum": 0,
+                        "maximum": 100
+                      }
+                    }
+                  }
+                }
+              ]
             }
           }
         }
@@ -432,6 +479,69 @@
           },
           "minItems": 4,
           "maxItems": 4
+        }
+      }
+    },
+    "free_reference_density": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "method",
+        "n",
+        "bounds",
+        "mean",
+        "points"
+      ],
+      "properties": {
+        "method": {
+          "const": "gaussian_kde_scott_v1"
+        },
+        "n": {
+          "type": "integer",
+          "minimum": 2
+        },
+        "bounds": {
+          "type": "array",
+          "prefixItems": [
+            {
+              "const": 1
+            },
+            {
+              "const": 10
+            }
+          ],
+          "items": false,
+          "minItems": 2,
+          "maxItems": 2,
+          "tsType": "[1, 10]"
+        },
+        "mean": {
+          "type": "number",
+          "minimum": 1,
+          "maximum": 10
+        },
+        "points": {
+          "type": "array",
+          "minItems": 3,
+          "maxItems": 129,
+          "items": {
+            "type": "array",
+            "prefixItems": [
+              {
+                "type": "number",
+                "minimum": 1,
+                "maximum": 10
+              },
+              {
+                "type": "number",
+                "minimum": 0
+              }
+            ],
+            "items": false,
+            "minItems": 2,
+            "maxItems": 2,
+            "tsType": "[number, number]"
+          }
         }
       }
     }
