@@ -20,6 +20,11 @@
 .flow [data-slot] button { min-height:44px; }
 .guide { margin:28px 0; display:grid; grid-template-columns:minmax(0,1fr) minmax(0,1.4fr); background:var(--paper-sunk); border-radius:4px; overflow:hidden; }
 .guide img { width:100%; height:240px; object-fit:contain; animation:enter 180ms ease-out; }
+.guidePhotoStage { position:relative; height:240px; overflow:hidden; display:flex; align-items:center; justify-content:center; background:#e5eaeb; }
+.guidePhotoTag { position:absolute; bottom:10px; left:10px; padding:4px 8px; border-radius:2px; background:rgba(249,250,248,.92); color:#283a40; font-size:11px; line-height:1.4; }
+.guide[data-guide="blur"] .guidePhotoStage img { filter:blur(3px); }
+.guide[data-guide="angle"] .guidePhotoStage img { transform:rotate(11deg) scale(.9); }
+.guide[data-guide="dark"] .guidePhotoStage img { filter:brightness(.48); }
 .guideContent { padding:28px 28px 24px; }
 .guideContent h2 { font-family:var(--ap-font-display),serif; font-size:25px; line-height:1.5; font-weight:500; }
 .guideContent p { font-size:14px; line-height:1.9; color:var(--ink-soft); min-height:3.8em; margin:8px 0 16px; }
@@ -57,6 +62,9 @@
   .flow[data-step=consent] h1 { max-width:12em; padding:8px 0 16px; font-size:34px; }
   .guide { grid-template-columns:110px minmax(0,1fr); margin:24px 0; }
   .guide img { height:160px; margin-top:8px; }
+  .guidePhotoStage { height:160px; }
+  .guide .guidePhotoStage img { height:100%; margin-top:0; }
+  .guidePhotoTag { bottom:6px; left:5px; font-size:9px; padding:3px 4px; }
   .guideContent { padding:18px 12px 18px 4px; }
   .guideContent h2 { font-size:19px; }
   .guideContent p { font-size:12px; line-height:1.8; margin:6px 0 12px; }
