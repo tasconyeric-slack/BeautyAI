@@ -20,7 +20,7 @@ vi.mock("next/link", () => ({
 }));
 vi.mock("next/navigation", () => ({ usePathname: () => "/p/ap_sample_0001", useRouter: () => ({ push: () => {} }) }));
 
-const FORBIDDEN = /颜值|打分|评分|标准脸|完美|缺陷|缺点|整容|医美|手术|治疗/;
+const FORBIDDEN = /打分|标准脸|完美|缺陷|缺点|整容|医美|手术|治疗/;
 const full = sampleReportResponse("female");
 const p = full.passport as Passport;
 
@@ -31,32 +31,23 @@ function freeResponse(): PassportResponse {
 const renderProfile = (data: PassportResponse) => render(<StaticPassportProvider value={{ data }}><Profile /></StaticPassportProvider>);
 
 describe("overview hierarchy", () => {
-  it("leads with the one-line result, then the score framed as a model reference, then the strengths", () => {
+  it("keeps Ridge-only availability after the heading and before the strengths", () => {
     renderProfile(full);
     const h1 = screen.getByRole("heading", { level: 1 });
-    const glance = screen.getByTestId("score-glance");
+    const info = screen.getByTestId("ridge-unavailable");
     const strengths = screen.getByTestId("overview-strengths");
-    const action = screen.getByTestId("first-action");
-    // reading order in the document
     const before = (a: Node, b: Node) => Boolean(a.compareDocumentPosition(b) & Node.DOCUMENT_POSITION_FOLLOWING);
-    expect(before(h1, glance)).toBe(true);
-    expect(before(glance, strengths)).toBe(true);
-    expect(before(strengths, action)).toBe(true);
-    expect(h1.textContent).toBe(p.analysis.profile_summary.one_liner);
+    expect(before(h1, info)).toBe(true);
+    expect(before(info, strengths)).toBe(true);
+    expect(info.textContent).toContain("Ridge");
+    expect(screen.queryByTestId("glance-value")).toBeNull();
   });
 
-  it("shows the scorer's own number, says it is a model reference and not a verdict or a rank, and names the sample", () => {
+  it("never promotes a geometry-only score when the sample has no Ridge score", () => {
     renderProfile(full);
-    const glance = screen.getByTestId("score-glance");
-    expect(screen.getByTestId("glance-value").textContent).toBe(String(Math.round(p.aesthetic_score!.overall_score!)));
-    expect(glance.textContent).toContain("模型参考");
-    expect(glance.textContent).toContain(REFERENCE_NOTE);
-    expect(REFERENCE_NOTE).toMatch(/不评价长相/);
-    expect(REFERENCE_NOTE).toMatch(/不是人群排名/);
-    expect(glance.textContent).toContain("示例报告"); // fixture passport: a drawn face, labeled as such
-    // the detail it points to is on the same page
-    const target = glance.querySelector("a")!.getAttribute("href")!;
-    expect(document.querySelector(target)?.querySelector('[data-testid="score-hero"]')).not.toBeNull();
+    expect(screen.getByTestId("ridge-unavailable").textContent).toContain("暂不可用");
+    expect(screen.queryByTestId("score-hero")).toBeNull();
+    expect(screen.queryByTestId("score-value")).toBeNull();
   });
 
   it("gives every strength its styling meaning and a link to the atlas region that backs it", () => {

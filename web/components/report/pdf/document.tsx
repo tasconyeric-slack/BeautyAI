@@ -1,28 +1,28 @@
 /** 完整面部评估报告 · PDF (Issue #33, Phase 2): the seven-chapter report as a real, paginated, text-based PDF.
  *
  *  Built from exactly what the web report shows: the same `PassportResponse` (already trimmed by the server for a free
- *  entitlement) and the same view models (measureView, regionViews, rankedRecs, aestheticScore, …). Nothing here
+ *  entitlement) and the same view models (measureView, regionViews, rankedRecs, learnedScore, …). Nothing here
  *  measures, scores or recommends, and nothing the server withheld can appear: the PDF only prints what is present
  *  and says plainly what the full passport adds.
  *
  *  Images are optional and come only from `images`, which the caller fills from photos the viewer is already
  *  allowed to see, and only when they asked for a photo-inclusive export. Without them the PDF is complete: every
  *  number and text stays, region crops and try-on images are simply omitted. */
-import { Circle, Document, Font, Image, Line, Link, Page, Path, Polygon, StyleSheet, Svg, Text, View } from "@react-pdf/renderer";
+import { Document, Font, Image, Line, Link, Page, Path, StyleSheet, Svg, Text, View } from "@react-pdf/renderer";
 import type { Style } from "@react-pdf/types";
 import * as React from "react";
 import { adviceGroups } from "@/components/advice/advice-page";
 import { faceShape } from "@/components/face/face-model";
 import { CONFIDENCE_ZH, measureView, type Assessment, type MeasureView } from "@/components/face/measure-model";
 import {
-  aestheticScore, colorGroups, cover, hairOptions, harmonyRadar, learnedScore, rankedRecs, referenceRank, stripRefs,
-  type HairOptionView, type ScoreView, type Tier,
+  colorGroups, cover, hairOptions, learnedScore, rankedRecs, stripRefs,
+  type HairOptionView, type Tier,
 } from "@/lib/adapters";
 import type { Passport, PassportResponse } from "@/lib/api";
-import { aestheticScore as scoreCopy, entitlements, guidance, learnedAttractiveness as learnedCopy, report as copy } from "@/lib/copy/zh";
+import { entitlements, guidance, learnedAttractiveness as learnedCopy, report as copy } from "@/lib/copy/zh";
 import { CHAPTER_KEYS, chapterNo, previewNote, regionViews, type ChapterKey, type PreviewNote, type RegionView } from "../report-model";
 import { cjkPieces, prepare } from "./text";
-import { densityPaths, radarPoint, radarPolygon, type Density } from "@/components/profile/score-chart-geometry";
+import { densityPaths, type Density } from "@/components/profile/score-chart-geometry";
 
 // --- fonts -----------------------------------------------------------------------------------------------------
 
@@ -239,8 +239,8 @@ export function ReportDocument({ data, sample, demo = null, images, photoMode, n
   const no = passportNo(p);
   return (
     <Document title={meta.title} author="形象护照 Aesthetic Passport" creator="形象护照 Aesthetic Passport" producer="形象护照 · react-pdf"
-      subject={`${scoreCopy.title}、面部测量、解读、改善建议、形象方案与行动计划（${meta.edition}）`}
-      keywords="形象护照, 面部评估报告, AI 面部美学参考分, 面部测量, 发型, 个人色彩, 行动计划"
+      subject={`${learnedCopy.title}、面部测量、解读、改善建议、形象方案与行动计划（${meta.edition}）`}
+      keywords="形象护照, 面部评估报告, Ridge 颜值参考分, 面部测量, 发型, 个人色彩, 行动计划"
       language="zh-CN" creationDate={now} pageMode="useOutlines">
       <Page size="A4" style={s.page}>
         <View fixed style={[s.rule, { top: 40 }]} />
@@ -279,9 +279,7 @@ function Cover({ data, sample, demo, images, photoMode, now }: {
   const p = data.passport!;
   const c = cover(p);
   const shape = faceShape(p);
-  const score = aestheticScore(p);
   const predicted = learnedScore(p);
-  const rank = referenceRank(p);
   const created = new Date(data.created_at);
   const fmt = (d: Date) => (Number.isNaN(d.getTime()) ? "—" : d.toLocaleDateString("zh-CN"));
   const facts: [string, string][] = [
@@ -319,40 +317,17 @@ function Cover({ data, sample, demo, images, photoMode, now }: {
         <View style={{ width: "50%" }}>
           <T style={s.small}>{learnedCopy.title}</T>
           <T style={{ fontSize: 24 }}>{predicted.available ? `${predicted.score} /10` : learnedCopy.unavailable}</T>
-          <RadarChart p={p} compact />
         </View>
         <View style={{ width: "50%", borderLeftWidth: 0.5, borderLeftColor: C.rule, paddingLeft: 12 }}>
           <T style={s.small}>{predicted.rank?.unit === "image" ? "照片样本排名" : learnedCopy.rank}</T>
-          <T style={{ fontSize: 24 }}>{predicted.available && predicted.rank ? `前 ${predicted.rank.top}%` : learnedCopy.rankMissing}</T>
+          <T style={{ fontSize: 24 }}>{predicted.available && predicted.rank ? `Top ${predicted.rank.top}%` : learnedCopy.rankMissing}</T>
           {predicted.available && predicted.rank?.scopeNote && <T style={s.small}>{predicted.rank.scopeNote}</T>}
           {predicted.available && predicted.rank?.distribution && <DensityChart curve={predicted.rank.distribution} score={predicted.score!} />}
         </View>
         </View>
       </View>}
       {predicted?.qualityNote && <T style={[s.small, { marginTop: 6 }]}>{predicted.qualityNote}</T>}
-      {!predicted && score && score.score != null && (
-        <View style={[s.box, s.row, { marginTop: 10, alignItems: "center" }]} wrap={false}>
-          <View style={{ width: 110, alignItems: "center" }}>
-            <T style={s.small}>{score.name}</T>
-            <Text style={{ fontSize: 34, fontWeight: 700, lineHeight: 1.15, color: C.primary }}>{score.score}</Text>
-            <T style={s.small}>{scoreCopy.outOf}{score.state === "scored" && score.tier ? ` · ${score.tier}` : ""}</T>
-          </View>
-          <View style={{ flex: 1, paddingLeft: 12, borderLeftWidth: 0.5, borderLeftColor: C.rule }}>
-            {score.state === "limited" && <T style={[s.small, { marginBottom: 5 }]}>{scoreCopy.limited} · {score.statusText}{score.flags.length ? ` · ${score.flags.join("；")}` : ""}</T>}
-            {score.components.map((x) => (
-              <View key={x.key} style={[s.row, { alignItems: "center", marginBottom: 3 }]}>
-                <T style={{ width: 70, fontSize: 8.5 }}>{x.name}</T>
-                <View style={{ flex: 1 }}><Bar pct={x.score ?? 0} /></View>
-                <Text style={{ width: 28, textAlign: "right", fontSize: 8.5 }}>{x.score ?? "—"}</Text>
-              </View>
-            ))}
-            {rank && <T style={[s.small, { marginTop: 4 }]}>{rank.state === "ranked" ? `${rank.title}：${rank.label}（约）` : "参考人群位置校准中"}</T>}
-            {demo && <T style={[s.small, { marginTop: 2, color: C.amber }]}>{copy.pdf.demoScore}</T>}
-          </View>
-        </View>
-      )}
-
-      {!predicted && (!score || score.score === null) && <View style={[s.panel, { marginTop: 10 }]}><T style={s.bold}>{scoreCopy.unavailable}</T><T style={s.small}>{score?.statusText}{score?.flags.length ? ` · ${score.flags.join("；")}` : ""}</T><T style={s.small}>{scoreCopy.retake}</T></View>}
+      {!predicted && <View style={[s.panel, { marginTop: 10 }]}><T style={s.bold}>Ridge 颜值参考分暂不可用</T><T style={s.small}>无 Ridge 预测时，不以几何协调分或其他排名替代。</T></View>}
       {demo && <View style={[s.note, { marginTop: 10 }]}><T>{copy.pdf.demo[demo]}</T></View>}
       {!data.entitlement.paid && <T style={[s.small, { marginTop: 12 }]}>免费版报告</T>}
       <View style={{ marginTop: 16 }}>
@@ -525,28 +500,10 @@ function DensityChart({ curve, score }: { curve: Density; score: number }) {
   </View>;
 }
 
-function RadarChart({ p, compact = false }: { p: Passport; compact?: boolean }) {
-  const axes = harmonyRadar(p);
-  if (!axes) return null;
-  return <View style={{ alignItems: "center", marginBottom: 12 }} wrap={false}>
-    <T style={s.h4}>几何协调度</T>
-    <Svg width={compact ? 190 : 260} height={compact ? 164 : 224} viewBox="0 0 360 310">
-      {[22, 44, 66, 88].map(r => <Polygon key={r} points={axes.map((_, i) => { const q = radarPoint(i, axes.length, r); return `${q.x},${q.y}`; }).join(" ")} fill="none" stroke={C.rule} strokeWidth={0.8} />)}
-      {axes.map((a, i) => { const q = radarPoint(i, axes.length, 88); return <Line key={a.id} x1={180} y1={150} x2={q.x} y2={q.y} stroke={C.rule} strokeWidth={0.8} />; })}
-      {axes.every(a => a.value !== null) && <Polygon points={radarPolygon(axes)} fill="#c8d8d5" stroke={C.primary} strokeWidth={1.6} />}
-      {axes.map((a, i) => { const q = radarPoint(i, axes.length, 119), dot = radarPoint(i, axes.length, 88 * (a.value ?? 0) / 100); return <React.Fragment key={a.id}>
-        {a.value !== null && <Circle cx={dot.x} cy={dot.y} r={2.5} fill={C.primary} />}
-        <Text x={q.x} y={q.y - 3} textAnchor="middle" style={{ fontSize: 11, fontFamily: FONT }} fill={C.soft}>{a.label}</Text>
-      </React.Fragment>; })}
-    </Svg>
-  </View>;
-}
-
 function Interpretation({ p }: { p: Passport }) {
   const an = p.analysis;
   return (
     <Chapter k="interpretation">
-      {!learnedScore(p) && <RadarChart p={p} />}
       <View style={s.row}>
         <View style={[s.box, { flex: 1, marginRight: 6 }]}>
           <T style={s.h4}>{copy.works}</T>

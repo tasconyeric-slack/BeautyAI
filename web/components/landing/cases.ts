@@ -3,7 +3,7 @@
  * Runs on the server only — the passports never ship to the browser, just the plain props below. */
 import type { IllustratedAvatarProps, ProfileCardProps } from "@/components/cards";
 import type { SwatchColor } from "@/components/ds";
-import { aestheticScore, avatarProps, colorGroups, cover, firstThing, hairOptions, profileCardProps, rankedRecs, triptych } from "@/lib/adapters";
+import { learnedScore, avatarProps, colorGroups, cover, firstThing, hairOptions, profileCardProps, rankedRecs, triptych } from "@/lib/adapters";
 import { common, topics } from "@/lib/copy/zh";
 import { SAMPLE_IDS } from "@/lib/flags";
 import { DEMO_CASES } from "@/lib/fixtures/demo_cases";
@@ -177,7 +177,7 @@ export const SHOWCASE: Showcase = buildShowcase(female as unknown as Passport);
 
 /** The landing score demo: the female sample passport's score, computed by the production scorer on the synthetic
  * (canonical-mesh) sample face — not a hand-written number. */
-export const SAMPLE_SCORE = aestheticScore(female as unknown as Passport);
+export const SAMPLE_SCORE = learnedScore(female as unknown as Passport);
 export const SAMPLE_SCORE_HREF = `/p/${SAMPLE_IDS.female}`;
 
 /** The first-screen deliverable (Issue #2): the same synthetic sample passport the visitor can open — its drawn face,
@@ -194,12 +194,12 @@ export const SAMPLE_REPORT_HREF = "/report/sample";
 /** The landing's report preview summarises the first pipeline-backed sample (Issue #14), the same one
  *  /report/sample opens by default. */
 export function sampleReportPreview(p: Passport = DEMO_CASES[0].passport) {
-  const score = aestheticScore(p);
+  const score = learnedScore(p);
   const cov = p.measurement_profile?.coverage;
   const recs = rankedRecs(p);
   const plan = p.derived.plan;
   return {
-    overview: score?.score != null ? `参考分 ${score.score} · ${score.tier ?? ""} · 四项构成` : "参考分与四项构成",
+    overview: score?.available ? `Ridge 参考分 ${score.score}/10${score.rank ? ` · 参考样本前 ${score.rank.top}%` : ""}` : "Ridge 参考分暂不可用 · 完整报告示例",
     findings: cov ? `6 个部位 · 已测 ${cov.total_measured ?? cov.measured} / ${cov.total_defined ?? cov.front_total} 项` : "按部位的照片测量",
     interpretation: `${p.analysis.works.length} 条正在帮你的搭配，${p.analysis.doesnt_work.length} 条可以调整`,
     improvements: recs[0] ? recs[0].action : "按优先级排好的建议",

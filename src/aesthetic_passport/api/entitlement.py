@@ -114,29 +114,57 @@ def cv_teaser(stored: dict[str, Any]) -> dict[str, Any]:
             "unit": metric.get("unit") if metric else None,
             "availability": metric.get("availability", "unavailable") if metric else "unavailable",
         })
-    # Only the public headline and the availability/provenance needed to interpret it.
+    # Ridge and its model-matched cohort are the ONLY user-visible score and rank.
+    # Geometry may still be calculated internally as Ridge input features.
     learned = stored.get("learned_attractiveness") or {}
     learned_rank = stored.get("learned_reference_rank") or {}
-    geo = stored.get("aesthetic_score") or {}
-    ref = stored.get("reference_percentiles") or {}
-    learning_valid = learned.get("status") == "ok" and learned.get("production_authorized") is True
+    learning_valid = (learned.get("status") == "ok" and learned.get("production_authorized") is True
+                      and isinstance(learned.get("display_score"), (int, float))
+                      and not isinstance(learned.get("display_score"), bool))
     rank_valid = learning_valid and learned_rank.get("status") == "available"
-    geo_rank = ref.get("rank") or {}
-    geo_valid = not learning_valid and geo_rank.get("status") == "ok"
+    # Show only the recorded, matching Ridge reference distribution. Never synthesize one.
+    distribution = learned_rank.get("distribution") if rank_valid else None
+    if not isinstance(distribution, dict):
+        distribution = None
+    # These axes are precomputed face-geometry subscores, NOT additional beauty predictions.
+    geometry = stored.get("aesthetic_score") or {}
+    components = geometry.get("components") or []
+    symmetry = next((c for c in components if c.get("key") == "symmetry"), {})
+    measured = symmetry.get("measured") or {}
+    features = measured.get("features") or {}
+    component_scores = geometry.get("component_scores") or {}
+
+    def axis_value(v: Any) -> float | None:
+        return float(v) if isinstance(v, (int, float)) and not isinstance(v, bool) and 0 <= v <= 100 else None
+
+    axes = [
+        {"id": key, "label": name, "value": axis_value(features.get(key))}
+        for key, name in (
+            ("eyes", "眼部对称"), ("brows", "眉部对称"), ("nose", "鼻部对称"),
+            ("mouth", "口部对称"), ("jaw", "轮廓对称"),
+        )
+    ] + [
+        {"id": key, "label": name, "value": axis_value(component_scores.get(key))}
+        for key, name in (
+            ("thirds", "三庭均衡"), ("fifths", "五眼均衡"),
+            ("golden_ratio", "长宽协调"),
+        )
+    ]
+    harmony = axes if any(a["value"] is not None for a in axes) else None
     return {
         "score": {
-            "kind": "learned" if learning_valid else "geometry",
-            "value": learned.get("display_score") if learning_valid else geo.get("overall_score"),
-            "scale": 10 if learning_valid else 100,
-            "status": "ok" if learning_valid else geo.get("status", "unavailable"),
-            "label": "颜值参考分" if learning_valid else "面部几何参考分",
+            "kind": "learned",
+            "value": learned["display_score"] if learning_valid else None,
+            "scale": 10,
+            "status": "ok" if learning_valid else "unavailable",
+            "label": "颜值参考分",
         },
         "rank": {
-            "status": "available" if rank_valid or geo_valid else "unavailable",
-            "percentile": learned_rank.get("percentile") if rank_valid else
-                          (geo_rank.get("percentile_estimate") if geo_valid else None),
-            "label": learned_rank.get("cohort_label") if rank_valid else
-                     ((geo_rank.get("cohort") or {}).get("publisher") if geo_valid else None),
+            "status": "available" if rank_valid else "unavailable",
+            "percentile": learned_rank.get("percentile") if rank_valid else None,
+            "label": learned_rank.get("cohort_label") if rank_valid else None,
+            "distribution": distribution,
         },
+        "harmony": harmony,
         "metrics": metrics,
     }

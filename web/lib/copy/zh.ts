@@ -162,7 +162,7 @@ export const landing = {
   ],
   sampleBadge: "形象护照 · 示例报告",
   sampleNotLive: "不是实时分析结果",
-  sampleScoreNote: "参考分来自这张照片的面部几何测量。",
+  sampleScoreNote: "虚构人物示例，仅用于展示报告形式；个人结果以实际分析为准。",
   sampleFirstAction: "先做这一件",
   sampleOpen: "打开完整示例档案",
   privacyLabel: "照片与隐私",

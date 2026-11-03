@@ -151,6 +151,8 @@ describe("S2 honest unavailable states", () => {
     const data = response();
     data.passport!.aesthetic_score!.status = status;
     data.passport!.aesthetic_score!.overall_score = null;
+    data.passport!.learned_attractiveness = undefined;
+    data.passport!.learned_reference_rank = undefined;
     show(data);
     expect(screen.queryByTestId("score-value")).toBeNull();
     expect(screen.getByTestId("rank-state").textContent).not.toMatch(/前\s*\d+%/);
@@ -162,7 +164,7 @@ describe("S2 honest unavailable states", () => {
     data.passport!.reference_percentiles!.rank.label_zh = "约位于参考样本中部";
     show(data);
     expect(screen.getByTestId("selected-measurement").textContent).toContain("此项暂无可比对照");
-    expect(screen.getByTestId("rank-state").textContent).toContain("约位于参考样本中部");
+    expect(screen.getByTestId("rank-state").textContent).not.toContain("约位于参考样本中部");
   });
 
   it("keeps unavailable photos and all-excluded hair choices truthful", () => {

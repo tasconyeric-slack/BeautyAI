@@ -61,7 +61,7 @@ describe("PDF report export", () => {
     const r = await build({ data, sample: false, images: null, photoMode: "omitted" }, "learned-summary.pdf");
     const cover = squash(r.pages[0]);
     expect(cover).toContain("颜值分5.5/10");
-    expect(cover).toContain("照片样本排名前35%");
+    expect(cover).toContain("照片样本排名Top35%");
     expect(cover).toContain("test-onlysample·1,000张照片");
     expect(cover).toContain("非人口排名");
     if (qc === "limited") {
@@ -69,7 +69,7 @@ describe("PDF report export", () => {
       expect(cover).toContain("可能不准确，仅供参考");
     }
     expect(cover).not.toContain("均值");
-    expect(cover).toContain("几何协调度");
+    expect(cover).not.toContain("几何协调度");
     expect(r.all).not.toContain("比例参考：");
     expect(cover).not.toMatch(/SCUT|原生|照片质量|研究预览|校准|评分与样本说明|test-model|AI面部美学参考分/);
   }, 60_000);
@@ -90,10 +90,11 @@ describe("PDF report export", () => {
       expect(squash(r.pages[at]).length, k).toBeGreaterThan(k === "methods" ? 60 : 200);
     }
     expect(r.all).not.toMatch(/总分 =|测量视角、参考来源与署名|测量依据、适用范围与照片管理/);
-    // the scoring layer's number and the four parts, measurement values straight from measurement_profile
+    // When the synthetic sample has no authorized Ridge score, the PDF must not reveal a geometric substitute.
     const all = squash(r.all);
-    expect(all).toContain(String(Math.round(p.aesthetic_score!.overall_score!)));
-    for (const c of p.aesthetic_score!.components) expect(all).toContain(squash(c.name_zh));
+    expect(all).toContain("Ridge颜值参考分暂不可用");
+    expect(all).not.toContain("几何协调度");
+    expect(all).not.toContain("AI面部美学参考分");
     const m001 = p.measurement_profile!.metrics.find((m) => m.id === "M001")!;
     expect(all).toContain(m001.value!.toFixed(m001.decimals));
     expect(all).toContain(squash(copy.planFull));
@@ -133,13 +134,13 @@ describe("PDF report export", () => {
     const r = await build({ data, sample: false, demo: "fixture", images: null, photoMode: "omitted" }, "demo-free.pdf");
     expect(r.info.Title).toContain("演示");
     expect(squash(r.pages[0])).toContain(squash(copyPdf.demo.fixture));
-    expect(squash(r.pages[0])).toContain(squash(copyPdf.demoScore));
+    expect(squash(r.pages[0])).toContain("Ridge颜值参考分暂不可用");
     for (const t of r.pages.slice(1)) expect(squash(t)).toContain(squash(copyPdf.demoBand.fixture));
     // simulated, but never claims the viewer's own photo is a synthetic face
     expect(r.all).not.toContain("合成人脸");
   }, 60_000);
 
-  it.each(["limited", "unavailable"] as const)("keeps %s score quality visible on the cover", async status => {
+  it.each(["limited", "unavailable"] as const)("never falls back to geometric scoring when Ridge is missing", async status => {
     const data = structuredClone(sampleReportResponse("female"));
     const score = data.passport!.aesthetic_score!;
     score.status = status;
@@ -148,9 +149,8 @@ describe("PDF report export", () => {
     score.copy_zh.flags.pose_off_axis = "头部转动或俯仰过大";
     if (status === "unavailable") score.overall_score = null;
     const result = await build({ data, sample: true, images: null, photoMode: "omitted" }, `quality-${status}.pdf`);
-    expect(squash(result.pages[0])).toContain("头部转动或俯仰过大");
-    expect(squash(result.pages[0])).toContain(status === "limited" ? "参考有限" : "这张照片暂时给不出总分");
-    if (status === "unavailable") expect(squash(result.pages[0])).toContain("换一张正脸、平视、自然表情的照片");
+    expect(squash(result.pages[0])).toContain("Ridge颜值参考分暂不可用");
+    expect(squash(result.pages[0])).not.toContain("AI面部美学参考分");
   }, 60_000);
 
   it("treats photos as gone once the TTL has passed, even if the page still holds expired: false", () => {

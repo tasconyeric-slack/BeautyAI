@@ -69,7 +69,8 @@ describe("pipeline-backed demo cases (Issue #14)", () => {
 
     // the scoring layer's real number and the real measurements
     const report = screen.getByTestId("full-report");
-    expect(screen.getByTestId("score-value").textContent).toContain(String(p.learned_attractiveness?.display_score ?? p.aesthetic_score!.overall_score));
+    if (p.learned_attractiveness?.display_score != null) expect(screen.getByTestId("score-value").textContent).toContain(String(p.learned_attractiveness.display_score));
+    else { expect(screen.queryByTestId("score-value")).toBeNull(); expect(screen.getByTestId("ridge-unavailable")).toBeTruthy(); }
     const m001 = p.measurement_profile!.metrics.find((m) => m.id === "M001")!;
     expect(container.querySelector('[data-metric-row="M001"] [data-testid="metric-value"]')?.textContent)
       .toBe(m001.value!.toFixed(m001.decimals));
@@ -106,6 +107,6 @@ describe("pipeline-backed demo cases (Issue #14)", () => {
 
   it("the landing report preview summarises the first real sample", () => {
     const r = sampleReportPreview();
-    expect(r.overview).toContain(String(DEMO_CASES[0].passport.aesthetic_score!.overall_score!).split(".")[0]);
+    expect(r.overview).toContain(String(DEMO_CASES[0].passport.learned_attractiveness!.display_score));
   });
 });

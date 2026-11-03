@@ -175,14 +175,9 @@ export function PredictedScoreHero({ view, harmony }: { view: LearnedScoreView; 
       <h2 className="text-[13px] font-medium text-ink-soft">{view.rank?.unit === "image" ? "照片样本排名" : learnedCopy.rank}</h2>
       {view.available && view.rank ? <>
         <p data-testid="learned-rank" className="mt-3 whitespace-nowrap font-serif text-[30px] font-semibold leading-none tabular-nums sm:text-[40px]">
-          <span className="mr-1 font-sans text-[16px] font-normal">前 </span>{view.rank.top}%
+          <span className="mr-1 font-sans text-[16px] font-normal">Top </span>{view.rank.top}%
         </p>
-        {!view.rank.distribution && <svg viewBox="0 0 160 20" aria-hidden="true" data-testid="rank-position" data-percentile={view.rank.percentile}
-          className="mt-3 h-5 w-full max-w-[220px] overflow-visible">
-          <path d="M8 10H152" fill="none" strokeWidth="3" strokeLinecap="round" className="stroke-rule" />
-          <path d={`M8 10H${8 + 1.44 * view.rank.percentile!}`} fill="none" strokeWidth="3" strokeLinecap="round" className="stroke-accent/40" />
-          <circle cx={8 + 1.44 * view.rank.percentile!} cy="10" r="5" strokeWidth="2" className="fill-paper-raised stroke-accent" />
-        </svg>}
+        {!view.rank.distribution && <RankPosition percentile={view.rank.percentile!} />}
       </> : <p data-testid="learned-rank-unavailable" className="mt-3 text-[20px] text-muted">{learnedCopy.rankMissing}</p>}
       {view.available && view.rank?.scopeNote && <p data-testid="learned-rank-scope" className="mt-3 text-[11px] leading-5 text-muted">{view.rank.scopeNote}</p>}
       {view.available && view.rank?.distribution && <div className="mt-7 flex h-[155px] items-center sm:h-[195px]">
@@ -191,4 +186,13 @@ export function PredictedScoreHero({ view, harmony }: { view: LearnedScoreView; 
     </div>
     {view.qualityNote && <p data-testid="learned-quality-note" className="col-span-2 mt-5 border-t border-rule px-3 pt-4 text-[12px] leading-6 text-muted sm:px-5">{view.qualityNote}</p>}
   </section>;
+}
+
+export function RankPosition({ percentile }: { percentile: number }) {
+  return <svg viewBox="0 0 160 20" aria-hidden="true" data-testid="rank-position" data-percentile={percentile}
+          className="mt-3 h-5 w-full max-w-[220px] overflow-visible">
+          <path d="M8 10H152" fill="none" strokeWidth="3" strokeLinecap="round" className="stroke-rule" />
+          <path d={`M8 10H${8 + 1.44 * percentile}`} fill="none" strokeWidth="3" strokeLinecap="round" className="stroke-accent/40" />
+          <circle cx={8 + 1.44 * percentile} cy="10" r="5" strokeWidth="2" className="fill-paper-raised stroke-accent" />
+        </svg>;
 }

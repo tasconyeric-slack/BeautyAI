@@ -15,7 +15,8 @@ describe("ENG-02 full report critical path", () => {
     const data = sampleReportResponse(demo.id);
     const { container } = render(<FullReportContent data={data} geometry={demo.geometry} sample />);
     expect(container.querySelectorAll("[data-chapter]")).toHaveLength(7);
-    expect(screen.getByTestId("score-value").textContent).toContain(String(demo.passport.learned_attractiveness?.display_score ?? demo.passport.aesthetic_score!.overall_score));
+    if (demo.passport.learned_attractiveness?.display_score != null) expect(screen.getByTestId("score-value").textContent).toContain(String(demo.passport.learned_attractiveness.display_score));
+    else { expect(screen.queryByTestId("score-value")).toBeNull(); expect(screen.getByTestId("ridge-unavailable")).toBeTruthy(); }
     expect(container.querySelectorAll('a[href^="/p/"]')).toHaveLength(0);
     expect(screen.queryByRole("button", { name: "加入我的方案" })).toBeNull();
     expect(screen.getByTestId("preview-state").textContent).not.toContain("正在生成");
