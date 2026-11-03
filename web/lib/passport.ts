@@ -1652,14 +1652,8 @@ export interface PassportResponse {
       status: string;
       percentile: number | null;
       label: string | null;
-      distribution?: null | ReferenceDensity;
+      distribution?: null | FreeReferenceDensity;
     };
-    /** Recorded geometric subscores only; not a separate attractiveness prediction. */
-    harmony?: null | {
-      id: string;
-      label: string;
-      value: number | null;
-    }[];
     metrics: {
       chapter: string;
       id: string | null;
@@ -1669,6 +1663,13 @@ export interface PassportResponse {
       unit: string | null;
       availability: string;
     }[];
+    harmony?:
+      | null
+      | {
+          id: string;
+          label: string;
+          value: number | null;
+        }[];
   };
 }
 /**
@@ -1694,4 +1695,23 @@ export interface PreviewState {
    * @maxItems 4
    */
   crop_box?: number[] | null;
+}
+/**
+ * This interface was referenced by `PassportResponse`'s JSON-Schema
+ * via the `definition` "free_reference_density".
+ */
+export interface FreeReferenceDensity {
+  method: "gaussian_kde_scott_v1";
+  n: number;
+  /**
+   * @minItems 2
+   * @maxItems 2
+   */
+  bounds: [1, 10];
+  mean: number;
+  /**
+   * @minItems 3
+   * @maxItems 129
+   */
+  points: [number, number][];
 }
