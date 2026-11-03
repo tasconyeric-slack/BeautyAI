@@ -133,3 +133,34 @@ def test_free_score_never_falls_back_to_geometry():
                             "label": "经匹配的 Ridge 参考照片"}
     stored["learned_reference_rank"] = {"status": "unavailable", "percentile": 99.9}
     assert cv_teaser(stored)["rank"]["percentile"] is None
+
+
+def test_free_score_charts_use_only_matching_reference_and_existing_geometry():
+    from aesthetic_passport.api.entitlement import cv_teaser
+
+    distribution = {
+        "method": "gaussian_kde_scott_v1", "n": 100, "bounds": [1, 10],
+        "mean": 5.3, "points": [[1, 0.01], [5, 0.2], [10, 0.01]],
+    }
+    stored = {
+        "measurement_profile": {"metrics": []},
+        "aesthetic_score": {
+            "components": [{"key": "symmetry", "measured": {
+                "features": {"eyes": 70, "brows": 60, "nose": 55, "mouth": 65, "jaw": 80}}}],
+            "component_scores": {"thirds": 62, "fifths": 72, "golden_ratio": 82},
+        },
+        "learned_attractiveness": {"status": "ok", "production_authorized": True,
+                                   "display_score": 5.3},
+        "learned_reference_rank": {"status": "available", "percentile": 45,
+                                   "cohort_label": "测试参考照片", "distribution": distribution},
+    }
+    result = cv_teaser(stored)
+    assert result["rank"]["distribution"] == distribution
+    assert len(result["harmony"]) == 8
+    assert result["harmony"][0] == {"id": "eyes", "label": "眼部对称", "value": 70}
+    assert result["score"]["value"] == 5.3
+    stored["learned_reference_rank"]["status"] = "unavailable"
+    assert cv_teaser(stored)["rank"]["distribution"] is None
+    stored["learned_attractiveness"]["production_authorized"] = False
+    assert cv_teaser(stored)["score"]["value"] is None
+    assert cv_teaser(stored)["rank"]["distribution"] is None
