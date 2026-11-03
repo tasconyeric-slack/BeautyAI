@@ -116,3 +116,5 @@ The production photo test reached authorized Ridge inference with a verified fro
 ## 2026-11-02 · Final Ridge-only score display
 
 Continue PR #79 and Issue #80 without changing the frozen fit, reference, authorization gates or infrastructure. Free results now display Top (100 - percentile)% and reuse the paid rank-position rail; paid/browser PDF labels use Top X%. Free responses have no matching density payload, so no density is fabricated. Paid density still uses only the matched reference distribution. Six free metrics, pricing, Studio and PDF entitlements are unchanged. Production fictional-photo API smoke reached free_ready then full_ready through existing invite unlock; both score and reference percentile matched exactly. Browser visual verification was blocked by Computer Use platform URL-policy support.
+
+| 2026-11-03 | #86 / D46: Passport 0.10, analyzer-0.3.3; continuous model-matched Ridge ECDF with anchored normal tails | Replace sparse-tail suppression with explicitly estimated numeric ranks; shared adaptive formatting | Synthetic monotonicity/continuity, boundary and report tests; see ridge-percentile-diagnostics.md |

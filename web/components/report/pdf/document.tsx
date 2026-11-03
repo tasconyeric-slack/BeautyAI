@@ -8,6 +8,7 @@
  *  Images are optional and come only from `images`, which the caller fills from photos the viewer is already
  *  allowed to see, and only when they asked for a photo-inclusive export. Without them the PDF is complete: every
  *  number and text stays, region crops and try-on images are simply omitted. */
+import { formatTopPercent } from "@/lib/rank-format";
 import { Document, Font, Image, Line, Link, Page, Path, StyleSheet, Svg, Text, View } from "@react-pdf/renderer";
 import type { Style } from "@react-pdf/types";
 import * as React from "react";
@@ -320,7 +321,8 @@ function Cover({ data, sample, demo, images, photoMode, now }: {
         </View>
         <View style={{ width: "50%", borderLeftWidth: 0.5, borderLeftColor: C.rule, paddingLeft: 12 }}>
           <T style={s.small}>{predicted.rank?.unit === "image" ? "照片样本排名" : learnedCopy.rank}</T>
-          <T style={{ fontSize: 24 }}>{predicted.available && predicted.rank ? `Top ${predicted.rank.top}%` : learnedCopy.rankMissing}</T>
+          <T style={{ fontSize: 24 }}>{predicted.available && predicted.rank ? `Top ${formatTopPercent(predicted.rank.top)}%` : learnedCopy.rankMissing}</T>
+          {predicted.rank?.estimated && <T style={s.small}>模型估计 · 尾部外推，未经同等样本量验证</T>}
           {predicted.available && predicted.rank?.scopeNote && <T style={s.small}>{predicted.rank.scopeNote}</T>}
           {predicted.available && predicted.rank?.distribution && <DensityChart curve={predicted.rank.distribution} score={predicted.score!} />}
         </View>

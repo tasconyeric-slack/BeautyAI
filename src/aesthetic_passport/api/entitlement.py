@@ -160,6 +160,10 @@ def cv_teaser(stored: dict[str, Any]) -> dict[str, Any]:
             "label": "颜值参考分",
         },
         "rank": {
+            "top_percent": learned_rank.get("top_percent") if rank_valid else None,
+            "method": learned_rank.get("method"),
+            "estimated": rank_valid and "model_estimated_tail" in learned_rank.get("limitations", []),
+            "unavailable_reason": None if rank_valid else learned_rank.get("unavailable_reason", "score_unavailable"),
             "status": "available" if rank_valid else "unavailable",
             "percentile": learned_rank.get("percentile") if rank_valid else None,
             "label": learned_rank.get("cohort_label") if rank_valid else None,

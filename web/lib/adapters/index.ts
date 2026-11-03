@@ -383,6 +383,7 @@ export function learnedScore(p: Passport) {
       : null,
     rank: ranked ? {
       label: rank.cohort_label, top: rank.top_percent, percentile: rank.percentile,
+      estimated: rank.limitations.includes("model_estimated_tail"),
       n: rank.n_reference, unit: rank.reference_unit, tier: rank.tier?.label_zh ?? null,
       interval: rank.percentile_interval,
       distribution: rank.distribution ?? null,

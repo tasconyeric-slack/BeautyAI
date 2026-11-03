@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { formatTopPercent, rankUnavailable } from "@/lib/rank-format";
 import { RankPosition } from "@/components/profile/score-hero";
 import { HarmonyRadar, ReferenceDensity } from "@/components/profile/score-charts";
 import { LockKeyhole } from "lucide-react";
@@ -41,12 +42,13 @@ export function FreeReport({ data }: { data: PassportResponse }) {
         <div className="rounded-[14px] border border-rule bg-paper-raised p-6">
           <p className="text-[13px] text-muted">照片样本排名</p>
           <div className="mt-2 font-serif text-[38px] text-ink" data-testid="free-rank">
-            {showRank ? "Top " + Number((100 - rank.percentile!).toFixed(2)) + "%" : "校准中"}
+            {showRank ? "Top " + formatTopPercent(rank.top_percent ?? (100 - rank.percentile!)) + "%" : "暂不可用"}
           </div>
+          {showRank && rank.estimated && <p className="text-[12px] text-muted">模型估计 · 尾部外推，未经同等样本量验证</p>}
           {showRank && rank.distribution && score.value != null
             ? <div className="mt-6"><ReferenceDensity curve={rank.distribution} score={score.value} /></div>
             : showRank ? <RankPosition percentile={rank.percentile!} /> : null}
-          <p className="mt-2 text-[12px] leading-6 text-muted">{showRank ? "参考样本：" + (rank.label ?? "参考照片样本") + "。按照片比较；主体与年龄未核验，并非全人群排名。" : "尚未建立可靠的评分尺度与对照样本映射，不提供虚构排名。"}</p>
+          <p className="mt-2 text-[12px] leading-6 text-muted">{showRank ? "参考样本：" + (rank.label ?? "参考照片样本") + "。按照片比较；主体与年龄未核验，并非全人群排名。" : rankUnavailable(rank.unavailable_reason)}</p>
         </div>
       </section>
     </div>

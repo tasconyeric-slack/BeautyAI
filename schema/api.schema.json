@@ -303,6 +303,29 @@
                       "$ref": "#/$defs/free_reference_density"
                     }
                   ]
+                },
+                "top_percent": {
+                  "type": [
+                    "number",
+                    "null"
+                  ],
+                  "minimum": 0,
+                  "maximum": 100
+                },
+                "method": {
+                  "type": [
+                    "string",
+                    "null"
+                  ]
+                },
+                "unavailable_reason": {
+                  "type": [
+                    "string",
+                    "null"
+                  ]
+                },
+                "estimated": {
+                  "type": "boolean"
                 }
               }
             },

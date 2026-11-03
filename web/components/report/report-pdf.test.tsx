@@ -52,16 +52,17 @@ describe("PDF report export", () => {
       unavailable_reason: null, limitations: [],
     };
     data.passport!.learned_reference_rank = {
-      status: "available", percentile: 65, top_percent: 35, cohort_label: "test-only sample", cohort_id: "test",
+      status: "available", percentile: qc === "limited" ? 99.992 : 65, top_percent: qc === "limited" ? .008 : 35, cohort_label: "test-only sample", cohort_id: "test",
       distribution_version: "test", n_reference: 1000, n_unique_subjects: null, reference_unit: "image",
-      method: "empirical_cdf_midrank_v1", limitations: [], unavailable_reason: null,
+      method: "ridge_ecdf_normal_tail_v1", limitations: qc === "limited" ? ["model_estimated_tail"] : [], unavailable_reason: null,
       percentile_interval: [60, 70], display_step_percent: 5, research_only: true, tier: null,
       distribution: { method: "gaussian_kde_scott_v1", n: 1000, bounds: [1, 10], mean: 5.2, points: [[1, 0.01], [5, 0.3], [10, 0.01]] },
     };
     const r = await build({ data, sample: false, images: null, photoMode: "omitted" }, "learned-summary.pdf");
     const cover = squash(r.pages[0]);
     expect(cover).toContain("颜值分5.5/10");
-    expect(cover).toContain("照片样本排名Top35%");
+    expect(cover).toContain(qc === "limited" ? "照片样本排名Top0.008%" : "照片样本排名Top35%");
+    if (qc === "limited") expect(cover).toContain("模型估计");
     expect(cover).toContain("test-onlysample·1,000张照片");
     expect(cover).toContain("非人口排名");
     if (qc === "limited") {
