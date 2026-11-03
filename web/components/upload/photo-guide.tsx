@@ -1,6 +1,7 @@
 "use client";
 import * as React from "react";
 import s from "@/components/journey/journey.module.css";
+import { demoPortraits } from "@/lib/assets/portraits";
 
 const GUIDES = [
   { id: "ready", tab: "合格", title: "先拍好一张正脸", text: "单人平视镜头，五官完整。面向窗户，保留清晰原图，日常自然发型就好。" },
@@ -29,8 +30,13 @@ export function PhotoGuide() {
     return () => { clearTimeout(timer); observer.disconnect(); document.removeEventListener("visibilitychange", schedule); };
   }, [touched]);
   const current = GUIDES[selected];
+  const frontalExample = current.id === "ready" ? demoPortraits["person-004"].frontal : null;
   return <aside ref={root} onPointerDown={() => setTouched(true)} onFocusCapture={() => setTouched(true)} className={s.guide} aria-label="拍照指引">
-    <img key={current.id} src={`/guides/qc/${current.id}.svg`} alt={`${current.title}，拍照示意图`} width={320} height={280} />
+    <img key={current.id}
+      src={frontalExample?.src ?? `/guides/qc/${current.id}.svg`}
+      alt={frontalExample ? `${frontalExample.alt}（正脸拍摄示例，非质检结果）` : `${current.title}，拍照示意图`}
+      width={frontalExample?.width ?? 320}
+      height={frontalExample?.height ?? 280} />
     <div className={s.guideContent}><div><h2>{current.title}</h2><p>{current.text}</p></div>
       <div className={s.guideChoices} aria-label="切换拍照提示">{GUIDES.map((g, i) => <button key={g.id} type="button" aria-pressed={i === selected} onClick={() => setSelected(i)}>{g.tab}</button>)}</div>
     </div>
