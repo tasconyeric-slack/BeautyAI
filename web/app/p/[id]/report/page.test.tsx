@@ -12,6 +12,22 @@ describe("report route follows the current job", () => {
     if (status === "analysis_failed") expect(screen.getByRole("link", { name: "重新开始分析" })).toBeTruthy();
     else expect(screen.getByRole("list", { name: "分析进度" })).toBeTruthy();
   });
+  it("shows real progress after invite unlock even when the free CV teaser still exists", () => {
+    const data = structuredClone(sampleReportResponse("female"));
+    data.id = "ap_unlocked";
+    data.status = "free_ready";
+    data.stage = "analysis";
+    data.passport = null;
+    data.entitlement.paid = true;
+    data.free_result = {
+      score: { kind: "learned", value: 7.2, scale: 10, status: "ok", label: "颜值参考分" },
+      rank: { status: "unavailable", percentile: null, label: null },
+      metrics: [],
+    };
+    render(<StaticPassportProvider value={{ data }}><ReportPage /></StaticPassportProvider>);
+    expect(screen.getByRole("list", { name: "分析进度" })).toBeTruthy();
+    expect(screen.queryByTestId("free-cv-report")).toBeNull();
+  });
   it("completed jobs show R2", () => {
     const data = sampleReportResponse("female");
     render(<StaticPassportProvider value={{ data }}><ReportPage /></StaticPassportProvider>);
