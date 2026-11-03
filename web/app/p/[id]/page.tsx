@@ -29,6 +29,8 @@ export default function PassportPage() {
   }, [id, ready, router]);
   if (loading || !data) return <LoadingState />;
   if (data.status === "qc_failed") return <QcFailed />;
+  // After checkout, the full analysis is running even while a free CV result still exists.
+  if (data.entitlement.paid && !data.passport) return <Reveal />;
   if (data.free_result && (!data.passport || !data.entitlement.paid)) return <FreeReport data={data} />;
   if (data.status !== "full_ready" || !data.passport) return <Reveal />;
   return <FullReport />;
