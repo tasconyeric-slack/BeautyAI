@@ -130,7 +130,7 @@ def test_free_score_never_falls_back_to_geometry():
     free = cv_teaser(stored)
     assert free["score"]["value"] == 7.3
     assert free["rank"] == {"status": "available", "percentile": 86.7,
-                            "label": "经匹配的 Ridge 参考照片"}
+                            "label": "经匹配的 Ridge 参考照片", "distribution": None}
     stored["learned_reference_rank"] = {"status": "unavailable", "percentile": 99.9}
     assert cv_teaser(stored)["rank"]["percentile"] is None
 
