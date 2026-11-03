@@ -23,6 +23,13 @@ try {
       assert.deepEqual(clipped, [], `${width} / ${id} clipped text`);
     }
     const guide = page.getByRole('complementary', { name: '拍照指引' });
+    // Every teaching tab must use the same real-person demo portrait, not a cartoon fallback.
+    for (const tab of ['合格', '清晰', '角度', '光线', '遮挡']) {
+      await guide.getByRole('button', { name: tab, exact: true }).click();
+      const photo = guide.locator('img');
+      await photo.waitFor({ state: 'visible' });
+      assert.equal(await photo.getAttribute('src'), '/demo/portraits/person-004-frontal.webp', `${width} / ${tab} portrait`);
+    }
     const angle = guide.getByRole('button', { name: '角度', exact: true });
     await angle.focus(); await angle.press('Enter');
     assert.equal(await angle.getAttribute('aria-pressed'), 'true');
