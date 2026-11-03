@@ -2,6 +2,7 @@
 
 import { Check, Loader2 } from "lucide-react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import * as React from "react";
 import { Card, Page, PageHeader } from "@/components/passport/ui";
 import { EntitlementTable } from "@/components/report/full-report";
@@ -14,6 +15,7 @@ import s from "@/components/journey/journey.module.css";
 /** Single purchase (D27). PAYMENT_PROVIDER=fake settles at once; invite codes unlock without payment. */
 export default function UnlockPage() {
   const { id, data, unlock, busy } = usePassport();
+  const router = useRouter();
   const [code, setCode] = React.useState("");
   const [err, setErr] = React.useState<string | null>(null);
   const [health, setHealth] = React.useState<Health | null>(null);
@@ -21,6 +23,11 @@ export default function UnlockPage() {
   React.useEffect(() => { backendFor(id).health().then(setHealth, () => setHealth(null)); }, [id]);
   const payMode = health?.payment_provider ?? "unknown";
   const paid = data?.entitlement.paid;
+  React.useEffect(() => {
+    if (paid && !data?.passport && data?.status !== "analysis_failed" && data?.status !== "qc_failed" && data?.status !== "deleted") {
+      router.replace(`/p/${id}/report`);
+    }
+  }, [paid, data?.passport, data?.status, id, router]);
   const go = async (invite?: string) => {
     setErr(null);
     api.track("checkout_start", { passport_id: id });

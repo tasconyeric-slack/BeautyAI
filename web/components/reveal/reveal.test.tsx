@@ -47,6 +47,13 @@ describe("Reveal screen", () => {
     expect(screen.getByRole("heading", { level: 1 }).textContent).toBe(copy.stages[2]);
   });
 
+  it("offers paid users the existing retry action", () => {
+    const data = resp({ status: "analysis_failed", stage: "analysis" });
+    data.entitlement.paid = true;
+    render(<StaticPassportProvider value={{ data }}><Reveal /></StaticPassportProvider>);
+    expect(screen.getByRole("link", { name: "重试生成完整报告" }).getAttribute("href")).toBe(`/p/${ID}/unlock`);
+  });
+
   it("offers a real restart instead of reading the same failed job again", () => {
     render(
       <StaticPassportProvider value={{ data: resp({ status: "analysis_failed", stage: "analysis", partial: { anchors: p.anchors } }) }}>

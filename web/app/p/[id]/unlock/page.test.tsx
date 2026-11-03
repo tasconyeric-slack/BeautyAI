@@ -4,18 +4,19 @@ import { sampleReportResponse } from "@/lib/fixture/backend";
 import { paywall } from "@/lib/copy/zh";
 import UnlockPage from "./page";
 
-const mocks = vi.hoisted(() => ({ health: vi.fn(), track: vi.fn() }));
+const mocks = vi.hoisted(() => ({ health: vi.fn(), track: vi.fn(), replace: vi.fn() }));
 let store = { id: "fx_unlock", data: sampleReportResponse(), busy: false, unlock: vi.fn() };
 vi.mock("@/lib/state/passport-store", () => ({ usePassport: () => store }));
 vi.mock("@/lib/api", async original => ({ ...await original<typeof import("@/lib/api")>(),
   backendFor: () => ({ health: mocks.health }), api: { track: mocks.track },
 }));
-vi.mock("next/navigation", () => ({ usePathname: () => "/p/fx_unlock/unlock" }));
+vi.mock("next/navigation", () => ({ usePathname: () => "/p/fx_unlock/unlock", useRouter: () => ({ replace: mocks.replace }) }));
 
 beforeEach(() => {
   store = { id: "fx_unlock", data: structuredClone(sampleReportResponse()), busy: false, unlock: vi.fn().mockResolvedValue(undefined) };
   store.data.entitlement.paid = false;
   store.data.entitlement.price_cny = 139;
+  mocks.replace.mockClear();
   mocks.health.mockResolvedValue({ payment_provider: "fake" });
 });
 
@@ -55,6 +56,22 @@ describe("ENG-05 entitlement presentation", () => {
     fireEvent.click(buy);
     expect(await screen.findByRole("alert")).toHaveProperty("textContent", paywall.failed);
     expect(buy.hasAttribute("disabled")).toBe(false);
+  });
+
+  it("automatically opens progress once the server confirms the unlock", async () => {
+    store.data.entitlement.paid = true;
+    store.data.passport = null;
+    render(<UnlockPage />);
+    await waitFor(() => expect(mocks.replace).toHaveBeenCalledWith("/p/fx_unlock/report"));
+  });
+
+  it("keeps failed analysis on the retry page", () => {
+    store.data.entitlement.paid = true;
+    store.data.passport = null;
+    store.data.status = "analysis_failed";
+    render(<UnlockPage />);
+    expect(mocks.replace).not.toHaveBeenCalled();
+    expect(screen.getByRole("button", { name: "重试生成完整报告" })).toBeTruthy();
   });
 
   it("uses confirmed paid status for report/Studio links and removes checkout", async () => {
