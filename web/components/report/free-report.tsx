@@ -17,9 +17,9 @@ export function FreeReport({ data }: { data: PassportResponse }) {
   return <main className="mx-auto max-w-5xl px-5 pb-20 pt-10 sm:px-8" data-testid="free-cv-report">
     <header className="border-b border-rule pb-8">
       <p className="mb-2 text-[12px] tracking-[.2em] text-muted">BEAUTYAI / {pending ? "完整报告生成中" : "免费测评结果"}</p>
-      <h1 className="font-serif text-[32px] leading-tight text-ink sm:text-[44px]">你的面部分析，已完成第一步。</h1>
+      <h1 className="font-serif text-[32px] leading-tight text-ink sm:text-[44px]">你的免费测评结果</h1>
       <p className="mt-3 max-w-2xl text-[14px] leading-7 text-ink-soft">
-        本页仅包含照片关键点计算结果。详细解释、个性化形象建议及 AI 发型模拟在完整护照中提供。
+        查看颜值评分、参考排名与基础面部测量。解锁完整报告，获取详细解读与个性化造型建议。
       </p>
     </header>
     <div className="grid gap-7 py-8 md:grid-cols-[minmax(0,1fr)_minmax(0,1.5fr)]">
@@ -36,25 +36,25 @@ export function FreeReport({ data }: { data: PassportResponse }) {
             <span className="ml-2 text-[18px] text-muted">/ {score.scale}</span>
           </div>
           {score.value == null
-            ? <p className="mt-4 text-[12px] leading-6 text-muted">Ridge 评分暂不可用。请勿将几何协调分替代为颜值预测；模型及参考样本需在生产环境就绪。</p>
-            : <p className="mt-4 text-[12px] leading-6 text-muted">基于面部几何特征的 Ridge 回归预测；结果受照片质量和训练样本影响。</p>}
+            ? <p className="mt-4 text-[12px] leading-6 text-muted">颜值评分暂时不可用，请稍后重试。</p>
+            : <p className="mt-4 text-[12px] leading-6 text-muted">颜值评分与参考排名基于特定模型和参考样本，仅供参考。</p>}
         </div>
         <div className="rounded-[14px] border border-rule bg-paper-raised p-6">
           <p className="text-[13px] text-muted">照片样本排名</p>
           <div className="mt-2 font-serif text-[38px] text-ink" data-testid="free-rank">
             {showRank ? "Top " + formatTopPercent(rank.top_percent ?? (100 - rank.percentile!)) + "%" : "暂不可用"}
           </div>
-          {showRank && rank.estimated && <p className="text-[12px] text-muted">模型估计 · 尾部外推，未经同等样本量验证</p>}
+          {showRank && rank.estimated && <p className="text-[12px] text-muted">模型估计</p>}
           {showRank && rank.distribution && score.value != null
             ? <div className="mt-6"><ReferenceDensity curve={rank.distribution} score={score.value} /></div>
             : showRank ? <RankPosition percentile={rank.percentile!} /> : null}
-          <p className="mt-2 text-[12px] leading-6 text-muted">{showRank ? "参考样本：" + (rank.label ?? "参考照片样本") + "。按照片比较；主体与年龄未核验，并非全人群排名。" : rankUnavailable(rank.unavailable_reason)}</p>
+          {!showRank && <p className="mt-2 text-[12px] leading-6 text-muted">{rankUnavailable(rank.unavailable_reason)}</p>}
         </div>
       </section>
     </div>
     {result.harmony && <section aria-label="面部几何协调度" className="border-t border-rule py-8">
       <h2 className="font-serif text-[25px]">面部几何协调度</h2>
-      <p className="mt-2 text-[12px] leading-6 text-muted">以下是照片测量得到的几何子项参考，与上方的 Ridge 颜值预测分属于不同指标，不用于换算颜值排名。</p>
+      <p className="mt-2 text-[12px] leading-6 text-muted">这些比例数据用于了解面部结构，不参与上方颜值分和参考排名的计算。</p>
       <div className="mt-5 max-w-[330px]"><HarmonyRadar axes={result.harmony} /></div>
     </section>}
     <section aria-label="代表性面部测量" className="border-t border-rule pt-8">
@@ -83,7 +83,6 @@ export function FreeReport({ data }: { data: PassportResponse }) {
       <Link href={"/p/" + data.id + "/unlock"} className="inline-flex min-h-11 w-fit items-center rounded-full bg-accent px-6 text-[14px] text-[var(--ap-on-primary)]">
         {pending ? "查看生成状态" : "解锁完整护照 · ¥139"}
       </Link>
-      {!pending && <p className="text-[12px] text-muted">免费报告不提供 PDF 下载。照片按告知的保留期限自动删除。</p>}
     </section>
   </main>;
 }
