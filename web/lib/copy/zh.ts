@@ -149,7 +149,7 @@ export const landing = {
     { title: "照片的去留，由你掌握", body: "先看清用途与保留时间，再决定上传；随时可以删除照片与报告。" },
   ],
   primaryAction: "上传一张正脸 · 免费",
-  viewCase: "看真实案例",
+  viewCase: "查看示例报告",
   topicLabel: "从你关心的话题开始",
   illustrationLabel: "插画示意",
   /** Issue #2: the first screen — a free start, a look at the deliverable first, and what the visit is for. */
@@ -334,7 +334,7 @@ export const paywall = {
   onUnlock: "解锁完整护照",
   priceSuffix: "元 · 一次解锁",
   noSubscription: "一次解锁本份护照，无自动续费。",
-  freeScope: "免费包含：本地计算的面部参考分、在参考样本有效时的百分位排名、六个面部分析分区各一项代表性测量。免费测评不使用生成式 AI 或图像生成服务，不提供完整报告、Studio 与 PDF。",
+  freeScope: "免费查看颜值评分、参考排名与基础面部测量。解锁完整报告，获取详细分析、造型建议、形象实验室与 PDF。",
   sampleReport: "先看一份完整示例报告",
   readReport: "阅读完整评估报告",
   invitation: "使用邀请码",
@@ -610,7 +610,7 @@ export const learnedAttractiveness = {
   rankAccessible: "参考样本内排名",
   rankMissing: "暂无排名",
   unavailable: "暂不可用",
-  qualityNote: "当前分数和参考排名可能不准确，仅供参考。建议用清晰、无遮挡的自然正脸照重新分析。",
+  qualityNote: "照片条件会影响评分。建议换一张清晰、无遮挡的正脸照。",
   qualityReasons: {
     beauty_filter_suspect: "皮肤纹理较少或疑似美颜", blurry: "照片较模糊", low_resolution: "照片细节不足",
     underexposed: "光线偏暗", overexposed: "光线过亮", face_too_small: "脸部占比较小",
