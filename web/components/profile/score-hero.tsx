@@ -178,10 +178,10 @@ export function PredictedScoreHero({ view, harmony }: { view: LearnedScoreView; 
         <p data-testid="learned-rank" className="mt-3 whitespace-nowrap font-serif text-[30px] font-semibold leading-none tabular-nums sm:text-[40px]">
           <span className="mr-1 font-sans text-[16px] font-normal">Top </span>{formatTopPercent(view.rank.top)}%
         </p>
-        {view.rank.estimated && <p className="mt-2 text-[11px] text-muted">模型估计 · 尾部外推，未经同等样本量验证</p>}
+        {view.rank.estimated && <p className="mt-2 text-[11px] text-muted">模型估计</p>}
         {!view.rank.distribution && <RankPosition percentile={view.rank.percentile!} />}
       </> : <p data-testid="learned-rank-unavailable" className="mt-3 text-[20px] text-muted">{learnedCopy.rankMissing}</p>}
-      {view.available && view.rank?.scopeNote && <p data-testid="learned-rank-scope" className="mt-3 text-[11px] leading-5 text-muted">{view.rank.scopeNote}</p>}
+      {view.available && view.rank && <p data-testid="learned-rank-scope" className="mt-3 text-[11px] leading-5 text-muted">颜值评分与参考排名基于特定模型和参考样本，仅供参考。</p>}
       {view.available && view.rank?.distribution && <div className="mt-7 flex h-[155px] items-center sm:h-[195px]">
         <ReferenceDensity curve={view.rank.distribution} score={view.score!} />
       </div>}
