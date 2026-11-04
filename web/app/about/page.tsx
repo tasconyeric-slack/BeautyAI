@@ -17,10 +17,10 @@ export default function AboutPage() {
       </ul>
       <section className={s.reading}><h2>我们怎样得出结论</h2>
       <p className="mt-3 text-[14px] leading-7 text-ink-soft">
-        比例与取色由关键点模型在你的正脸照片上测量；面部特点与建议由一个分析模型给出，并且必须引用具体观察；排序、校验、镜框尺寸和计划由固定的规则计算。
-        你的反馈只改变推荐的顺序，不改写观察本身。所有 AI 试看图都带有“AI 试看”标识。
+        BeautyAI 根据照片分析面部比例、轮廓与色彩特征，提供颜值参考分、面部解读和个性化造型建议。
+        你可以按自己的喜好调整推荐方向，并在形象实验室预览效果。
       </p>
-      <p className="mt-3 text-[13px] text-muted">本产品提供面部测量、颜值评分与造型建议，不提供医美或皮肤科建议，不推断年龄、民族、健康或体型。</p>
+      <p className="mt-3 text-[13px] text-muted">颜值评分与参考排名基于特定模型和参考样本，仅供参考。</p>
       <details id="data-sources" className="mt-8 scroll-mt-24 text-[13px] leading-7 text-muted">
         <summary className="cursor-pointer">数据来源与许可</summary>
         <p>比例分布数据来源于 <a className="underline" href="https://thefacereport.com/guides/facial-measurement-norms">The Face Report</a>，
