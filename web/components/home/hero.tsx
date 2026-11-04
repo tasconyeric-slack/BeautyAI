@@ -42,22 +42,22 @@ export function Hero({ v, uploadHref = "/start", headline, subtitle }: { v: Hero
       </nav>
 
       <div className={s.heroAbove}>
-        <p className={s.eyebrow}>面部测量 <span aria-hidden>／</span> 风格决策</p>
+        <p className={s.eyebrow}>颜值评分 <span aria-hidden>／</span> 面部分析 <span aria-hidden>／</span> 造型建议</p>
         <h1 id="home-title" className={s.h1} style={headline ? { maxWidth: "8em" } : undefined}>
-          {headline ?? <><span>读懂这张脸，</span><span>再决定风格。</span></>}
+          {headline ?? <><span>测测你的颜值，</span><span>找到更适合的造型。</span></>}
         </h1>
       </div>
       <div className={s.eyeRule} aria-hidden><span className={s.eyeRuleLabel}>眼位线</span></div>
       <div className={s.heroBelow}>
         <p className={s.lead}>
-          {subtitle ?? "从一张肖像开始，解析面部结构与五官比例。将分析转化为发型、眉形、配镜与妆容的个性化建议。"}
+          {subtitle ?? "上传一张正脸，查看颜值评分与参考排名，了解五官和脸型，获得发型、眼镜、妆容与穿搭建议。"}
         </p>
         <div className={s.ctaRow}>
           <Link prefetch={false} href={uploadHref} className={s.cta}>
-            上传正脸，开始分析
+            上传照片，免费测评
             <svg viewBox="0 0 16 16" aria-hidden className={s.ctaArrow}><path d="M3 8h10M9 4l4 4-4 4" /></svg>
           </Link>
-          <Link prefetch={false} href={v.reportHref} className={s.ctaGhost}>先看一份示例报告</Link>
+          <Link prefetch={false} href={v.reportHref} className={s.ctaGhost}>先看报告示例</Link>
         </div>
       </div>
 
