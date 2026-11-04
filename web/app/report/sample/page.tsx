@@ -3,11 +3,10 @@ import { SampleReport } from "@/components/report/sample-report";
 
 export const metadata: Metadata = {
   title: "完整报告示例 · 形象护照",
-  description: "AI 生成的虚构人物，经真实分析流程生成的完整面部评估报告示例，与真实报告使用相同的组件。",
+  description: "查看完整形象分析报告示例：颜值评分、面部特点、发型、配色和形象改善建议。",
 };
 
 /** One published example: person-001, including its real Ridge research snapshot. */
-export default async function SampleReportPage({ searchParams }: { searchParams: Promise<{ v?: string }> }) {
-  await searchParams;
+export default function SampleReportPage() {
   return <SampleReport variant="p001" />;
 }

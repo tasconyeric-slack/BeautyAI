@@ -31,7 +31,7 @@ const subscribe = (change: () => void) => {
 
 /** Shared art direction across the continuous home, the existing R2 report and a Studio interaction study. */
 export function DesignMotion({ hero, readings, view, production = false, uploadHref = "/start", headline, subtitle }: { hero: HeroView; readings: Chapter[]; view: View; production?: boolean; uploadHref?: string; headline?: string; subtitle?: string }) {
-  const pageRoute = (target: View) => production ? target === "report" ? "/report/sample?v=p002" : target === "studio" ? uploadHref : "/" : route(target);
+  const pageRoute = (target: View) => production ? target === "report" ? "/report/sample" : target === "studio" ? uploadHref : "/" : route(target);
   const root = useRef<HTMLDivElement>(null);
   const reduced = useSyncExternalStore(subscribe, () => window.matchMedia("(prefers-reduced-motion: reduce)").matches, () => true);
   const [autoplay, setAutoplay] = useState(true);
@@ -58,21 +58,21 @@ export function DesignMotion({ hero, readings, view, production = false, uploadH
     <header className={s.nav}>
       <Link href={pageRoute("home")} className={s.wordmark}>BeautyAI <span>形象护照</span></Link>
       <nav aria-label="体验页面">
-        {([ ["home", "发现"], ["report", "报告"], ["studio", "Studio"] ] as const).map(([key, label]) =>
+        {([ ["home", "首页"], ["report", "示例报告"], ["studio", "形象实验室"] ] as const).map(([key, label]) =>
           <Link key={key} href={pageRoute(key)} aria-current={view === key ? "page" : undefined}>{label}</Link>)}
       </nav>
-      <Link href={uploadHref} className={s.navCta}>开始了解自己 <ArrowUpRight size={14} /></Link>
+      <Link href={uploadHref} className={s.navCta}>免费测评 <ArrowUpRight size={14} /></Link>
     </header>
     <div>
       {view === "home" ? <>
         <section className={s.manifesto} data-reveal>
           <p className={s.eyebrow}>BEAUTY, IN YOUR OWN TERMS.</p>
-          <h2>先了解自己的特点，<br /><em>再决定想成为的样子。</em></h2>
-          <div><p>轮廓、比例、色彩，是风格的线索。<br />我们把线索变成看得懂、试得到的选择。</p><a href="#reading" className={s.down}>从一张照片开始 <ArrowDown size={18} /></a></div>
+          <h2>先了解自己的特点，<br /><em>再找到适合的改变。</em></h2>
+          <div><p>看颜值分与面部特点，<br />找到发型、眼镜和配色的具体建议。</p><a href="#reading" className={s.down}>看看如何分析 <ArrowDown size={18} /></a></div>
         </section>
         <ReadingStory hero={hero} readings={readings} reportHref={pageRoute("report")} />
         <section className={s.individuals} aria-labelledby="individuals-title">
-          <div className={s.editorialHead} data-reveal><p className={s.eyebrow}>02 / INDIVIDUALITY</p><h2 id="individuals-title">风格有很多种。<br /><em>答案，因你而异。</em></h2><p>不同的轮廓、发质和日常习惯，<br />值得各自的选择。</p></div>
+          <div className={s.editorialHead} data-reveal><p className={s.eyebrow}>02 / INDIVIDUALITY</p><h2 id="individuals-title">不同的脸，<br /><em>有不同的风格选择。</em></h2><p>不同的轮廓、发质和日常习惯，<br />值得各自的选择。</p></div>
           <div className={s.portraitComposition}>{editorialPortraits.map(({ person, role, caption }, i) => {
             const portrait = demoPortraits[person].frontal;
             return <figure key={person} data-reveal data-portrait-role={role} style={{ "--delay": `${i * 55}ms` } as CSSProperties}>
@@ -80,24 +80,24 @@ export function DesignMotion({ hero, readings, view, production = false, uploadH
               <figcaption>{caption}</figcaption>
             </figure>;
           })}</div>
-          <p className={s.disclosure} data-reveal>合成示例肖像，仅用于展示，不用于分析。</p>
+          <p className={s.disclosure} data-reveal>AI 合成示例</p>
         </section>
         <section className={s.styleSection} id="possibility">
-          <div className={s.styleIntro} data-reveal><p className={s.eyebrow}>03 / POSSIBILITIES</p><h2>改变多少，<br /><em>由你决定。</em></h2><p>先看一个发型方向。<br />在同一张照片里比较，保留喜欢的部分。</p><Link href={pageRoute("studio")} className={s.textLink}>在 Studio 里继续探索 <ArrowUpRight size={18} /></Link></div>
+          <div className={s.styleIntro} data-reveal><p className={s.eyebrow}>03 / POSSIBILITIES</p><h2>想换发型？<br /><em>先看看效果。</em></h2><p>先看一个发型方向。<br />在同一张照片里比较，保留喜欢的部分。</p><Link href={pageRoute("studio")} className={s.textLink}>在 Studio 里继续探索 <ArrowUpRight size={18} /></Link></div>
           <Comparison auto={auto} />
-          <div className={s.styleCaption} data-reveal><span>发型探索</span><h3>偏分内扣中长发</h3><p>试着改变分缝与发尾的走向，<br />看看自己是否喜欢这样的轮廓。</p><Link href="/report/sample?v=p001" className={s.textLink}>阅读对应人物报告 <ArrowUpRight size={14} /></Link></div>
+          <div className={s.styleCaption} data-reveal><span>发型探索</span><h3>偏分内扣中长发</h3><p>试着改变分缝与发尾的走向，<br />看看自己是否喜欢这样的轮廓。</p><Link href="/report/sample" className={s.textLink}>查看这组造型的报告示例 <ArrowUpRight size={14} /></Link></div>
         </section>
         <section className={s.studioSection} id="studio-preview">
-          <div className={s.studioHead} data-reveal><p className={s.eyebrow}>04 / LOOK STUDIO</p><h2>把想法，<em>放进照片里。</em></h2><p>从一个方向开始，慢慢找到自己的选择。</p></div>
+          <div className={s.studioHead} data-reveal><p className={s.eyebrow}>04 / LOOK STUDIO</p><h2>把发型与配色，<em>试在照片上。</em></h2><p>从一个方向开始，慢慢找到自己的选择。</p></div>
           <Studio auto={auto} compact production={production} uploadHref={uploadHref} />
           <Link href={pageRoute("studio")} className={s.lightLink}>{production ? "上传照片，进入自己的 Studio" : "进入 Studio 交互演示"} <ArrowUpRight size={18} /></Link>
         </section>
         <section className={s.takeaway}>
-          <div data-reveal><p className={s.eyebrow}>05 / YOUR AESTHETIC PASSPORT</p><h2>一次了解，<br /><em>留下一份行动的方向。</em></h2><p>把观察、解读和选择收进一份报告。<br />今天尝试一点，下次剪发再进一步。</p><Link href={pageRoute("report")} className={s.button}>翻开完整示例报告 <ArrowUpRight size={17} /></Link></div>
+          <div data-reveal><p className={s.eyebrow}>05 / YOUR AESTHETIC PASSPORT</p><h2>你的评分、分析与建议，<br /><em>整理成一份报告。</em></h2><p>把观察、解读和选择收进一份报告。<br />今天尝试一点，下次剪发再进一步。</p><Link href={pageRoute("report")} className={s.button}>翻开完整示例报告 <ArrowUpRight size={17} /></Link></div>
           <Link href={pageRoute("report")} className={s.reportBook} data-reveal aria-label="翻开形象护照"><div className={s.bookTop}><b>BeautyAI</b><span>AESTHETIC<br />PASSPORT</span></div><div className={s.bookPortrait}><img src={hero.plate.src} alt="形象护照封面" width={hero.plate.width} height={hero.plate.height} loading="lazy" /></div><div className={s.bookBottom}><span>属于自己的风格线索</span><b>形象护照 <ArrowUpRight size={21} /></b><span>发现 · 选择 · 行动</span></div></Link>
           <div className={s.planLine} data-reveal>{[["01", "看见特点", "从照片到理解"], ["02", "试一个方向", "从理解到选择"], ["03", "带进日常", "从选择到行动"]].map(([n, title, detail]) => <div key={n}><span>{n}</span><h3>{title}</h3><p>{detail}</p></div>)}</div>
         </section>
-        <section className={s.closing} data-reveal><p className={s.eyebrow}>MAKE IT YOURS.</p><h2>从了解自己开始。</h2><Link href={uploadHref} className={s.button}>上传照片，开始分析 <ArrowUpRight size={18} /></Link><Link href="/about" className={s.textLink}>了解分析方法与照片隐私 <ArrowUpRight size={14} /></Link></section>
+        <section className={s.closing} data-reveal><p className={s.eyebrow}>MAKE IT YOURS.</p><h2>开始你的形象分析。</h2><Link href={uploadHref} className={s.button}>上传照片，开始分析 <ArrowUpRight size={18} /></Link><Link href="/about" className={s.textLink}>了解分析方法与照片隐私 <ArrowUpRight size={14} /></Link></section>
       </> : view === "report" ? <div className={s.reportPage}><div className={s.pageHeading}><p className={s.eyebrow}>YOUR AESTHETIC PASSPORT</p><p>同一套视觉语言，从发现到理解。</p></div><SampleReport variant="p002" /></div>
         : <section className={s.studioPage}><div className={s.pageHeading}><p className={s.eyebrow}>Look Studio</p><h1>试一种可能，<em>找到自己的选择。</em></h1><p>发型与配色在同一处比较；保存你想继续尝试的方向。</p></div><Studio auto={auto} /></section>}
     </div>
@@ -137,7 +137,7 @@ function ReadingStory({ hero, readings, reportHref }: { hero: HeroView; readings
         <p className={s.eyebrow}>{String(i + 1).padStart(2, "0")} / {titles[i]}</p><h3>{ch.title}</h3><p className={s.readingValue}><span>{ch.metricName}</span><b>{ch.value}</b></p><p>{ch.seen}</p><div className={s.interpretation}><span>对风格的启发</span><p>{ch.means}</p></div>
         {ch.swatches && <div className={s.swatches}>{ch.swatches.map(color => <span key={color.name}><i style={{ background: color.hex }} />{color.name}</span>)}</div>}
       </article>)}</div>
-    </div><Link href={reportHref} className={s.textLink}>把线索串起来，读完整报告 <ArrowUpRight size={17} /></Link>
+    </div><Link href={reportHref} className={s.textLink}>查看完整报告示例 <ArrowUpRight size={17} /></Link>
   </section>;
 }
 
@@ -150,7 +150,7 @@ function MeasuredPortrait({ hero, chapter }: { hero: HeroView; chapter: Chapter 
       <img src={hero.plate.src} width={hero.plate.width} height={hero.plate.height} alt="面部解读，照片随阅读聚焦" loading="lazy" />
       <svg viewBox={`0 0 ${hero.plate.width} ${hero.plate.height}`} aria-hidden><MetricLines key={chapter.metricId} ov={chapter.overlay} unit={cam.s} /></svg>
     </div>
-    <span className={s.metricTag} key={chapter.metricId}>{chapter.metricName}<b>{chapter.value}</b></span><span className={s.photoKicker}>FACIAL STUDY / 002</span>
+    <span className={s.metricTag} key={chapter.metricId}>{chapter.metricName}<b>{chapter.value}</b></span><span className={s.photoKicker}>面部特征分析</span>
   </div>;
 }
 
@@ -210,7 +210,7 @@ function Studio({ auto, compact = false, production = false, uploadHref = "/star
         <span className={s.studioPhotoLabel}>{hold.holding || hair === "orig" ? "现在" : "尝试之后"}</span>
         {compare && <span className={s.studioCompareLine} aria-hidden />}
       </div>
-      <div className={s.studioCanvasTop}><span>LOOK STUDIO / 001</span><span>无眼镜</span></div>
+      <div className={s.studioCanvasTop}><span>发型 · 配色</span><span>无眼镜</span></div>
       <div className={s.studioCanvasBottom}><span>{compare ? "左侧原图 / 右侧发型探索" : "同一张照片，探索不同方向"}</span><HoldButton holding={hold.holding} props={hold.props} disabled={hair === "orig"} /></div>
     </div>
     <div className={s.studioPanel}>

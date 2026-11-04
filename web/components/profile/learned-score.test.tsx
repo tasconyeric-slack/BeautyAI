@@ -36,9 +36,9 @@ it.each(["passed", "limited"] as const)("shows the score and computed rank with 
   if (qc === "limited") expect(screen.getByText(/模型估计/)).toBeTruthy();
   // Position comes from the server percentile (65), not a 5.5/10 → 55 shortcut.
   expect(screen.getByTestId("rank-position").getAttribute("data-percentile")).toBe(qc === "limited" ? "99.992" : "65");
-  expect(screen.getByText("照片样本排名")).toBeTruthy();
-  expect(screen.getByTestId("learned-rank-scope").textContent).toContain("Test-only sample · 2,128 张照片");
-  expect(screen.getByTestId("learned-rank-scope").textContent).toContain("非人口排名");
+  expect(screen.getByText("参考排名")).toBeTruthy();
+  expect(screen.getByTestId("learned-rank-scope").textContent).toContain("特定模型和参考样本");
+  expect(screen.getByTestId("learned-rank-scope").textContent).toContain("仅供参考");
   expect(screen.getByTestId("learned-score").textContent).not.toMatch(/原生|照片质量|同模型|研究预览|校准|示意|常见区间|评分与样本说明|test-only-ridge/);
   expect(screen.getByTestId("learned-score").querySelector("details")).toBeNull();
 });
@@ -67,5 +67,5 @@ it("shows a limited measured score with its photo-quality caveat", () => {
   }, learned_reference_rank: null })!} />);
   expect(screen.getByTestId("score-value").textContent).toContain("5.5");
   expect(screen.getByTestId("learned-quality-note").textContent).toContain("皮肤纹理较少或疑似美颜");
-  expect(screen.getByTestId("learned-quality-note").textContent).toContain("可能不准确，仅供参考");
+  expect(screen.getByTestId("learned-quality-note").textContent).toContain("照片条件会影响评分");
 });

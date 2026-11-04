@@ -2,7 +2,6 @@ import type { Metadata, Viewport } from "next";
 import { Inter, JetBrains_Mono, Noto_Sans_SC, Noto_Serif_SC } from "next/font/google";
 import Link from "next/link";
 import { Toaster } from "sonner";
-import { privacy } from "@/lib/copy/zh";
 import "./globals.css";
 
 const serif = Noto_Serif_SC({ weight: ["500", "600", "700"], variable: "--font-noto-serif", display: "swap", preload: false });
@@ -43,11 +42,8 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <footer className="site-footer no-print mt-16 border-t border-rule pb-24">
           <div className="mx-auto flex flex-col gap-4 px-6 py-10 text-[12px] leading-6 text-muted">
             <Link href="/" className="w-fit text-[18px] font-semibold tracking-[-0.04em] text-ink">BeautyAI <span className="ml-2 text-[11px] font-normal tracking-normal text-muted">形象护照</span></Link>
-            <ul className="flex flex-wrap gap-x-4 gap-y-1">
-              {privacy.facts.map((f) => <li key={f}>{f}</li>)}
-            </ul>
             <div className="flex flex-wrap gap-x-4 gap-y-1">
-              <span>只描述特点，不评判长相 · 不给医美建议 · 不推断敏感属性</span>
+              <span>颜值评分与参考排名基于特定模型和参考样本，仅供参考。</span>
               <Link href="/about" className="underline-offset-4 hover:underline">照片与数据说明</Link>
             </div>
           </div>

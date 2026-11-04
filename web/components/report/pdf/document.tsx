@@ -320,10 +320,10 @@ function Cover({ data, sample, demo, images, photoMode, now }: {
           <T style={{ fontSize: 24 }}>{predicted.available ? `${predicted.score} /10` : learnedCopy.unavailable}</T>
         </View>
         <View style={{ width: "50%", borderLeftWidth: 0.5, borderLeftColor: C.rule, paddingLeft: 12 }}>
-          <T style={s.small}>{predicted.rank?.unit === "image" ? "照片样本排名" : learnedCopy.rank}</T>
+          <T style={s.small}>{learnedCopy.rank}</T>
           <T style={{ fontSize: 24 }}>{predicted.available && predicted.rank ? `Top ${formatTopPercent(predicted.rank.top)}%` : learnedCopy.rankMissing}</T>
-          {predicted.rank?.estimated && <T style={s.small}>模型估计 · 尾部外推，未经同等样本量验证</T>}
-          {predicted.available && predicted.rank?.scopeNote && <T style={s.small}>{predicted.rank.scopeNote}</T>}
+          {predicted.rank?.estimated && <T style={s.small}>模型估计</T>}
+          {predicted.available && predicted.rank && <T style={s.small}>颜值评分与参考排名基于特定模型和参考样本，仅供参考。</T>}
           {predicted.available && predicted.rank?.distribution && <DensityChart curve={predicted.rank.distribution} score={predicted.score!} />}
         </View>
         </View>
