@@ -40,7 +40,7 @@ export function FreeReport({ data }: { data: PassportResponse }) {
             : <p className="mt-4 text-[12px] leading-6 text-muted">颜值评分与参考排名基于特定模型和参考样本，仅供参考。</p>}
         </div>
         <div className="rounded-[14px] border border-rule bg-paper-raised p-6">
-          <p className="text-[13px] text-muted">照片样本排名</p>
+          <p className="text-[13px] text-muted">参考排名</p>
           <div className="mt-2 font-serif text-[38px] text-ink" data-testid="free-rank">
             {showRank ? "Top " + formatTopPercent(rank.top_percent ?? (100 - rank.percentile!)) + "%" : "暂不可用"}
           </div>
