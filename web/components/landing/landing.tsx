@@ -347,7 +347,7 @@ function Privacy({ start }: { start: string }) {
           ))}
         </ol>
         <p className="mt-3 text-[12px] text-muted">
-          只描述特点，不评判长相 ·{" "}
+          颜值评分与参考排名仅供参考 ·{" "}
           <Link href="/about" className="underline underline-offset-4 hover:text-ink">照片与数据说明</Link>
         </p>
         <div className="mt-8 flex flex-col items-center gap-2 rounded-[16px] bg-paper-sunk px-5 py-7 text-center">
