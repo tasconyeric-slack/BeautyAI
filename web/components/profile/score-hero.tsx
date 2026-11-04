@@ -173,7 +173,7 @@ export function PredictedScoreHero({ view, harmony }: { view: LearnedScoreView; 
       {harmony && <div className="mt-7"><HarmonyRadar axes={harmony} /></div>}
     </div>
     <div className="min-w-0 border-l border-rule px-3 sm:px-5" aria-label={learnedCopy.rankAccessible}>
-      <h2 className="text-[13px] font-medium text-ink-soft">{view.rank?.unit === "image" ? "照片样本排名" : learnedCopy.rank}</h2>
+      <h2 className="text-[13px] font-medium text-ink-soft">{learnedCopy.rank}</h2>
       {view.available && view.rank ? <>
         <p data-testid="learned-rank" className="mt-3 whitespace-nowrap font-serif text-[30px] font-semibold leading-none tabular-nums sm:text-[40px]">
           <span className="mr-1 font-sans text-[16px] font-normal">Top </span>{formatTopPercent(view.rank.top)}%
