@@ -78,7 +78,7 @@ describe("hero signature interaction", () => {
     act(() => { vi.advanceTimersByTime(TIMING.firstTurn + TIMING.profileSettle + 1000); });
     expect(document.querySelector("section")!.dataset.view).toBe("front");
     expect(screen.getByRole("button", { name: "重播动画" })).toBeTruthy();
-    expect(screen.getByRole("link", { name: /上传正脸/ }).getAttribute("href")).toBe("/start");
+    expect(screen.getByRole("link", { name: "上传照片，免费测评" }).getAttribute("href")).toBe("/start");
   });
 
   it("plays the entrance once (pausable), then rests", () => {

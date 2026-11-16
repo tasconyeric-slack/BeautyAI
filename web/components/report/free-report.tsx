@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { formatTopPercent, rankUnavailable } from "@/lib/rank-format";
+import { formatTopPercent, rankScopeNote, rankUnavailable } from "@/lib/rank-format";
 import { RankPosition } from "@/components/profile/score-hero";
 import { HarmonyRadar, ReferenceDensity } from "@/components/profile/score-charts";
 import { LockKeyhole } from "lucide-react";
@@ -48,7 +48,7 @@ export function FreeReport({ data }: { data: PassportResponse }) {
           {showRank && rank.distribution && score.value != null
             ? <div className="mt-6"><ReferenceDensity curve={rank.distribution} score={score.value} /></div>
             : showRank ? <RankPosition percentile={rank.percentile!} /> : null}
-          {!showRank && <p className="mt-2 text-[12px] leading-6 text-muted">{rankUnavailable(rank.unavailable_reason)}</p>}
+          <p className="mt-2 text-[12px] leading-6 text-muted" data-testid="free-rank-scope">{showRank ? rankScopeNote(rank.label) : rankUnavailable(rank.unavailable_reason)}</p>
         </div>
       </section>
     </div>

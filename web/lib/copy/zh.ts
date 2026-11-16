@@ -334,7 +334,7 @@ export const paywall = {
   onUnlock: "解锁完整护照",
   priceSuffix: "元 · 一次解锁",
   noSubscription: "一次解锁本份护照，无自动续费。",
-  freeScope: "免费查看颜值评分、参考排名与基础面部测量。解锁完整报告，获取详细分析、造型建议、形象实验室与 PDF。",
+  freeScope: "免费查看你的分数、参考排名与基础面部测量。解锁完整报告，获取详细分析、造型建议、形象实验室与 PDF。",
   sampleReport: "先看一份完整示例报告",
   readReport: "阅读完整评估报告",
   invitation: "使用邀请码",

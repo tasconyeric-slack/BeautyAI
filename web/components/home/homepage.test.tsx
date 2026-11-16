@@ -20,13 +20,13 @@ describe("production homepage", () => {
     expect(starts.length).toBeGreaterThan(3);
     expect(starts.every(a => a.getAttribute("href") === startHref(topic, "note-42"))).toBe(true);
     expect(trackLandingView).toHaveBeenCalledWith(topic, "note-42");
-    expect(screen.getByRole("link", { name: /阅读对应人物报告/ }).getAttribute("href")).toBe("/report/sample?v=p001");
+    expect(screen.getByRole("link", { name: /查看这组造型的报告示例/ }).getAttribute("href")).toBe("/report/sample");
   });
   it("keeps approved Hero and hands off to real report and personal upload without developer routes or simulated saves", () => {
     render(<HomePage />);
-    expect(screen.getByRole("heading", { level: 1 }).textContent).toBe("读懂这张脸，再决定风格。");
+    expect(screen.getByRole("heading", { level: 1 }).textContent).toBe("测测你的颜值，找到更适合的造型。");
     const links = screen.getAllByRole("link");
-    expect(links.some(a => a.getAttribute("href") === "/report/sample?v=p002")).toBe(true);
+    expect(links.some(a => a.getAttribute("href") === "/report/sample")).toBe(true);
     expect(links.every(a => !a.getAttribute("href")?.startsWith("/dev/"))).toBe(true);
     expect(screen.getByRole("link", { name: "用自己的照片试试" }).getAttribute("href")).toBe("/start");
     expect(screen.queryByRole("button", { name: "保存这个方向" })).toBeNull();
@@ -34,12 +34,12 @@ describe("production homepage", () => {
     const comparison = screen.getByRole("img", { name: "发型对比原图" });
     expect(comparison.getAttribute("src")).toBe("/demo/generated/p001/safe-before.jpg");
     expect(screen.getByRole("img", { name: "偏分内扣中长发效果" }).getAttribute("src")).toBe("/demo/generated/p001/safe-after.jpg");
-    expect(screen.getByRole("link", { name: /阅读对应人物报告/ }).getAttribute("href")).toBe("/report/sample?v=p001");
+    expect(screen.getByRole("link", { name: /查看这组造型的报告示例/ }).getAttribute("href")).toBe("/report/sample");
     expect(document.querySelector('img[src*="/design-motion/p001-b-"]')).toBeNull();
   });
   it("composes the individuality scene as an honest editorial hierarchy", () => {
     render(<HomePage />);
-    const heading = screen.getByRole("heading", { name: /风格有很多种/ });
+    const heading = screen.getByRole("heading", { name: /不同的脸/ });
     const section = heading.closest("section");
     expect(section).not.toBeNull();
     const figures = [...section!.querySelectorAll("figure")];
@@ -55,6 +55,6 @@ describe("production homepage", () => {
       demoPortraits["person-005"].frontal.alt,
       demoPortraits["person-006"].frontal.alt,
     ]);
-    expect(within(section!).getByText("合成示例肖像，仅用于展示，不用于分析。")).toBeTruthy();
+    expect(within(section!).getByText("AI 合成示例")).toBeTruthy();
   });
 });

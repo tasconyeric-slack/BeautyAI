@@ -4,6 +4,7 @@ import type { IllustratedAvatarProps, ProfileCardProps, StylistCardProps } from 
 import type { StylePlaneProps, SwatchColor } from "@/components/ds";
 import type { Passport, PassportResponse, PreviewState } from "../passport";
 import { learnedAttractiveness as learnedCopy } from "../copy/zh";
+import { rankScopeNote } from "../rank-format";
 
 type Analysis = Passport["analysis"];
 type HairOption = Analysis["hair_options"][number];
@@ -387,9 +388,7 @@ export function learnedScore(p: Passport) {
       n: rank.n_reference, unit: rank.reference_unit, tier: rank.tier?.label_zh ?? null,
       interval: rank.percentile_interval,
       distribution: rank.distribution ?? null,
-      scopeNote: rank.reference_unit === "image"
-        ? `${rank.cohort_label ?? "参考照片样本"} · ${rank.n_reference?.toLocaleString("en-US") ?? "—"} 张照片。非人口排名；照片主体及年龄未核验。`
-        : null,
+      scopeNote: rankScopeNote(rank.cohort_label, rank.reference_unit),
     } : null,
     rankReason: ranked ? null : rank?.unavailable_reason ?? "reference_missing",
   };
