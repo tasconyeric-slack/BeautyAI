@@ -11,7 +11,7 @@ describe("home preview model", () => {
     expect(v.length?.a).toEqual(c.geometry.points!.forehead_top);
     expect(v.width?.a).toEqual(c.geometry.points!.cheek_l);
     expect(v.eyeLine).toBeCloseTo(0.3901, 4);
-    expect(v.reportHref).toBe("/report/sample?v=p002");
+    expect(v.reportHref).toBe("/report/sample");
   });
 
   it("takes every chapter's reading verbatim from the report", () => {

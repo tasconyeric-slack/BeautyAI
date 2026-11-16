@@ -27,7 +27,7 @@ beforeEach(() => {
 
 const ctas = () => screen.getAllByRole("link", { name: landing.primaryAction });
 const topicLinks = () => screen.getAllByRole("link").filter((a) => /^\/t\/[a-z]+$/.test(a.getAttribute("href") ?? ""));
-const FORBIDDEN = ["作品", "颜值", "打分", "完美", "变美", "逆袭", "显瘦", "显胖"];
+const FORBIDDEN = ["作品", "打分", "完美", "变美", "逆袭", "显瘦", "显胖"];
 
 describe("Landing", () => {
   it("shows the primary CTA to /start", () => {

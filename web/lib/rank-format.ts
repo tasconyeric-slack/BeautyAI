@@ -13,3 +13,11 @@ export function rankUnavailable(reason?: string | null): string {
   if (reason === "invalid_tail_reference") return "参考样本不足以拟合尾部，暂不可用。";
   return "参考数据缺失或不可用，暂无法计算参考位置。";
 }
+
+/** One short scope note shared by the web score card, free report and PDF: names the real reference sample and its limits. */
+export function rankScopeNote(label?: string | null, unit: string | null = "image"): string {
+  const sample = label?.trim() || "参考照片样本";
+  return unit === "subject"
+    ? `参考样本：${sample}。仅与该样本比较，并非全人群排名。`
+    : `参考样本：${sample}。按照片比较，主体与年龄未核验，并非全人群排名。`;
+}

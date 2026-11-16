@@ -61,13 +61,14 @@ describe("PDF report export", () => {
     const r = await build({ data, sample: false, images: null, photoMode: "omitted" }, "learned-summary.pdf");
     const cover = squash(r.pages[0]);
     expect(cover).toContain("颜值分5.5/10");
-    expect(cover).toContain(qc === "limited" ? "照片样本排名Top0.008%" : "照片样本排名Top35%");
+    expect(cover).toContain(qc === "limited" ? "参考排名Top0.008%" : "参考排名Top35%");
     if (qc === "limited") expect(cover).toContain("模型估计");
-    expect(cover).toContain("test-onlysample·1,000张照片");
-    expect(cover).toContain("非人口排名");
+    expect(cover).toContain("参考样本：test-onlysample");
+    expect(cover).toContain("并非全人群排名");
+    expect(cover).not.toContain("1,000张照片");
     if (qc === "limited") {
       expect(cover).toContain("皮肤纹理较少或疑似美颜");
-      expect(cover).toContain("可能不准确，仅供参考");
+      expect(cover).toContain("照片条件会影响评分");
     }
     expect(cover).not.toContain("均值");
     expect(cover).not.toContain("几何协调度");

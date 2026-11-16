@@ -94,14 +94,9 @@ describe("pipeline-backed demo cases (Issue #14)", () => {
   });
 
   it("publishes person 001 as the single default sample", async () => {
-    render(await SampleReportPage({ searchParams: Promise.resolve({}) }));
+    render(await SampleReportPage());
     expect(screen.queryByTestId("demo-disclosure")).toBeNull();
     expect(screen.getByTestId("learned-rank")).toBeTruthy();
-  });
-
-  it("uses person-001 for legacy variant links too", async () => {
-    render(await SampleReportPage({ searchParams: Promise.resolve({ v: "male" }) }));
-    expect(screen.queryByTestId("demo-disclosure")).toBeNull();
     expect(screen.getByTestId("full-report")).toBeTruthy();
   });
 

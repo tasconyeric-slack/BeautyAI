@@ -112,7 +112,7 @@ export function heroView(c: DemoCase): HeroView | null {
     width: seg(1),
     eyeLine: il && ir ? (il[1] + ir[1]) / 2 : null,
     eyeOuter: pts.eye_l_outer ?? null,
-    reportHref: `/report/sample?v=${c.key}`,
+    reportHref: "/report/sample",
     profile: profileView(c),
   };
 }
