@@ -233,3 +233,48 @@
   .studio[data-compact="false"] :is(button,input) { scroll-margin-top:calc(37svh + 135px); }
   .studio[data-compact="false"] .studioPanel { z-index:1; }
 }
+
+/* Value-first home: compact evidence, practical choices, then the actual published report. */
+.readingSteps article { min-height:38svh; padding:32px 0 40px; opacity:1; }
+.readingSteps h3 { margin:14px 0 20px; }
+.readingSteps .interpretation { margin-top:18px; }
+.readingSteps .interpretation p { font-size:18px; }
+.exampleLabel { margin:0 0 24px!important; font-size:11px; line-height:1.8; color:var(--dm-muted); }
+.choicesSection { padding:80px var(--dm-gutter); background:var(--dm-surface); }
+.choiceCards { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:36px; }
+.choiceCards article { border-top:1px solid var(--dm-rule); padding-top:24px; }
+.choiceCards h3 { font-size:23px; line-height:1.65; margin:16px 0 24px; }
+.choiceCards dl { font-size:13px; line-height:1.9; }
+.choiceCards dl>div+div { margin-top:20px; }
+.choiceCards dt { color:var(--dm-moss); font-size:11px; margin-bottom:6px; }
+.choiceCards dd { margin:0; color:var(--dm-muted); }
+.choiceFoot { margin-top:36px!important; font-size:12px; color:var(--dm-muted); }
+.takeaway { gap:60px 6%; grid-template-columns:1fr 1fr; padding-top:80px; }
+.reportPreview { min-width:0; background:var(--dm-surface); border:1px solid var(--dm-rule); padding:24px; }
+.previewIdentity { display:flex; align-items:center; gap:20px; margin-bottom:24px; }
+.previewIdentity img { width:80px; height:100px; object-fit:cover; }
+.previewIdentity>div>p:last-child { margin-top:10px; font-size:11px; line-height:1.8; color:var(--dm-muted); }
+.reportPreview :global([data-testid="learned-score"] h2) { font-family:var(--sans); font-size:13px; letter-spacing:0; }
+.reportPreview :global([data-testid="learned-score"] p) { margin-top:12px; }
+.previewStrengths { margin-top:22px; }
+.previewStrengths h3 { font-size:20px; margin:0 0 12px; }
+.previewStrengths ul { padding-left:18px; font-size:13px; line-height:1.9; color:var(--dm-muted); list-style:disc; }
+.planLine p { line-height:1.9; }
+.closing>p:not(.eyebrow) { margin-bottom:26px; font-size:14px; color:var(--dm-muted); }
+.footer>div { display:flex; flex-wrap:wrap; gap:24px; font-size:11px; }
+@media (max-width:767px) {
+  .editorialHead h2 { font-size:clamp(25px,7vw,34px); }
+  .readingSteps article { min-height:0; padding:26px 0 32px; }
+  .measuredPortrait { height:30svh; }
+  .choicesSection { padding:50px 24px; }
+  .choiceCards { grid-template-columns:1fr; gap:28px; }
+  .choiceCards h3 { font-size:21px; margin:12px 0 18px; }
+  .takeaway { grid-template-columns:1fr; gap:36px; padding-top:55px; }
+  .takeaway h2 { font-size:30px; }
+  .reportPreview { padding:18px; }
+  .planLine { grid-template-columns:1fr; gap:0; }
+  .planLine>div { padding:22px 0; border-bottom:1px solid var(--dm-rule); }
+  .planLine h3 { margin:10px 0; }
+  .planLine p { font-size:12px!important; }
+  .footer>div { flex-basis:100%; }
+}

@@ -6,6 +6,17 @@
 import { display, metricOverlay, viewGeometry, type Metric, type MetricOverlay } from "@/components/face/measure-model";
 import type { DemoCase } from "@/lib/fixtures/demo_cases";
 import type { Pt } from "@/lib/tint";
+import { rankedRecs } from "@/lib/adapters";
+
+/** A small selection of the same subject's evidence-backed report recommendations. */
+export function personalChoices(c: DemoCase) {
+  const categories = ["hairstyle", "glasses", "color_palette"];
+  return categories.flatMap(category => {
+    const rec = rankedRecs(c.passport).find(r => r.category === category && r.evidence.length && r.howTo.length);
+    return rec ? [rec] : [];
+  });
+}
+export type HomeChoice = ReturnType<typeof personalChoices>[number];
 
 export interface Plate {
   src: string;

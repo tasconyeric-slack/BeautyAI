@@ -21,7 +21,7 @@ import { Locked, Pill } from "@/components/passport/ui";
 import { isMockPassport } from "@/components/passport/shell";
 import {
   colorGroups, cover, hairOptions, rankedRecs, referenceRank, stripRefs, stylePlane,
-  type Tier,
+  type HairOptionView, type Tier,
 } from "@/lib/adapters";
 import { backendFor, type Passport, type PassportResponse } from "@/lib/api";
 import { aestheticScore as scoreCopy, entitlements, guidance, paywall, report as copy } from "@/lib/copy/zh";
@@ -91,19 +91,31 @@ export function FullReportContent({ data: source, geometry: rawGeometry, sample 
   const p = data.passport;
   const mv = React.useMemo(() => p ? measureView(p, data.id, data.entitlement.locked) : null, [p, data.id, data.entitlement.locked]);
   const regions = React.useMemo(() => p && mv ? regionViews(p, mv) : [], [p, mv]);
-  const links = React.useMemo(() => p ? evidenceLinks(p, regions) : null, [p, regions]);
+  const options = p ? hairOptions(p, data.partial.previews) : [];
+  const current = options.find(o => o.tier === selected && o.status !== "excluded") ?? options.find(o => o.status !== "excluded");
+  const links = React.useMemo(() => {
+    if (!p) return null;
+    const linked = evidenceLinks(p, regions);
+    // Only the new presentation labels change; evidence IDs and source recommendations stay intact.
+    if (current) {
+      const hairIds = new Set(p.analysis.recommendations.filter(r => r.category === "hairstyle").map(r => r.id));
+      for (const refs of Object.values(linked.byRegion)) for (const ref of refs) {
+        if (hairIds.has(ref.recId)) ref.action = current.name;
+      }
+    }
+    return linked;
+  }, [p, regions, current?.name]);
   if (!p) return <p role="status">报告尚未准备好。</p>;
   const kind = backendFor(data.id).kind;
   const geometry = gone ? null : rawGeometry;
   const base = `/p/${data.id}`;
-  const current = hairOptions(p, data.partial.previews).find(o => o.tier === selected && o.status !== "excluded") ?? hairOptions(p, data.partial.previews).find(o => o.status !== "excluded");
   const chapters = {
-    overview: <Chapter k="overview"><ReportOverview data={data} mv={mv} sample={sample} gone={gone} geometry={geometry} exportAction={<ReportPdfExport data={data} sample={sample} geometry={geometry} compact demo={sample || !isMockPassport(kind, p) ? null : kind === "fixture" ? "fixture" : "mock"} />} /></Chapter>,
+    overview: <Chapter k="overview"><ReportOverview currentHair={current} data={data} mv={mv} sample={sample} gone={gone} geometry={geometry} exportAction={<ReportPdfExport data={data} sample={sample} geometry={geometry} compact demo={sample || !isMockPassport(kind, p) ? null : kind === "fixture" ? "fixture" : "mock"} />} /></Chapter>,
     findings: <Findings p={p} mv={mv} geometry={geometry} data={data} gone={gone} sample={sample} base={base} regions={regions} links={links} />,
     interpretation: <Interpretation p={p} base={base} />,
-    improvements: <Improvements p={p} base={base} links={links} hair={<HairSection p={p} data={data} gone={gone} sample={sample} embedded selectedTier={selected} onSelect={setSelected} />} />,
+    improvements: <Improvements currentHair={current} p={p} base={base} links={links} hair={<HairSection p={p} data={data} gone={gone} sample={sample} embedded selectedTier={selected} onSelect={setSelected} />} />,
     options: <Options p={p} data={data} base={base} />,
-    plan: <Plan p={p} data={data} sample={sample} currentName={current?.name ?? null} />,
+    plan: <Plan p={p} data={data} sample={sample} currentHair={current} />,
     methods: <Methods p={p} data={data} mv={mv} sample={sample} />,
   };
   const order: ChapterKey[] = CHAPTER_KEYS;
@@ -299,7 +311,7 @@ function Region({ r, geometry, data, gone, sample, recs }: {
         <h3 id={`region-${r.key}`} tabIndex={-1} className="font-serif text-[20px] font-semibold focus:outline-none">{r.title}</h3>
         <span className="tnum text-[12px] text-muted">{copy.measuredOf} {r.measured} / {r.total}</span>
       </div>
-      <RegionMeasurements r={r} geometry={geometry} data={data} gone={gone} sample={sample} />
+      <details className={s.measurementDetails}><summary>查看 {r.measured} 项测量与图解</summary><RegionMeasurements r={r} geometry={geometry} data={data} gone={gone} sample={sample} /></details>
       {r.insights.length > 0 && <table className={s.insightTable}><thead><tr><th>面部特点</th><th>造型启发</th></tr></thead><tbody>{r.insights.map(i => <tr key={i.metricId}><th scope="row">{i.label}<small>{i.seen}</small></th><td>{i.means}</td></tr>)}</tbody></table>}
       {r.observations.length > 0 && <details className={s.observationDetails}><summary>照片细节</summary><ul>{r.observations.map(o => <li key={o.text}>{o.text}</li>)}</ul></details>}
       {recs.length > 0 && (
@@ -366,7 +378,7 @@ function Interpretation({ p, base }: { p: Passport; base: string }) {
 
 // --- 04 improvements -------------------------------------------------------------------------------------------
 
-function Improvements({ p, base, links, hair }: { p: Passport; base: string; links: EvidenceLinks | null; hair: React.ReactNode }) {
+function Improvements({ p, base, links, hair, currentHair }: { p: Passport; base: string; links: EvidenceLinks | null; hair: React.ReactNode; currentHair?: HairOptionView }) {
   const recs = rankedRecs(p).slice(0, 5);
   if (recs.length === 0) {
     return (
@@ -383,18 +395,18 @@ function Improvements({ p, base, links, hair }: { p: Passport; base: string; lin
       <ol className="space-y-3" data-testid="report-improvements">
         {recs.map((r, i) => {
           const ev = links?.byRec[r.id];
+          const chosenHair = r.page === "hair" ? currentHair : undefined;
           return (
             <li key={r.id} id={`rec-${r.id}`} className="rounded-[16px] border border-rule bg-paper-raised p-4 sm:p-5">
               <div className="flex items-start gap-3">
                 <span className="tnum mt-0.5 font-serif text-[22px] leading-none text-amber" aria-label={`优先级 ${i + 1}`}>{i + 1}</span>
                 <div className="min-w-0 flex-1">
                   <div className="flex flex-wrap gap-1.5"><Pill tone="accent">{r.categoryZh}</Pill>{r.time && <Pill>{r.time}</Pill>}{r.cost && <Pill>{r.cost}</Pill>}<Pill>{r.effort}</Pill></div>
-                  <h3 className="mt-1.5 font-serif text-[21px] font-medium leading-8">{r.page === "hair" && <small className="block font-sans text-[11px] text-muted">优先方向</small>}{r.action}</h3>
-                  {r.page === "hair" && hair}
-                  <dl className="mt-2 grid gap-1.5 text-[13.5px] leading-6">
-                    <div><dt className="inline text-muted">为什么 · </dt><dd className="inline text-ink-soft">{r.why}</dd></div>
-                    <div><dt className="inline text-muted">能带来 · </dt><dd className="inline">{r.effect}</dd></div>
-                    <div><dt className="inline text-muted">怎么检查 · </dt><dd className="inline">{r.successCheck}</dd></div>
+                  <p className="mt-3 text-[11px] text-muted">推荐改变</p>
+                  <h3 className="mt-1.5 font-serif text-[21px] font-medium leading-8">{chosenHair?.name ?? r.action}</h3>
+                  <dl className="mt-2 grid gap-3 text-[13.5px] leading-6">
+                    <div><dt className="text-muted">为什么适合你</dt><dd className="text-ink-soft">{chosenHair ? chosenHair.why.join("；") : r.why}</dd></div>
+                    <div><dt className="text-muted">怎么做</dt><dd>{chosenHair ? hair : <ol className="list-decimal space-y-1 pl-5">{r.howTo.map(h => <li key={h}>{h}</li>)}</ol>}</dd></div>
                   </dl>
                   {ev && ev.regions.length > 0 && (
                     <p className="mt-2.5 flex flex-wrap items-center gap-x-1.5 gap-y-1.5 text-[12.5px]" data-testid={`rec-evidence-${r.id}`}>
@@ -406,16 +418,16 @@ function Improvements({ p, base, links, hair }: { p: Passport; base: string; lin
                       {ev.readings.slice(0, 2).map((x) => <span key={x.metricId} className="text-muted">· {x.label}</span>)}
                     </p>
                   )}
-                  {(r.howTo.length > 0 || r.avoid || r.evidence.length > 0) && (
-                    <details data-rec-howto className="mt-2 text-[13.5px] leading-6">
-                      <summary className="inline-flex min-h-8 cursor-pointer items-center text-[13px] text-accent">具体做法</summary>
-                      <dl className="mt-1 grid gap-1.5">
-                        {r.howTo.length > 0 && <div><dt className="text-muted">怎么做</dt><dd><ol className="mt-0.5 list-decimal space-y-0.5 pl-5">{r.howTo.map((h) => <li key={h}>{h}</li>)}</ol></dd></div>}
-                        {r.avoid && <div><dt className="inline text-muted">避免 · </dt><dd className="inline text-ink-soft">{r.avoid}</dd></div>}
-                        {r.evidence.length > 0 && <div><dt className="inline text-muted">依据 · </dt><dd className="inline text-[12.5px] text-muted">{r.evidence.join("；")}</dd></div>}
-                      </dl>
-                    </details>
-                  )}
+                  <details data-rec-howto className="mt-2 text-[13px] leading-6 text-muted">
+                    <summary className="inline-flex min-h-8 cursor-pointer items-center text-accent">查看依据与注意事项</summary>
+                    <dl className="mt-1 grid gap-1.5">
+                      {chosenHair && <div><dt>原始通用建议</dt><dd>{r.action}</dd><dd>{r.why}</dd><dd>{r.howTo.join("；")}</dd></div>}
+                      <div><dt>预期变化</dt><dd>{r.effect}</dd></div>
+                      <div><dt>观察变化</dt><dd>{r.successCheck}</dd></div>
+                      {r.avoid && <div><dt>避免</dt><dd>{r.avoid}</dd></div>}
+                      {r.evidence.length > 0 && <div><dt>照片依据</dt><dd>{r.evidence.join("；")}</dd></div>}
+                    </dl>
+                  </details>
                   <ReportLink href={`${base}/${r.page}`} className="mt-2 inline-flex items-center gap-1 text-[13px] text-accent underline-offset-4 hover:underline">详细说明<ArrowUpRight className="size-3.5" /></ReportLink>
                 </div>
               </div>
@@ -555,22 +567,23 @@ function LockedLine({ text }: { text: string }) {
 
 // --- 06 plan ---------------------------------------------------------------------------------------------------
 
-function Plan({ p, data, sample, currentName }: { p: Passport; data: PassportResponse; sample: boolean; currentName: string | null }) {
+function Plan({ p, data, sample, currentHair }: { p: Passport; data: PassportResponse; sample: boolean; currentHair?: HairOptionView }) {
   const top = rankedRecs(p).slice(0, 3);
   const plan = p.derived.plan;
   const has = plan.today.length + plan.next_haircut.length + plan.invest.length > 0;
   const cols = (["today", "next_haircut", "invest"] as const);
   return (
     <Chapter k="plan">
-      <p data-testid="report-current-plan">当前发型方向：{currentName ?? "暂无可选方向"}。</p>
+      <p data-testid="report-current-plan">当前发型方向：{currentHair?.name ?? "暂无可选方向"}。</p>
       {sample && <p className="text-[12px] text-muted">复制这份清单，找到适合自己的第一步。</p>}
-      <CopyButton label="复制行动清单" text={top.map((r, i) => `${i + 1}. ${r.action}\n怎么检查：${r.successCheck}`).join("\n\n")} />
+      <CopyButton label="复制行动清单" text={top.map((r, i) => `${i + 1}. ${r.page === "hair" && currentHair ? [currentHair.name, ...currentHair.scripts].join("\n") : [r.action, ...r.howTo].join("\n")}`).join("\n\n")} />
       <Sub title={copy.planTop}>
         <ol className="grid gap-3 md:grid-cols-3" data-testid="report-plan-top">
           {top.map((r, i) => (
             <li key={r.id} className="rounded-[14px] border border-rule bg-paper-raised p-4">
               <span className="tnum font-serif text-[20px] text-amber">{i + 1}</span>
-              <p className="mt-1 text-[14px] font-medium leading-6">{r.action}</p>
+              <p className="mt-1 text-[14px] font-medium leading-6">{r.page === "hair" && currentHair ? currentHair.name : r.action}</p>
+              {r.page === "hair" && currentHair && <p className="mt-1 text-[13px] leading-6">{currentHair.scripts[0]}</p>}
               <p className="mt-1 text-[12px] text-muted">{[r.time, r.cost].filter(Boolean).join(" · ")}</p>
             </li>
           ))}
@@ -586,7 +599,7 @@ function Plan({ p, data, sample, currentName }: { p: Passport; data: PassportRes
                   <ul className="space-y-2">
                     {plan[k].map((x) => (
                       <li key={x.rec_id} className="rounded-[12px] border border-rule bg-paper-raised px-3.5 py-2.5 text-[13.5px] leading-6">
-                        {stripRefs(x.action)}<span className="mt-0.5 block text-[12px] text-muted">怎么检查：{x.success_check}</span>
+                        {currentHair && p.analysis.recommendations.some(r => r.id === x.rec_id && r.category === "hairstyle") ? <>{currentHair.name}<span className="mt-1 block">{currentHair.scripts.join("；")}</span><details className="text-[12px] text-muted"><summary>原始通用建议</summary>{stripRefs(x.action)}<p>{x.success_check}</p></details></> : <>{stripRefs(x.action)}<span className="mt-0.5 block text-[12px] text-muted">观察变化：{x.success_check}</span></>}
                       </li>
                     ))}
                   </ul>

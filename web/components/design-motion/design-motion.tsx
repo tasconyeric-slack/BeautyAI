@@ -2,14 +2,16 @@
 
 import { useEffect, useRef, useState, useSyncExternalStore, type CSSProperties } from "react";
 import Link from "next/link";
-import { ArrowDown, ArrowRight, ArrowUpRight, Check, Pause, Play, Bookmark, RotateCcw } from "lucide-react";
+import { ArrowRight, ArrowUpRight, Check, Pause, Play, Bookmark, RotateCcw } from "lucide-react";
 import { Hero } from "@/components/home/hero";
-import { camera, focusBox, type Chapter, type HeroView } from "@/components/home/model";
+import { camera, focusBox, type Chapter, type HeroView, type HomeChoice } from "@/components/home/model";
 import { MetricLines } from "@/components/home/overlay";
 import { useSize } from "@/components/home/use-size";
 import { HoldButton, useHold } from "@/components/ds/HoldButton";
 import { SampleReport } from "@/components/report/sample-report";
-import { demoPortraits } from "@/lib/assets/portraits";
+import { demoCaseByKey } from "@/lib/fixtures/demo_cases";
+import { learnedScore } from "@/lib/adapters";
+import { PredictedScoreHero } from "@/components/profile/score-hero";
 import heroStyles from "@/components/home/home.module.css";
 import s from "./design-motion.module.css";
 
@@ -17,12 +19,6 @@ type View = "home" | "report" | "studio";
 const route = (view: View) => `/dev/design-motion${view === "home" ? "" : `?view=${view}`}`;
 const image = (key: string) => `/demo/generated/p001/${key === "orig" ? "safe-before" : `${key}-after`}.jpg`;
 const titles = ["先看轮廓", "再看重心", "找到配色"];
-const editorialPortraits = [
-  { person: "person-004", role: "lead", caption: "波浪发与自然体量" },
-  { person: "person-003", role: "support-short", caption: "短发与清晰轮廓" },
-  { person: "person-005", role: "support-texture", caption: "卷发与短胡须" },
-  { person: "person-006", role: "secondary", caption: "灰黑发与柔和层次" },
-] as const;
 const subscribe = (change: () => void) => {
   const mq = window.matchMedia("(prefers-reduced-motion: reduce)");
   mq.addEventListener("change", change);
@@ -30,7 +26,7 @@ const subscribe = (change: () => void) => {
 };
 
 /** Shared art direction across the continuous home, the existing R2 report and a Studio interaction study. */
-export function DesignMotion({ hero, readings, view, production = false, uploadHref = "/start", headline, subtitle }: { hero: HeroView; readings: Chapter[]; view: View; production?: boolean; uploadHref?: string; headline?: string; subtitle?: string }) {
+export function DesignMotion({ hero, readings, choices = [], view, production = false, uploadHref = "/start", headline, subtitle }: { hero: HeroView; readings: Chapter[]; choices?: HomeChoice[]; view: View; production?: boolean; uploadHref?: string; headline?: string; subtitle?: string }) {
   const pageRoute = (target: View) => production ? target === "report" ? "/report/sample" : target === "studio" ? uploadHref : "/" : route(target);
   const root = useRef<HTMLDivElement>(null);
   const reduced = useSyncExternalStore(subscribe, () => window.matchMedia("(prefers-reduced-motion: reduce)").matches, () => true);
@@ -65,46 +61,40 @@ export function DesignMotion({ hero, readings, view, production = false, uploadH
     </header>
     <div>
       {view === "home" ? <>
-        <section className={s.manifesto} data-reveal>
-          <p className={s.eyebrow}>BEAUTY, IN YOUR OWN TERMS.</p>
-          <h2>先了解自己的特点，<br /><em>再找到适合的改变。</em></h2>
-          <div><p>看颜值分与面部特点，<br />找到发型、眼镜和配色的具体建议。</p><a href="#reading" className={s.down}>看看如何分析 <ArrowDown size={18} /></a></div>
-        </section>
         <ReadingStory hero={hero} readings={readings} reportHref={pageRoute("report")} />
-        <section className={s.individuals} aria-labelledby="individuals-title">
-          <div className={s.editorialHead} data-reveal><p className={s.eyebrow}>02 / INDIVIDUALITY</p><h2 id="individuals-title">不同的脸，<br /><em>有不同的风格选择。</em></h2><p>不同的轮廓、发质和日常习惯，<br />值得各自的选择。</p></div>
-          <div className={s.portraitComposition}>{editorialPortraits.map(({ person, role, caption }, i) => {
-            const portrait = demoPortraits[person].frontal;
-            return <figure key={person} data-reveal data-portrait-role={role} style={{ "--delay": `${i * 55}ms` } as CSSProperties}>
-              <div className={s.portraitFrame}><img src={portrait.src} alt={portrait.alt} width={portrait.width} height={portrait.height} loading="lazy" decoding="async" /></div>
-              <figcaption>{caption}</figcaption>
-            </figure>;
-          })}</div>
-          <p className={s.disclosure} data-reveal>AI 合成示例</p>
-        </section>
-        <section className={s.styleSection} id="possibility">
-          <div className={s.styleIntro} data-reveal><p className={s.eyebrow}>03 / POSSIBILITIES</p><h2>想换发型？<br /><em>先看看效果。</em></h2><p>先看一个发型方向。<br />在同一张照片里比较，保留喜欢的部分。</p><Link href={pageRoute("studio")} className={s.textLink}>在 Studio 里继续探索 <ArrowUpRight size={18} /></Link></div>
-          <Comparison auto={auto} />
-          <div className={s.styleCaption} data-reveal><span>发型探索</span><h3>偏分内扣中长发</h3><p>试着改变分缝与发尾的走向，<br />看看自己是否喜欢这样的轮廓。</p><Link href="/report/sample" className={s.textLink}>查看这组造型的报告示例 <ArrowUpRight size={14} /></Link></div>
-        </section>
-        <section className={s.studioSection} id="studio-preview">
-          <div className={s.studioHead} data-reveal><p className={s.eyebrow}>04 / LOOK STUDIO</p><h2>把发型与配色，<em>试在照片上。</em></h2><p>从一个方向开始，慢慢找到自己的选择。</p></div>
-          <Studio auto={auto} compact production={production} uploadHref={uploadHref} />
-          <Link href={pageRoute("studio")} className={s.lightLink}>{production ? "上传照片，进入自己的 Studio" : "进入 Studio 交互演示"} <ArrowUpRight size={18} /></Link>
-        </section>
+        {choices.length > 0 && <section className={s.choicesSection} aria-label="个性化建议示例">
+          <div className={s.editorialHead} data-reveal><p className={s.eyebrow}>FIND WHAT WORKS FOR YOU</p><h2>不是套用流行公式，<br /><em>而是找到适合你的答案。</em></h2><p>一个发型、一副眼镜、一种颜色，都可能改变整体印象。<br />BeautyAI 从你的面部特征出发，帮你找到更适合的造型方向，让每一次改变都有理由。</p></div>
+          <p className={s.exampleLabel}>同一位面部测量示例的个性化建议 · AI 合成肖像，真实流程分析</p>
+          <div className={s.choiceCards}>{choices.map(ch => <article key={ch.id} data-reveal>
+            <p className={s.eyebrow}>{ch.categoryZh} / 推荐改变</p><h3>{ch.action}</h3>
+            <dl><div><dt>为什么适合</dt><dd>{ch.why}</dd></div><div><dt>怎么做</dt><dd>{ch.howTo[0]}</dd></div></dl>
+          </article>)}</div>
+          <p className={s.choiceFoot}>看见特点 · 理解原因 · 找到改变</p>
+        </section>}
         <section className={s.takeaway}>
-          <div data-reveal><p className={s.eyebrow}>05 / YOUR AESTHETIC PASSPORT</p><h2>你的评分、分析与建议，<br /><em>整理成一份报告。</em></h2><p>把观察、解读和选择收进一份报告。<br />今天尝试一点，下次剪发再进一步。</p><Link href={pageRoute("report")} className={s.button}>翻开完整示例报告 <ArrowUpRight size={17} /></Link></div>
-          <Link href={pageRoute("report")} className={s.reportBook} data-reveal aria-label="翻开形象护照"><div className={s.bookTop}><b>BeautyAI</b><span>AESTHETIC<br />PASSPORT</span></div><div className={s.bookPortrait}><img src={hero.plate.src} alt="形象护照封面" width={hero.plate.width} height={hero.plate.height} loading="lazy" /></div><div className={s.bookBottom}><span>属于自己的风格线索</span><b>形象护照 <ArrowUpRight size={21} /></b><span>发现 · 选择 · 行动</span></div></Link>
-          <div className={s.planLine} data-reveal>{[["01", "看见特点", "从照片到理解"], ["02", "试一个方向", "从理解到选择"], ["03", "带进日常", "从选择到行动"]].map(([n, title, detail]) => <div key={n}><span>{n}</span><h3>{title}</h3><p>{detail}</p></div>)}</div>
+          <div data-reveal><p className={s.eyebrow}>YOUR PERSONAL BEAUTY REPORT</p><h2>一份报告，<br /><em>找到属于你的变美方向。</em></h2><p>不再为「我适合什么」反复纠结。<br />从颜值评分、面部分析到发型、眉形、妆容和配色建议，把分散的想法整理成一份清晰、具体的个人形象报告。</p><Link href={pageRoute("report")} className={s.button}>查看完整示例报告 <ArrowUpRight size={17} /></Link></div>
+          <PublishedReportPreview />
+          <div className={s.planLine} data-reveal>{[["01", "了解自己的优势", "发现你的面部特征与个人辨识度。"], ["02", "找到更适合的风格", "了解哪些发型、配色和造型更能突出你的特点。"], ["03", "知道下一步怎么做", "从最值得尝试的改变开始，逐步建立自己的形象风格。"]].map(([n, title, detail]) => <div key={n}><span>{n}</span><h3>{title}</h3><p>{detail}</p></div>)}</div>
         </section>
-        <section className={s.closing} data-reveal><p className={s.eyebrow}>MAKE IT YOURS.</p><h2>开始你的形象分析。</h2><Link href={uploadHref} className={s.button}>上传照片，开始分析 <ArrowUpRight size={18} /></Link><Link href="/about" className={s.textLink}>了解分析方法与照片隐私 <ArrowUpRight size={14} /></Link></section>
+        <section className={s.closing} data-reveal><p className={s.eyebrow}>YOUR BEAUTY, YOUR WAY.</p><h2>更好的形象，<br /><em>从更了解自己开始。</em></h2><p>发现你的优势，找到适合你的改变。</p><Link href={uploadHref} className={s.button}>开始我的形象分析 <ArrowUpRight size={18} /></Link></section>
       </> : view === "report" ? <div className={s.reportPage}><div className={s.pageHeading}><p className={s.eyebrow}>YOUR AESTHETIC PASSPORT</p><p>同一套视觉语言，从发现到理解。</p></div><SampleReport variant="p002" /></div>
         : <section className={s.studioPage}><div className={s.pageHeading}><p className={s.eyebrow}>Look Studio</p><h1>试一种可能，<em>找到自己的选择。</em></h1><p>发型与配色在同一处比较；保存你想继续尝试的方向。</p></div><Studio auto={auto} /></section>}
     </div>
-    <footer className={s.footer}><Link href={pageRoute("home")} className={s.wordmark}>BeautyAI <span>形象护照</span></Link><p>看懂特点，保留自己的样子。</p><Link href="/about">分析方法与照片隐私 <ArrowUpRight size={14} /></Link></footer>
+    <footer className={s.footer}><Link href={pageRoute("home")} className={s.wordmark}>BeautyAI <span>形象护照</span></Link><p>看见自己的美，找到适合自己的风格。</p><div><Link href="/about">照片与隐私</Link><Link href="/about">关于 BeautyAI</Link></div></footer>
     <aside className={s.reviewBar} aria-label="动态播放设置"><span>{production ? "浏览节奏" : "R3.1 / 体验稿"}</span><button type="button" onClick={() => setAutoplay(v => !v)} aria-pressed={auto}>{auto ? <Pause size={13} /> : <Play size={13} />}{reduced ? "已跟随减少动态设置" : auto ? "暂停动态" : "播放动态"}</button></aside>
     </div>
   </div>;
+}
+
+function PublishedReportPreview() {
+  const sample = demoCaseByKey("p001");
+  if (!sample) return null;
+  const score = learnedScore(sample.passport);
+  return <section className={s.reportPreview} aria-label="完整报告示例" data-reveal>
+    <div className={s.previewIdentity}><img src={sample.photos.front} alt="公开完整报告的示例肖像" width={160} height={200} loading="lazy" /><div><p className={s.eyebrow}>公开报告示例</p><p>AI 合成示例 · 独立于上方测量肖像</p></div></div>
+    {score && <PredictedScoreHero view={score} />}
+    <div className={s.previewStrengths}><h3>你的优势是什么</h3><ul>{sample.passport.analysis.works.slice(0, 2).map(w => <li key={w.text}>{w.text}</li>)}</ul></div>
+  </section>;
 }
 
 function ReadingStory({ hero, readings, reportHref }: { hero: HeroView; readings: Chapter[]; reportHref: string }) {
@@ -130,14 +120,15 @@ function ReadingStory({ hero, readings, reportHref }: { hero: HeroView; readings
     return () => { cancelAnimationFrame(frame); removeEventListener("scroll", queue); removeEventListener("resize", queue); };
   }, []);
   return <section className={s.readingSection} id="reading">
-    <div className={s.editorialHead} data-reveal><p className={s.eyebrow}>01 / UNDERSTANDING YOU</p><h2>一张脸，<br /><em>慢慢读懂。</em></h2><p>沿着照片里的线索，<br />从看见特点，到理解自己的选择。</p></div>
+    <div className={s.editorialHead} data-reveal><p className={s.eyebrow}>DISCOVER YOUR BEAUTY</p><h2>比一个分数更重要的，<br /><em>是了解分数背后的自己。</em></h2><p>你的五官有什么特点？面部比例是否协调？哪些特征构成了你的辨识度？<br />用更细致的分析，发现过去没有注意到的自己。</p></div>
+    <p className={s.exampleLabel}>面部测量示例 · AI 合成肖像，真实流程测量</p>
     <div className={s.readingStory} ref={story}>
-      <div className={s.pinnedPortrait}><MeasuredPortrait hero={hero} chapter={readings[active]} /><div className={s.readingProgress}><span style={{ transform: `scaleX(${(active + 1) / readings.length})` }} /></div><p className={s.photoFoot}><span>轮廓 · 重心 · 配色</span><span>{String(active + 1).padStart(2, "0")} — 03</span></p></div>
+      <div className={s.pinnedPortrait}><MeasuredPortrait hero={hero} chapter={readings[active]} /><div className={s.readingProgress}><span style={{ transform: `scaleX(${(active + 1) / readings.length})` }} /></div><p className={s.photoFoot}><span>面部轮廓 · 五官比例</span><span>{String(active + 1).padStart(2, "0")} — {String(readings.length).padStart(2, "0")}</span></p></div>
       <div className={s.readingSteps}>{readings.map((ch, i) => <article key={ch.metricId} data-reading-step data-active={active === i}>
         <p className={s.eyebrow}>{String(i + 1).padStart(2, "0")} / {titles[i]}</p><h3>{ch.title}</h3><p className={s.readingValue}><span>{ch.metricName}</span><b>{ch.value}</b></p><p>{ch.seen}</p><div className={s.interpretation}><span>对风格的启发</span><p>{ch.means}</p></div>
         {ch.swatches && <div className={s.swatches}>{ch.swatches.map(color => <span key={color.name}><i style={{ background: color.hex }} />{color.name}</span>)}</div>}
       </article>)}</div>
-    </div><Link href={reportHref} className={s.textLink}>查看完整报告示例 <ArrowUpRight size={17} /></Link>
+    </div><Link href={reportHref} className={s.textLink}>探索完整分析报告 <ArrowUpRight size={17} /></Link>
   </section>;
 }
 
@@ -167,19 +158,6 @@ function useVisible<T extends HTMLElement>() {
     return () => { observer.disconnect(); document.removeEventListener("visibilitychange", sync); };
   }, []);
   return [ref, visible] as const;
-}
-
-function Comparison({ auto }: { auto: boolean }) {
-  const [ref, visible] = useVisible<HTMLDivElement>();
-  const [cut, setCut] = useState(50);
-  const [touched, setTouched] = useState(false);
-  return <div className={s.comparison} ref={ref} data-play={auto && visible && !touched} style={{ "--cut": `${cut}%` } as CSSProperties}>
-    <img src={image("orig")} alt="发型对比原图" width={1088} height={1456} loading="lazy" />
-    <img className={s.after} src={image("safe")} alt="偏分内扣中长发效果" width={1088} height={1456} loading="lazy" />
-    <span className={s.beforeLabel}>原有发型</span><span className={s.afterLabel}>发型探索 / AI 模拟</span><div className={s.divider} aria-hidden><span>‹ ›</span></div>
-    <input type="range" min={0} max={100} value={cut} onPointerDown={() => setTouched(true)} onFocus={() => setTouched(true)} onChange={e => { setTouched(true); setCut(Number(e.target.value)); }} aria-label="拖动比较原图与发型模拟" />
-    <span className={s.compareHint}>拖动，看看变化 <ArrowRight size={15} /></span>
-  </div>;
 }
 
 /** A short visible-only sequence introduces the working controls, then leaves the choice to the visitor. */

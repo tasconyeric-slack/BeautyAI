@@ -42,29 +42,30 @@ export function Hero({ v, uploadHref = "/start", headline, subtitle }: { v: Hero
       </nav>
 
       <div className={s.heroAbove}>
-        <p className={s.eyebrow}>颜值评分 <span aria-hidden>／</span> 面部分析 <span aria-hidden>／</span> 造型建议</p>
+        <p className={s.eyebrow}>BEAUTYAI · PERSONAL BEAUTY ANALYSIS</p>
         <h1 id="home-title" className={s.h1} style={headline ? { maxWidth: "8em" } : undefined}>
-          {headline ?? <><span>测测你的颜值，</span><span>找到更适合的造型。</span></>}
+          {headline ?? <><span>知道自己哪里好看，</span><span>也知道怎样更好看。</span></>}
         </h1>
       </div>
       <div className={s.eyeRule} aria-hidden><span className={s.eyeRuleLabel}>眼位线</span></div>
       <div className={s.heroBelow}>
         <p className={s.lead}>
-          {subtitle ?? "上传一张正脸，查看颜值评分与参考排名，了解五官和脸型，获得发型、眼镜、妆容与穿搭建议。"}
+          {subtitle ?? <>每个人都有独特的美，也有更适合自己的风格。<span className={s.leadDetail}>从面部比例、五官特征到整体协调度，发现你的形象优势，找到值得改善的细节，让变美不再只是凭感觉。</span></>}
         </p>
+        <p className={s.valueLine}>颜值评分 · 五官解析 · 个性化形象建议</p>
         <div className={s.ctaRow}>
           <Link prefetch={false} href={uploadHref} className={s.cta}>
             上传照片，免费测评
             <svg viewBox="0 0 16 16" aria-hidden className={s.ctaArrow}><path d="M3 8h10M9 4l4 4-4 4" /></svg>
           </Link>
-          <Link prefetch={false} href={v.reportHref} className={s.ctaGhost}>先看报告示例</Link>
+          <Link prefetch={false} href={v.reportHref} className={s.ctaGhost}>查看示例报告</Link>
         </div>
       </div>
 
       <div className={s.heroFoot}>
         <a href="#reading" className={s.scrollCue}>
           <span className={s.scrollLine} aria-hidden />
-          观察 → 解读 → 建议
+          发现你的面部特点
         </a>
 
       </div>

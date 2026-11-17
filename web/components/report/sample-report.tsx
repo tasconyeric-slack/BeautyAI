@@ -18,10 +18,10 @@ export function SampleReport({ variant }: { variant: SampleVariant }) {
   return <StaticPassportProvider value={{ data }}>
     <div className={s.sampleSurface}>
       <nav aria-label="示例报告" className={s.sampleNav}>
-        <Link href="/">发现你的风格</Link><span className={s.sampleNavTitle}>一份报告，新的视角。</span>
+        <Link href="/">返回首页</Link><span className={s.sampleNavTitle}>完整报告 · AI 合成示例</span>
       </nav>
       <FullReport sample />
-      <section className={s.sampleClosing}><p>看懂特点，找到自己的表达。</p><h2>下一份，属于你。</h2><Link href="/start" data-cta="primary">建立我的形象护照 <ArrowUpRight size={18} /></Link><span>一张正脸，就可以开始。</span></section>
+      <section className={s.sampleClosing}><p>发现你的优势，找到适合你的改变。</p><h2>下一份，属于你。</h2><Link href="/start" data-cta="primary">上传照片，免费测评 <ArrowUpRight size={18} /></Link><span>一张正脸，就可以开始。</span></section>
     </div>
   </StaticPassportProvider>;
 }
