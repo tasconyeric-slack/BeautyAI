@@ -112,14 +112,14 @@
 }
 @media(max-width:767px) {
  .sampleNav { padding:12px 20px; }
- .sampleNavTitle { display:none; }
+ .sampleNavTitle { display:inline; font-size:10px; }
  .summary { display:flex; flex-direction:column; }
  .summaryPortrait { width:100%; height:340px; }
  .portraitFrame { min-height:0; height:100%; }
  .portrait { object-position:center 32%; }
  .portraitMark { left:20px; bottom:16px; font-size:16px; }
  .summaryContent { padding:28px 24px 20px; width:100%; }
- .direction { font-size:40px; line-height:1.35; margin:16px 0 20px; }
+ .direction { font-size:clamp(27px,8.2vw,34px); line-height:1.35; margin:16px 0 20px; }
  .direction br { display:initial; }
  .lead { font-size:14px; }
  .coverActions { margin:24px 0; gap:20px; }
@@ -175,3 +175,7 @@
 .root :global([data-chapter="methods"] > h2) { font:400 15px var(--ap-font-body); }
 .root :global([data-chapter="methods"] > p:first-child) { display:none; }
 @media(max-width:767px) { .harmonyChart { gap:6px 12px; } .harmonyChart > div { grid-template-columns:48px minmax(0,1fr) 28px; gap:4px; } .insightTable tbody th,.insightTable td { padding:12px 10px; } }
+
+.measurementDetails { margin-top:20px; }
+.measurementDetails>summary { color:var(--ba-moss); font-size:13px; border-top:1px solid var(--ba-rule); }
+.measurementDetails[open]>summary { margin-bottom:20px; }

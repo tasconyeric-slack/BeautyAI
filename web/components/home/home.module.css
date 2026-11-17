@@ -490,3 +490,18 @@
   .privacy { padding-top: 32px; padding-bottom: 40px; }
   .privacy ul { display: grid; }
 }
+
+/* Approved copy keeps the portrait composition; supporting value stays readable above the CTA. */
+.heroAbove .eyebrow { font-size:11px; letter-spacing:.18em; }
+.h1 { font-size:clamp(42px,3.9vw,60px); line-height:1.24; }
+.leadDetail { display:block; margin-top:12px; font-size:14px; }
+.valueLine { margin:20px 0 0; font-size:12px; color:var(--field-ink-3); }
+.ctaRow { margin-top:24px; gap:8px 24px; }
+@media (max-width:760px) {
+  .h1 { font-size:clamp(28px,7.7vw,34px); }
+  .hero { height:max(100svh,740px); --pw:108vw; --pt:calc(100% - var(--ph) + 4px); }
+  .lead { top:204px; font-size:13px; line-height:1.7; }
+  .leadDetail { margin-top:8px; font-size:12px; max-width:29em; }
+  .valueLine { position:absolute; bottom:138px; left:var(--gutter); margin:0; color:#f3f1ec; font-size:11px; z-index:1; }
+  .ctaRow { margin:0; }
+}

@@ -103,13 +103,14 @@ describe("the full report as a document", () => {
     for (const c of chips) expect(container.querySelector(c.getAttribute("href")!)).not.toBeNull();
   });
 
-  it("keeps the how-to, caveats and quoted evidence one click away rather than in the way", () => {
+  it("shows practical steps first and keeps caveats and quoted evidence one click away", () => {
     const { container } = renderReport(true);
     const first = container.querySelector("#rec-" + passport.derived.ranked_recommendations[0].rec_id)!;
     const details = first.querySelector<HTMLDetailsElement>("details[data-rec-howto]")!;
     expect(details.open).toBe(false);
     expect(within(first as HTMLElement).getByText(/为什么/)).toBeTruthy(); // the reason stays visible
-    expect(details.textContent).toContain("怎么做");
+    expect(within(first as HTMLElement).getByText("怎么做")).toBeTruthy();
+    expect(details.textContent).toContain("照片依据");
   });
 
   it("the contents list marks the chapter being read, and a click moves focus to its heading", async () => {
@@ -126,7 +127,7 @@ describe("the full report as a document", () => {
     await waitFor(() => expect(within(nav).getByRole("link", { current: "location" }).getAttribute("data-toc")).toBe("improvements"));
     expect(within(nav).getAllByRole("link", { current: "location" })).toHaveLength(1);
 
-    fireEvent.click(within(nav).getByRole("link", { name: /这次分析的局限/ }));
+    fireEvent.click(within(nav).getByRole("link", { name: /结果说明/ }));
     expect(scrollIntoView).toHaveBeenCalledTimes(1);
     expect(document.activeElement?.id).toBe("methods-title");
   });

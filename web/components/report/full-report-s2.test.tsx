@@ -22,6 +22,43 @@ describe("ENG-02 full report critical path", () => {
     expect(screen.getByTestId("preview-state").textContent).not.toContain("正在生成");
   });
 
+  it("leads with strengths, suitable choices and next actions before expandable measurements", () => {
+    const data = response();
+    const { container } = render(<FullReportContent data={data} geometry={DEMO_CASES[0].geometry} sample />);
+    const glance = screen.getByTestId("report-glance");
+    expect(glance.textContent).toContain("你的优势是什么");
+    expect(glance.textContent).toContain(data.passport!.analysis.works[0].text);
+    expect(glance.textContent).toContain("什么更适合你");
+    expect(glance.textContent).toContain("下一步怎么做");
+    const measurements = container.querySelector('[data-testid="region-rows-proportions"]')!.closest("details")!;
+    expect(measurements).toBeTruthy();
+    expect(measurements.open).toBe(false);
+    const rec = screen.getByTestId("report-improvements").querySelector("li")!;
+    expect(rec.textContent).toContain("推荐改变");
+    expect(rec.textContent).toContain("为什么适合你");
+    expect(rec.textContent).toContain("怎么做");
+  });
+  it("uses the selected structured haircut in the overview and plan without rewriting source analysis", async () => {
+    const writeText = vi.fn().mockResolvedValue(undefined);
+    Object.defineProperty(navigator, "clipboard", { configurable: true, value: { writeText } });
+    const data = response(), before = JSON.stringify(data.passport!.analysis);
+    render(<FullReportContent data={data} geometry={DEMO_CASES[0].geometry} sample />);
+    const safe = data.passport!.analysis.hair_options.find(o => o.tier === "safe")!;
+    expect(screen.getByTestId("report-glance").textContent).toContain(safe.name_zh);
+    expect(screen.getByTestId("report-plan-top").textContent).toContain(safe.barber_script[0]);
+    fireEvent.click(screen.getByRole("radio", { name: /省心/ }));
+    expect(screen.getByTestId("report-glance").textContent).toContain("齐颌直发低维护");
+    expect(screen.getByTestId("report-plan-top").textContent).not.toMatch(/C卷|锁骨/);
+    const hairChips = document.querySelectorAll('[data-testid^="region-recs-"] a[href="#rec-r1"]');
+    expect(hairChips.length).toBeGreaterThan(0);
+    for (const chip of hairChips) expect(chip.textContent).toContain("齐颌直发低维护");
+    fireEvent.click(screen.getByRole("button", { name: "复制行动清单" }));
+    await act(async () => {});
+    expect(writeText.mock.calls[0][0]).toContain("齐颌直发低维护");
+    expect(writeText.mock.calls[0][0]).not.toMatch(/C卷|锁骨/);
+    expect(JSON.stringify(data.passport!.analysis)).toBe(before);
+  });
+
   it("places the compact export after score/rank, keeps private photos opt-in and disables expired images", () => {
     const data = response();
     const view = render(<FullReportContent data={data} geometry={DEMO_CASES[0].geometry} />);
